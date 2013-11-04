@@ -7,36 +7,12 @@
 console.log("============================================================");
 console.log(new Date().toISOString() + " - Starting");
 
-var port = process.argv[2];
-var express = require("express");
-
-var app = express();
-app.use(cacheControl());
-app.use(express.compress({filter: compressionFilter}));
-
-express.logger.token("date", function() {
-    return new Date().toISOString();
-});
-express.logger.token("response-all", function(req, res) {
-    return (res._header ? res._header : "").trim();
-});
-app.use(express.logger(
-    ':date - info: :remote-addr :req[cf-connecting-ip] :req[cf-ipcountry] :method :url HTTP/:http-version ' +
-    '":user-agent" :referrer :req[cf-ray]'));
-//  '":user-agent" :referrer :req[cf-ray]\\n:response-all\\n'));
-
 /**
  * Returns true if the response should be compressed.
  */
 function compressionFilter(req, res) {
     return /json|text|javascript|font/.test(res.getHeader('Content-Type'));
 }
-
-// CF won't compress MIME type "application/x-font-ttf" (the express.js default) but will compress "font/ttf".
-// https://support.cloudflare.com/hc/en-us/articles/200168396-What-will-CloudFlare-gzip-
-express.static.mime.define({"font/ttf": ["ttf"]});
-
-app.use(express.static(__dirname + "/public"));
 
 /**
  * Adds headers to a response to enable caching. maxAge is number of seconds to cache the response.
@@ -86,6 +62,35 @@ function cacheControl() {
         return next();
     };
 }
+
+function logger() {
+    express.logger.token("date", function() {
+        return new Date().toISOString();
+    });
+    express.logger.token("response-all", function(req, res) {
+        return (res._header ? res._header : "").trim();
+    });
+    return express.logger(
+        ':date - info: :remote-addr :req[cf-connecting-ip] :req[cf-ipcountry] :method :url HTTP/:http-version ' +
+        '":user-agent" :referrer :req[cf-ray]');
+        // '":user-agent" :referrer :req[cf-ray]\\n:response-all\\n');
+}
+
+function staticResources() {
+    // CF won't compress MIME type "application/x-font-ttf" (the express.js default) but will compress "font/ttf".
+    // https://support.cloudflare.com/hc/en-us/articles/200168396-What-will-CloudFlare-gzip-
+    express.static.mime.define({"font/ttf": ["ttf"]});
+    return express.static(__dirname + "/public");
+}
+
+var port = process.argv[2];
+var express = require("express");
+var app = express();
+
+app.use(cacheControl());
+app.use(express.compress({filter: compressionFilter}));
+app.use(logger());
+app.use(staticResources());
 
 app.listen(port);
 console.log("Listening on port " + port + "...");
