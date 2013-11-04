@@ -1,0 +1,11 @@
+# Auto-detect all text files and force them to LF line endings.
+*       text=auto eol=lf
+
+# Well known binary files.
+*.dll   binary
+*.dylib binary
+*.o     binary
+*.so    binary
+*.ttf   binary
+*.ico   binary
+*.png   binary
