@@ -1,0 +1,179 @@
+@font-face {
+    font-family: mplus-2p-thin;
+    src: url("/css/mplus-2p-thin-056.ttf");
+}
+
+html, body, div, span, h1, h2, h3, h4, h5, h6, p, a {
+    margin: 0;
+    padding: 0;
+    border: 0;
+    vertical-align: baseline;
+    font: 1em mplus-2p-thin,Helvetica,arial,freesans,clean,sans-serif;
+}
+
+body {
+    background: #000004;
+    overflow-x: hidden;
+    line-height: 0;
+    color: #eee;
+}
+
+/*
+.out-boundary {
+    fill: #303030;
+    stroke: #c0c0c0;
+    stroke-width: 1;
+    stroke-linejoin: round;
+}
+
+.in-boundary {
+    fill: none;
+    stroke: #585858;
+    stroke-width: 1.5;
+    stroke-dasharray: 2, 2;
+    stroke-linejoin: round;
+}
+
+.station {
+    fill: #4986bc;
+}
+*/
+
+#warn {
+    margin-top: 25%;
+    margin-left: 2%;
+}
+
+#position {
+    fill: none;
+    stroke: #3aff3a;
+    stroke-width: 1.5;
+}
+
+#display {
+    position: relative;
+}
+
+#field, #overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+}
+
+#details {
+    position: absolute;
+    bottom: 3%;
+    left: 2%;
+}
+
+/*
+#arrow {
+    position: absolute;
+    bottom: 1%;
+    left: 2%;
+    color: #888;
+    font-size: 1.0em;
+}
+*/
+
+#notice {
+    position: absolute;
+    top: 5%;
+    right: 2%;
+    font-size: 1.0em;
+}
+
+/*
+#about {
+    margin-top: 1.25em;
+    padding-bottom: 1em;
+    position: absolute;
+    left: 2%;
+}
+*/
+
+h1, h2 {
+    font-size: 2.4em;
+}
+
+h3 {
+    font-size: 1.5em;
+    line-height: 2.4em;
+}
+
+p, span {
+    font-size: 1.75em;
+}
+
+.sup {
+    position: relative;
+   	bottom: 0.3em;
+   	font-size: 0.6em;
+}
+
+.sub {
+    position: relative;
+   	top: 0.3em;
+   	font-size: 0.6em;
+}
+
+a, .text-button {
+    color: #888;
+}
+
+a:hover, a:focus {
+    color: #fff;
+    transition: color 125ms ease-in;
+    -webkit-transition: color 125ms ease-in;
+}
+
+.no-touch .text-button:hover, .no-touch .text-button:focus {
+    color: #fff;
+    transition: color 125ms ease-in;
+    -webkit-transition: color 125ms ease-in;
+    cursor: default;
+}
+
+.text-button:active {
+    color: #fff;
+    transition: color 25ms ease-in;
+    -webkit-transition: color 25ms ease-in;
+}
+
+
+/*
+================================================================
+Experimental
+*/
+
+.coastline {
+    fill: none;
+    stroke: #fff;
+    stroke-width: 0.8;
+}
+
+.lakes, .rivers {
+    fill: none;
+    stroke: #a0caff;
+    stroke-width: 0.8;
+}
+
+.graticule {
+    fill: none;
+    stroke: #505050;
+    stroke-opacity: 0.7;
+    stroke-width: 1;
+}
+
+.sphere-stroke {
+    fill: none;
+    stroke: #333;
+    stroke-width: 2;
+}
+
+.sphere-fill {
+/*
+    fill: url(#g741);
+*/
+    fill: #303030;
+}

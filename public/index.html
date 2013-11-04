@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8"/>
+    <title>Earth</title>
+    <link rel="shortcut icon" href="/favicon.ico"/>
+    <link rel="stylesheet" type="text/css" href="/css/styles.css"/>
+</head>
+<body>
+
+    <div id="display" data-topography-lo="/data/110m-topo.json"
+                      data-topography-hi="/data/50m-topo.json"
+                      data-samples="/data/gfs.t18z.pgrb2f00.json">
+        <div id="map">
+            <svg id="map-svg" xmlns="http://www.w3.org/2000/svg" version="1.1">
+                <defs>
+                    <radialGradient id="g741" gradientUnits="objectBoundingBox" cx="50%" cy="49%" r="50%">
+                        <stop stop-color="#303030" offset="69%"></stop>
+                        <stop stop-color="#202020" offset="91%"></stop>
+                        <stop stop-color="#000" offset="96%"></stop>
+                    </radialGradient>
+                </defs>
+
+            </svg>
+        </div>
+        <div id="field">
+            <canvas id="field-canvas"></canvas>
+        </div>
+        <div id="overlay">
+            <canvas id="overlay-canvas"></canvas>
+        </div>
+        <div id="details">
+            <h2 id="status">&nbsp;</h2>
+            <h1 id="type">earth</h1>
+<!--
+            <h1 id="type2">地球</h1>
+-->
+        </div>
+    </div>
+
+    <script src="/js/when.js" charset="utf-8"></script>
+    <script src="/js/d3.v3.js" charset="utf-8"></script>
+<!--
+    <script src="/js/d3.geo.polyhedron.v0.js"></script>
+    <script src="http://d3js.org/d3.geo.projection.v0.min.js" charset="utf-8"></script>
+-->
+    <script src="/js/topojson.v1.js" charset="utf-8"></script>
+    <script src="/js/util.js" charset="utf-8"></script>
+    <script src="/js/mvi.js" charset="utf-8"></script>
+    <script src="/js/earth.js" charset="utf-8"></script>
+
+</body>
+</html>
