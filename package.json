@@ -14,5 +14,8 @@
     "engine": "node >= 0.10.21",
     "dependencies": {
         "express": "3.4.4"
+    },
+    "devDependencies": {
+        "nodeunit": "0.8.2"
     }
 }

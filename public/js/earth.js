@@ -94,8 +94,7 @@
             .attr("id", "sphere")
             .attr("d", path);
         mapSvg.append("use")
-//            .attr("class", "sphere-fill")
-            .attr("fill", "url(#g741)")
+            .attr("fill", "url(#sphere-fill)")
             .attr("xlink:href", "#sphere");
 
         var graticule = d3.geo.graticule();
@@ -105,8 +104,6 @@
             .attr("d", path);
 
         var world = mapSvg.append("path").attr("class", "coastline").datum(mesh.boundaryHi).attr("d", path);
-//        var lakes = mapSvg.append("path").attr("class", "lakes").datum(mesh.lakesHi).attr("d", path);
-//        var rivers = mapSvg.append("path").attr("class", "rivers").datum(mesh.riversHi).attr("d", path);
 
         mapSvg.append("use")
             .attr("class", "sphere-stroke")

@@ -18,27 +18,6 @@ body {
     color: #eee;
 }
 
-/*
-.out-boundary {
-    fill: #303030;
-    stroke: #c0c0c0;
-    stroke-width: 1;
-    stroke-linejoin: round;
-}
-
-.in-boundary {
-    fill: none;
-    stroke: #585858;
-    stroke-width: 1.5;
-    stroke-dasharray: 2, 2;
-    stroke-linejoin: round;
-}
-
-.station {
-    fill: #4986bc;
-}
-*/
-
 #warn {
     margin-top: 25%;
     margin-left: 2%;
@@ -66,31 +45,12 @@ body {
     left: 2%;
 }
 
-/*
-#arrow {
-    position: absolute;
-    bottom: 1%;
-    left: 2%;
-    color: #888;
-    font-size: 1.0em;
-}
-*/
-
 #notice {
     position: absolute;
     top: 5%;
     right: 2%;
     font-size: 1.0em;
 }
-
-/*
-#about {
-    margin-top: 1.25em;
-    padding-bottom: 1em;
-    position: absolute;
-    left: 2%;
-}
-*/
 
 h1, h2 {
     font-size: 2.4em;
@@ -169,11 +129,4 @@ Experimental
     fill: none;
     stroke: #333;
     stroke-width: 2;
-}
-
-.sphere-fill {
-/*
-    fill: url(#g741);
-*/
-    fill: #303030;
 }
