@@ -1,7 +1,7 @@
 (function() {
     "use strict";
 
-    var NIL = -2;       // non-existent vector
+    var NIL = -2;  // non-existent vector
     var MAX_TASK_TIME = 100;  // amount of time before a task yields control (milliseconds)
     var MIN_SLEEP_TIME = 25;  // amount of time a task waits before resuming (milliseconds)
 
@@ -70,20 +70,12 @@
         log.time("building meshes");
         var path = d3.geo.path().projection(settings.projection);
         var boundaryLo = topojson.feature(topoLo, topoLo.objects.coastline);  // UNDONE: understand why mesh didn't work here
-        var lakesLo = topojson.feature(topoLo, topoLo.objects.lakes);
-        var riversLo = topojson.feature(topoLo, topoLo.objects.rivers);
         var boundaryHi = topojson.feature(topoHi, topoHi.objects.coastline);
-        var lakesHi = topojson.feature(topoHi, topoHi.objects.lakes);
-        var riversHi = topojson.feature(topoHi, topoHi.objects.rivers);
         log.timeEnd("building meshes");
         return {
             path: path,
             boundaryLo: boundaryLo,
-            boundaryHi: boundaryHi,
-            lakesLo: lakesLo,
-            lakesHi: lakesHi,
-            riversLo: riversLo,
-            riversHi: riversHi
+            boundaryHi: boundaryHi
         };
     }
 
@@ -126,8 +118,6 @@
             .on("zoomstart", function() {
                 resetDisplay(settings);
                 world.datum(mesh.boundaryLo);
-//                lakes.datum(mesh.lakesLo);
-//                rivers.datum(mesh.riversLo);
             })
             .on("zoom", function() {
                 projection.scale(d3.event.scale);
@@ -135,8 +125,6 @@
             })
             .on("zoomend", function() {
                 world.datum(mesh.boundaryHi).attr("d", path);
-//                lakes.datum(mesh.lakesHi).attr("d", path);
-//                rivers.datum(mesh.riversHi).attr("d", path);
                 prepareDisplay(settings);
             });
 
@@ -154,8 +142,6 @@
                     d3.event.sourceEvent.stopPropagation();
                     resetDisplay(settings);
                     world.datum(mesh.boundaryLo);
-//                    lakes.datum(mesh.lakesLo);
-//                    rivers.datum(mesh.riversLo);
                 })
                 .on("drag", function() {
                     var rotate = projection.rotate();
@@ -164,8 +150,6 @@
                 })
                 .on("dragend", function() {
                     world.datum(mesh.boundaryHi).attr("d", path);
-//                    lakes.datum(mesh.lakesHi).attr("d", path);
-//                    rivers.datum(mesh.riversHi).attr("d", path);
                     prepareDisplay(settings);
                 }));
 
