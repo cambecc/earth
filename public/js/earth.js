@@ -11,14 +11,98 @@
     var OVERLAY_CANVAS_ID = "#overlay-canvas";
     var STATUS_ID = "#status";
 
+    var PARAMS = ["wind"];
+    var SURFACES = ["isobaric"];
+    var LEVELS = ["10mb", "100mb", "1000mb"];
+    var MODELS = ["gfs"];
+    var RESOLUTIONS = [0.5, 1.0, 2.5];
+
+    var DEFAULT_DATA = parseData("current_wind_isobaric_1000mb_gfs_2.5");
+
     var log = util.log;
     var apply = util.apply;
     var view = util.view;
-    var parameters = {
-        topography_lo: d3.select(DISPLAY_ID).attr("data-topography-lo"),
-        topography_hi: d3.select(DISPLAY_ID).attr("data-topography-hi"),
-        samples: d3.select(DISPLAY_ID).attr("data-samples")
-    };
+    var parameters = buildHashArguments();
+
+    function isNullOrUndefined(x) {
+        return x === null || x === undefined;
+    }
+
+    function coalesce(a, b) {
+        return isNullOrUndefined(a) ? b : a;
+    }
+
+    function decode(x) {
+        return decodeURIComponent(coalesce(x, ""));
+    }
+
+    function testContains(s, allowed) {
+        for (var i = 0; i < allowed.length; i++) {
+            if (s == allowed[i]) {
+                return allowed[i];
+            }
+        }
+        throw new Error('"' + s + '" must be one of: ' + allowed);
+    }
+
+    function asBlob(data) {  // data must already be validated
+        return [
+            data.date === "current" ? data.date : data.date.toISOString().substr(0, 16) + "Z",
+            data.param,
+            data.surface,
+            data.level,
+            data.model,
+            data.resolution].join("_");
+    }
+
+    function toPath(data) {
+        return "/data/weather/" + (data.date === "current" ? data.date : data.date.toISOString().split("T")[0]) + "/" + asBlob(data) + ".json";
+    }
+
+    function parseDate(s) {
+        if (s === "current") {
+            return s;
+        }
+        var date = new Date(s);
+        if (isNaN(date.getFullYear())) {
+            throw new Error("not a valid date: " + s);
+        }
+        return date;
+    }
+
+    function parseData(ds) {
+        var parts = ds.split("_");
+        if (parts.length > 6) {
+            throw new Error("too many parts: " + parts);
+        }
+        return {
+            date: parseDate(parts[0]),
+            param: testContains(parts[1], PARAMS),
+            surface: testContains(parts[2], SURFACES),
+            level: testContains(parts[3], LEVELS),
+            model: testContains(parts[4], MODELS),
+            resolution: testContains(parts[5], RESOLUTIONS)
+        };
+    }
+
+    function buildHashArguments() {
+        var args = {};
+        var pairs = window.location.hash.substr(1).split("&").map(function(term) { return term.split("="); });
+        pairs.forEach(function(pair) { args[decode(pair[0])] = decode(pair[1]); });
+        log.debug(JSON.stringify(args));
+
+        var data = !isNullOrUndefined(args.data) ? parseData(args.data) : DEFAULT_DATA;
+
+        log.debug(data);
+        log.debug(asBlob(data));
+        log.debug(toPath(data));
+
+        return {
+            topography_lo: "/data/earth-110m-topo.json",
+            topography_hi: "/data/earth-50m-topo.json",
+            samples: toPath(data)
+        };
+    }
 
     function init() {
         // Modify the display elements to fill the screen.
