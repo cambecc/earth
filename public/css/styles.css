@@ -18,6 +18,25 @@ body {
     color: #eee;
 }
 
+.coastline {
+    fill: none;
+    stroke: #fff;
+    stroke-width: 0.8;
+}
+
+.graticule {
+    fill: none;
+    stroke: #505050;
+    stroke-opacity: 0.7;
+    stroke-width: 1;
+}
+
+.sphere-stroke {
+    fill: none;
+    stroke: #333;
+    stroke-width: 2;
+}
+
 #warn {
     margin-top: 25%;
     margin-left: 2%;
@@ -43,6 +62,23 @@ body {
     position: absolute;
     bottom: 3%;
     left: 2%;
+}
+
+#tools {
+    max-height: 0;
+    opacity: 0;
+    overflow: hidden;
+    transition: opacity 1s ease, max-height 1s ease;
+    -webkit-transition: opacity 1s ease, max-height 1s ease;
+}
+
+#tools.visible {
+    max-height: 20em;
+    overflow: hidden;
+    opacity: 1;
+    background-color: rgba(30, 30, 30, 0.8);
+    transition: opacity 1s ease, max-height 1s ease;
+    -webkit-transition: opacity 1s ease, max-height 1s ease;
 }
 
 #notice {
@@ -98,35 +134,4 @@ a:hover, a:focus {
     color: #fff;
     transition: color 25ms ease-in;
     -webkit-transition: color 25ms ease-in;
-}
-
-
-/*
-================================================================
-Experimental
-*/
-
-.coastline {
-    fill: none;
-    stroke: #fff;
-    stroke-width: 0.8;
-}
-
-.lakes, .rivers {
-    fill: none;
-    stroke: #a0caff;
-    stroke-width: 0.8;
-}
-
-.graticule {
-    fill: none;
-    stroke: #505050;
-    stroke-opacity: 0.7;
-    stroke-width: 1;
-}
-
-.sphere-stroke {
-    fill: none;
-    stroke: #333;
-    stroke-width: 2;
 }

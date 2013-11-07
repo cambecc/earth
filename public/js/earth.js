@@ -6,14 +6,15 @@
     var MIN_SLEEP_TIME = 25;  // amount of time a task waits before resuming (milliseconds)
 
     var DISPLAY_ID = "#display";
+    var CONTAINER_ID = "#container";
     var MAP_SVG_ID = "#map-svg";
     var FIELD_CANVAS_ID = "#field-canvas";
     var OVERLAY_CANVAS_ID = "#overlay-canvas";
     var STATUS_ID = "#status";
 
     var PARAMS = ["wind"];
-    var SURFACES = ["isobaric"];
-    var LEVELS = ["10mb", "100mb", "1000mb"];
+    var SURFACES = ["isobaric", "ground"];
+    var LEVELS = ["1mb", "10mb", "100mb", "1000mb", "10m"];
     var MODELS = ["gfs"];
     var RESOLUTIONS = [0.5, 1.0, 2.5];
 
@@ -56,7 +57,8 @@
     }
 
     function toPath(data) {
-        return "/data/weather/" + (data.date === "current" ? data.date : data.date.toISOString().split("T")[0]) + "/" + asBlob(data) + ".json";
+        return "/data/weather/" +
+            (data.date === "current" ? data.date : data.date.toISOString().split("T")[0]) + "/" + asBlob(data) + ".json";
     }
 
     function parseDate(s) {
@@ -98,13 +100,19 @@
         log.debug(toPath(data));
 
         return {
-            topography_lo: "/data/earth-110m-topo.json",
-            topography_hi: "/data/earth-50m-topo.json",
+            topography: "/data/earth-topo.json",
             samples: toPath(data)
         };
     }
 
     function init() {
+        // Tweak document to distinguish CSS styling between touch and non-touch environments. Hacky hack.
+        if ("ontouchstart" in document.documentElement) {
+            document.addEventListener("touchstart", function() {}, false);  // this hack enables :active pseudoclass
+        }
+        else {
+            document.documentElement.className += " no-touch";  // to filter styles problematic for touch
+        }
         // Modify the display elements to fill the screen.
         d3.select(MAP_SVG_ID).attr("width", view.width).attr("height", view.height);
         d3.select(FIELD_CANVAS_ID).attr("width", view.width).attr("height", view.height);
@@ -148,13 +156,13 @@
         }
     }
 
-    function buildMeshes(topoLo, topoHi, settings) {
+    function buildMeshes(topo, settings) {
         // UNDONE: Probably don't need this function anymore. Just need settings that will initialize the features...
         displayStatus("building meshes...");
         log.time("building meshes");
         var path = d3.geo.path().projection(settings.projection);
-        var boundaryLo = topojson.feature(topoLo, topoLo.objects.coastline);  // UNDONE: understand why mesh didn't work here
-        var boundaryHi = topojson.feature(topoHi, topoHi.objects.coastline);
+        var boundaryLo = topojson.feature(topo, topo.objects.coastline_110m);  // UNDONE: mesh vs. feature?
+        var boundaryHi = topojson.feature(topo, topo.objects.coastline_50m);
         log.timeEnd("building meshes");
         return {
             path: path,
@@ -168,75 +176,145 @@
         log.time("rendering map");
 
         var projection = settings.projection;
-
         var path = d3.geo.path().projection(projection);
-
         var mapSvg = d3.select(MAP_SVG_ID);
+        var defs = mapSvg.append("defs");
 
-        mapSvg.append("defs").append("path")
+        defs.append("path")
             .datum({type: "Sphere"})
             .attr("id", "sphere")
             .attr("d", path);
+        defs.append("clipPath")
+            .attr("id", "clip")
+            .append("use")
+            .attr("xlink:href", "#sphere");
+
         mapSvg.append("use")
             .attr("fill", "url(#sphere-fill)")
             .attr("xlink:href", "#sphere");
-
-        var graticule = d3.geo.graticule();
         mapSvg.append("path")
-            .datum(graticule)
+            .datum(d3.geo.graticule())
             .attr("class", "graticule")
+            .attr("clip-path", "url(#clip)")
             .attr("d", path);
 
-        var world = mapSvg.append("path").attr("class", "coastline").datum(mesh.boundaryHi).attr("d", path);
+        var world = mapSvg.append("path")
+            .datum(mesh.boundaryHi)
+            .attr("class", "coastline")
+            .attr("clip-path", "url(#clip)")
+            .attr("d", path);
 
         mapSvg.append("use")
             .attr("class", "sphere-stroke")
             .attr("xlink:href", "#sphere");
 
-        var zoom = d3.behavior.zoom()
-            .scale(projection.scale())
-            .scaleExtent([0, view.width * 2])
-            .on("zoomstart", function() {
-                resetDisplay(settings);
-                world.datum(mesh.boundaryLo);
-            })
-            .on("zoom", function() {
-                projection.scale(d3.event.scale);
-                mapSvg.selectAll("path").attr("d", path);
-            })
-            .on("zoomend", function() {
-                world.datum(mesh.boundaryHi).attr("d", path);
-                prepareDisplay(settings);
-            });
+        // UNDONE: wrap this state into a drag/zoom controller object
+        var isDragging = false;
+        var startCount = 0;
+        var DELAY = 1000;
+        var dragSensitivity = 0.25;
 
-        var m = .25; // drag sensitivity
+        function doPrepare(expectedStartCount) {
+            setTimeout(function() {
+                if (startCount == expectedStartCount) {
+                    world.datum(mesh.boundaryHi).attr("d", path);  // Some projections benefit from delayed hi-res.
+                    prepareDisplay(settings);
+                }
+                else {
+                    log.debug("skip prepare");
+                }
+            }, DELAY);
+        }
+
         d3.select(OVERLAY_CANVAS_ID).call(
             d3.behavior.drag()
                 .origin(function() {
+                    log.debug("origin");
                     var r = projection.rotate();
+                    dragSensitivity = 1 / projection.scale() * 60;  // this appears to provide a good drag scaling factor
                     return {
-                        x: r[0] / m,
-                        y: -r[1] / m
+                        x: r[0] / dragSensitivity,
+                        y: -r[1] / dragSensitivity
                     };
                 })
                 .on("dragstart", function() {
+                    log.debug("dragstart");
                     d3.event.sourceEvent.stopPropagation();
-                    resetDisplay(settings);
-                    world.datum(mesh.boundaryLo);
                 })
                 .on("drag", function() {
+                    if (!isDragging) {
+                        startCount++;
+                        isDragging = true;
+                        log.debug("drag: display reset");
+                        resetDisplay(settings);  // only reset the display if the user does actual dragging...
+                        world.datum(mesh.boundaryLo);
+                    }
+                    else {
+                        log.debug("drag");
+                    }
                     var rotate = projection.rotate();
-                    projection.rotate([d3.event.x * m, -d3.event.y * m, rotate[2]]);
+                    projection.rotate([d3.event.x * dragSensitivity, -d3.event.y * dragSensitivity, rotate[2]]);
                     mapSvg.selectAll("path").attr("d", path);
                 })
                 .on("dragend", function() {
-                    world.datum(mesh.boundaryHi).attr("d", path);
-                    prepareDisplay(settings);
+                    log.debug("dragend");
+                    if (isDragging) {
+                        // only prepare the display if the user has done actual dragging...
+                        doPrepare(startCount);
+                    }
+                    isDragging = false;
                 }));
 
-        d3.select(DISPLAY_ID).call(zoom);
+        d3.select(CONTAINER_ID).call(
+            d3.behavior.zoom()
+                .scale(projection.scale())
+                .scaleExtent([25, view.width * 2])
+                .on("zoomstart", function() {
+                    log.debug("zoomstart");
+                    startCount++;
+                    resetDisplay(settings);
+                    world.datum(mesh.boundaryLo);
+                })
+                .on("zoom", function() {
+                    log.debug("zoom");
+                    projection.scale(d3.event.scale);
+                    mapSvg.selectAll("path").attr("d", path);
+                })
+                .on("zoomend", function() {
+                    log.debug("zoomend");
+                    doPrepare(startCount);
+                }));
 
         log.timeEnd("rendering map");
+    }
+
+    function createMask(model) {
+        log.time("render mask");
+
+        // Create a detached canvas, ask the model to define the mask polygon, then fill with an opaque color.
+        var width = view.width, height = view.height;
+        var canvas = d3.select(document.createElement("canvas")).attr("width", width).attr("height", height).node();
+        var context = model.defineMask(canvas.getContext("2d"));
+        context.fillStyle = util.asColorStyle(255, 0, 0, 1);
+        context.fill();
+        // d3.select(DISPLAY_ID).node().appendChild(canvas);  // make mask visible for debugging
+
+        var data = context.getImageData(0, 0, width, height).data;  // layout: [r, g, b, a, r, g, b, a, ...]
+        log.timeEnd("render mask");
+        return {
+            data: data,
+            isVisible: function(x, y) {
+                var i = (y * width + x) * 4;
+                return data[i + 3] > 0;  // non-zero alpha means pixel is visible
+            },
+            set: function(x, y, r, g, b, a) {
+                var i = (y * width + x) * 4;
+                data[i    ] = r;
+                data[i + 1] = g;
+                data[i + 2] = b;
+                data[i + 3] = a;
+            }
+        };
     }
 
     function floorDiv(a, n) {
@@ -327,7 +405,7 @@
         };
     }
 
-    function createField(columns, bounds) {
+    function createField(columns, bounds, mask) {
         var nilVector = [NaN, NaN, NIL];
         var field = function(x, y) {
             var column = columns[Math.round(x)];
@@ -352,12 +430,12 @@
             return o;
         };
 
+        field.overlay = mask.data;
+
         return field;
     }
 
-    var BLOCK = 1;  // block size of field and overlay pixels
-
-    function interpolateField(grid, settings) {
+    function interpolateField(settings, grid, mask) {
         log.time("interpolating field");
         var d = when.defer();
 
@@ -379,9 +457,9 @@
                 throw new Error("whoops");
             }
 
-            // Scale distortion vectors by u and v, then add. Reverse v component because y-axis grows down.
+            // Scale distortion vectors by u and v, then add.
             wind[0] = du[0] * us + dv[0] * vs;
-            wind[1] = -(du[1] * us + dv[1] * vs);
+            wind[1] = -(du[1] * us + dv[1] * vs);  // Reverse v component because y-axis grows down.
             wind[2] = Math.sqrt(u * u + v * v);  // calculate the original wind magnitude
 
             return wind;
@@ -393,19 +471,26 @@
         var x = bounds.x;
         function interpolateColumn(x) {
             var column = [];
-            for (var y = bounds.y; y <= bounds.yBound; y += BLOCK) {
-                point[0] = x, point[1] = y;
-                var coord = projection.invert(point);
-                var λ = coord[0], φ = coord[1];
-                if (!isNaN(λ)) {
-                    var wind = grid(λ, φ);
-                    if (!wind) {
-                        continue;
+            for (var y = bounds.y; y <= bounds.yBound; y += 1) {
+                if (mask.isVisible(x, y)) {
+                    point[0] = x, point[1] = y;
+                    var coord = projection.invert(point);
+                    if (coord) {
+                        var λ = coord[0], φ = coord[1];
+                        if (!isNaN(λ)) {
+                            var wind = grid(λ, φ);
+                            if (wind) {
+                                column[y] = distort(x, y, λ, φ, wind);
+                                var c = util.asRainbowColorStyle2(Math.min(wind[2], 25) / 25, Math.floor(255 * 0.4));
+                                mask.set(x, y, c[0], c[1], c[2], c[3]);
+                                continue;
+                            }
+                        }
                     }
-                    /*column[y + 1] =*/ column[y] = distort(x, y, λ, φ, wind);
+                    mask.set(x, y, 0, 0, 0, 0);
                 }
             }
-            /*columns[x + 1] =*/ columns[x] = column;
+            columns[x] = column;
         }
 
         (function batchInterpolate() {
@@ -414,7 +499,7 @@
                     var start = +new Date;
                     while (x < bounds.xBound) {
                         interpolateColumn(x);
-                        x += BLOCK;
+                        x += 1;
                         if ((+new Date - start) > MAX_TASK_TIME) {
                             // Interpolation is taking too long. Schedule the next batch for later and yield.
                             displayStatus("Interpolating: " + x + "/" + bounds.xBound);
@@ -426,7 +511,7 @@
                     // d3.select(DISPLAY_ID).attr("data-date", displayData.date = date);
                     // displayStatus(date + " JST");
                     displayStatus("");
-                    d.resolve(createField(columns, bounds));
+                    d.resolve(createField(columns, bounds, mask));
                     log.timeEnd("interpolating field");
                 }
             }
@@ -439,49 +524,15 @@
     }
 
     function overlay(settings, field) {
-
-        var d = when.defer();
-
-        var bounds = settings.displayBounds;
-        var g = d3.select(OVERLAY_CANVAS_ID).node().getContext("2d");
-
         log.time("overlay");
-        var x = bounds.x;
-        function drawColumn(x) {
-            for (var y = bounds.y; y <= bounds.yBound; y += BLOCK) {
-                var v = field(x, y);
-                var m = v[2];
-                if (m != NIL) {
-                    m = Math.min(m, 25);
-                    g.fillStyle = util.asRainbowColorStyle(m / 25, 0.4);
-                    g.fillRect(x, y, BLOCK, BLOCK);
-                }
-            }
+        if (settings.animate) {
+            var canvas = d3.select(OVERLAY_CANVAS_ID).node();
+            var context = canvas.getContext("2d");
+            var imageData = context.getImageData(0, 0, canvas.width, canvas.height);
+            imageData.data.set(field.overlay);
+            context.putImageData(imageData, 0, 0);
         }
-
-        (function batchDraw() {
-            try {
-                if (settings.animate) {
-                    var start = +new Date;
-                    while (x < bounds.xBound) {
-                        drawColumn(x);
-                        x += BLOCK;
-                        if ((+new Date - start) > MAX_TASK_TIME * 5) {
-                            // Drawing is taking too long. Schedule the next batch for later and yield.
-                            setTimeout(batchDraw, MIN_SLEEP_TIME);
-                            return;
-                        }
-                    }
-                    d.resolve(true);
-                    log.timeEnd("overlay");
-                }
-            }
-            catch (e) {
-                d.reject(e);
-            }
-        })();
-
-        return d.promise;
+        log.timeEnd("overlay");
     }
 
     function animate(settings, field) {
@@ -585,11 +636,20 @@
         settings.animate = true;
         settings.displayBounds = util.createDisplayBounds(settings.projection);
 
-        var fieldTask       = when.all([buildGridTask, settingsTask         ]).then(apply(interpolateField));
+        var model = {
+            defineMask: function(context) {
+                d3.geo.path().projection(settings.projection).context(context)({type: "Sphere"});
+                return context;
+            }
+        };
+
+        var maskTask        = when.all([model                                ]).then(apply(createMask));
+        var fieldTask       = when.all([settingsTask, buildGridTask, maskTask]).then(apply(interpolateField));
         var overlayTask     = when.all([settingsTask, fieldTask              ]).then(apply(overlay));
         var animateTask     = when.all([settingsTask, fieldTask, overlayTask ]).then(apply(animate));
 
         when.all([
+            maskTask,
             fieldTask,
             overlayTask,
             animateTask
@@ -601,20 +661,18 @@
         displayStatus(null, e.error ? e.error == 404 ? "No Data" : e.error + " " + e.message : e);
     }
 
-    var topoLoTask      = util.loadJson(parameters.topography_lo);
-    var topoHiTask      = util.loadJson(parameters.topography_hi);
+    var topoTask        = util.loadJson(parameters.topography);
     var dataTask        = util.loadJson(parameters.samples);
     var initTask        = when.all([true                                ]).then(apply(init));
-    var settingsTask    = when.all([topoLoTask                          ]).then(apply(createSettings));
-    var meshTask        = when.all([topoLoTask, topoHiTask, settingsTask]).then(apply(buildMeshes));
+    var settingsTask    = when.all([topoTask                            ]).then(apply(createSettings));
+    var meshTask        = when.all([topoTask, settingsTask              ]).then(apply(buildMeshes));
     var renderMapTask   = when.all([settingsTask, meshTask              ]).then(apply(renderMap));
     var buildGridTask   = when.all([dataTask                            ]).then(apply(buildGrid));
     var prepareTask     = when.all([settingsTask                        ]).then(apply(prepareDisplay));
 
     // Register a catch-all error handler to log errors rather then let them slip away into the ether.... Cleaner way?
     when.all([
-        topoLoTask,
-        topoHiTask,
+        topoTask,
         initTask,
         settingsTask,
         meshTask,

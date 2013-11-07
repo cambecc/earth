@@ -112,6 +112,20 @@ util = function() {
         return asColorStyle(r, g, b, a);
     }
 
+    function asRainbowColorStyle2(hue, a) {
+        // Map hue [0, 1] to radians [0, 5/6τ]. Don't allow a full rotation because that keeps hue == 0 and
+        // hue == 1 from mapping to the same color.
+        var rad = hue * τ * 5/6;
+        rad *= 0.75;  // increase frequency to 2/3 cycle per rad
+
+        var s = Math.sin(rad);
+        var c = Math.cos(rad);
+        var r = Math.floor(Math.max(0, -c) * 255);
+        var g = Math.floor(Math.max(s, 0) * 255);
+        var b = Math.floor(Math.max(c, 0, -s) * 255);
+        return [r, g, b, a];
+    }
+
     /**
      * Returns a promise for a JSON resource (URL) fetched via XHR. If the load fails, the promise rejects with an
      * object describing the reason: {error: http-status-code, message: http-status-text, resource:}.
@@ -179,6 +193,12 @@ util = function() {
             .precision(0.1)  // smooths the sphere
             .clipAngle(90)   // hides occluded side
             .rotate([-130, -20]);
+
+//        return d3.geo.polyhedron.waterman()
+//            .rotate([20, 0])
+//            .scale(118)
+//            .translate([view.width / 2, view.height / 2])
+//            .precision(.1);
     }
 
     /**
@@ -190,14 +210,16 @@ util = function() {
     function createDisplayBounds(projection) {
         // UNDONE: bounds are crazy for conicConformal projection: [[-95669, -7850], [97109, 139]]
         var bounds = d3.geo.path().projection(projection).bounds({type: "Sphere"});
+//        bounds = [[0, 0], [view.width - 1, view.height - 1]];  // some projections always fill the entire view
         var upperLeft = bounds[0];
         var lowerRight = bounds[1];
         var x = Math.floor(Math.max(upperLeft[0], 0)), xBound = Math.ceil(Math.min(lowerRight[0], view.width - 1));
         var y = Math.floor(Math.max(upperLeft[1], 0)), yBound = Math.ceil(Math.min(lowerRight[1], view.height - 1));
+        log.debug(JSON.stringify(bounds));
         return {
             x: x,
             y: y,
-            xBound: xBound,
+            xBound: xBound,  // UNDONE: rename to xMax, yMax
             yBound: yBound,
             width: xBound - x + 1,
             height: yBound - y + 1,
@@ -250,6 +272,7 @@ util = function() {
         view: view,
         asColorStyle: asColorStyle,
         asRainbowColorStyle: asRainbowColorStyle,
+        asRainbowColorStyle2: asRainbowColorStyle2,
         loadJson: loadJson,
         createAlbersProjection: createAlbersProjection,
         createOrthographicProjection: createOrthographicProjection,
