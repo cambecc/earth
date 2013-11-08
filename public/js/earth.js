@@ -38,6 +38,11 @@
         return isNullOrUndefined(a) ? b : a;
     }
 
+    function floorDiv(a, n) {
+        // floored division: http://en.wikipedia.org/wiki/Modulo_operation
+        return a - n * Math.floor(a / n);
+    }
+
     function decode(x) {
         return decodeURIComponent(coalesce(x, ""));
     }
@@ -49,6 +54,23 @@
             }
         }
         throw new Error('"' + s + '" must be one of: ' + allowed);
+    }
+
+    /**
+     * Returns a human readable string for the provided coordinates.
+     */
+    function formatCoordinates(lng, lat) {
+        return Math.abs(lat).toFixed(6) + "º " + (lat >= 0 ? "N" : "S") + ", " +
+            Math.abs(lng).toFixed(6) + "º " + (lng >= 0 ? "E" : "W");
+    }
+
+    /**
+     * Returns a human readable string for the provided rectangular wind vector.
+     */
+    function formatVector(u, v, m) {
+        var d = Math.atan2(-u, -v) / τ * 360;  // calculate into-the-wind cardinal degrees
+        var wd = Math.round((d + 360) % 360 / 5) * 5;  // shift [-180, 180] to [0, 360], and round to nearest 5.
+        return wd.toFixed(0) + "º @ " + m.toFixed(1) + " m/s";
     }
 
     function asBlob(data) {  // data must already be validated
@@ -242,7 +264,22 @@
                 signalIfDone(moveCount);
             });
 
-        return {drag: drag, zoom: zoom};
+        function locate() {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(
+                    function(position) {
+                        handler.locate(position.coords.longitude, position.coords.latitude);
+                    },
+                    log.error,
+                    {enableHighAccuracy: true});
+            }
+        }
+
+        return {
+            drag: drag,
+            zoom: zoom,
+            locate: locate
+        };
     }
 
     function renderMap(settings, mesh) {
@@ -286,32 +323,35 @@
         var sensitivity;
         var handler = {
             origin: function() {
-                log.debug("origin");
                 sensitivity = 60 / projection.scale();  // this appears to provide a good drag scaling factor
                 return {x: projection.rotate()[0] / sensitivity, y: -projection.rotate()[1] / sensitivity};
             },
             start: function() {
-                log.debug("start");
                 resetDisplay(settings);
                 world.datum(mesh.boundaryLo);
             },
             drag: function(x, y) {
-                log.debug("drag");
                 projection.rotate([x * sensitivity, -y * sensitivity, projection.rotate()[2]]);
                 mapSvg.selectAll("path").attr("d", path);
             },
             zoom: function(scale) {
-                log.debug("zoom");
                 projection.scale(scale);
                 mapSvg.selectAll("path").attr("d", path);
             },
             end: function() {
-                log.debug("end");
                 world.datum(mesh.boundaryHi).attr("d", path);
                 prepareDisplay(settings);
             },
             click: function(x, y) {
                 log.debug("clicked at: " + [x, y]);
+            },
+            locate: function(λ, φ) {
+                if (!d3.select(POSITION_ID).node()) {
+                    mapSvg.append("path")
+                        .datum({type: "Point", coordinates: [λ, φ]})
+                        .attr("id", POSITION_ID.substr(1))
+                        .attr("d", path.pointRadius(7));
+                }
             }
         };
 
@@ -319,6 +359,7 @@
 
         d3.select(OVERLAY_CANVAS_ID).call(controller.drag);
         d3.select(CONTAINER_ID).call(controller.zoom);
+        d3.select(SHOW_LOCATION_ID).on("click", controller.locate);
 
         log.timeEnd("rendering map");
     }
@@ -350,11 +391,6 @@
                 data[i + 3] = a;
             }
         };
-    }
-
-    function floorDiv(a, n) {
-        // floored division: http://en.wikipedia.org/wiki/Modulo_operation
-        return a - n * Math.floor(a / n);
     }
 
     function buildGrid(data) {
@@ -656,55 +692,15 @@
         })();
     }
 
-
-    function plotCurrentPosition(projection) {
-        if (navigator.geolocation && projection && !d3.select(POSITION_ID).node()) {
-            log.debug("requesting location...");
-            navigator.geolocation.getCurrentPosition(
-                function(position) {
-                    log.debug("position available");
-                    var p = projection([position.coords.longitude, position.coords.latitude]);
-                    var x = Math.round(p[0]);
-                    var y = Math.round(p[1]);
-                    if (0 <= x && x < view.width && 0 <= y && y < view.height) {
-                        var id = POSITION_ID.substr(1);
-                        d3.select(MAP_SVG_ID).append("circle").attr("id", id).attr("cx", x).attr("cy", y).attr("r", 5);
-                    }
-                },
-                log.error,
-                {enableHighAccuracy: true});
-        }
-    }
-
-    /**
-     * Returns a human readable string for the provided coordinates.
-     */
-    function formatCoordinates(lng, lat) {
-        return Math.abs(lat).toFixed(6) + "º " + (lat >= 0 ? "N" : "S") + ", " +
-            Math.abs(lng).toFixed(6) + "º " + (lng >= 0 ? "E" : "W");
-    }
-
-    /**
-     * Returns a human readable string for the provided rectangular wind vector.
-     */
-    function formatVector(x, y, m) {
-        var d = Math.atan2(-x, y) / τ * 360;  // calculate into-the-wind cardinal degrees
-        var wd = Math.round((d + 360) % 360 / 5) * 5;  // shift [-180, 180] to [0, 360], and round to nearest 5.
-        // var m = Math.sqrt(x * x + y * y);
-        return wd.toFixed(0) + "º @ " + m.toFixed(1) + " m/s";
-    }
-
-    function postInit(settings, field) {
-        d3.select(SHOW_LOCATION_ID).on("click", function() {
-            plotCurrentPosition(settings.projection);
-        });
+    function postInit(settings, grid, field) {
         d3.select(DISPLAY_ID).on("click", function() {
-            var p = d3.mouse(this);
-            var c = settings.projection.invert(p);
-            var v = field(p[0], p[1]);
+            var mouse = d3.mouse(this);
+            var v = field(mouse[0], mouse[1]);
             if (v[2] > NIL) {
-                d3.select(LOCATION_ID).node().textContent = "⁂ " + formatCoordinates(c[0], c[1]);
-                var pointDetails = "⁂ " + formatVector(v[0], v[1], v[2]);
+                var coord = settings.projection.invert(mouse);
+                var wind = grid(coord[0], coord[1]);  // get the undistorted wind vector
+                d3.select(LOCATION_ID).node().textContent = "⁂ " + formatCoordinates(coord[0], coord[1]);
+                var pointDetails = "⁂ " + formatVector(wind[0], wind[1], v[2]);
                 d3.select(POINT_DETAILS_ID).node().innerHTML = pointDetails;
             }
         });
@@ -732,11 +728,11 @@
             }
         };
 
-        var maskTask        = when.all([model                                ]).then(apply(createMask));
-        var fieldTask       = when.all([settingsTask, buildGridTask, maskTask]).then(apply(interpolateField));
-        var overlayTask     = when.all([settingsTask, fieldTask              ]).then(apply(overlay));
-        var animateTask     = when.all([settingsTask, fieldTask              ]).then(apply(animate));
-        var postInitTask    = when.all([settingsTask, fieldTask              ]).then(apply(postInit));
+        var maskTask        = when.all([model                                 ]).then(apply(createMask));
+        var fieldTask       = when.all([settingsTask, buildGridTask, maskTask ]).then(apply(interpolateField));
+        var overlayTask     = when.all([settingsTask, fieldTask               ]).then(apply(overlay));
+        var animateTask     = when.all([settingsTask, fieldTask               ]).then(apply(animate));
+        var postInitTask    = when.all([settingsTask, buildGridTask, fieldTask]).then(apply(postInit));
 
         when.all([
             maskTask,
