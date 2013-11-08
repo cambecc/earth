@@ -1,6 +1,7 @@
 (function() {
     "use strict";
 
+    var τ = 2 * Math.PI;
     var NIL = -2;  // non-existent vector
     var MAX_TASK_TIME = 100;  // amount of time before a task yields control (milliseconds)
     var MIN_SLEEP_TIME = 25;  // amount of time a task waits before resuming (milliseconds)
@@ -11,6 +12,10 @@
     var FIELD_CANVAS_ID = "#field-canvas";
     var OVERLAY_CANVAS_ID = "#overlay-canvas";
     var STATUS_ID = "#status";
+    var LOCATION_ID = "#location";
+    var POINT_DETAILS_ID = "#point-details";
+    var POSITION_ID = "#position";
+    var SHOW_LOCATION_ID = "#show-location";
 
     var PARAMS = ["wind"];
     var SURFACES = ["isobaric", "ground"];
@@ -18,7 +23,7 @@
     var MODELS = ["gfs"];
     var RESOLUTIONS = [0.5, 1.0, 2.5];
 
-    var DEFAULT_DATA = parseData("current_wind_isobaric_1000mb_gfs_2.5");
+    var DEFAULT_DATA = parseData("current_wind_isobaric_1000mb_gfs_0.5");
 
     var log = util.log;
     var apply = util.apply;
@@ -171,6 +176,75 @@
         };
     }
 
+    function distance(a, b) {
+        return mvi.dist(a[0], a[1], b[0], b[1]);
+    }
+
+    function createController(handler) {
+        var isMoving = false, isClick = false;
+        var moveCount = 0;
+        var mouse;
+
+        function signalIfDone(expected) {
+            setTimeout(function() {
+                if (moveCount === expected) {
+                    isMoving = false;
+                    handler.end();
+                }
+            }, 1000);
+        }
+
+        var drag = d3.behavior.drag()
+            .origin(function() {
+                mouse = d3.mouse(this);
+                isClick = true;
+                return handler.origin();
+            })
+            .on("dragstart", function() {
+                d3.event.sourceEvent.stopPropagation();
+            })
+            .on("drag", function() {
+                isClick = false;
+                if (!isMoving) {
+                    if (distance(mouse, d3.mouse(this)) <= 1) {  // some hysteresis to avoid spurious drags
+                        return;
+                    }
+                    handler.start();
+                    isMoving = true;
+                }
+                handler.drag(d3.event.x, d3.event.y);
+                moveCount++;
+            })
+            .on("dragend", function() {
+                if (isClick) {
+                    handler.click(mouse[0], mouse[1]);
+                    isClick = false;
+                    mouse = null;
+                }
+                else if (isMoving) {
+                    signalIfDone(moveCount);
+                }
+            });
+
+        var zoom = d3.behavior.zoom()
+            .scaleExtent([25, view.width * 2])
+            .on("zoomstart", function() {
+                if (!isMoving) {
+                    handler.start();
+                    isMoving = true;
+                }
+            })
+            .on("zoom", function() {
+                handler.zoom(d3.event.scale);
+                moveCount++;
+            })
+            .on("zoomend", function() {
+                signalIfDone(moveCount);
+            });
+
+        return {drag: drag, zoom: zoom};
+    }
+
     function renderMap(settings, mesh) {
         displayStatus("Rendering map...");
         log.time("rendering map");
@@ -208,82 +282,43 @@
             .attr("class", "sphere-stroke")
             .attr("xlink:href", "#sphere");
 
-        // UNDONE: wrap this state into a drag/zoom controller object
-        var isDragging = false;
-        var startCount = 0;
-        var DELAY = 1000;
-        var dragSensitivity = 0.25;
 
-        function doPrepare(expectedStartCount) {
-            setTimeout(function() {
-                if (startCount == expectedStartCount) {
-                    world.datum(mesh.boundaryHi).attr("d", path);  // Some projections benefit from delayed hi-res.
-                    prepareDisplay(settings);
-                }
-                else {
-                    log.debug("skip prepare");
-                }
-            }, DELAY);
-        }
+        var sensitivity;
+        var handler = {
+            origin: function() {
+                log.debug("origin");
+                sensitivity = 60 / projection.scale();  // this appears to provide a good drag scaling factor
+                return {x: projection.rotate()[0] / sensitivity, y: -projection.rotate()[1] / sensitivity};
+            },
+            start: function() {
+                log.debug("start");
+                resetDisplay(settings);
+                world.datum(mesh.boundaryLo);
+            },
+            drag: function(x, y) {
+                log.debug("drag");
+                projection.rotate([x * sensitivity, -y * sensitivity, projection.rotate()[2]]);
+                mapSvg.selectAll("path").attr("d", path);
+            },
+            zoom: function(scale) {
+                log.debug("zoom");
+                projection.scale(scale);
+                mapSvg.selectAll("path").attr("d", path);
+            },
+            end: function() {
+                log.debug("end");
+                world.datum(mesh.boundaryHi).attr("d", path);
+                prepareDisplay(settings);
+            },
+            click: function(x, y) {
+                log.debug("clicked at: " + [x, y]);
+            }
+        };
 
-        d3.select(OVERLAY_CANVAS_ID).call(
-            d3.behavior.drag()
-                .origin(function() {
-                    log.debug("origin");
-                    var r = projection.rotate();
-                    dragSensitivity = 1 / projection.scale() * 60;  // this appears to provide a good drag scaling factor
-                    return {
-                        x: r[0] / dragSensitivity,
-                        y: -r[1] / dragSensitivity
-                    };
-                })
-                .on("dragstart", function() {
-                    log.debug("dragstart");
-                    d3.event.sourceEvent.stopPropagation();
-                })
-                .on("drag", function() {
-                    if (!isDragging) {
-                        startCount++;
-                        isDragging = true;
-                        log.debug("drag: display reset");
-                        resetDisplay(settings);  // only reset the display if the user does actual dragging...
-                        world.datum(mesh.boundaryLo);
-                    }
-                    else {
-                        log.debug("drag");
-                    }
-                    var rotate = projection.rotate();
-                    projection.rotate([d3.event.x * dragSensitivity, -d3.event.y * dragSensitivity, rotate[2]]);
-                    mapSvg.selectAll("path").attr("d", path);
-                })
-                .on("dragend", function() {
-                    log.debug("dragend");
-                    if (isDragging) {
-                        // only prepare the display if the user has done actual dragging...
-                        doPrepare(startCount);
-                    }
-                    isDragging = false;
-                }));
+        var controller = createController(handler);
 
-        d3.select(CONTAINER_ID).call(
-            d3.behavior.zoom()
-                .scale(projection.scale())
-                .scaleExtent([25, view.width * 2])
-                .on("zoomstart", function() {
-                    log.debug("zoomstart");
-                    startCount++;
-                    resetDisplay(settings);
-                    world.datum(mesh.boundaryLo);
-                })
-                .on("zoom", function() {
-                    log.debug("zoom");
-                    projection.scale(d3.event.scale);
-                    mapSvg.selectAll("path").attr("d", path);
-                })
-                .on("zoomend", function() {
-                    log.debug("zoomend");
-                    doPrepare(startCount);
-                }));
+        d3.select(OVERLAY_CANVAS_ID).call(controller.drag);
+        d3.select(CONTAINER_ID).call(controller.zoom);
 
         log.timeEnd("rendering map");
     }
@@ -621,6 +656,60 @@
         })();
     }
 
+
+    function plotCurrentPosition(projection) {
+        if (navigator.geolocation && projection && !d3.select(POSITION_ID).node()) {
+            log.debug("requesting location...");
+            navigator.geolocation.getCurrentPosition(
+                function(position) {
+                    log.debug("position available");
+                    var p = projection([position.coords.longitude, position.coords.latitude]);
+                    var x = Math.round(p[0]);
+                    var y = Math.round(p[1]);
+                    if (0 <= x && x < view.width && 0 <= y && y < view.height) {
+                        var id = POSITION_ID.substr(1);
+                        d3.select(MAP_SVG_ID).append("circle").attr("id", id).attr("cx", x).attr("cy", y).attr("r", 5);
+                    }
+                },
+                log.error,
+                {enableHighAccuracy: true});
+        }
+    }
+
+    /**
+     * Returns a human readable string for the provided coordinates.
+     */
+    function formatCoordinates(lng, lat) {
+        return Math.abs(lat).toFixed(6) + "º " + (lat >= 0 ? "N" : "S") + ", " +
+            Math.abs(lng).toFixed(6) + "º " + (lng >= 0 ? "E" : "W");
+    }
+
+    /**
+     * Returns a human readable string for the provided rectangular wind vector.
+     */
+    function formatVector(x, y, m) {
+        var d = Math.atan2(-x, y) / τ * 360;  // calculate into-the-wind cardinal degrees
+        var wd = Math.round((d + 360) % 360 / 5) * 5;  // shift [-180, 180] to [0, 360], and round to nearest 5.
+        // var m = Math.sqrt(x * x + y * y);
+        return wd.toFixed(0) + "º @ " + m.toFixed(1) + " m/s";
+    }
+
+    function postInit(settings, field) {
+        d3.select(SHOW_LOCATION_ID).on("click", function() {
+            plotCurrentPosition(settings.projection);
+        });
+        d3.select(DISPLAY_ID).on("click", function() {
+            var p = d3.mouse(this);
+            var c = settings.projection.invert(p);
+            var v = field(p[0], p[1]);
+            if (v[2] > NIL) {
+                d3.select(LOCATION_ID).node().textContent = "⁂ " + formatCoordinates(c[0], c[1]);
+                var pointDetails = "⁂ " + formatVector(v[0], v[1], v[2]);
+                d3.select(POINT_DETAILS_ID).node().innerHTML = pointDetails;
+            }
+        });
+    }
+
     function clearCanvas(canvas) {
         canvas.getContext("2d").clearRect(0, 0, canvas.width, canvas.height);
     }
@@ -646,13 +735,15 @@
         var maskTask        = when.all([model                                ]).then(apply(createMask));
         var fieldTask       = when.all([settingsTask, buildGridTask, maskTask]).then(apply(interpolateField));
         var overlayTask     = when.all([settingsTask, fieldTask              ]).then(apply(overlay));
-        var animateTask     = when.all([settingsTask, fieldTask, overlayTask ]).then(apply(animate));
+        var animateTask     = when.all([settingsTask, fieldTask              ]).then(apply(animate));
+        var postInitTask    = when.all([settingsTask, fieldTask              ]).then(apply(postInit));
 
         when.all([
             maskTask,
             fieldTask,
             overlayTask,
-            animateTask
+            animateTask,
+            postInitTask
         ]).then(null, report);
     }
 

@@ -17,6 +17,7 @@ mvi = function() {
     var mvi = {
         scaleVector: scaleVector,
         addVectors: addVectors,
+        dist: dist,
         inverseDistanceWeighting: inverseDistanceWeighting,
         thinPlateSpline: thinPlateSpline,
         bilinear: bilinear
