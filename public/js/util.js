@@ -27,7 +27,7 @@ util = function() {
         var high = a.length - 1;
 
         while (low <= high) {
-            var mid = low + ((high - low) >> 1)
+            var mid = low + ((high - low) >> 1);
             var p = a[mid];
 
             if (p < v) {
@@ -50,7 +50,7 @@ util = function() {
     function apply(f) {
         return function(args) {
             return f.apply(null, args);
-        }
+        };
     }
 
     /**
@@ -226,7 +226,7 @@ util = function() {
             contains: function(px, py) {
                 return x <= px && px <= xBound && y <= py && py <= yBound;
             }
-        }
+        };
     }
 
     // UNDONE
@@ -257,7 +257,7 @@ util = function() {
             dv[0] = (x - pφ[0]) / Δφ;
             dv[1] = (pφ[1] - y) / Δφ;  // lat increases downward in pixel space
             return true;
-        }
+        };
     }
 
     /**

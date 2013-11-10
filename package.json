@@ -13,9 +13,12 @@
     },
     "engine": "node >= 0.10.21",
     "dependencies": {
-        "express": "3.4.4"
+        "express": "3.4.4",
+        "aws-sdk": "1.12.0"
     },
     "devDependencies": {
-        "nodeunit": "0.8.2"
+        "nodeunit": "0.8.2",
+        "grunt": "~0.4.1",
+        "grunt-contrib-jshint": "~0.7.1"
     }
 }

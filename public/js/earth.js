@@ -9,6 +9,7 @@
     var DISPLAY_ID = "#display";
     var CONTAINER_ID = "#container";
     var MAP_SVG_ID = "#map-svg";
+    var TOP_SVG_ID = "#top-svg";
     var FIELD_CANVAS_ID = "#field-canvas";
     var OVERLAY_CANVAS_ID = "#overlay-canvas";
     var STATUS_ID = "#status";
@@ -144,6 +145,7 @@
         d3.select(MAP_SVG_ID).attr("width", view.width).attr("height", view.height);
         d3.select(FIELD_CANVAS_ID).attr("width", view.width).attr("height", view.height);
         d3.select(OVERLAY_CANVAS_ID).attr("width", view.width).attr("height", view.height);
+        d3.select(TOP_SVG_ID).attr("width", view.width).attr("height", view.height);
     }
 
     function createSettings(topo) {
@@ -289,6 +291,7 @@
         var projection = settings.projection;
         var path = d3.geo.path().projection(projection);
         var mapSvg = d3.select(MAP_SVG_ID);
+        var topSvg = d3.select(TOP_SVG_ID);
         var defs = mapSvg.append("defs");
 
         defs.append("path")
@@ -315,7 +318,7 @@
             .attr("clip-path", "url(#clip)")
             .attr("d", path);
 
-        mapSvg.append("use")
+        topSvg.append("use")
             .attr("class", "sphere-stroke")
             .attr("xlink:href", "#sphere");
 
@@ -333,10 +336,12 @@
             drag: function(x, y) {
                 projection.rotate([x * sensitivity, -y * sensitivity, projection.rotate()[2]]);
                 mapSvg.selectAll("path").attr("d", path);
+                topSvg.selectAll("path").attr("d", path);
             },
             zoom: function(scale) {
                 projection.scale(scale);
                 mapSvg.selectAll("path").attr("d", path);
+                topSvg.selectAll("path").attr("d", path);
             },
             end: function() {
                 world.datum(mesh.boundaryHi).attr("d", path);
@@ -347,7 +352,7 @@
             },
             locate: function(λ, φ) {
                 if (!d3.select(POSITION_ID).node()) {
-                    mapSvg.append("path")
+                    topSvg.append("path")
                         .datum({type: "Point", coordinates: [λ, φ]})
                         .attr("id", POSITION_ID.substr(1))
                         .attr("d", path.pointRadius(7));
@@ -357,7 +362,7 @@
 
         var controller = createController(handler);
 
-        d3.select(OVERLAY_CANVAS_ID).call(controller.drag);
+        d3.select(TOP_SVG_ID).call(controller.drag);
         d3.select(CONTAINER_ID).call(controller.zoom);
         d3.select(SHOW_LOCATION_ID).on("click", controller.locate);
 
@@ -459,7 +464,7 @@
             var fj = Math.floor(j), cj = fj + 1;
 
             var row;
-            if (row = grid[fj]) {
+            if ((row = grid[fj])) {
                 var g00 = row[fi];
                 var g10 = row[ci];
                 if (g00 && g10 && (row = grid[cj])) {
@@ -487,7 +492,7 @@
                 }
             }
             return nilVector;
-        }
+        };
 
         field.randomize = function(o) {
             var x, y;
@@ -544,7 +549,7 @@
             var column = [];
             for (var y = bounds.y; y <= bounds.yBound; y += 1) {
                 if (mask.isVisible(x, y)) {
-                    point[0] = x, point[1] = y;
+                    point[0] = x; point[1] = y;
                     var coord = projection.invert(point);
                     if (coord) {
                         var λ = coord[0], φ = coord[1];
@@ -567,11 +572,11 @@
         (function batchInterpolate() {
             try {
                 if (settings.animate) {
-                    var start = +new Date;
+                    var start = +new Date();
                     while (x < bounds.xBound) {
                         interpolateColumn(x);
                         x += 1;
-                        if ((+new Date - start) > MAX_TASK_TIME) {
+                        if ((+new Date() - start) > MAX_TASK_TIME) {
                             // Interpolation is taking too long. Schedule the next batch for later and yield.
                             displayStatus("Interpolating: " + x + "/" + bounds.xBound);
                             setTimeout(batchInterpolate, MIN_SLEEP_TIME);
@@ -699,9 +704,11 @@
             if (v[2] > NIL) {
                 var coord = settings.projection.invert(mouse);
                 var wind = grid(coord[0], coord[1]);  // get the undistorted wind vector
-                d3.select(LOCATION_ID).node().textContent = "⁂ " + formatCoordinates(coord[0], coord[1]);
-                var pointDetails = "⁂ " + formatVector(wind[0], wind[1], v[2]);
-                d3.select(POINT_DETAILS_ID).node().innerHTML = pointDetails;
+                if (wind) {
+                    d3.select(LOCATION_ID).node().textContent = "⁂ " + formatCoordinates(coord[0], coord[1]);
+                    var pointDetails = "⁂ " + formatVector(wind[0], wind[1], v[2]);
+                    d3.select(POINT_DETAILS_ID).node().innerHTML = pointDetails;
+                }
             }
         });
     }

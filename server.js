@@ -11,7 +11,7 @@ console.log(new Date().toISOString() + " - Starting");
  * Returns true if the response should be compressed.
  */
 function compressionFilter(req, res) {
-    return /json|text|javascript|font/.test(res.getHeader('Content-Type'));
+    return (/json|text|javascript|font/).test(res.getHeader('Content-Type'));
 }
 
 /**

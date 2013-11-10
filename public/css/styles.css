@@ -52,7 +52,7 @@ body {
     position: relative;
 }
 
-#field, #overlay {
+#field, #overlay, #top {
     position: absolute;
     top: 0;
     left: 0;

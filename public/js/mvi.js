@@ -61,13 +61,13 @@ mvi = function() {
      * Builds a k-d tree from the specified points, each point of the form [x, y, ...]
      */
     function kdTree(points, k, depth) {
-        if (points.length == 0) {
+        if (points.length === 0) {
             return null;
         }
         var axis = depth % k;  // cycle through each axis as we descend downwards
         var compareByAxis = function(a, b) {
             return a[axis] - b[axis];
-        }
+        };
         points.sort(compareByAxis);
 
         // Pivot on the median point using the policy that all points to the left must be _strictly smaller_.
@@ -223,7 +223,7 @@ mvi = function() {
 
             // Divide by the total weight to calculate an average, which is our interpolated result.
             return scaleVector(result, 1 / weightSum);
-        }
+        };
     }
 
     /**
@@ -275,7 +275,7 @@ mvi = function() {
     /**
      * Finds the LU decomposition for matrix M, modifying M in place.
      */
-    function LUDecomposition(M) {
+    function luDecomposition(M) {
         var pivots = M.map(function(row, i) { return i; });
         var i, j;
 
@@ -298,7 +298,7 @@ mvi = function() {
             }
 
             // Compute multipliers and eliminate k-th column.
-            if (M[k][k] != 0.0) {
+            if (M[k][k] !== 0.0) {
                 for (i = k + 1; i < M.rows; i++) {
                     M[i][k] /= M[k][k];
                     for (j = k + 1; j < M.columns; j++) {
@@ -317,7 +317,7 @@ mvi = function() {
      */
     function isSingular(M) {
         for (var i = 0; i < Math.min(M.rows, M.columns); i++) {
-            if (M[i][i] == 0.0) {
+            if (M[i][i] === 0.0) {
                 return true;
             }
         }
@@ -344,7 +344,7 @@ mvi = function() {
         if (L.rows != B.rows)
             throw new Error("Matrix row dimensions must agree: " + L.rows + " " + B.rows);
 
-        var LU = LUDecomposition(L);
+        var LU = luDecomposition(L);
 
         if (isSingular(LU))
             throw new Error("Matrix is singular");
@@ -380,7 +380,7 @@ mvi = function() {
      * TPS kernel function.
      */
     function φ(r) {
-        return r == 0.0 ? 0.0 : r * r * Math.log(r);
+        return r === 0.0 ? 0.0 : r * r * Math.log(r);
     }
 
     /**
@@ -457,7 +457,7 @@ mvi = function() {
                 z += weights[i] * φ(dist(point[0], point[1], x, y));
             }
             return z;
-        }
+        };
     }
 
     // UNDONE
