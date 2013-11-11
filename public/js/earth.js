@@ -22,7 +22,7 @@
     var SURFACES = ["isobaric", "ground"];
     var LEVELS = ["1mb", "10mb", "100mb", "1000mb", "10m"];
     var MODELS = ["gfs"];
-    var RESOLUTIONS = [0.5, 1.0, 2.5];
+    var RESOLUTIONS = ["0.5", "1.0", "2.5"];
 
     var DEFAULT_DATA = parseData("current_wind_isobaric_1000mb_gfs_0.5");
 

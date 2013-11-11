@@ -10,7 +10,13 @@ module.exports = function(grunt) {
             options: {
                 ignores: ["public/js/d3*.js", "public/js/topojson*.js", "public/js/when*.js"],
                 globals: {
-                    console: false, require: false, __dirname: false, process: false, exports: false, module: false
+                    Buffer: false,
+                    console: false,
+                    exports: false,
+                    module: false,
+                    process: false,
+                    require: false,
+                    __dirname: false
                 },
                 globalstrict: true
             }

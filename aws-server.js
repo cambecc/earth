@@ -1,5 +1,5 @@
 /**
- * server - the "earth" server.
+ * aws - deploys "earth" files to AWS S3
  */
 
 "use strict";
@@ -8,104 +8,74 @@ console.log("============================================================");
 console.log(new Date().toISOString() + " - Starting");
 
 var util = require("util");
+var fs = require("fs");
 var when = require("when");
-var nodefn = require("when/node/function");
-var express = require("express");
-var fs = require('fs');
-var zlib = require('zlib');
-var AWS = require('aws-sdk');
+var apply = require("when/apply");
+var AWS = require("aws-sdk");
+var tool = require(__dirname + "/tool");
 
-var mime = express.static.mime;
-mime.define({"font/ttf": ["ttf"]});
-
-var temp = require('temp');
-// Automatically track and cleanup files at exit
-temp.track(true);
-
-AWS.config.loadFromPath('./scratch/aws-config.json');
+AWS.config.loadFromPath("./scratch/aws-config.json");
 var s3 = new AWS.S3();
 
-function compressible(contentType) {
-    return (/json|text|javascript|font/).test(contentType);
-}
-
-var cacheControl = function() {
-    var SECOND = 1;
-    var MINUTE = 60 * SECOND;
-    var HOUR = 60 * MINUTE;
-    var DAY = 24 * HOUR;
-    var DEFAULT = 30 * MINUTE;
-
-    var rules = [
-        // very-short-lived
-        [/data\/.*\/current/, 1 * MINUTE],
-
-        // short-lived (default behavior for all other resources)
-        [/js\/air\.js/, DEFAULT],  // override medium-lived .js rule below
-        [/js\/mvi\.js/, DEFAULT],  // override medium-lived .js rule below
-
-        // medium-lived
-        [/js\/.*\.js/, 5 * DAY],
-        [/tokyo-topo\.json/, 5 * DAY],
-
-        // long-lived
-        [/mplus-.*\.ttf/, 30 * DAY],
-        [/\.png|\.ico/, 30 * DAY]
-    ];
-
-    return function(key) {
-        var maxAge = DEFAULT;
-        for (var i = 0; i < rules.length; i++) {
-            var rule = rules[i];
-            if (rule[0].test(key)) {
-                maxAge = rule[1];
-                break;
-            }
-        }
-        return "public, max-age=" + maxAge;
-    };
-}();
-
-function compress(input) {
+function headObject(params) {
     var d = when.defer();
-    var gzip = zlib.createGzip({level: 9});
-    var output = temp.createWriteStream();
-    input.pipe(gzip).pipe(output).on("finish", function() {
-        d.resolve(fs.createReadStream(output.path));
+    s3.client.headObject(params, function(error, data) {
+        return error ? error.statusCode !== 404 ? d.reject(error) : d.resolve(error) : d.resolve(data);
     });
     return d.promise;
 }
 
-function upload(path, bucket, key) {
-    var contentType = mime.lookup(path);
+function putObject(params, expectedETag) {
+    var d = when.defer();
+    s3.client.putObject(params, function(error, data) {
+        if (error) {
+            return d.reject(error);
+        }
+        if (expectedETag && data.ETag.replace(/"/g, "") !== expectedETag) {
+            return d.reject({expected: expectedETag, data: data});
+        }
+        delete params.Body;
+        return d.resolve({putObject: params, response: data});
+    });
+    return d.promise;
+}
+
+function uploadFile(path, bucket, key) {
+
+    var meta = headObject({Bucket: bucket, Key: key});
     var options = {
         Bucket: bucket,
         Key: key,
-        ContentType: contentType,
-        CacheControl: cacheControl(key)
+        ContentType: tool.contentType(path),
+        CacheControl: tool.cacheControl(key)
     };
 
-    function putObject(stream) {
-        console.log(util.inspect(options));
-        options.Body = stream;
-        s3.client.putObject(options, function(error, data) {
-            if (error) {
-                console.error(error);
-            }
-            else {
-                console.log(path + ": " + util.inspect(data));
-            }
-        });
+    if (tool.isCompressionRequired(options.ContentType)) {
+        options.ContentEncoding = "gzip";
+        path = tool.compress(fs.createReadStream(path));
     }
 
-    var stream = when(fs.createReadStream(path));
-    if (compressible(contentType)) {
-        options.ContentEncoding = "gzip";
-        stream = stream.then(compress);
-    }
-    stream.then(putObject, console.error);
+    var md5 = when(path).then(function(path) { return tool.hash(fs.createReadStream(path)); });
+
+    return when.all([meta, path, md5]).then(apply(function(meta, path, md5) {
+
+        if (meta.statusCode !== 404 &&
+            meta.ContentLength * 1 === fs.statSync(path).size &&
+            meta.ETag.replace(/"/g, "") === md5 &&
+            meta.ContentType === options.ContentType &&
+            meta.CacheControl === options.CacheControl) {
+
+            return {unchanged: meta};
+        }
+
+        options.Body = fs.createReadStream(path);
+        return putObject(options, md5);
+
+    }));
 }
 
+// UNDONE: delete objects in S3 but not in the list below
+// UNDONE: super awesome logic that defines and iterates file sets, to eliminate this list
 [
 
     "about.html",
@@ -124,6 +94,8 @@ function upload(path, bucket, key) {
     "js/util.js",
     "js/when.js"
 
-].forEach(function(path) {
-    upload("public/" + path, "test.nullschool.net", path);
+].forEach(function(key) {
+    uploadFile("public/" + key, "test.nullschool.net", key).then(function(result) {
+        console.log(key + ": " + util.inspect(result));
+    }, tool.report);
 });
