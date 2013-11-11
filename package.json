@@ -1,5 +1,5 @@
 {
-    "name": "Earth",
+    "name": "earth",
     "description": "Earth",
     "version": "0.0.1",
     "private": true,
@@ -7,14 +7,17 @@
         "name": "Cameron Beccario",
         "email": "cambecc@nullschool.net"
     },
+    "homepage": "https://github.com/cambecc/earth",
     "repository": {
         "type": "git",
-        "url": "git://github.com/cambecc/earth"
+        "url": "git://github.com/cambecc/earth.git"
     },
     "engine": "node >= 0.10.21",
     "dependencies": {
-        "express": "3.4.4",
-        "aws-sdk": "1.12.0"
+        "when": "2.6.0",
+        "temp": "0.6.0",
+        "aws-sdk": "1.12.0",
+        "express": "3.4.4"
     },
     "devDependencies": {
         "nodeunit": "0.8.2",

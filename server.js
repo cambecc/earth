@@ -7,11 +7,15 @@
 console.log("============================================================");
 console.log(new Date().toISOString() + " - Starting");
 
+function isCompressionRequired(contentType) {
+    return (/json|text|javascript|font/).test(contentType);
+}
+
 /**
  * Returns true if the response should be compressed.
  */
 function compressionFilter(req, res) {
-    return (/json|text|javascript|font/).test(res.getHeader('Content-Type'));
+    return isCompressionRequired(res.getHeader('Content-Type'));
 }
 
 /**
@@ -72,8 +76,8 @@ function logger() {
     });
     return express.logger(
         ':date - info: :remote-addr :req[cf-connecting-ip] :req[cf-ipcountry] :method :url HTTP/:http-version ' +
-        '":user-agent" :referrer :req[cf-ray]');
-        // '":user-agent" :referrer :req[cf-ray]\\n:response-all\\n');
+        '":user-agent" :referrer :req[cf-ray] :req[accept-encoding]');
+//      '":user-agent" :referrer :req[cf-ray] :req[accept-encoding]\\n:response-all\\n');
 }
 
 function staticResources() {
