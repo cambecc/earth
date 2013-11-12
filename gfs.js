@@ -18,9 +18,9 @@ exports.NOMADS = "nomads.ncep.noaa.gov/pub/data/nccf/com/gfs/prod/";
 /**
  * Returns an object that describes the GFS cycle matching the specified date. The object has the form:
  *
- *     {year:, month:, day:, runtime:, next(), previous(), yyyymmdd()}
+ *     {year:, month:, day:, hour:, next(), previous(), yyyymmdd()}
  *
- * where runtime is the cycle runtime, next() and previous() return the chronologically next or previous cycles,
+ * where hour is the cycle runtime, next() and previous() return the chronologically next or previous cycles,
  * and yyyymmdd() provides a string format of this cycle's date.
  *
  * @param {Date, Number, String} date a Date object, milliseconds since epoch, or ISO string.
@@ -32,7 +32,7 @@ exports.cycle = function(date) {
         year: date.getUTCFullYear(),
         month: date.getUTCMonth() + 1,
         day: date.getUTCDate(),
-        runtime: Math.floor(date.getUTCHours() / RUN_FREQ) * RUN_FREQ,  // round down to nearest multiple
+        hour: Math.floor(date.getUTCHours() / RUN_FREQ) * RUN_FREQ,  // round down to nearest multiple
 
         next: function() {
             return cycle(tool.addHours(date, RUN_FREQ));
@@ -42,6 +42,9 @@ exports.cycle = function(date) {
         },
         yyyymmdd: function() {
             return tool.pad(this.year, 4) + tool.pad(this.month, 2) + tool.pad(this.day, 2);
+        },
+        date: function() {
+            return new Date(tool.toISOString(this));
         }
     };
 }; var cycle = exports.cycle;
@@ -67,7 +70,7 @@ exports.product = function(type, cycle, forecastHour) {
         forecastHour: Math.floor(forecastHour / FORECAST_FREQ) * FORECAST_FREQ,  // round down to nearest multiple
 
         name: function() {
-            var cc = tool.pad(cycle.runtime, 2), ff = tool.pad(forecastHour, 2);
+            var cc = tool.pad(cycle.hour, 2), ff = tool.pad(forecastHour, 2);
             switch (type) {
                 case "0.5":    return util.format("gfs.t%sz.pgrb2f%s", cc, ff);
                 case "0.5b":   return util.format("gfs.t%sz.pgrb2bf%s", cc, ff);
@@ -77,7 +80,7 @@ exports.product = function(type, cycle, forecastHour) {
             }
         },
         path: function() {
-            var result = util.format("gfs.%s%s", cycle.yyyymmdd(), tool.pad(cycle.runtime, 2));
+            var result = util.format("gfs.%s%s", cycle.yyyymmdd(), tool.pad(cycle.hour, 2));
             return type === "master" ? result + "/master" : result;
         },
         url: function(base) {

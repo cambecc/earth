@@ -4,6 +4,7 @@
 
 "use strict";
 
+var util = require("util");
 var zlib = require("zlib");
 var crypto = require("crypto");
 var http = require("http");
@@ -39,7 +40,7 @@ exports.isNullOrUndefined = function(x) {
 
 exports.coalesce = function(a, b) {
     return isNullOrUndefined(a) ? b : a;
-};
+}; var coalesce = exports.coalesce;
 
 exports.report = function(e) {
     log.error(e.stack ? e.stack : e);
@@ -153,6 +154,7 @@ exports.download = function(resource, output) {
 
 exports.grib2json = function(args, out, err) {
     var d = when.defer();
+    log.info("grib2json " + args);
     var child = spawn("grib2json", args instanceof Array ? args : args.split(" "));
 
     if (out) {
@@ -198,4 +200,50 @@ exports.addHours = function(date, hours) {
     date = new Date(date);
     date.setHours(date.getHours() + hours);
     return date;
+}
+
+/**
+ * Returns the date as an ISO string having the specified zone:  "yyyy-MM-dd hh:mm:ss±xx:yy"
+ */
+function dateToISO(date, zone) {
+    return !isNaN(date.getFullYear()) ?
+        util.format("%s-%s-%s %s:%s:%s%s",
+            date.getFullYear(),
+            pad(date.getMonth() + 1, 2),
+            pad(date.getDate(), 2),
+            pad(date.getHours(), 2),
+            pad(date.getMinutes(), 2),
+            pad(date.getSeconds(), 2),
+            zone) :
+        null;
+}
+
+/**
+ * Converts the specified object containing date fields to an ISO 8601 formatted string. This function first
+ * constructs a Date object by providing the specified fields to the date constructor, then produces a string from
+ * the resulting date. As a consequence of constructing a Date object, date fields in excess of the normal ranges
+ * will cause the date to overflow to the next valid date. For example, toISOString({year:2013, month:1, day:31,
+ * hour:24}) will produce the string "2013-02-01 00:00:00Z".
+ *
+ * @param {object} dateFields an object with keys:
+ *                     [year:] the four digit year, default is 1901;
+ *                     [month:] the month (1-12), default is 1;
+ *                     [day:] the day, default is 1;
+ *                     [hour:] the hour, default is 0;
+ *                     [minute:] minutes, default is 0;
+ *                     [second:] seconds, default is 0;
+ *                     [zone:] a valid ISO timezone offset string, such as "+09:00", default is "Z"
+ * @returns {string} the specified parts in ISO 8601 format: yyyy-MM-dd hh:mm:ss±xx:yy, or null if the parts do not
+ *                   represent a valid date.
+ */
+exports.toISOString = function(dateFields) {
+    var date = new Date(
+        coalesce(dateFields.year, 1901),
+        coalesce(dateFields.month, 1) - 1,
+        coalesce(dateFields.day, 1),
+        coalesce(dateFields.hour, 0),
+        coalesce(dateFields.minute, 0),
+        coalesce(dateFields.second, 0));
+
+    return dateToISO(date, coalesce(dateFields.zone, "Z"));
 }
