@@ -17,7 +17,8 @@
         "when": "2.6.0",
         "temp": "0.6.0",
         "aws-sdk": "1.12.0",
-        "express": "3.4.4"
+        "express": "3.4.4",
+        "winston": "0.7.2"
     },
     "devDependencies": {
         "nodeunit": "0.8.2",

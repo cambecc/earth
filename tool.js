@@ -9,6 +9,7 @@ var crypto = require("crypto");
 var http = require("http");
 var url = require("url");
 var when = require("when");
+var winston = require("winston");
 var mime = require("express").static.mime;
 var temp = require("temp");
 var spawn = require("child_process").spawn;
@@ -19,6 +20,19 @@ mime.define({"font/ttf": ["ttf"]});
 
 temp.track(true);
 
+/**
+ * Returns a new, nicely configured winston logger.
+ *
+ * @returns {winston.Logger}
+ */
+exports.log = function() {
+    return new (winston.Logger)({
+        transports: [
+            new (winston.transports.Console)({level: 'debug', timestamp: true, colorize: false})
+        ]
+    });
+}; var log = exports.log();
+
 exports.isNullOrUndefined = function(x) {
     return x === null || x === undefined;
 }; var isNullOrUndefined = exports.isNullOrUndefined;
@@ -28,7 +42,7 @@ exports.coalesce = function(a, b) {
 };
 
 exports.report = function(e) {
-    console.error(e.stack ? e.stack : e);
+    log.error(e.stack ? e.stack : e);
 };
 
 exports.contentType = function(path) {
@@ -92,28 +106,31 @@ exports.hash = function(input, algorithm, encoding) {
     return d.promise;
 };
 
-//exports.head = function(resource) {
-//    var d = when.defer(), r = url.parse(resource);
-//    var params = {method: "HEAD", host: r.hostname, port: r.port || 80, path: r.pathname};
-//    http.request(params, function(res) {
-//        res.on("data", function() {
-//        });
-//        res.on("error", function(error) {
-//            d.reject(error);
-//        });
-//        res.on("end", function() {
-//            d.resolve({statusCode: res.statusCode, headers: res.headers});
-//        });
-//    }).end();
-//    return d.promise;
-//};
+exports.head = function(resource) {
+    var d = when.defer();
+    var options = typeof resource === "string" ? url.parse(resource) : resource;
+    options.method = "HEAD";
+    http.request(options, function(res) {
+        res.on("data", function() {
+        });
+        res.on("error", function(error) {
+            d.reject(error);
+        });
+        res.on("end", function() {
+            d.resolve({statusCode: res.statusCode, headers: res.headers});
+        });
+    }).end();
+    return d.promise;
+};
 
 exports.download = function(resource, output) {
     var d = when.defer();
+    var start = Date.now();
     http.get(resource, function(res) {
-        var start = Date.now(), received = 0, total = +res.headers["content-length"] || NaN;
-
-        res.pipe(output);
+        var headers = res.headers;
+        var total = +headers["content-length"];
+        var received = 0;
+        var statusCode = res.statusCode;
 
         res.on("data", function(chunk) {
             d.notify({block: chunk.length, received: received += chunk.length, total: total});
@@ -121,14 +138,15 @@ exports.download = function(resource, output) {
         res.on("error", function(error) {
             d.reject(error);
         });
-        output.on("finish", function() {
-            output.close();
-            d.resolve({
-                statusCode: res.statusCode,
-                headers: res.headers,
-                received: received,
-                duration: Date.now() - start});
+        res.on("end", function() {
+            d.resolve({statusCode: statusCode, headers: headers, received: received, duration: Date.now() - start});
         });
+        if (output) {
+            res.pipe(output);
+            output.on("finish", function() {
+                output.close();
+            });
+        }
     });
     return d.promise;
 }

@@ -3,7 +3,7 @@
 var util = require("util");
 var fs = require("fs");
 var tool = require("../tool");
-var gfs = require("../gfs-source");
+var gfs = require("../gfs");
 
 exports.testCycle = function(test) {
 
@@ -93,14 +93,22 @@ exports.testProduct = function(test) {
 
 exports.testDownload = function(test) {
 
-    var product = gfs.product("2.5", gfs.cycle(Date.now()).previous(), 0);
+//    var cycle = gfs.cycle(Date.now());
+//    var product = gfs.product("1.0", cycle, 0);
 //    var client = gfs.client("http://" + gfs.NOMADS);
-//    client.download(product, fs.createWriteStream(product.name())).then(function() {
 //
+//    tool.download("http://" + gfs.NOMADS).then(function(res) {
+//        console.log("result:" + util.inspect(res));
+//    }, tool.report);
+//
+//    client.download(product, fs.createWriteStream(product.name())).then(function(res) {
+//        if (res.statusCode != 200) {
+//            console.log(res);
+//            return;
+//        }
+//        var args = util.format("-c -d --fp wind --fs 100 --fv 100000 -o %s.json %s", product.name(), product.name());
+//        tool.grib2json(args, process.stdout, process.stderr).then(null, tool.report);
 //    });
-
-    var args = util.format("-n -o %s.json %s", product.name(), product.name());
-    tool.grib2json(args, process.stdout, process.stderr).then(null, tool.report);
 
     test.done();
 }

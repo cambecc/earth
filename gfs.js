@@ -7,6 +7,7 @@
 var util = require("util");
 var when = require("when");
 var tool = require(__dirname + "/tool");
+var log = tool.log();
 
 var RUN_FREQ = 6;  // GFS cycles run every six hours
 var FORECAST_FREQ = 3;  // forecasts are available in three hour increments
@@ -101,7 +102,7 @@ exports.client = function(server) {
     return {
 //        checkAvailable: function(product) {
 //            var resource = product.url(server);
-//            console.log("HEAD: " + resource);
+//            log.info("HEAD: " + resource);
 //            return tool.head(resource).then(function(result) {
 //                return result.statusCode === 200;
 //            });
@@ -110,18 +111,18 @@ exports.client = function(server) {
         download: function(product, output) {
             var resource = product.url(server);
             var progress = 0;
-            console.log("GET: " + resource);
-            return tool.download(product.url(server), output).then(
+            log.info("GET: " + resource);
+            return tool.download(resource, output).then(
                 function(result) {
                     var kps = Math.round(result.received / 1024 / result.duration * 1000);
-                    console.log("GET: " + kps + "Kps "  + resource);
+                    log.info("GET: " + kps + "Kps "  + resource);
                     return result;
                 },
                 null,
                 function(update) {
                     var current = Math.floor(update.received / 1024 / 1024);
                     if (current > progress) {
-                        console.log((progress = current) + "M");
+                        log.info((progress = current) + "M");
                     }
                     return update;
                 });
