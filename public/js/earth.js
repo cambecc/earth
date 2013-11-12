@@ -24,7 +24,7 @@
     var MODELS = ["gfs"];
     var RESOLUTIONS = ["0.5", "1.0", "2.5"];
 
-    var DEFAULT_DATA = parseData("current_wind_isobaric_1000mb_gfs_0.5");
+    var DEFAULT_DATA = parseData("current_wind_isobaric_1000mb_gfs_1.0");
 
     var log = util.log;
     var apply = util.apply;

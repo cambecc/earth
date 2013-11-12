@@ -7,6 +7,7 @@
 console.log("============================================================");
 console.log(new Date().toISOString() + " - Starting");
 
+var util = require("util");
 var tool = require(__dirname + "/tool");
 
 /**
@@ -33,10 +34,13 @@ function logger() {
     express.logger.token("response-all", function(req, res) {
         return (res._header ? res._header : "").trim();
     });
+    express.logger.token("request-all", function(req, res) {
+        return util.inspect(req.headers);
+    });
     return express.logger(
         ':date - info: :remote-addr :req[cf-connecting-ip] :req[cf-ipcountry] :method :url HTTP/:http-version ' +
-        '":user-agent" :referrer :req[cf-ray] :req[accept-encoding]');
-//      '":user-agent" :referrer :req[cf-ray] :req[accept-encoding]\\n:response-all\\n');
+//      '":user-agent" :referrer :req[cf-ray] :req[accept-encoding]');
+        '":user-agent" :referrer :req[cf-ray] :req[accept-encoding]\\n:request-all\\n\\n:response-all\\n');
 }
 
 var port = process.argv[2];
