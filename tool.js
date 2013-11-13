@@ -14,6 +14,7 @@ var winston = require("winston");
 var mime = require("express").static.mime;
 var temp = require("temp");
 var spawn = require("child_process").spawn;
+var fs = require("fs");
 
 // CF won't compress MIME type "application/x-font-ttf" (the express.js default) but will compress "font/ttf".
 // https://support.cloudflare.com/hc/en-us/articles/200168396-What-will-CloudFlare-gzip-
@@ -128,19 +129,22 @@ exports.download = function(resource, output) {
     var d = when.defer();
     var start = Date.now();
     http.get(resource, function(res) {
-        var headers = res.headers;
-        var total = +headers["content-length"];
+        var total = +res.headers["content-length"];
         var received = 0;
-        var statusCode = res.statusCode;
 
         res.on("data", function(chunk) {
-            d.notify({block: chunk.length, received: received += chunk.length, total: total});
+            d.notify({resource: resource, block: chunk.length, received: received += chunk.length, total: total});
         });
         res.on("error", function(error) {
             d.reject(error);
         });
         res.on("end", function() {
-            d.resolve({statusCode: statusCode, headers: headers, received: received, duration: Date.now() - start});
+            d.resolve({
+                resource: resource,
+                statusCode: res.statusCode,
+                headers: res.headers,
+                received: received,
+                duration: Date.now() - start});
         });
         if (output) {
             res.pipe(output);
@@ -150,7 +154,7 @@ exports.download = function(resource, output) {
         }
     });
     return d.promise;
-}
+};
 
 exports.grib2json = function(args, out, err) {
     var d = when.defer();
@@ -169,7 +173,7 @@ exports.grib2json = function(args, out, err) {
     });
 
     return d.promise;
-}
+};
 
 /**
  * Returns the string representation of a number padded with leading characters to make
@@ -200,7 +204,7 @@ exports.addHours = function(date, hours) {
     date = new Date(date);
     date.setHours(date.getHours() + hours);
     return date;
-}
+};
 
 /**
  * Returns the date as an ISO string having the specified zone:  "yyyy-MM-dd hh:mm:ss±xx:yy"
@@ -246,4 +250,35 @@ exports.toISOString = function(dateFields) {
         coalesce(dateFields.second, 0));
 
     return dateToISO(date, coalesce(dateFields.zone, "Z"));
-}
+};
+
+/**
+ * Converts the date represented by the specified ISO string to a different time zone.
+ *
+ * @param isoString a date in ISO 8601 format: yyyy-MM-dd hh:mm:ss±xx:yy.
+ * @param zone a valid ISO timezone offset string, such as "+09:00", representing the zone to convert to.
+ * @returns {string} the date adjusted to the specified time zone as an ISO 8601 string.
+ */
+exports.withZone = function(isoString, zone) {
+    zone = coalesce(zone, "Z");
+    var adjust = zone === "Z" ? 0 : +(zone.split(":")[0]) * 60;
+
+    var date = new Date(isoString);
+    date.setMinutes(date.getMinutes() + adjust + date.getTimezoneOffset());
+
+    return dateToISO(date, zone);
+}; var withZone = exports.withZone;
+
+exports.yyyymmdd = function(date, zone) {
+    var iso = withZone(date.toISOString(), zone).split(/[- T:]/);
+    return iso[0] + iso[1] + iso[2];
+};
+
+exports.yyyymmddhh = function(date, zone) {
+    var iso = withZone(date.toISOString(), zone).split(/[- T:]/);
+    return iso[0] + iso[1] + iso[2] + iso[3];
+};
+
+exports.ensureTrailing = function(s, c) {
+    return s.lastIndexOf(c) < s.length - 1 ? s + c : s;
+};
