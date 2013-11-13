@@ -1,5 +1,5 @@
 /**
- * server - serves static resources locally for developing "earth"
+ * dev-server - serves static resources locally for developing "earth"
  */
 
 "use strict";
@@ -8,7 +8,7 @@ console.log("============================================================");
 console.log(new Date().toISOString() + " - Starting");
 
 var util = require("util");
-var tool = require(__dirname + "/tool");
+var tool = require("./tool");
 
 /**
  * Returns true if the response should be compressed.
