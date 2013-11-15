@@ -279,6 +279,11 @@ exports.yyyymmddhh = function(date, zone) {
     return iso[0] + iso[1] + iso[2] + iso[3];
 };
 
+exports.yyyymmddPath = function(date, zone) {
+    var iso = withZone(date.toISOString(), zone).split(/[- T:]/);
+    return iso[0] + "/" + iso[1] + "/" + iso[2];
+}
+
 exports.ensureTrailing = function(s, c) {
     return s.lastIndexOf(c) < s.length - 1 ? s + c : s;
 };

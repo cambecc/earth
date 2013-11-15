@@ -180,6 +180,8 @@ util = function() {
             .scale(1)
             .translate([0, 0]);
 
+        projection.isOrthographic = true;  // HACK
+
         // Project the two longitude/latitude points into pixel space. These will be tiny because scale is 1.
         var p0 = projection([lng0, lat0]);
         var p1 = projection([lng1, lat1]);

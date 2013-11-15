@@ -21,7 +21,7 @@ console.log(new Date().toISOString() + " - Starting");
     "css/styles.css",
     "css/mplus-2p-thin-056.ttf",
     "data/earth-topo.json",
-    "data/weather/current/current_wind_isobaric_1000mb_gfs_0.5.json",
+    "data/weather/current/current-wind-isobaric-1000hPa-gfs-1.0.json",
     "js/d3.v3.js",
     "js/d3.geo.polyhedron.v0.js",
     "js/d3.geo.projection.v0.js",
@@ -32,7 +32,7 @@ console.log(new Date().toISOString() + " - Starting");
     "js/when.js"
 
 ].forEach(function(key) {
-    aws.uploadFile("public/" + key, "test.nullschool.net", key).then(function(result) {
+    aws.uploadFile("public/" + key, aws.S3_BUCKET, key).then(function(result) {
         console.log(key + ": " + util.inspect(result));
     }, tool.report);
 });

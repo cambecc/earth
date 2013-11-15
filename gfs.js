@@ -150,28 +150,28 @@ exports.product = function(type, cycle, forecastHour) {
 /**
  * Returns an object that describes a layer within the specified GFS GRIB file.
  *
- * @param name the name of the layer.
- * @param filter the grib2json arguments that select the layer records.
- * @param product the GFS product.
+ * @param {Object} recipe the recipe {name:, filter:} for the layer.
+ * @param {Object} product the GFS product.
  * @returns {Object} the layer object.
  */
-exports.layer = function(name, filter, product) {
+exports.layer = function(recipe, product) {
     return {
+        recipe: recipe,
         product: product,
-        filter: filter,
 
         /**
          * @returns {String} the name of this layer's JSON file.
          */
         file: function() {
-            return util.format("%s_%s_gfs_%s.json", tool.yyyymmddhh(product.date()), name, product.resolution());
+            var parts = product.date().toISOString().split(/[- T:]/);  // extract hh and mm from date
+            return util.format("%s%s-%s-gfs-%s.json", parts[3], parts[4], recipe.name, product.resolution());
         },
         /**
          * @param {String} [parent] the parent directory
          * @returns {String} the directory containing this layer's JSON file, under the (optional) specified parent.
          */
         dir: function(parent) {
-            return tool.coalesce(parent, "") + tool.yyyymmdd(product.date()) + "/";
+            return tool.coalesce(parent, "") + tool.yyyymmddPath(product.date()) + "/";
         },
         /**
          * @param {String} [parent] the parent directory

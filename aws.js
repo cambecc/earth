@@ -14,6 +14,9 @@ var AWS = require("aws-sdk");
 AWS.config.loadFromPath("./scratch/aws-config.json");
 var s3 = new AWS.S3();
 
+exports.S3_BUCKET = "test-nullschool-net";
+exports.S3_LAYER_HOME = "data/weather/";
+
 exports.headObject = function(params) {
     var d = when.defer();
     s3.client.headObject(params, function(error, data) {

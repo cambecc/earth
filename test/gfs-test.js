@@ -102,19 +102,20 @@ exports.testLayer = function(test) {
 
     var cycle = gfs.cycle(new Date("2014-01-01T00:00Z"));
     var product = gfs.product("0.5", cycle, 27);
-    var layer = gfs.layer("a", "f", product);
+    var recipe = {name: "a", filer: "f"};
+    var layer = gfs.layer(recipe, product);
 
-    test.equal(layer.filter, "f");
-    test.equal(layer.file(), "2014010203_a_gfs_0.5.json");
-    test.equal(layer.dir(), "20140102/");
-    test.equal(layer.path(), "20140102/2014010203_a_gfs_0.5.json");
-    test.equal(layer.dir("foo/"), "foo/20140102/");
-    test.equal(layer.path("foo/"), "foo/20140102/2014010203_a_gfs_0.5.json");
+    test.deepEqual(layer.recipe, recipe);
+    test.equal(layer.file(), "0300-a-gfs-0.5.json");
+    test.equal(layer.dir(), "2014/01/02/");
+    test.equal(layer.path(), "2014/01/02/0300-a-gfs-0.5.json");
+    test.equal(layer.dir("foo/"), "foo/2014/01/02/");
+    test.equal(layer.path("foo/"), "foo/2014/01/02/0300-a-gfs-0.5.json");
 
-    test.equal(gfs.layer("a", "f", gfs.product("master", cycle, 0)).file(), "2014010100_a_gfs_0.5.json");
-    test.equal(gfs.layer("a", "f", gfs.product("0.5b", cycle, 0)).file(), "2014010100_a_gfs_0.5.json");
-    test.equal(gfs.layer("a", "f", gfs.product("1.0", cycle, 0)).file(), "2014010100_a_gfs_1.0.json");
-    test.equal(gfs.layer("a", "f", gfs.product("2.5", cycle, 0)).file(), "2014010100_a_gfs_2.5.json");
+    test.equal(gfs.layer(recipe, gfs.product("master", cycle, 0)).file(), "0000-a-gfs-0.5.json");
+    test.equal(gfs.layer(recipe, gfs.product("0.5b", cycle, 3)).file(), "0300-a-gfs-0.5.json");
+    test.equal(gfs.layer(recipe, gfs.product("1.0", cycle, 9)).file(), "0900-a-gfs-1.0.json");
+    test.equal(gfs.layer(recipe, gfs.product("2.5", cycle, 12)).file(), "1200-a-gfs-2.5.json");
 
     test.done();
 };

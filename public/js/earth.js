@@ -17,19 +17,34 @@
     var POINT_DETAILS_ID = "#point-details";
     var POSITION_ID = "#position";
     var SHOW_LOCATION_ID = "#show-location";
+    var DATA_DATE = "#data-date";
+    var DATA_LAYER = "#data-layer";
+    var DATA_CENTER = "#data-center";
 
-    var PARAMS = ["wind"];
-    var SURFACES = ["isobaric", "ground"];
-    var LEVELS = ["1mb", "10mb", "100mb", "1000mb", "10m"];
-    var MODELS = ["gfs"];
-    var RESOLUTIONS = ["0.5", "1.0", "2.5"];
+    var DEFAULT_HASH_ARGS = "current/wind/isobaric/1000hPa";
 
-    var DEFAULT_DATA = parseData("current_wind_isobaric_1000mb_gfs_1.0");
+//    // metadata about each type of overlay
+//    var OVERLAY_TYPES = {
+//        "temp": {min: -10,   max: 35,    scale: "line", precision: 1, label: "気温 Temperature", unit: "ºC"},
+//        "hum":  {min: 0,     max: 100,   scale: "line", precision: 1, label: "湿度 Humidity", unit: "%"},
+//        "wv":   {min: 1,     max: 20,    scale: "log",  precision: 1, label: "風速 Wind Velocity", unit: " m/s"},
+//        "in":   {min: 0.1,   max: 4.0,   scale: "log",  precision: 2, label: "日射量 Insolation", unit: ' MJ/m<span class="sup">2</span>'},
+//        "no":   {min: 0.001, max: 0.600, scale: "log",  precision: 0, label: "一酸化窒素 Nitric Monoxide", unit: " ppb", multiplier: 1000},
+//        "no2":  {min: 0.001, max: 0.200, scale: "log",  precision: 0, label: "二酸化窒素 Nitrogen Dioxide", unit: " ppb", multiplier: 1000},
+//        "nox":  {min: 0.001, max: 0.600, scale: "log",  precision: 0, label: "窒素酸化物 Nitrogen Oxides", unit: " ppb", multiplier: 1000},
+//        "ox":   {min: 0.001, max: 0.250, scale: "log",  precision: 0, label: "光化学オキシダント Photochemical Oxidants", unit: " ppb", multiplier: 1000},
+//        "so2":  {min: 0.001, max: 0.110, scale: "log",  precision: 0, label: "二酸化硫黄 Sulfur Dioxide", unit: " ppb", multiplier: 1000},
+//        "co":   {min: 0.1,   max: 3.0,   scale: "log",  precision: 1, label: "一酸化炭素 Carbon Monoxide", unit: " ppm"},
+//        "ch4":  {min: 1.5,   max: 3.0,   scale: "log",  precision: 2, label: "メタン Methane", unit: " ppm"},
+//        "nmhc": {min: 0.01,  max: 1.30,  scale: "log",  precision: 2, label: "非メタン炭化水素 Non-Methane Hydrocarbons", unit: " ppm"},
+//        "spm":  {min: 1,     max: 750,   scale: "log",  precision: 0, label: "浮遊粒子状物質 Suspended Particulate Matter", unit: ' μg/m<span class="sup">3</span>'},
+//        "pm25": {min: 1,     max: 750,   scale: "log",  precision: 0, label: "微小粒子状物質 2.5µm Particulate Matter", unit: ' μg/m<span class="sup">3</span>'}
+//    };
 
     var log = util.log;
     var apply = util.apply;
     var view = util.view;
-    var parameters = buildHashArguments();
+    var args = doParseHashArguments();
 
     function isNullOrUndefined(x) {
         return x === null || x === undefined;
@@ -44,93 +59,74 @@
         return a - n * Math.floor(a / n);
     }
 
+    function parseHashArguments(s) {
+        //               1        2      3    4    5         6        7       8         9
+        //                       int    int  int  int     AZaz09_  AZaz09_  AZaz09_   any char
+        //         ( "current" | yyyy / mm / dd / hhhh ) / param / surface / level [ / rest ]
+
+        var match = /^(current|(\d{4})\/(\d{2})\/(\d{2})\/(\d{4}))\/(\w+)\/(\w+)\/(\w+)([\/].+)?/.exec(s);
+        return !match ? null : {
+            date: match[1],    // "current" or "yyyy/mm/dd/hhhh"
+            year: match[2],    // "yyyy"
+            month: match[3],   // "mm"
+            day: match[4],     // "dd"
+            hour: match[5],    // "hhhh"
+            param: match[6],   // alphanumeric_
+            surface: match[7], // alphanumeric_
+            level: match[8]    // alphanumeric_
+            // rest: match[9]  // ignored for now
+        };
+    }
+
+    function toPath(t) {
+        var dir = t.date.substr(0, 10);
+        var stamp = dir === "current" ? "current" : t.hour;
+        return "/data/weather/" + dir + "/" + [stamp, t.param, t.surface, t.level, "gfs", "1.0"].join("-") + ".json";
+    }
+
+    function interpret(tokens) {
+        // UNDONE wrap in a task to do proper error handling.
+        if (!tokens) {
+            throw new Error("cannot parse hash arguments");
+        }
+        // UNDONE: detect empty samples path here?
+        return {
+            topography: "/data/earth-topo.json",
+            samples: toPath(tokens)
+        };
+    }
+
     function decode(x) {
         return decodeURIComponent(coalesce(x, ""));
     }
 
-    function testContains(s, allowed) {
-        for (var i = 0; i < allowed.length; i++) {
-            if (s == allowed[i]) {
-                return allowed[i];
-            }
-        }
-        throw new Error('"' + s + '" must be one of: ' + allowed);
+    function doParseHashArguments() {
+// Useful for later:
+//        var pairs = window.location.hash.substr(1).split("&").map(function(term) { return term.split("="); });
+//        var args = {};
+//        pairs.forEach(function(pair) { args[decode(pair[0])] = decode(pair[1]); });
+        var hash = window.location.hash.substr(1);
+        var args = parseHashArguments(hash !== "" ? hash : DEFAULT_HASH_ARGS);
+        log.debug(JSON.stringify(args));
+        return interpret(args);
     }
 
     /**
      * Returns a human readable string for the provided coordinates.
      */
-    function formatCoordinates(lng, lat) {
-        return Math.abs(lat).toFixed(6) + "º " + (lat >= 0 ? "N" : "S") + ", " +
-            Math.abs(lng).toFixed(6) + "º " + (lng >= 0 ? "E" : "W");
+    function formatCoordinates(λ, φ) {
+        return Math.abs(φ).toFixed(6) + "º " + (φ >= 0 ? "N" : "S") + ", " +
+            Math.abs(λ).toFixed(6) + "º " + (λ >= 0 ? "E" : "W");
     }
 
     /**
      * Returns a human readable string for the provided rectangular wind vector.
      */
-    function formatVector(u, v, m) {
+    function formatVector(u, v) {
         var d = Math.atan2(-u, -v) / τ * 360;  // calculate into-the-wind cardinal degrees
         var wd = Math.round((d + 360) % 360 / 5) * 5;  // shift [-180, 180] to [0, 360], and round to nearest 5.
+        var m = Math.sqrt(u * u + v * v);
         return wd.toFixed(0) + "º @ " + m.toFixed(1) + " m/s";
-    }
-
-    function asBlob(data) {  // data must already be validated
-        return [
-            data.date === "current" ? data.date : data.date.toISOString().substr(0, 16) + "Z",
-            data.param,
-            data.surface,
-            data.level,
-            data.model,
-            data.resolution].join("_");
-    }
-
-    function toPath(data) {
-        return "/data/weather/" +
-            (data.date === "current" ? data.date : data.date.toISOString().split("T")[0]) + "/" + asBlob(data) + ".json";
-    }
-
-    function parseDate(s) {
-        if (s === "current") {
-            return s;
-        }
-        var date = new Date(s);
-        if (isNaN(date.getFullYear())) {
-            throw new Error("not a valid date: " + s);
-        }
-        return date;
-    }
-
-    function parseData(ds) {
-        var parts = ds.split("_");
-        if (parts.length > 6) {
-            throw new Error("too many parts: " + parts);
-        }
-        return {
-            date: parseDate(parts[0]),
-            param: testContains(parts[1], PARAMS),
-            surface: testContains(parts[2], SURFACES),
-            level: testContains(parts[3], LEVELS),
-            model: testContains(parts[4], MODELS),
-            resolution: testContains(parts[5], RESOLUTIONS)
-        };
-    }
-
-    function buildHashArguments() {
-        var args = {};
-        var pairs = window.location.hash.substr(1).split("&").map(function(term) { return term.split("="); });
-        pairs.forEach(function(pair) { args[decode(pair[0])] = decode(pair[1]); });
-        log.debug(JSON.stringify(args));
-
-        var data = !isNullOrUndefined(args.data) ? parseData(args.data) : DEFAULT_DATA;
-
-        log.debug(data);
-        log.debug(asBlob(data));
-        log.debug(toPath(data));
-
-        return {
-            topography: "/data/earth-topo.json",
-            samples: toPath(data)
-        };
     }
 
     function init() {
@@ -175,13 +171,10 @@
     }
 
     var bad = false;
-    function displayStatus(status, error) {
-        if (error) {
-            bad = true;  // errors are sticky--let's not overwrite error information if it occurs
-            d3.select(STATUS_ID).node().textContent = "⁂ " + error;
-        }
-        else if (!bad) {
+    function displayStatus(status, isError) {
+        if (isError || !bad) {
             d3.select(STATUS_ID).node().textContent = status ? "⁂ " + status : "";
+            bad = isError;  // errors are sticky--let's not overwrite error information if it occurs
         }
     }
 
@@ -280,9 +273,14 @@
         return {
             drag: drag,
             zoom: zoom,
-            locate: locate
+            locate: locate,
+            scale: function(_) {
+                return zoom.scale(_);
+            }
         };
     }
+
+    var handler = null;
 
     function renderMap(settings, mesh) {
         displayStatus("Rendering map...");
@@ -294,6 +292,14 @@
         var topSvg = d3.select(TOP_SVG_ID);
         var defs = mapSvg.append("defs");
 
+        var gradientFill = defs.append("radialGradient")
+            .attr("id", "orthographic-fill")
+            .attr("gradientUnits", "objectBoundingBox")
+            .attr("cx", "50%").attr("cy", "49%").attr("r", "50%");
+        gradientFill.append("stop").attr("stop-color", "#303030").attr("offset", "69%");
+        gradientFill.append("stop").attr("stop-color", "#202020").attr("offset", "91%");
+        gradientFill.append("stop").attr("stop-color", "#000000").attr("offset", "96%");
+
         defs.append("path")
             .datum({type: "Sphere"})
             .attr("id", "sphere")
@@ -303,9 +309,16 @@
             .append("use")
             .attr("xlink:href", "#sphere");
 
-        mapSvg.append("use")
-            .attr("fill", "url(#sphere-fill)")
-            .attr("xlink:href", "#sphere");
+        if (projection.isOrthographic) {
+            mapSvg.append("use")
+                .attr("fill", "url(#orthographic-fill)")
+                .attr("xlink:href", "#sphere");
+        }
+        else {
+            mapSvg.append("use")
+                .attr("class", "sphere-fill")
+                .attr("xlink:href", "#sphere");
+        }
         mapSvg.append("path")
             .datum(d3.geo.graticule())
             .attr("class", "graticule")
@@ -324,7 +337,10 @@
 
 
         var sensitivity;
-        var handler = {
+        handler = {
+            grid: null,  // filled in later. yuck?
+            field: null,  // filled in later
+
             origin: function() {
                 sensitivity = 60 / projection.scale();  // this appears to provide a good drag scaling factor
                 return {x: projection.rotate()[0] / sensitivity, y: -projection.rotate()[1] / sensitivity};
@@ -347,20 +363,42 @@
                 world.datum(mesh.boundaryHi).attr("d", path);
                 prepareDisplay(settings);
             },
+
+            show: function(λ, φ, x, y) {
+                // show the point on the map
+                var position = d3.select(POSITION_ID);
+                if (!position.node()) {
+                    position = topSvg.append("path").attr("id", POSITION_ID.substr(1));
+                }
+                position.datum({type: "Point", coordinates: [λ, φ]}).attr("d", path.pointRadius(7));
+
+                // show details at that point, if any
+                if (this.field && (this.field(x, y)[2] != NIL)) {
+                    var wind;
+                    if (this.grid && !isNullOrUndefined(wind = this.grid(λ, φ))) {
+                        d3.select(LOCATION_ID).node().textContent = "⁂ " + formatCoordinates(λ, φ);
+                        var pointDetails = "⁂ " + formatVector(wind[0], wind[1]);
+                        d3.select(POINT_DETAILS_ID).node().innerHTML = pointDetails;
+                    }
+                }
+            },
+
             click: function(x, y) {
-                log.debug("clicked at: " + [x, y]);
+                var coord = projection.invert([x, y]);
+                if (coord) {
+                    this.show(coord[0], coord[1], x, y);
+                }
             },
             locate: function(λ, φ) {
-                if (!d3.select(POSITION_ID).node()) {
-                    topSvg.append("path")
-                        .datum({type: "Point", coordinates: [λ, φ]})
-                        .attr("id", POSITION_ID.substr(1))
-                        .attr("d", path.pointRadius(7));
+                var point = projection([λ, φ]);
+                if (point) {
+                    this.show(λ, φ, point[0], point[1]);
                 }
             }
         };
 
         var controller = createController(handler);
+        controller.scale(projection.scale());
 
         d3.select(TOP_SVG_ID).call(controller.drag);
         d3.select(CONTAINER_ID).call(controller.zoom);
@@ -398,6 +436,19 @@
         };
     }
 
+    function toLocalISO(date) {
+        return date.getFullYear() + "-" +
+            (date.getMonth() + 101).toString().substr(1) + "-" +
+            (date.getDate() + 100).toString().substr(1) + " " +
+            (date.getHours() + 100).toString().substr(1) + ":00";
+    }
+
+    function displayLayerMetadata(meta) {
+        d3.select(DATA_DATE).node().textContent = toLocalISO(new Date(meta.date)) + " (forecast)";
+        d3.select(DATA_LAYER).node().textContent = meta.description;
+        d3.select(DATA_CENTER).node().textContent = meta.center;
+    }
+
     function buildGrid(data) {
         log.time("build grid");
 
@@ -419,6 +470,8 @@
         if (!uRecord || !vRecord) {
             return when.reject("Failed to find both u,v component records");
         }
+
+//        displayLayerMetadata(uRecord.meta);
 
         var header = uRecord.header;
         var λ0 = header.lo1, φ0 = header.la1;  // the grid's origin (e.g., 0.0E, 90.0N)
@@ -697,20 +750,9 @@
         })();
     }
 
-    function postInit(settings, grid, field) {
-        d3.select(DISPLAY_ID).on("click", function() {
-            var mouse = d3.mouse(this);
-            var v = field(mouse[0], mouse[1]);
-            if (v[2] > NIL) {
-                var coord = settings.projection.invert(mouse);
-                var wind = grid(coord[0], coord[1]);  // get the undistorted wind vector
-                if (wind) {
-                    d3.select(LOCATION_ID).node().textContent = "⁂ " + formatCoordinates(coord[0], coord[1]);
-                    var pointDetails = "⁂ " + formatVector(wind[0], wind[1], v[2]);
-                    d3.select(POINT_DETAILS_ID).node().innerHTML = pointDetails;
-                }
-            }
-        });
+    function postInit(grid, field) {
+        handler.grid = grid;
+        handler.field = field;
     }
 
     function clearCanvas(canvas) {
@@ -737,26 +779,26 @@
 
         var maskTask        = when.all([model                                 ]).then(apply(createMask));
         var fieldTask       = when.all([settingsTask, buildGridTask, maskTask ]).then(apply(interpolateField));
+        var postInitTask    = when.all([buildGridTask, fieldTask              ]).then(apply(postInit));
         var overlayTask     = when.all([settingsTask, fieldTask               ]).then(apply(overlay));
         var animateTask     = when.all([settingsTask, fieldTask               ]).then(apply(animate));
-        var postInitTask    = when.all([settingsTask, buildGridTask, fieldTask]).then(apply(postInit));
 
         when.all([
             maskTask,
             fieldTask,
+            postInitTask,
             overlayTask,
-            animateTask,
-            postInitTask
+            animateTask
         ]).then(null, report);
     }
 
     function report(e) {
         log.error(e);
-        displayStatus(null, e.error ? e.error == 404 ? "No Data" : e.error + " " + e.message : e);
+        displayStatus(e.error ? e.error == 404 ? "No Data" : e.error + " " + e.message : e, true);
     }
 
-    var topoTask        = util.loadJson(parameters.topography);
-    var dataTask        = util.loadJson(parameters.samples);
+    var topoTask        = util.loadJson(args.topography);
+    var dataTask        = util.loadJson(args.samples);
     var initTask        = when.all([true                                ]).then(apply(init));
     var settingsTask    = when.all([topoTask                            ]).then(apply(createSettings));
     var meshTask        = when.all([topoTask, settingsTask              ]).then(apply(buildMeshes));

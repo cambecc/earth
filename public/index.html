@@ -11,15 +11,7 @@
     <div id="display">
         <div id="container">
             <div id="map">
-                <svg id="map-svg" xmlns="http://www.w3.org/2000/svg" version="1.1">
-                    <defs>
-                        <radialGradient id="sphere-fill" gradientUnits="objectBoundingBox" cx="50%" cy="49%" r="50%">
-                            <stop stop-color="#303030" offset="69%"></stop>
-                            <stop stop-color="#202020" offset="91%"></stop>
-                            <stop stop-color="#000" offset="96%"></stop>
-                        </radialGradient>
-                    </defs>
-                </svg>
+                <svg id="map-svg" xmlns="http://www.w3.org/2000/svg" version="1.1"></svg>
             </div>
             <div id="field">
                 <canvas id="field-canvas"></canvas>
@@ -32,31 +24,49 @@
                 </svg>
             </div>
         </div>
+
         <div id="details">
-            <h2 id="status">&nbsp;</h2>
-            <h2 id="location">&nbsp;</h2>
-            <h2 id="point-details">&nbsp;</h2>
-            <h1 id="type"><a href="javascript:toggleMenu()">earth</a></h1>
+            <p id="status"></p>
+            <p id="location"></p>
+            <p id="point-details"></p>
+            <span id="type"><a id="type-link" href="javascript:toggleMenu()">earth</a></span>
             <div id="tools">
+                <p>Date | <span id="data-date"></span></p>
+                <p>Layer | <span id="data-layer"></span></p>
+                <p>Data | <span id="data-center"></span></p>
+<!--
+                <p>Date | 2013-11-14 09:00 (forecast)</p>
+                <p>Layer | Wind Velocity @ 1000 hPa - GFS 1.0º</p>
+                <p>Data | US National Weather Service</p>
+-->
                 <span>Control | </span>
-                    <span class="text-button" id="show-location">現在地</span>
-                    <span class="text-button" id="previous-day">«前日</span><span> – </span>
-                    <span class="text-button" id="previous-hour">1時間前</span><span> – </span>
-                    <span class="text-button" id="next-hour">1時間後</span><span> – </span>
-                    <span class="text-button" id="next-day">翌日»</span><span> – </span>
-                    <span class="text-button" id="current-conditions">最新</span><span> – </span><p></p>
+                    <span class="text-button" id="show-location">☼</span><span> – </span>
+                    <span class="text-button" id="previous-day">&nbsp;«&nbsp;</span><span> – </span>
+                    <span class="text-button" id="previous-hour">&nbsp;&nbsp;‹&nbsp;&nbsp;</span><span> – </span>
+                    <span class="text-button" id="next-hour">&nbsp;&nbsp;›&nbsp;&nbsp;</span><span> – </span>
+                    <span class="text-button" id="next-day">&nbsp;»&nbsp;</span><span> – </span>
+                    <span class="text-button" id="current-conditions">Now</span><p></p>
+                <span>Height | (hPa) </span>
+                    <span class="text-button" id="1000">1000</span><span> – </span>
+                    <span class="text-button" id="200">200</span><span> – </span>
+                    <span class="text-button" id="100">100</span><span> – </span>
+                    <span class="text-button" id="10">10</span><span> – </span>
+                    <span class="text-button" id="1">1</span><p></p>
                 <span>Overlay | </span>
-                    <span class="text-button" id="wind">None</span><span> – </span>
+                    <span class="text-button" id="none">None</span><span> – </span>
+                    <span class="text-button" id="wind">Wind</span><span> – </span>
                     <span class="text-button" id="temp">Temp</span><span> – </span>
                     <span class="text-button" id="hum">Hum</span><span> – </span>
-                    <span class="text-button" id="wv">WV</span><span> – </span>
-                    <span class="text-button" id="in">IN</span><span> – </span>
-                    <span class="text-button" id="no">NO</span><span> – </span>
-                    <span class="text-button" id="no2">NO<span class="sub">2</span></span><span> – </span>
-                    <span class="text-button" id="nox">NO<span class="sub">X</span></span><p></p>
-                <p>Air Data | US National Weather Service - NCEP(WMC)</p>
-                <p>About | <a href="/about.html">about</a></p>
+                    <span class="text-button" id="could">Cloud</span><p></p>
+                <p><a href="/about.html">more</a></p>
                 <p>免責事項 | 正確な情報を提供するためのものではありません</p>
+
+                <!--
+                <p>Author |
+                    Cameron Beccario <a href="https://twitter.com/cambecc">@cambecc</a>,
+                    <a href="https://www.facebook.com/fuusoku">Facebook Page</a></p>
+                -->
+
             </div>
         </div>
     </div>
