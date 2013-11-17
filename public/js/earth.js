@@ -9,7 +9,7 @@
     var DISPLAY_ID = "#display";
     var MAP_SVG_ID = "#map";
     var FOREGROUND_SVG_ID = "#foreground";
-    var FIELD_CANVAS_ID = "#field";
+    var FIELD_CANVAS_ID = "#field";  // UNDONE: rename to animation
     var OVERLAY_CANVAS_ID = "#overlay";
     var STATUS_ID = "#status";
     var LOCATION_ID = "#location";
@@ -69,7 +69,8 @@
     var log = util.log;
     var apply = util.apply;
     var view = util.view;
-    var args = doParseHashArguments();
+    // var args = doParseHashArguments();
+    var hashController = createHashController();
 
     function isNullOrUndefined(x) {
         return x === null || x === undefined;
@@ -88,6 +89,8 @@
         //               1        2      3    4    5         6        7       8         9
         //                       int    int  int  int     AZaz09_  AZaz09_  AZaz09_   any char
         //         ( "current" | yyyy / mm / dd / hhhhZ ) / param / surface / level [ / rest ]
+        //
+        //            current    2013   11   17   0600Z     wind   isobaric  10hPa
 
         var match = /^(current|(\d{4})\/(\d{2})\/(\d{2})\/(\d{4})Z)\/(\w+)\/(\w+)\/(\w+)([\/].+)?/.exec(s);
         return !match ? null : {
@@ -119,32 +122,54 @@
         return null;
     }
 
-    function interpret(tokens) {
-        // UNDONE wrap in a task to do proper error handling.
-        if (!tokens) {
-            throw new Error("cannot parse hash arguments");
-        }
-        // UNDONE: detect empty samples path here?
-        return {
-            topography: "/data/earth-topo.json",
-            recipe: recipeFor(tokens),
-            samples: toPath(tokens)
-        };
-    }
+//    function decode(x) {
+//        return decodeURIComponent(coalesce(x, ""));
+//    }
 
-    function decode(x) {
-        return decodeURIComponent(coalesce(x, ""));
-    }
-
-    function doParseHashArguments() {
+    function doParseHashArguments(s) {
 // Useful for later:
 //        var pairs = window.location.hash.substr(1).split("&").map(function(term) { return term.split("="); });
 //        var args = {};
 //        pairs.forEach(function(pair) { args[decode(pair[0])] = decode(pair[1]); });
-        var hash = window.location.hash.substr(1);
-        var args = parseHashArguments(hash !== "" ? hash : DEFAULT_HASH_ARGS);
-        log.debug(JSON.stringify(args));
-        return interpret(args);
+//        log.debug(JSON.stringify(args));
+
+        var args = parseHashArguments(s);
+        // UNDONE do some proper error handling with this.
+        if (!args) {
+            throw new Error("cannot parse hash arguments");
+        }
+        // UNDONE: detect empty samples path here?
+        return {
+            projection: "orthographic",
+            topography: "/data/earth-topo.json",
+            recipe: recipeFor(args),
+            layer: toPath(args)
+        };
+    }
+
+    function createHashController() {
+        var dispatch = d3.dispatch("layer_changed", "projection_changed");
+        var d = doParseHashArguments(DEFAULT_HASH_ARGS);
+        dispatch.projection = d.projection;
+        dispatch.topography = d.topography;
+        dispatch.recipe = d.recipe;
+        dispatch.layer = d.layer;
+
+        d3.select(window).on("hashchange", function() {
+            log.debug("hashchange");
+            var hash = window.location.hash.substr(1);
+            var tokens = doParseHashArguments(hash !== "" ? hash : DEFAULT_HASH_ARGS);
+
+            if (dispatch.layer !== tokens.layer) {
+                dispatch.recipe = tokens.recipe;
+                dispatch.layer_changed(dispatch.layer = tokens.layer);
+            }
+            if (dispatch.projection !== tokens.projection) {
+                dispatch.projection_changed(dispatch.projection = tokens.projection);
+            }
+        });
+
+        return dispatch;
     }
 
     /**
@@ -178,10 +203,6 @@
         d3.select(FIELD_CANVAS_ID).attr("width", view.width).attr("height", view.height);
         d3.select(OVERLAY_CANVAS_ID).attr("width", view.width).attr("height", view.height);
         d3.select(FOREGROUND_SVG_ID).attr("width", view.width).attr("height", view.height);
-
-        d3.select(window).on("hashchange", function() {
-            log.debug("hashchange! " + window.location.hash);
-        });
     }
 
     function createSettings(topo) {
@@ -473,7 +494,7 @@
             return when.reject("Failed to find both u,v component records");
         }
 
-        displayLayerMetadata(uRecord.meta, args.recipe);
+        displayLayerMetadata(uRecord.meta, hashController.recipe);
 
         var header = uRecord.header;
         var λ0 = header.lo1, φ0 = header.la1;  // the grid's origin (e.g., 0.0E, 90.0N)
@@ -825,14 +846,25 @@
         displayStatus(e.error ? e.error == 404 ? "No Data" : e.error + " " + e.message : e, true);
     }
 
-    var topoTask        = util.loadJson(args.topography);
-    var dataTask        = util.loadJson(args.samples);
+    var topoTask        = util.loadJson(hashController.topography);
+    var dataTask        = util.loadJson(hashController.layer);
     var initTask        = when.all([true                                ]).then(apply(init));
     var settingsTask    = when.all([topoTask                            ]).then(apply(createSettings));
     var meshTask        = when.all([topoTask                            ]).then(apply(buildMeshes));
     var renderMapTask   = when.all([settingsTask, meshTask              ]).then(apply(renderMap));
     var buildGridTask   = when.all([dataTask                            ]).then(apply(buildGrid));
     var prepareTask     = when.all([settingsTask                        ]).then(apply(prepareDisplay));
+
+    hashController.on("layer_changed", function(layer) {
+        console.log("new layer:" + layer);
+        displayStatus("downloading...");
+        dataTask = util.loadJson(layer);
+        buildGridTask = when(dataTask).then(buildGrid);
+        when.all([settingsTask, buildGridTask]).then(apply(function(settings, grid) {
+            resetDisplay(settings);
+            prepareDisplay(settings);
+        })).then(null, report);
+    });
 
     // Register a catch-all error handler to log errors rather then let them slip away into the ether.... Cleaner way?
     when.all([
