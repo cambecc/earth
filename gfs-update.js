@@ -34,7 +34,7 @@ var log = tool.log();
 
 var PRODUCT_TYPES = ["1.0"];
 var FORECASTS = [0, 3/*, 6, 9, 12, 15, 18, 21, 24*/];
-var GRIB2JSON_FLAGS = "-n";
+var GRIB2JSON_FLAGS = "-n -c -d";
 var LAYER_RECIPES = {
     wi1: {
         name: "wind-isobaric-1hPa",
@@ -260,6 +260,6 @@ function processCycle(cycle) {
     });
 }
 
-var main = processCycle(gfs.cycle(date).previous().previous().previous().previous());
+var main = processCycle(gfs.cycle(date).previous());
 
 main.then(null, tool.report);

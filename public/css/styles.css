@@ -35,6 +35,7 @@ body {
     fill: none;
     stroke: #000004;
     stroke-width: 2;
+    /* pointer-events: all; */
 }
 
 .sphere-fill {
@@ -56,7 +57,7 @@ body {
     position: relative;
 }
 
-#field, #overlay, #top {
+#field, #overlay, #foreground {
     position: absolute;
     top: 0;
     left: 0;

@@ -9,21 +9,10 @@
 <body>
 
     <div id="display">
-        <div id="container">
-            <div id="map">
-                <svg id="map-svg" xmlns="http://www.w3.org/2000/svg" version="1.1"></svg>
-            </div>
-            <div id="field">
-                <canvas id="field-canvas"></canvas>
-            </div>
-            <div id="overlay">
-                <canvas id="overlay-canvas"></canvas>
-            </div>
-            <div id="top">
-                <svg id="top-svg" xmlns="http://www.w3.org/2000/svg" version="1.1">
-                </svg>
-            </div>
-        </div>
+        <svg id="map" xmlns="http://www.w3.org/2000/svg" version="1.1"></svg>
+        <canvas id="field"></canvas>
+        <canvas id="overlay"></canvas>
+        <svg id="foreground" xmlns="http://www.w3.org/2000/svg" version="1.1"></svg>
 
         <div id="details">
             <p id="status"></p>
@@ -42,8 +31,8 @@
                 <span>Control | </span>
                     <span class="text-button" id="show-location">☼</span><span> – </span>
                     <span class="text-button" id="previous-day">&nbsp;«&nbsp;</span><span> – </span>
-                    <span class="text-button" id="previous-hour">&nbsp;&nbsp;‹&nbsp;&nbsp;</span><span> – </span>
-                    <span class="text-button" id="next-hour">&nbsp;&nbsp;›&nbsp;&nbsp;</span><span> – </span>
+                    <span class="text-button" id="previous-forecast">&nbsp;&nbsp;‹&nbsp;&nbsp;</span><span> – </span>
+                    <span class="text-button" id="next-forecast">&nbsp;&nbsp;›&nbsp;&nbsp;</span><span> – </span>
                     <span class="text-button" id="next-day">&nbsp;»&nbsp;</span><span> – </span>
                     <span class="text-button" id="current-conditions">Now</span><p></p>
                 <span>Height | (hPa) </span>
@@ -59,7 +48,9 @@
                     <span class="text-button" id="hum">Hum</span><span> – </span>
                     <span class="text-button" id="could">Cloud</span><p></p>
                 <p><a href="/about.html">more</a></p>
+<!--
                 <p>免責事項 | 正確な情報を提供するためのものではありません</p>
+-->
 
                 <!--
                 <p>Author |

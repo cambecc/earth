@@ -7,11 +7,10 @@
     var MIN_SLEEP_TIME = 25;  // amount of time a task waits before resuming (milliseconds)
 
     var DISPLAY_ID = "#display";
-    var CONTAINER_ID = "#container";
-    var MAP_SVG_ID = "#map-svg";
-    var TOP_SVG_ID = "#top-svg";
-    var FIELD_CANVAS_ID = "#field-canvas";
-    var OVERLAY_CANVAS_ID = "#overlay-canvas";
+    var MAP_SVG_ID = "#map";
+    var FOREGROUND_SVG_ID = "#foreground";
+    var FIELD_CANVAS_ID = "#field";
+    var OVERLAY_CANVAS_ID = "#overlay";
     var STATUS_ID = "#status";
     var LOCATION_ID = "#location";
     var POINT_DETAILS_ID = "#point-details";
@@ -20,26 +19,52 @@
     var DATA_DATE = "#data-date";
     var DATA_LAYER = "#data-layer";
     var DATA_CENTER = "#data-center";
+    var PREVIOUS_DAY_ID = "#previous-day";
+    var PREVIOUS_FORECAST_ID = "#previous-forecast";
+    var NEXT_FORECAST_ID = "#next-forecast";
+    var NEXT_DAY_ID = "#next-day";
+    var CURRENT_CONDITIONS_ID = "#current-conditions";
 
     var DEFAULT_HASH_ARGS = "current/wind/isobaric/1000hPa";
 
-//    // metadata about each type of overlay
-//    var OVERLAY_TYPES = {
-//        "temp": {min: -10,   max: 35,    scale: "line", precision: 1, label: "気温 Temperature", unit: "ºC"},
-//        "hum":  {min: 0,     max: 100,   scale: "line", precision: 1, label: "湿度 Humidity", unit: "%"},
-//        "wv":   {min: 1,     max: 20,    scale: "log",  precision: 1, label: "風速 Wind Velocity", unit: " m/s"},
-//        "in":   {min: 0.1,   max: 4.0,   scale: "log",  precision: 2, label: "日射量 Insolation", unit: ' MJ/m<span class="sup">2</span>'},
-//        "no":   {min: 0.001, max: 0.600, scale: "log",  precision: 0, label: "一酸化窒素 Nitric Monoxide", unit: " ppb", multiplier: 1000},
-//        "no2":  {min: 0.001, max: 0.200, scale: "log",  precision: 0, label: "二酸化窒素 Nitrogen Dioxide", unit: " ppb", multiplier: 1000},
-//        "nox":  {min: 0.001, max: 0.600, scale: "log",  precision: 0, label: "窒素酸化物 Nitrogen Oxides", unit: " ppb", multiplier: 1000},
-//        "ox":   {min: 0.001, max: 0.250, scale: "log",  precision: 0, label: "光化学オキシダント Photochemical Oxidants", unit: " ppb", multiplier: 1000},
-//        "so2":  {min: 0.001, max: 0.110, scale: "log",  precision: 0, label: "二酸化硫黄 Sulfur Dioxide", unit: " ppb", multiplier: 1000},
-//        "co":   {min: 0.1,   max: 3.0,   scale: "log",  precision: 1, label: "一酸化炭素 Carbon Monoxide", unit: " ppm"},
-//        "ch4":  {min: 1.5,   max: 3.0,   scale: "log",  precision: 2, label: "メタン Methane", unit: " ppm"},
-//        "nmhc": {min: 0.01,  max: 1.30,  scale: "log",  precision: 2, label: "非メタン炭化水素 Non-Methane Hydrocarbons", unit: " ppm"},
-//        "spm":  {min: 1,     max: 750,   scale: "log",  precision: 0, label: "浮遊粒子状物質 Suspended Particulate Matter", unit: ' μg/m<span class="sup">3</span>'},
-//        "pm25": {min: 1,     max: 750,   scale: "log",  precision: 0, label: "微小粒子状物質 2.5µm Particulate Matter", unit: ' μg/m<span class="sup">3</span>'}
-//    };
+    var LAYER_RECIPES = {
+        wi1: {
+            name: "wind-isobaric-1hPa",
+            filter: "--fc 2 --fp wind --fs 100 --fv 100",
+            description: "Wind Velocity @ 1 hPa",
+            stack: ["wi1000", "wi100", "wi10", "wi1"],
+            cross: ["wi1"]
+        },
+        wi10: {
+            name: "wind-isobaric-10hPa",
+            filter: "--fc 2 --fp wind --fs 100 --fv 1000",
+            description: "Wind Velocity @ 10 hPa",
+            stack: ["wi1000", "wi100", "wi10", "wi1"],
+            cross: ["wi10"]
+        },
+        wi100: {
+            name: "wind-isobaric-100hPa",
+            filter: "--fc 2 --fp wind --fs 100 --fv 10000",
+            description: "Wind Velocity @ 100 hPa",
+            stack: ["wi1000", "wi100", "wi10", "wi1"],
+            cross: ["wi100"]
+        },
+        wi1000: {
+            name: "wind-isobaric-1000hPa",
+            filter: "--fc 2 --fp wind --fs 100 --fv 100000",
+            description: "Wind Velocity @ 1000 hPa",
+            stack: ["wi1000", "wi100", "wi10", "wi1"],
+            cross: ["wi1000", "ti1000"]
+        },
+        ti1000: {
+            name: "temp-isobaric-1000hPa",
+            filter: "--fc 0 --fp 0 --fs 100 --fv 100000",
+            description: "Temperature @ 1000 hPa",
+            stack: [],
+            cross: ["wi1000", "ti1000"]
+        }
+    };
+    var ALL_RECIPES = d3.values(LAYER_RECIPES);
 
     var log = util.log;
     var apply = util.apply;
@@ -62,12 +87,12 @@
     function parseHashArguments(s) {
         //               1        2      3    4    5         6        7       8         9
         //                       int    int  int  int     AZaz09_  AZaz09_  AZaz09_   any char
-        //         ( "current" | yyyy / mm / dd / hhhh ) / param / surface / level [ / rest ]
+        //         ( "current" | yyyy / mm / dd / hhhhZ ) / param / surface / level [ / rest ]
 
-        var match = /^(current|(\d{4})\/(\d{2})\/(\d{2})\/(\d{4}))\/(\w+)\/(\w+)\/(\w+)([\/].+)?/.exec(s);
+        var match = /^(current|(\d{4})\/(\d{2})\/(\d{2})\/(\d{4})Z)\/(\w+)\/(\w+)\/(\w+)([\/].+)?/.exec(s);
         return !match ? null : {
-            date: match[1],    // "current" or "yyyy/mm/dd/hhhh"
-            year: match[2],    // "yyyy"
+            date: match[1],    // "current" or "yyyy/mm/dd/hhhhZ"  // CONSIDER: can remove hhhhZ from this capture. how?
+            year: match[2],    // "yyyy"  // CONSIDER: can probably eliminate year, month, and day fields. used?
             month: match[3],   // "mm"
             day: match[4],     // "dd"
             hour: match[5],    // "hhhh"
@@ -84,6 +109,16 @@
         return "/data/weather/" + dir + "/" + [stamp, t.param, t.surface, t.level, "gfs", "1.0"].join("-") + ".json";
     }
 
+    function recipeFor(t) {
+        var name = [t.param, t.surface, t.level].join("-");
+        for (var i = 0; i < ALL_RECIPES.length; i++) {
+            if (ALL_RECIPES[i].name === name) {
+                return ALL_RECIPES[i];
+            }
+        }
+        return null;
+    }
+
     function interpret(tokens) {
         // UNDONE wrap in a task to do proper error handling.
         if (!tokens) {
@@ -92,6 +127,7 @@
         // UNDONE: detect empty samples path here?
         return {
             topography: "/data/earth-topo.json",
+            recipe: recipeFor(tokens),
             samples: toPath(tokens)
         };
     }
@@ -141,7 +177,11 @@
         d3.select(MAP_SVG_ID).attr("width", view.width).attr("height", view.height);
         d3.select(FIELD_CANVAS_ID).attr("width", view.width).attr("height", view.height);
         d3.select(OVERLAY_CANVAS_ID).attr("width", view.width).attr("height", view.height);
-        d3.select(TOP_SVG_ID).attr("width", view.width).attr("height", view.height);
+        d3.select(FOREGROUND_SVG_ID).attr("width", view.width).attr("height", view.height);
+
+        d3.select(window).on("hashchange", function() {
+            log.debug("hashchange! " + window.location.hash);
+        });
     }
 
     function createSettings(topo) {
@@ -178,16 +218,16 @@
         }
     }
 
-    function buildMeshes(topo, settings) {
+    function buildMeshes(topo) {
         // UNDONE: Probably don't need this function anymore. Just need settings that will initialize the features...
         displayStatus("building meshes...");
         log.time("building meshes");
-        var path = d3.geo.path().projection(settings.projection);
+        var bbox = topo.bbox;
         var boundaryLo = topojson.feature(topo, topo.objects.coastline_110m);  // UNDONE: mesh vs. feature?
         var boundaryHi = topojson.feature(topo, topo.objects.coastline_50m);
         log.timeEnd("building meshes");
         return {
-            path: path,
+            boundingBox: [[bbox[0], bbox[1]], [bbox[2], bbox[3]]],
             boundaryLo: boundaryLo,
             boundaryHi: boundaryHi
         };
@@ -197,87 +237,63 @@
         return mvi.dist(a[0], a[1], b[0], b[1]);
     }
 
-    function createController(handler) {
-        var isMoving = false, isClick = false;
-        var moveCount = 0;
-        var mouse;
-
-        function signalIfDone(expected) {
-            setTimeout(function() {
-                if (moveCount === expected) {
-                    isMoving = false;
-                    handler.end();
-                }
-            }, 1000);
-        }
-
-        var drag = d3.behavior.drag()
-            .origin(function() {
-                mouse = d3.mouse(this);
-                isClick = true;
-                return handler.origin();
-            })
-            .on("dragstart", function() {
-                d3.event.sourceEvent.stopPropagation();
-            })
-            .on("drag", function() {
-                isClick = false;
-                if (!isMoving) {
-                    if (distance(mouse, d3.mouse(this)) <= 1) {  // some hysteresis to avoid spurious drags
-                        return;
-                    }
-                    handler.start();
-                    isMoving = true;
-                }
-                handler.drag(d3.event.x, d3.event.y);
-                moveCount++;
-            })
-            .on("dragend", function() {
-                if (isClick) {
-                    handler.click(mouse[0], mouse[1]);
-                    isClick = false;
-                    mouse = null;
-                }
-                else if (isMoving) {
-                    signalIfDone(moveCount);
-                }
-            });
+    function createMapController() {
+        var projection;
+        var dispatch = d3.dispatch("start", "redraw", "end", "click");
+        var moveCount = 0, isClick = false;
+        var startMouse, startScale, sensitivity, rot;
 
         var zoom = d3.behavior.zoom()
             .scaleExtent([25, view.width * 2])
             .on("zoomstart", function() {
-                if (!isMoving) {
-                    handler.start();
-                    isMoving = true;
-                }
+                startMouse = d3.mouse(this);
+                startScale = zoom.scale();
+                sensitivity = 60 / startScale;  // seems to provide a good drag scaling factor
+                rot = [projection.rotate()[0] / sensitivity, -projection.rotate()[1] / sensitivity];
+                isClick = true;
             })
             .on("zoom", function() {
-                handler.zoom(d3.event.scale);
+                var currentMouse = d3.mouse(this);
+                var currentScale = d3.event.scale;
+                // some hysteresis to avoid spurious 1-pixel rotations
+                if (moveCount === 0 && startScale === currentScale && distance(startMouse, currentMouse) < 2) {
+                    return;
+                }
+                isClick = false;
+                if (moveCount === 0) {
+                    dispatch.start();
+                }
+                var xd = currentMouse[0] - startMouse[0] + rot[0];
+                var yd = currentMouse[1] - startMouse[1] + rot[1];
+                projection.rotate([xd * sensitivity, -yd * sensitivity, projection.rotate()[2]]);
+                projection.scale(d3.event.scale);
+                dispatch.redraw();
                 moveCount++;
             })
             .on("zoomend", function() {
-                signalIfDone(moveCount);
+                if (isClick) {
+                    isClick = false;
+                    var coord = projection.invert(startMouse);
+                    if (coord && isFinite(coord[0]) && isFinite(coord[1])) {
+                        dispatch.click(startMouse, coord);
+                    }
+                }
+                else {
+                    var expected = moveCount;
+                    setTimeout(function() {
+                        if (moveCount === expected) {
+                            moveCount = 0;
+                            dispatch.end();
+                        }
+                    }, 1000);
+                }
             });
 
-        function locate() {
-            if (navigator.geolocation) {
-                navigator.geolocation.getCurrentPosition(
-                    function(position) {
-                        handler.locate(position.coords.longitude, position.coords.latitude);
-                    },
-                    log.error,
-                    {enableHighAccuracy: true});
-            }
-        }
-
-        return {
-            drag: drag,
-            zoom: zoom,
-            locate: locate,
-            scale: function(_) {
-                return zoom.scale(_);
-            }
+        dispatch.projection = function(_) {
+            return _ ? (zoom.scale((projection = _).scale()), this) : projection;
         };
+        dispatch.zoom = zoom;
+        return dispatch;
     }
 
     var handler = null;
@@ -289,7 +305,7 @@
         var projection = settings.projection;
         var path = d3.geo.path().projection(projection);
         var mapSvg = d3.select(MAP_SVG_ID);
-        var topSvg = d3.select(TOP_SVG_ID);
+        var foregroundSvg = d3.select(FOREGROUND_SVG_ID);
         var defs = mapSvg.append("defs");
 
         var gradientFill = defs.append("radialGradient")
@@ -331,78 +347,64 @@
             .attr("clip-path", "url(#clip)")
             .attr("d", path);
 
-        topSvg.append("use")
+        foregroundSvg.append("use")
             .attr("class", "sphere-stroke")
             .attr("xlink:href", "#sphere");
 
-
-        var sensitivity;
         handler = {
             grid: null,  // filled in later. yuck?
-            field: null,  // filled in later
-
-            origin: function() {
-                sensitivity = 60 / projection.scale();  // this appears to provide a good drag scaling factor
-                return {x: projection.rotate()[0] / sensitivity, y: -projection.rotate()[1] / sensitivity};
-            },
-            start: function() {
-                resetDisplay(settings);
-                world.datum(mesh.boundaryLo);
-            },
-            drag: function(x, y) {
-                projection.rotate([x * sensitivity, -y * sensitivity, projection.rotate()[2]]);
-                mapSvg.selectAll("path").attr("d", path);
-                topSvg.selectAll("path").attr("d", path);
-            },
-            zoom: function(scale) {
-                projection.scale(scale);
-                mapSvg.selectAll("path").attr("d", path);
-                topSvg.selectAll("path").attr("d", path);
-            },
-            end: function() {
-                world.datum(mesh.boundaryHi).attr("d", path);
-                prepareDisplay(settings);
-            },
-
-            show: function(λ, φ, x, y) {
-                // show the point on the map
-                var position = d3.select(POSITION_ID);
-                if (!position.node()) {
-                    position = topSvg.append("path").attr("id", POSITION_ID.substr(1));
-                }
-                position.datum({type: "Point", coordinates: [λ, φ]}).attr("d", path.pointRadius(7));
-
-                // show details at that point, if any
-                if (this.field && (this.field(x, y)[2] != NIL)) {
-                    var wind;
-                    if (this.grid && !isNullOrUndefined(wind = this.grid(λ, φ))) {
-                        d3.select(LOCATION_ID).node().textContent = "⁂ " + formatCoordinates(λ, φ);
-                        var pointDetails = "⁂ " + formatVector(wind[0], wind[1]);
-                        d3.select(POINT_DETAILS_ID).node().innerHTML = pointDetails;
-                    }
-                }
-            },
-
-            click: function(x, y) {
-                var coord = projection.invert([x, y]);
-                if (coord) {
-                    this.show(coord[0], coord[1], x, y);
-                }
-            },
-            locate: function(λ, φ) {
-                var point = projection([λ, φ]);
-                if (point) {
-                    this.show(λ, φ, point[0], point[1]);
-                }
-            }
+            field: null  // filled in later
         };
 
-        var controller = createController(handler);
-        controller.scale(projection.scale());
+        function show(point, coord) {
+            var x = point[0], y = point[1], λ = coord[0], φ = coord[1];
+            // show the point on the map
+            var position = d3.select(POSITION_ID);
+            if (!position.node()) {
+                position = foregroundSvg.append("path").attr("id", POSITION_ID.substr(1));
+            }
+            position.datum({type: "Point", coordinates: [λ, φ]}).attr("d", path.pointRadius(7));
 
-        d3.select(TOP_SVG_ID).call(controller.drag);
-        d3.select(CONTAINER_ID).call(controller.zoom);
-        d3.select(SHOW_LOCATION_ID).on("click", controller.locate);
+            // show details at that point, if any
+            if (handler.field && (handler.field(x, y)[2] != NIL)) {
+                var wind;
+                if (handler.grid && !isNullOrUndefined(wind = handler.grid(λ, φ))) {
+                    d3.select(LOCATION_ID).node().textContent = "⁂ " + formatCoordinates(λ, φ);
+                    var pointDetails = "⁂ " + formatVector(wind[0], wind[1]);
+                    d3.select(POINT_DETAILS_ID).node().innerHTML = pointDetails;
+                }
+            }
+        }
+
+        var controller = createMapController()
+            .projection(projection)
+            .on("start", function() {
+                resetDisplay(settings);
+                world.datum(mesh.boundaryLo);
+            })
+            .on("redraw", function() {
+                d3.select(DISPLAY_ID).selectAll("path").attr("d", path);
+            })
+            .on("end", function() {
+                world.datum(mesh.boundaryHi).attr("d", path);
+                prepareDisplay(settings);
+            })
+            .on("click", show);
+
+        foregroundSvg.call(controller.zoom);
+
+        function locate() {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(
+                    function(position) {
+                        var coord = [position.coords.longitude, position.coords.latitude];
+                        show(controller.projection()(coord), coord);
+                    },
+                    log.error);
+            }
+        }
+
+        d3.select(SHOW_LOCATION_ID).on("click", locate);
 
         log.timeEnd("rendering map");
     }
@@ -443,10 +445,10 @@
             (date.getHours() + 100).toString().substr(1) + ":00";
     }
 
-    function displayLayerMetadata(meta) {
-        d3.select(DATA_DATE).node().textContent = toLocalISO(new Date(meta.date)) + " (forecast)";
-        d3.select(DATA_LAYER).node().textContent = meta.description;
-        d3.select(DATA_CENTER).node().textContent = meta.center;
+    function displayLayerMetadata(meta, recipe) {
+        d3.select(DATA_DATE).node().textContent = toLocalISO(new Date(meta.date)) + " (local)";
+        d3.select(DATA_LAYER).node().textContent = recipe.description;
+        d3.select(DATA_CENTER).node().textContent = "US National Weather Service";
     }
 
     function buildGrid(data) {
@@ -471,7 +473,7 @@
             return when.reject("Failed to find both u,v component records");
         }
 
-//        displayLayerMetadata(uRecord.meta);
+        displayLayerMetadata(uRecord.meta, args.recipe);
 
         var header = uRecord.header;
         var λ0 = header.lo1, φ0 = header.la1;  // the grid's origin (e.g., 0.0E, 90.0N)
@@ -606,7 +608,7 @@
                     var coord = projection.invert(point);
                     if (coord) {
                         var λ = coord[0], φ = coord[1];
-                        if (!isNaN(λ)) {
+                        if (isFinite(λ)) {
                             var wind = grid(λ, φ);
                             if (wind) {
                                 column[y] = distort(x, y, λ, φ, wind);
@@ -753,6 +755,32 @@
     function postInit(grid, field) {
         handler.grid = grid;
         handler.field = field;
+
+//        // Add event handlers for the time navigation buttons.
+//        function navToHours(offset) {
+//            var parts = args.date.split(/[- :]/);
+//            var date = parts.length >= 4 ?
+//                new Date(parts[0], parts[1] - 1, parts[2], parts[3]) :
+//                args.samples.indexOf("current") > 0 ? new Date() : null;
+//
+//            if (isFinite(+date)) {
+//                date.setHours(date.getHours() + offset);
+//                window.location.href = "/map/" +
+//                    args.type + "/" +
+//                    date.getFullYear() + "/" +
+//                    (date.getMonth() + 1) + "/" +
+//                    date.getDate() + "/" +
+//                    date.getHours();
+//            }
+//        }
+//        d3.select(PREVIOUS_DAY_ID).on("click", navToHours.bind(null, -24));
+//        d3.select(PREVIOUS_FORECAST_ID).on("click", navToHours.bind(null, -3));
+//        d3.select(NEXT_FORECAST_ID).on("click", navToHours.bind(null, +3));
+//        d3.select(NEXT_DAY_ID).on("click", navToHours.bind(null, +24));
+//        d3.select(CURRENT_CONDITIONS_ID).on("click", function() {
+//
+//            window.location.href = "/map/" + args.type + "/current";
+//        });
     }
 
     function clearCanvas(canvas) {
@@ -801,7 +829,7 @@
     var dataTask        = util.loadJson(args.samples);
     var initTask        = when.all([true                                ]).then(apply(init));
     var settingsTask    = when.all([topoTask                            ]).then(apply(createSettings));
-    var meshTask        = when.all([topoTask, settingsTask              ]).then(apply(buildMeshes));
+    var meshTask        = when.all([topoTask                            ]).then(apply(buildMeshes));
     var renderMapTask   = when.all([settingsTask, meshTask              ]).then(apply(renderMap));
     var buildGridTask   = when.all([dataTask                            ]).then(apply(buildGrid));
     var prepareTask     = when.all([settingsTask                        ]).then(apply(prepareDisplay));
