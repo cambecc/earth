@@ -9,9 +9,9 @@
     var DISPLAY_ID = "#display";
     var MAP_SVG_ID = "#map";
     var FOREGROUND_SVG_ID = "#foreground";
-    var FIELD_CANVAS_ID = "#field";  // UNDONE: rename to animation
+    var ANIMATION_CANVAS_ID = "#animation";
     var OVERLAY_CANVAS_ID = "#overlay";
-    var STATUS_ID = "#status";
+    var STATUS_ID = "#progress";
     var LOCATION_ID = "#location";
     var POINT_DETAILS_ID = "#point-details";
     var POSITION_ID = "#position";
@@ -86,23 +86,20 @@
     }
 
     function parseHashArguments(s) {
-        //               1        2      3    4    5         6        7       8         9
+        //               1                          2         3       4         5       6
         //                       int    int  int  int     AZaz09_  AZaz09_  AZaz09_   any char
         //         ( "current" | yyyy / mm / dd / hhhhZ ) / param / surface / level [ / rest ]
         //
         //            current    2013   11   17   0600Z     wind   isobaric  10hPa
 
-        var match = /^(current|(\d{4})\/(\d{2})\/(\d{2})\/(\d{4})Z)\/(\w+)\/(\w+)\/(\w+)([\/].+)?/.exec(s);
+        var match = /^(current|\d{4}\/\d{2}\/\d{2}\/(\d{4})Z)\/(\w+)\/(\w+)\/(\w+)([\/].+)?/.exec(s);
         return !match ? null : {
             date: match[1],    // "current" or "yyyy/mm/dd/hhhhZ"  // CONSIDER: can remove hhhhZ from this capture. how?
-            year: match[2],    // "yyyy"  // CONSIDER: can probably eliminate year, month, and day fields. used?
-            month: match[3],   // "mm"
-            day: match[4],     // "dd"
-            hour: match[5],    // "hhhh"
-            param: match[6],   // alphanumeric_
-            surface: match[7], // alphanumeric_
-            level: match[8]    // alphanumeric_
-            // rest: match[9]  // ignored for now
+            hour: match[2],    // "hhhh"
+            param: match[3],   // alphanumeric_
+            surface: match[4], // alphanumeric_
+            level: match[5]    // alphanumeric_
+            // rest: match[6]  // ignored for now
         };
     }
 
@@ -199,10 +196,7 @@
             document.documentElement.className += " no-touch";  // to filter styles problematic for touch
         }
         // Modify the display elements to fill the screen.
-        d3.select(MAP_SVG_ID).attr("width", view.width).attr("height", view.height);
-        d3.select(FIELD_CANVAS_ID).attr("width", view.width).attr("height", view.height);
-        d3.select(OVERLAY_CANVAS_ID).attr("width", view.width).attr("height", view.height);
-        d3.select(FOREGROUND_SVG_ID).attr("width", view.width).attr("height", view.height);
+        d3.selectAll(".full-view").attr("width", view.width).attr("height", view.height);
     }
 
     function createSettings(topo) {
@@ -265,18 +259,20 @@
         var startMouse, startScale, sensitivity, rot;
 
         var zoom = d3.behavior.zoom()
-            .scaleExtent([25, view.width * 2])
+            .scaleExtent([25, 3000])
             .on("zoomstart", function() {
                 startMouse = d3.mouse(this);
                 startScale = zoom.scale();
                 sensitivity = 60 / startScale;  // seems to provide a good drag scaling factor
+                console.log(projection.rotate());
+                console.log(startScale);
                 rot = [projection.rotate()[0] / sensitivity, -projection.rotate()[1] / sensitivity];
                 isClick = true;
             })
             .on("zoom", function() {
                 var currentMouse = d3.mouse(this);
                 var currentScale = d3.event.scale;
-                // some hysteresis to avoid spurious 1-pixel rotations
+                // some hysteresis to avoid spurious 1-pixel rotations -- UNDONE: and one/zero level zooms
                 if (moveCount === 0 && startScale === currentScale && distance(startMouse, currentMouse) < 2) {
                     return;
                 }
@@ -729,7 +725,7 @@
             });
         }
 
-        var g = d3.select(FIELD_CANVAS_ID).node().getContext("2d");
+        var g = d3.select(ANIMATION_CANVAS_ID).node().getContext("2d");
         g.lineWidth = 0.75;
         g.fillStyle = settings.fadeFillStyle;
 
@@ -810,7 +806,7 @@
 
     function resetDisplay(settings) {
         settings.animate = false;
-        clearCanvas(d3.select(FIELD_CANVAS_ID).node());
+        clearCanvas(d3.select(ANIMATION_CANVAS_ID).node());
         clearCanvas(d3.select(OVERLAY_CANVAS_ID).node());
     }
 

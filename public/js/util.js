@@ -128,15 +128,15 @@ util = function() {
 
     /**
      * Returns a promise for a JSON resource (URL) fetched via XHR. If the load fails, the promise rejects with an
-     * object describing the reason: {error: http-status-code, message: http-status-text, resource:}.
+     * object describing the reason: {status: http-status-code, message: http-status-text, resource:}.
      */
     function loadJson(resource) {
         var d = when.defer();
         d3.json(resource, function(error, result) {
             return error ?
                 !error.status ?
-                    d.reject({error: -1, message: "Cannot load resource: " + resource, resource: resource}) :
-                    d.reject({error: error.status, message: error.statusText, resource: resource}) :
+                    d.reject({status: -1, message: "Cannot load resource: " + resource, resource: resource}) :
+                    d.reject({status: error.status, message: error.statusText, resource: resource}) :
                 d.resolve(result);
         });
         return d.promise;

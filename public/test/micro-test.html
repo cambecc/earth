@@ -1,0 +1,149 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Micro Tests</title>
+
+    <link rel="stylesheet" href="qunit-1.12.0.css">
+    <script src="qunit-1.12.0.js"></script>
+    <script src="../js/underscore.js"></script>
+    <script src="../js/backbone.js"></script>
+    <script src="../js/d3.v3.js"></script>
+    <script src="../js/micro.js"></script>
+
+    <script>
+        test("isTruthy", function() {
+            ok(µ.isTruthy(true));
+            ok(µ.isTruthy("a"));
+            ok(µ.isTruthy(1));
+            ok(!µ.isTruthy(false));
+            ok(!µ.isTruthy(0));
+            ok(!µ.isTruthy(""));
+            ok(!µ.isTruthy(null));
+            ok(!µ.isTruthy(undefined));
+            ok(!µ.isTruthy());
+        });
+
+        test("isValue", function() {
+            ok(µ.isValue(true));
+            ok(µ.isValue("a"));
+            ok(µ.isValue(1));
+            ok(µ.isValue(false));
+            ok(µ.isValue(0));
+            ok(µ.isValue(""));
+            ok(!µ.isValue(null));
+            ok(!µ.isValue(undefined));
+            ok(!µ.isValue());
+        });
+
+        test("coalesce", function() {
+            equal(µ.coalesce("a", "b"), "a");
+            equal(µ.coalesce("", "b"), "");
+            equal(µ.coalesce(1, "b"), 1);
+            equal(µ.coalesce(0, "b"), 0);
+            equal(µ.coalesce(null, "b"), "b");
+            equal(µ.coalesce(undefined, "b"), "b");
+            equal(µ.coalesce(null, null), null);
+            equal(µ.coalesce(null, undefined), null);
+            equal(µ.coalesce(), undefined);
+        });
+
+        test("view", function() {
+            var view = µ.view();
+            ok(view.width > 0);
+            ok(view.height > 0);
+            // what else to do here without replicating the function itself?
+        });
+
+        var builders = d3.map({
+            a: function() {},
+            b: function() {}
+        });
+
+        test("parse", function() {
+
+            deepEqual(
+                µ.parse("current/wind/isobaric/1000hPa", builders),
+                {date: "current", hour: "", param: "wind", surface: "isobaric", level: "1000hPa"});
+            deepEqual(
+                µ.parse("current/wind/isobaric/1000hPa/", builders),
+                {date: "current", hour: "", param: "wind", surface: "isobaric", level: "1000hPa"});
+            deepEqual(
+                µ.parse("2013/11/20/0900Z/wind/isobaric/1000hPa", builders),
+                {date: "2013/11/20", hour: "0900", param: "wind", surface: "isobaric", level: "1000hPa"});
+            deepEqual(
+                µ.parse("9999/99/99/9999Z/temp/something/1hPa", builders),
+                {date: "9999/99/99", hour: "9999", param: "temp", surface: "something", level: "1hPa"});
+            deepEqual(
+                µ.parse("current/x/y/z/a", builders),
+                {date: "current", hour: "", param: "x", surface: "y", level: "z", projection: "a", orientation: ""});
+            deepEqual(
+                µ.parse("current/x/y/z/b=", builders),
+                {date: "current", hour: "", param: "x", surface: "y", level: "z", projection: "b", orientation: ""});
+            deepEqual(
+                µ.parse("current/x/y/z/a=-,.", builders),
+                {date: "current", hour: "", param: "x", surface: "y", level: "z", projection: "a", orientation: "-,."});
+            deepEqual(
+                µ.parse("current/x/y/z/b=1///abc/blah=barney/?..%21%30#", builders),
+                {date: "current", hour: "", param: "x", surface: "y", level: "z", projection: "b", orientation: "1"});
+            deepEqual(
+                µ.parse("current/x/y/z/a=1", builders),
+                {date: "current", hour: "", param: "x", surface: "y", level: "z", projection: "a", orientation: "1"});
+            deepEqual(
+                µ.parse("current/x/y/z/a=1/b", builders),
+                {date: "current", hour: "", param: "x", surface: "y", level: "z", projection: "b", orientation: ""});
+            deepEqual(
+                µ.parse("current/x/y/z/a=1/b=2", builders),
+                {date: "current", hour: "", param: "x", surface: "y", level: "z", projection: "b", orientation: "2"});
+            deepEqual(
+                µ.parse("current/x/y/z/a=abc", builders),
+                {date: "current", hour: "", param: "x", surface: "y", level: "z"});
+
+            deepEqual(µ.parse(null, builders), {});
+            deepEqual(µ.parse("", builders), {});
+            deepEqual(µ.parse("/", builders), {});
+            deepEqual(µ.parse("current/", builders), {});
+            deepEqual(µ.parse("current/wind", builders), {});
+            deepEqual(µ.parse("current/wind/isobaric", builders), {});
+            deepEqual(µ.parse("current/wind/isobaric/", builders), {});
+            deepEqual(µ.parse("current/w ind/isobaric/", builders), {});
+            deepEqual(µ.parse("current/wind/isobar ic/", builders), {});
+        });
+
+        test("hash-controller-defaults", function() {
+            var controller = µ.buildHashController(builders);
+            deepEqual(
+                controller.attributes,
+                {date: "current", hour: "", param: "wind", surface: "isobaric", level: "1000hPa",
+                 projection: "orthographic", orientation: "", topology: "/data/earth-topo.json"});
+        });
+
+        test("hash-controller-properties", function() {
+
+            var controller = µ.buildHashController(builders);
+
+            controller.set({
+                date: "current", hour: "", param: "a", surface: "b", level: "c", projection: "x", orientation: "1"
+            });
+
+            equal(controller.toHash(), "current/a/b/c/x=1");
+            equal(controller.toPath(), "/data/weather/current/current-a-b-c-gfs-1.0.json");
+
+            controller.set({
+                date: "2013/11/20", hour: "0800", param: "a", surface: "b", level: "c", projection: "x", orientation: ""
+            });
+
+            equal(controller.toHash(), "2013/11/20/0800Z/a/b/c/x");
+            equal(controller.toPath(), "/data/weather/2013/11/20/0800-a-b-c-gfs-1.0.json");
+
+            ok(Number.isFinite(null));
+        });
+
+    </script>
+</head>
+<body>
+
+    <div id="qunit"></div>
+
+</body>
+</html>

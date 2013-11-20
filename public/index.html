@@ -9,25 +9,20 @@
 <body>
 
     <div id="display">
-        <svg id="map" xmlns="http://www.w3.org/2000/svg" version="1.1"></svg>
-        <canvas id="field"></canvas>
-        <canvas id="overlay"></canvas>
-        <svg id="foreground" xmlns="http://www.w3.org/2000/svg" version="1.1"></svg>
+        <svg id="map" class="full-view" xmlns="http://www.w3.org/2000/svg" version="1.1"></svg>
+        <canvas id="animation" class="full-view"></canvas>
+        <canvas id="overlay" class="full-view"></canvas>
+        <svg id="foreground" class="full-view" xmlns="http://www.w3.org/2000/svg" version="1.1"></svg>
 
         <div id="details">
-            <p id="status"></p>
+            <p id="progress"></p>
             <p id="location"></p>
             <p id="point-details"></p>
-            <span id="type"><a id="type-link" href="javascript:toggleMenu()">earth</a></span>
-            <div id="tools">
+            <span class="text-button" id="show-menu">earth</span>
+            <div id="menu">
                 <p>Date | <span id="data-date"></span></p>
                 <p>Layer | <span id="data-layer"></span></p>
                 <p>Data | <span id="data-center"></span></p>
-<!--
-                <p>Date | 2013-11-14 09:00 (forecast)</p>
-                <p>Layer | Wind Velocity @ 1000 hPa - GFS 1.0º</p>
-                <p>Data | US National Weather Service</p>
--->
                 <span>Control | </span>
                     <span class="text-button" id="show-location">☼</span><span> – </span>
                     <span class="text-button" id="previous-day">&nbsp;«&nbsp;</span><span> – </span>
@@ -48,31 +43,13 @@
                     <span class="text-button" id="hum">Hum</span><span> – </span>
                     <span class="text-button" id="could">Cloud</span><p></p>
                 <p><a href="/about.html">more</a></p>
-<!--
-                <p>免責事項 | 正確な情報を提供するためのものではありません</p>
--->
-
-                <!--
-                <p>Author |
-                    Cameron Beccario <a href="https://twitter.com/cambecc">@cambecc</a>,
-                    <a href="https://www.facebook.com/fuusoku">Facebook Page</a></p>
-                -->
-
+                <!--<p>免責事項 | 正確な情報を提供するためのものではありません</p>-->
             </div>
         </div>
     </div>
 
-    <script type="text/javascript">
-        function toggleMenu() {
-            var menu = document.getElementById('tools');
-            if (menu.className.indexOf("visible") < 0) {
-                menu.className = "visible";
-            } else {
-                menu.className = "";
-            }
-        }
-    </script>
-
+    <script src="/js/underscore.js" charset="utf-8"></script>
+    <script src="/js/backbone.js" charset="utf-8"></script>
     <script src="/js/when.js" charset="utf-8"></script>
     <script src="/js/d3.v3.js" charset="utf-8"></script>
     <script src="/js/d3.geo.projection.v0.js" charset="utf-8"></script>
@@ -80,7 +57,9 @@
     <script src="/js/topojson.v1.js" charset="utf-8"></script>
     <script src="/js/util.js" charset="utf-8"></script>
     <script src="/js/mvi.js" charset="utf-8"></script>
-    <script src="/js/earth.js" charset="utf-8"></script>
+    <script src="/js/micro.js" charset="utf-8"></script>
+    <script src="/js/globes.js" charset="utf-8"></script>
+    <script src="/js/earth2.js" charset="utf-8"></script>
 
 </body>
 </html>
