@@ -145,9 +145,9 @@ function download(product) {
             },
             null,
             function(update) {
-                var current = Math.floor(update.received / 1024);
+                var current = Math.floor(update.received / 1024 / 1024);
                 if (current > progress) {
-                    log.info((progress = current) + "K " + remotePath);
+                    log.info((progress = current) + "M " + remotePath);
                 }
             });
     });

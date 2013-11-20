@@ -57,47 +57,55 @@
 
         var builders = d3.map({
             a: function() {},
-            b: function() {}
+            b: function() {},
+            orthographic: function() {}
         });
+
+        var TOPOLOGY = "/data/earth-topo.json";
+        function args(x) {
+            x.hour = x.hour || "";
+            x.topology = x.topology || TOPOLOGY;
+            return x;
+        }
 
         test("parse", function() {
 
             deepEqual(
                 µ.parse("current/wind/isobaric/1000hPa", builders),
-                {date: "current", hour: "", param: "wind", surface: "isobaric", level: "1000hPa"});
+                args({date: "current", param: "wind", surface: "isobaric", level: "1000hPa"}));
             deepEqual(
                 µ.parse("current/wind/isobaric/1000hPa/", builders),
-                {date: "current", hour: "", param: "wind", surface: "isobaric", level: "1000hPa"});
+                args({date: "current", param: "wind", surface: "isobaric", level: "1000hPa"}));
             deepEqual(
                 µ.parse("2013/11/20/0900Z/wind/isobaric/1000hPa", builders),
-                {date: "2013/11/20", hour: "0900", param: "wind", surface: "isobaric", level: "1000hPa"});
+                args({date: "2013/11/20", hour: "0900", param: "wind", surface: "isobaric", level: "1000hPa"}));
             deepEqual(
                 µ.parse("9999/99/99/9999Z/temp/something/1hPa", builders),
-                {date: "9999/99/99", hour: "9999", param: "temp", surface: "something", level: "1hPa"});
+                args({date: "9999/99/99", hour: "9999", param: "temp", surface: "something", level: "1hPa"}));
             deepEqual(
                 µ.parse("current/x/y/z/a", builders),
-                {date: "current", hour: "", param: "x", surface: "y", level: "z", projection: "a", orientation: ""});
+                args({date: "current", param: "x", surface: "y", level: "z", projection: "a", orientation: ""}));
             deepEqual(
                 µ.parse("current/x/y/z/b=", builders),
-                {date: "current", hour: "", param: "x", surface: "y", level: "z", projection: "b", orientation: ""});
+                args({date: "current", param: "x", surface: "y", level: "z", projection: "b", orientation: ""}));
             deepEqual(
                 µ.parse("current/x/y/z/a=-,.", builders),
-                {date: "current", hour: "", param: "x", surface: "y", level: "z", projection: "a", orientation: "-,."});
+                args({date: "current", param: "x", surface: "y", level: "z", projection: "a", orientation: "-,."}));
             deepEqual(
                 µ.parse("current/x/y/z/b=1///abc/blah=barney/?..%21%30#", builders),
-                {date: "current", hour: "", param: "x", surface: "y", level: "z", projection: "b", orientation: "1"});
+                args({date: "current", param: "x", surface: "y", level: "z", projection: "b", orientation: "1"}));
             deepEqual(
                 µ.parse("current/x/y/z/a=1", builders),
-                {date: "current", hour: "", param: "x", surface: "y", level: "z", projection: "a", orientation: "1"});
+                args({date: "current", param: "x", surface: "y", level: "z", projection: "a", orientation: "1"}));
             deepEqual(
                 µ.parse("current/x/y/z/a=1/b", builders),
-                {date: "current", hour: "", param: "x", surface: "y", level: "z", projection: "b", orientation: ""});
+                args({date: "current", param: "x", surface: "y", level: "z", projection: "b", orientation: ""}));
             deepEqual(
                 µ.parse("current/x/y/z/a=1/b=2", builders),
-                {date: "current", hour: "", param: "x", surface: "y", level: "z", projection: "b", orientation: "2"});
+                args({date: "current", param: "x", surface: "y", level: "z", projection: "b", orientation: "2"}));
             deepEqual(
                 µ.parse("current/x/y/z/a=abc", builders),
-                {date: "current", hour: "", param: "x", surface: "y", level: "z"});
+                args({date: "current", param: "x", surface: "y", level: "z"}));
 
             deepEqual(µ.parse(null, builders), {});
             deepEqual(µ.parse("", builders), {});
@@ -110,33 +118,29 @@
             deepEqual(µ.parse("current/wind/isobar ic/", builders), {});
         });
 
-        test("hash-controller-defaults", function() {
-            var controller = µ.buildHashController(builders);
+        test("configuration-defaults", function() {
+            var config = µ.buildConfiguration(builders);
+            config.fetch();
             deepEqual(
-                controller.attributes,
-                {date: "current", hour: "", param: "wind", surface: "isobaric", level: "1000hPa",
-                 projection: "orthographic", orientation: "", topology: "/data/earth-topo.json"});
+                config.attributes,
+                args({date: "current", param: "wind", surface: "isobaric", level: "1000hPa",
+                    projection: "orthographic", orientation: ""}));
         });
 
-        test("hash-controller-properties", function() {
+        test("configuration-properties", function() {
+            var config = µ.buildConfiguration(builders);
 
-            var controller = µ.buildHashController(builders);
-
-            controller.set({
+            config.set({
                 date: "current", hour: "", param: "a", surface: "b", level: "c", projection: "x", orientation: "1"
             });
+            equal(config.toHash(), "current/a/b/c/x=1");
+            equal(config.toPath(), "/data/weather/current/current-a-b-c-gfs-1.0.json");
 
-            equal(controller.toHash(), "current/a/b/c/x=1");
-            equal(controller.toPath(), "/data/weather/current/current-a-b-c-gfs-1.0.json");
-
-            controller.set({
+            config.set({
                 date: "2013/11/20", hour: "0800", param: "a", surface: "b", level: "c", projection: "x", orientation: ""
             });
-
-            equal(controller.toHash(), "2013/11/20/0800Z/a/b/c/x");
-            equal(controller.toPath(), "/data/weather/2013/11/20/0800-a-b-c-gfs-1.0.json");
-
-            ok(Number.isFinite(null));
+            equal(config.toHash(), "2013/11/20/0800Z/a/b/c/x");
+            equal(config.toPath(), "/data/weather/2013/11/20/0800-a-b-c-gfs-1.0.json");
         });
 
     </script>

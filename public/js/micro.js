@@ -98,7 +98,8 @@ var µ = function() {
                 hour: µ.coalesce(tokens[2], ""),  // "hhhh" or ""
                 param: tokens[3],                 // non-empty alphanumeric _
                 surface: tokens[4],               // non-empty alphanumeric _
-                level: tokens[5]                  // non-empty alphanumeric _
+                level: tokens[5],                 // non-empty alphanumeric _
+                topology: TOPOLOGY
             };
             µ.coalesce(tokens[6], "").split("/").forEach(function(segment) {
                 if (option = /^(\w+)(=([\d\-.,]*))?$/.exec(segment)) {
@@ -112,18 +113,10 @@ var µ = function() {
         return result;
     }
 
-    var HashController = Backbone.Model.extend({
+    var DEFAULT_CONFIG = "current/wind/isobaric/1000hPa/orthographic";
+    var TOPOLOGY = "/data/earth-topo.json";
+    var Configuration = Backbone.Model.extend({
         id: 0,
-        defaults: {
-            date: "current",
-            hour: "",
-            param: "wind",
-            surface: "isobaric",
-            level: "1000hPa",
-            projection: "orthographic",
-            orientation: "",
-            topology: "/data/earth-topo.json"
-        },
         toHash: function() {
             var attr = this.attributes;
             var dir = attr.date === "current" ? "current" : attr.date + "/" + attr.hour + "Z";
@@ -146,8 +139,8 @@ var µ = function() {
                         model._ignoreNextHashChangeEvent = false;
                         return;
                     }
-                    // log().debug("read: " + window.location.hash);
-                    model.set(parse(window.location.hash.substr(1), model._projectionNames));
+                    // log().debug("read: " + hash);
+                    model.set(parse(window.location.hash.substr(1) || DEFAULT_CONFIG, model._projectionNames));
                     break;
                 case "update":
                     // log().debug("update: " + model.toHash());
@@ -159,8 +152,8 @@ var µ = function() {
         }
     });
 
-    function buildHashController(projectionNames) {
-        var result = new HashController();
+    function buildConfiguration(projectionNames) {
+        var result = new Configuration();
         result._projectionNames = projectionNames;
         return result;
     }
@@ -204,7 +197,7 @@ var µ = function() {
         loadJson: loadJson,
         apply: apply,
         parse: parse,
-        buildHashController: buildHashController,
+        buildConfiguration: buildConfiguration,
         clampedBounds: clampedBounds,
         removeChildren: removeChildren
     };

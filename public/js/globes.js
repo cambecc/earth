@@ -4,6 +4,7 @@ var globes = function() {
 
     var SCALE_EXTENT = [25, 3000];
     var view = µ.view();
+    var VIEW_CENTER = [view.width / 2, view.height / 2];
 
     function sphereBounds() {
         return µ.clampedBounds(
@@ -19,6 +20,7 @@ var globes = function() {
     function standardOrientation(o) {
         var projection = this.projection;
         if (µ.isValue(o)) {
+            // UNDONE: when empty string, use default rotation and scale
             var parts = o.split(",");
             var λ = +parts[0], φ = +parts[1], scale = +parts[2];
             if (Number.isFinite(λ) && µ.within(φ, [-90, +90])) {
@@ -33,13 +35,32 @@ var globes = function() {
         return [-(rotate[0].toFixed(2)), -(rotate[1].toFixed(2)), Math.round(projection.scale())].join(",");
     }
 
+    function standardMapElements(mapSvg, foregroundSvg) {
+        var path = d3.geo.path().projection(this.projection);
+        var defs = mapSvg.append("defs");
+        defs.append("path")
+            .attr("id", "sphere")
+            .datum({type: "Sphere"});
+        mapSvg.append("use")
+            .attr("xlink:href", "#sphere")
+            .attr("class", "sphere-fill");
+        mapSvg.append("path")
+            .attr("class", "graticule")
+            .datum(d3.geo.graticule());
+        mapSvg.append("path")
+            .attr("class", "coastline");
+        foregroundSvg.append("use")
+            .attr("xlink:href", "#sphere")
+            .attr("class", "sphere-stroke");
+    }
+
     function orthographic() {
         return {
             projection: d3.geo.orthographic()
+                .translate(VIEW_CENTER)
                 .scale(200)
-                .translate([view.width / 2, view.height / 2])
-                .precision(0.1)  // hides occluded side
-                .clipAngle(90),
+                .precision(0.1)
+                .clipAngle(90),  // hides occluded side
             bounds: sphereBounds,
             orientation: standardOrientation,
             defineMask: sphereMask,
@@ -72,12 +93,11 @@ var globes = function() {
     }
 
     function waterman() {
-        console.log("view", view);
         return {
             projection: d3.geo.polyhedron.waterman()
                 .rotate([20, 0])
+                .translate(VIEW_CENTER)
                 .scale(118)  // UNDONE: proper sizing
-                .translate([view.width / 2, view.height / 2])
                 .precision(0.1),
             bounds: sphereBounds,
             orientation: standardOrientation,
@@ -109,11 +129,57 @@ var globes = function() {
         };
     }
 
+    function stereographic() {
+        return {
+            projection: d3.geo.stereographic()
+                .rotate([-43, -20])
+                .translate(VIEW_CENTER)
+                .scale(140)
+                .precision(1.0)
+                .clipAngle(180 - 0.0001)
+                .clipExtent([[0, 0], [view.width, view.height]]),
+            bounds: sphereBounds,
+            orientation: standardOrientation,
+            defineMask: sphereMask,
+            defineMap: standardMapElements
+        };
+    }
+
+    function conicEquidistant() {
+        return {
+            projection: d3.geo.conicEquidistant()
+                .translate(VIEW_CENTER)
+                .scale(140)
+                .precision(0.1),
+            bounds: sphereBounds,
+            orientation: standardOrientation,
+            defineMask: sphereMask,
+            defineMap: standardMapElements
+        };
+    }
+
+    function winkel3() {
+        return {
+            projection: d3.geo.winkel3()
+                .translate(VIEW_CENTER)
+                .scale(140)
+                .precision(0.1),
+            bounds: sphereBounds,
+            orientation: standardOrientation,
+            defineMask: sphereMask,
+            defineMap: standardMapElements
+        };
+    }
+
     return {
         SCALE_EXTENT: SCALE_EXTENT,
         builders: d3.map({
+            conicEquidistant: conicEquidistant,
             orthographic: orthographic,
-            waterman: waterman
+            stereographic: stereographic,
+            waterman: waterman,
+            winkel3: winkel3
         })
     };
+
 }();

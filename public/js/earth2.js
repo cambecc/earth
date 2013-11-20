@@ -9,7 +9,6 @@
 (function() {
     "use strict";
 
-    var SCALE_EXTENT = [25, 3000];
     var view = µ.view();
     var log = µ.log();
     var report = {
@@ -23,22 +22,20 @@
             report.progress(msg).classed("bad", true);
         }
     };
-    var hashController = µ.buildHashController(d3.set(globes.builders.keys()));
+    var configuration = µ.buildConfiguration(d3.set(globes.builders.keys()));
 
     /**
      * @param resource the GeoJSON resource's URL
-     * @returns {Object} a promise for GeoJSON topology features: {boundingBox:, boundaryLo:, boundaryHi:}
+     * @returns {Object} a promise for GeoJSON topology features: {boundaryLo:, boundaryHi:}
      */
     function buildMesh(resource) {
         return µ.loadJson(resource).then(function(topo) {
             report.progress("building meshes...");
             log.time("building meshes");
-            var bbox = topo.bbox;
-            var boundaryLo = topojson.feature(topo, topo.objects.coastline_110m);  // UNDONE: mesh vs. feature?
+            var boundaryLo = topojson.feature(topo, topo.objects.coastline_110m);
             var boundaryHi = topojson.feature(topo, topo.objects.coastline_50m);
             log.timeEnd("building meshes");
             return {
-                boundingBox: bbox ? [[bbox[0], bbox[1]], [bbox[2], bbox[3]]] : null,
                 boundaryLo: boundaryLo,
                 boundaryHi: boundaryHi
             };
@@ -49,8 +46,8 @@
      * The page's current topology mesh. There can be only one.
      */
     var meshTask;
-    hashController.on("change:topology", function() {
-        meshTask = buildMesh(hashController.get("topology"));
+    configuration.on("change:topology", function() {
+        meshTask = buildMesh(configuration.get("topology"));
     });
 
     /**
@@ -69,8 +66,8 @@
      * The page's current globe model. There can be only one.
      */
     var globeTask;
-    hashController.on("change:projection", function() {
-        globeTask = buildGlobe(hashController.get("projection"), hashController.get("orientation"));
+    configuration.on("change:projection", function() {
+        globeTask = buildGlobe(configuration.get("projection"), configuration.get("orientation"));
     });
 
     function createMapController() {
@@ -80,7 +77,7 @@
         var startMouse, startScale, sensitivity, rot;
 
         var zoom = d3.behavior.zoom()
-            .scaleExtent(SCALE_EXTENT)
+            .scaleExtent(globes.SCALE_EXTENT)
             .on("zoomstart", function() {
                 startMouse = d3.mouse(this);
                 startScale = zoom.scale();
@@ -144,7 +141,7 @@
             µ.removeChildren(d3.select("#map").node());
             µ.removeChildren(d3.select("#foreground").node());
             if (previous) {
-                hashController.off(null, previous.handler);
+                configuration.off(null, previous.handler);  // UNDONE: terrible
             }
 
             // Define the map elements.
@@ -162,18 +159,18 @@
                 })
                 .on("end", function() {
                     coastline.datum(mesh.boundaryHi).attr("d", path);
-                    hashController.save({orientation: globe.orientation()});
+                    configuration.save({orientation: globe.orientation()});
                 });
                 // .on("click", show);
             d3.select("#foreground").call(mapController.zoom);
 
             function reorient() {
                 log.debug("orientation change...");
-                globe.orientation(hashController.get("orientation"));
+                globe.orientation(configuration.get("orientation"));
                 d3.select("#display").selectAll("path").attr("d", path);
             }
 
-            hashController.on("change:orientation", reorient);
+            configuration.on("change:orientation", reorient);
 
             // Finally, inject mesh data into the elements to draw the map.
             var coastline = d3.select(".coastline").datum(mesh.boundaryHi);
@@ -189,10 +186,10 @@
      * The page's current globe controller. There can be only one.
      */
     var globeControllerTask;
-    hashController.on("change:topology change:projection", function() {
+    configuration.on("change:topology change:projection", function() {
         setTimeout(function() {
             globeControllerTask = buildGlobeController();
-        }, 500);
+        }, 50);  // UNDONE: terrible
     });
 
     (function init() {
@@ -214,11 +211,10 @@
         // Bind hash controller to URL bar changes.
         d3.select(window).on("hashchange", function() {
             log.debug("hashchange");
-            hashController.fetch({trigger: "hashchange"});
+            configuration.fetch({trigger: "hashchange"});
         });
     }());
 
-    meshTask = buildMesh(hashController.get("topology"));
-    hashController.fetch();  // everything is now set up, so kick off the events
+    configuration.fetch();  // everything is now set up, so kick off the events
 
 })();
