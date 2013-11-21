@@ -2,7 +2,6 @@
 var globes = function() {
     "use strict";
 
-    var SCALE_EXTENT = [25, 3000];
     var view = µ.view();
     var VIEW_CENTER = [view.width / 2, view.height / 2];
 
@@ -10,6 +9,10 @@ var globes = function() {
         return µ.clampedBounds(
             d3.geo.path().projection(this.projection).bounds({type: "Sphere"}),
             view);
+    }
+
+    function standardScaleExtent() {
+        return [25, 3000];
     }
 
     function sphereMask(context) {
@@ -26,9 +29,15 @@ var globes = function() {
             if (_.isFinite(λ) && µ.within(φ, [-90, +90])) {
                 projection.rotate([-λ, -φ]);
             }
+            else {
+                projection.rotate([0, 0]);
+            }
             // UNDONE: when empty string, use default scale
-            if (µ.within(scale, SCALE_EXTENT)) {
+            if (µ.within(scale, this.scaleExtent())) {
                 projection.scale(scale);
+            }
+            else {
+                projection.scale(100);
             }
             return this;
         }
@@ -57,11 +66,27 @@ var globes = function() {
             .attr("class", "sphere-stroke");
     }
 
+    function standardManipulator(startMouse, startScale) {
+        var projection = this.projection;
+        var sensitivity = 60 / startScale;  // seems to provide a good drag scaling factor
+        var rotation = [projection.rotate()[0] / sensitivity, -projection.rotate()[1] / sensitivity];
+        return {
+            move: function(mouse, scale) {
+                var xd = mouse[0] - startMouse[0] + rotation[0];
+                var yd = mouse[1] - startMouse[1] + rotation[1];
+                projection.rotate([xd * sensitivity, -yd * sensitivity, projection.rotate()[2]]);
+                projection.scale(scale);
+            }
+        };
+    }
+
     function standardBuilder(methods) {
         return {
             projection:  methods.projection,
             bounds:      methods.bounds      || sphereBounds,
+            scaleExtent: methods.scaleExtent || standardScaleExtent,
             orientation: methods.orientation || standardOrientation,
+            manipulator: methods.manipulator || standardManipulator,
             defineMask:  methods.defineMask  || sphereMask,
             defineMap:   methods.defineMap   || standardMapElements
         };
@@ -170,15 +195,12 @@ var globes = function() {
         });
     }
 
-    return {
-        SCALE_EXTENT: SCALE_EXTENT,
-        builders: d3.map({
-            conicEquidistant: conicEquidistant,
-            orthographic: orthographic,
-            stereographic: stereographic,
-            waterman: waterman,
-            winkel3: winkel3
-        })
-    };
+    return d3.map({
+        conicEquidistant: conicEquidistant,
+        orthographic: orthographic,
+        stereographic: stereographic,
+        waterman: waterman,
+        winkel3: winkel3
+    });
 
 }();

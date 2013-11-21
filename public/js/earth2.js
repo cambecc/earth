@@ -22,10 +22,87 @@
             report.progress(msg).classed("bad", true);
         }
     };
-    var configuration = µ.buildConfiguration(d3.set(globes.builders.keys()));
+    var configuration = µ.buildConfiguration(d3.set(globes.keys()));
     configuration.on("change", function event_logger() {
         log.debug("changed: " + JSON.stringify(configuration.changedAttributes()));
     });
+
+    var inputController = function buildInputController() {
+        var globe;
+        var dispatch = _.clone(Backbone.Events);
+        var moveCount = 0, isClick = false;
+        var startMouse, startScale, manipulator;
+
+        var zoom = d3.behavior.zoom()
+            .on("zoomstart", function() {
+                startMouse = d3.mouse(this);
+                startScale = zoom.scale();
+                manipulator = globe.manipulator(startMouse, startScale);
+                isClick = true;
+            })
+            .on("zoom", function() {
+                var currentMouse = d3.mouse(this);
+                var currentScale = d3.event.scale;
+                // some hysteresis to avoid spurious 1-pixel rotations -- UNDONE: and one/zero level zooms
+                if (moveCount === 0 && startScale === currentScale && µ.distance(startMouse, currentMouse) < 2) {
+                    return;
+                }
+                isClick = false;
+                if (moveCount === 0) {
+                    dispatch.trigger("start");
+                }
+                manipulator.move(currentMouse, currentScale);
+                dispatch.trigger("redraw");
+                moveCount++;
+            })
+            .on("zoomend", function() {
+                if (isClick) {
+                    isClick = false;
+                    var coord = globe.projection.invert(startMouse);
+                    if (coord && _.isFinite(coord[0]) && _.isFinite(coord[1])) {
+                        dispatch.trigger("click", startMouse, coord);
+                    }
+                }
+                else {
+                    var expected = moveCount;
+                    setTimeout(function() {
+                        if (moveCount === expected) {
+                            moveCount = 0;
+                            configuration.save({orientation: globe.orientation()});
+                            dispatch.trigger("end");
+                        }
+                    }, 1000);
+                }
+            });
+
+        d3.select("#foreground").call(zoom);
+
+        function reorient() {
+            if (globe) {
+                log.debug("AN orientation change...");
+                globe.orientation(configuration.get("orientation"));
+                zoom.scale(globe.projection.scale());
+                dispatch.trigger("end");  // a little odd here, but need to force redraw with hi-res boundary
+                dispatch.trigger("redraw");  // a little odd here, but need to force redraw with hi-res boundary
+            }
+        }
+
+        dispatch.listenTo(configuration, {
+            "change:orientation": reorient
+        });
+
+        dispatch.globe = function(_) {
+            if (!_) {
+                return globe;
+            }
+            globe = _;
+            zoom.scaleExtent(globe.scaleExtent());
+            reorient();
+            return this;
+        };
+
+        return dispatch;
+    }();
 
     var Node = Backbone.Model.extend({
         defaults: {
@@ -57,122 +134,56 @@
      * @returns {Object} a promise for a globe object.
      */
     function buildGlobe(projectionName, orientation) {
-        var builder = globes.builders.get(projectionName);
+        var builder = globes.get(projectionName);
         return builder ?
             when(builder().orientation(orientation)) :
             when.reject("Unknown projection: " + projectionName);
     }
 
-    function createMapController() {
-        var projection, originalPrecision;
-        var dispatch = d3.dispatch("start", "redraw", "end", "click");
-        var moveCount = 0, isClick = false;
-        var startMouse, startScale, sensitivity, rot;
-
-        var zoom = d3.behavior.zoom()
-            .scaleExtent(globes.SCALE_EXTENT)
-            .on("zoomstart", function() {
-                startMouse = d3.mouse(this);
-                startScale = zoom.scale();
-                sensitivity = 60 / startScale;  // seems to provide a good drag scaling factor
-                // log.debug(projection.rotate());
-                // log.debug(startScale);
-                rot = [projection.rotate()[0] / sensitivity, -projection.rotate()[1] / sensitivity];
-                isClick = true;
-            })
-            .on("zoom", function() {
-                var currentMouse = d3.mouse(this);
-                var currentScale = d3.event.scale;
-                // some hysteresis to avoid spurious 1-pixel rotations -- UNDONE: and one/zero level zooms
-                if (moveCount === 0 && startScale === currentScale && µ.distance(startMouse, currentMouse) < 2) {
-                    return;
-                }
-                isClick = false;
-                if (moveCount === 0) {
-                    originalPrecision = projection.precision();
-                    projection.precision(1);
-                    dispatch.start();
-                }
-                var xd = currentMouse[0] - startMouse[0] + rot[0];
-                var yd = currentMouse[1] - startMouse[1] + rot[1];
-                projection.rotate([xd * sensitivity, -yd * sensitivity, projection.rotate()[2]]);
-                projection.scale(d3.event.scale);
-                dispatch.redraw();
-                moveCount++;
-            })
-            .on("zoomend", function() {
-                if (isClick) {
-                    isClick = false;
-                    var coord = projection.invert(startMouse);
-                    if (coord && _.isFinite(coord[0]) && _.isFinite(coord[1])) {
-                        dispatch.click(startMouse, coord);
-                    }
-                }
-                else {
-                    var expected = moveCount;
-                    setTimeout(function() {
-                        if (moveCount === expected) {
-                            moveCount = 0;
-                            projection.precision(originalPrecision);
-                            dispatch.end();
-                        }
-                    }, 1000);
-                }
-            });
-
-        dispatch.projection = function(_) {
-            return _ ? (zoom.scale((projection = _).scale()), this) : projection;
-        };
-        dispatch.zoom = zoom;
-        return dispatch;
-    }
-
     function buildGlobeController() {
         return when.all([meshNode.get("promise"), globeNode.get("promise")]).then(µ.apply(function(mesh, globe) {
-
             report.progress("Building globe...");
             log.time("rendering map");
 
-            // First clear map and foreground svg contents, and old hash change event handlers.
+            var dispatch = _.clone(Backbone.Events);
+            if (globeControllerNode._previous) {
+                globeControllerNode._previous.stopListening();
+            }
+            globeControllerNode._previous = dispatch;
+
+            // First clear map and foreground svg contents.
             µ.removeChildren(d3.select("#map").node());
             µ.removeChildren(d3.select("#foreground").node());
-            if (globeControllerNode._previous) {
-                log.debug("doing off");
-                configuration.off(null, globeControllerNode._previous.handler);
-            }
-            globeControllerNode._previous = {handler: reorient};  // UNDONE: terrible
-
-            // Define the map elements.
+            // Create new map svg elements.
             globe.defineMap(d3.select("#map"), d3.select("#foreground"));
 
-            // Bind the input controller to the map.
-            var path = d3.geo.path().projection(globe.projection);
-            var mapController = createMapController()
-                .projection(globe.projection)
-                .on("start", function() {
-                    coastline.datum(mesh.boundaryLo);
-                })
-                .on("redraw", function() {
-                    d3.select("#display").selectAll("path").attr("d", path);
-                })
-                .on("end", function() {
-                    coastline.datum(mesh.boundaryHi).attr("d", path);
-                    configuration.save({orientation: globe.orientation()});
+            var path = d3.geo.path().projection(globe.projection).pointRadius(7);
+            var coastline = d3.select(".coastline");
+
+            // Attach to map rendering events on input controller.
+            dispatch.listenTo(
+                inputController, {
+                    start: function() {
+                        coastline.datum(mesh.boundaryLo);
+                    },
+                    redraw: function() {
+                        d3.select("#display").selectAll("path").attr("d", path);
+                    },
+                    end: function() {
+                        coastline.datum(mesh.boundaryHi); // .attr("d", path);
+                    },
+                    click: function(point, coord) {
+                        // show the point on the map
+                        var position = d3.select("#position");
+                        if (!position.node()) {
+                            position = d3.select("#foreground").append("path").attr("id", "position");
+                        }
+                        position.datum({type: "Point", coordinates: coord}).attr("d", path);
+                    }
                 });
-                // .on("click", show);
-            d3.select("#foreground").call(mapController.zoom);
 
-            function reorient() {
-                log.debug("orientation change...");
-                globe.orientation(configuration.get("orientation"));
-                d3.select("#display").selectAll("path").attr("d", path);
-            }
-
-            configuration.on("change:orientation", reorient);
-
-            // Finally, inject mesh data into the elements to draw the map.
-            var coastline = d3.select(".coastline").datum(mesh.boundaryHi);
-            d3.select("#display").selectAll("path").attr("d", path);
+            // Finally, inject the globe model into the input controller.
+            inputController.globe(globe);
 
             log.timeEnd("rendering map");
 
@@ -192,6 +203,7 @@
      */
     var globeNode = new Node();
     globeNode.listenTo(configuration, "change:projection", function() {
+        log.debug("building globe");
         globeNode.set({promise: buildGlobe(configuration.get("projection"), configuration.get("orientation"))});
     });
 

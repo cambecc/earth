@@ -99,6 +99,8 @@ var µ = function() {
                 param: tokens[3],                 // non-empty alphanumeric _
                 surface: tokens[4],               // non-empty alphanumeric _
                 level: tokens[5],                 // non-empty alphanumeric _
+                projection: "orthographic",
+                orientation: "",
                 topology: TOPOLOGY
             };
             µ.coalesce(tokens[6], "").split("/").forEach(function(segment) {
