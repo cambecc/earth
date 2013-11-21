@@ -25,6 +25,11 @@ var µ = function() {
         return isValue(a) ? a : b;
     }
 
+    function floorDiv(a, n) {
+        // floored division: http://en.wikipedia.org/wiki/Modulo_operation
+        return a - n * Math.floor(a / n);
+    }
+
     function distance(a, b) {
         var Δx = b[0] - a[0];
         var Δy = b[1] - a[1];
@@ -33,6 +38,13 @@ var µ = function() {
 
     function within(x, bounds) {
         return bounds[0] <= x && x <= bounds[1];
+    }
+
+    function toLocalISO(date) {
+        return date.getFullYear() + "-" +
+            (date.getMonth() + 101).toString().substr(1) + "-" +
+            (date.getDate() + 100).toString().substr(1) + " " +
+            (date.getHours() + 100).toString().substr(1) + ":00";
     }
 
     /**
@@ -188,12 +200,21 @@ var µ = function() {
         }
     }
 
+    /**
+     * Returns a color style string for the specified RGBA values.
+     */
+    function asColorStyle(r, g, b, a) {
+        return "rgba(" + r + ", " + g + ", " + b + ", " + a + ")";
+    }
+
     return {
         isTruthy: isTruthy,
         isValue: isValue,
         coalesce: coalesce,
+        floorDiv: floorDiv,
         distance: distance,
         within: within,
+        toLocalISO: toLocalISO,
         log: log,
         view: view,
         loadJson: loadJson,
@@ -201,7 +222,8 @@ var µ = function() {
         parse: parse,
         buildConfiguration: buildConfiguration,
         clampedBounds: clampedBounds,
-        removeChildren: removeChildren
+        removeChildren: removeChildren,
+        asColorStyle: asColorStyle
     };
 
 }();
