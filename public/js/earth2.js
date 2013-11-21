@@ -23,6 +23,15 @@
         }
     };
     var configuration = µ.buildConfiguration(d3.set(globes.builders.keys()));
+    configuration.on("change", function event_logger() {
+        log.debug("changed: " + JSON.stringify(configuration.changedAttributes()));
+    });
+
+    var Node = Backbone.Model.extend({
+        defaults: {
+            promise: when.reject("node has no value yet")
+        }
+    });
 
     /**
      * @param resource the GeoJSON resource's URL
@@ -43,14 +52,6 @@
     }
 
     /**
-     * The page's current topology mesh. There can be only one.
-     */
-    var meshTask;
-    configuration.on("change:topology", function() {
-        meshTask = buildMesh(configuration.get("topology"));
-    });
-
-    /**
      * @param {String} projectionName the desired projection's name.
      * @param {String} orientation the projection's initial orientation
      * @returns {Object} a promise for a globe object.
@@ -62,16 +63,8 @@
             when.reject("Unknown projection: " + projectionName);
     }
 
-    /**
-     * The page's current globe model. There can be only one.
-     */
-    var globeTask;
-    configuration.on("change:projection", function() {
-        globeTask = buildGlobe(configuration.get("projection"), configuration.get("orientation"));
-    });
-
     function createMapController() {
-        var projection;
+        var projection, originalPrecision;
         var dispatch = d3.dispatch("start", "redraw", "end", "click");
         var moveCount = 0, isClick = false;
         var startMouse, startScale, sensitivity, rot;
@@ -96,6 +89,8 @@
                 }
                 isClick = false;
                 if (moveCount === 0) {
+                    originalPrecision = projection.precision();
+                    projection.precision(1);
                     dispatch.start();
                 }
                 var xd = currentMouse[0] - startMouse[0] + rot[0];
@@ -109,7 +104,7 @@
                 if (isClick) {
                     isClick = false;
                     var coord = projection.invert(startMouse);
-                    if (coord && isFinite(coord[0]) && isFinite(coord[1])) {
+                    if (coord && _.isFinite(coord[0]) && _.isFinite(coord[1])) {
                         dispatch.click(startMouse, coord);
                     }
                 }
@@ -118,6 +113,7 @@
                     setTimeout(function() {
                         if (moveCount === expected) {
                             moveCount = 0;
+                            projection.precision(originalPrecision);
                             dispatch.end();
                         }
                     }, 1000);
@@ -132,7 +128,7 @@
     }
 
     function buildGlobeController() {
-        return when.all([globeControllerTask, meshTask, globeTask]).then(µ.apply(function(previous, mesh, globe) {
+        return when.all([meshNode.get("promise"), globeNode.get("promise")]).then(µ.apply(function(mesh, globe) {
 
             report.progress("Building globe...");
             log.time("rendering map");
@@ -140,9 +136,11 @@
             // First clear map and foreground svg contents, and old hash change event handlers.
             µ.removeChildren(d3.select("#map").node());
             µ.removeChildren(d3.select("#foreground").node());
-            if (previous) {
-                configuration.off(null, previous.handler);  // UNDONE: terrible
+            if (globeControllerNode._previous) {
+                log.debug("doing off");
+                configuration.off(null, globeControllerNode._previous.handler);
             }
+            globeControllerNode._previous = {handler: reorient};  // UNDONE: terrible
 
             // Define the map elements.
             globe.defineMap(d3.select("#map"), d3.select("#foreground"));
@@ -178,19 +176,36 @@
 
             log.timeEnd("rendering map");
 
-            return {handler: reorient};
         })).then(null, report.error);  // UNDONE: where is the correct place to put error catch?
     }
 
     /**
+     * The page's current topology mesh. There can be only one.
+     */
+    var meshNode = new Node();
+    meshNode.listenTo(configuration, "change:topology", function() {
+        meshNode.set({promise: buildMesh(configuration.get("topology"))});
+    });
+
+    /**
+     * The page's current globe model. There can be only one.
+     */
+    var globeNode = new Node();
+    globeNode.listenTo(configuration, "change:projection", function() {
+        globeNode.set({promise: buildGlobe(configuration.get("projection"), configuration.get("orientation"))});
+    });
+
+    /**
      * The page's current globe controller. There can be only one.
      */
-    var globeControllerTask;
-    configuration.on("change:topology change:projection", function() {
-        setTimeout(function() {
-            globeControllerTask = buildGlobeController();
-        }, 50);  // UNDONE: terrible
-    });
+    var globeControllerNode = new Node();
+    var eventJoin = _.debounce(function() {
+        log.debug("HEY!");
+        globeControllerNode.set({promise: buildGlobeController()});
+    }, 0);
+
+    globeControllerNode.listenTo(meshNode, "change:promise", eventJoin);
+    globeControllerNode.listenTo(globeNode, "change:promise", eventJoin);
 
     (function init() {
         report.progress("Initializing...");

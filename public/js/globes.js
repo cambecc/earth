@@ -20,12 +20,13 @@ var globes = function() {
     function standardOrientation(o) {
         var projection = this.projection;
         if (µ.isValue(o)) {
-            // UNDONE: when empty string, use default rotation and scale
+            // UNDONE: when empty string, use default rotation
             var parts = o.split(",");
             var λ = +parts[0], φ = +parts[1], scale = +parts[2];
-            if (Number.isFinite(λ) && µ.within(φ, [-90, +90])) {
+            if (_.isFinite(λ) && µ.within(φ, [-90, +90])) {
                 projection.rotate([-λ, -φ]);
             }
+            // UNDONE: when empty string, use default scale
             if (µ.within(scale, SCALE_EXTENT)) {
                 projection.scale(scale);
             }
@@ -40,13 +41,15 @@ var globes = function() {
         var defs = mapSvg.append("defs");
         defs.append("path")
             .attr("id", "sphere")
-            .datum({type: "Sphere"});
+            .datum({type: "Sphere"})
+            .attr("d", path);
         mapSvg.append("use")
             .attr("xlink:href", "#sphere")
             .attr("class", "sphere-fill");
         mapSvg.append("path")
             .attr("class", "graticule")
-            .datum(d3.geo.graticule());
+            .datum(d3.geo.graticule())
+            .attr("d", path);
         mapSvg.append("path")
             .attr("class", "coastline");
         foregroundSvg.append("use")
@@ -54,16 +57,23 @@ var globes = function() {
             .attr("class", "sphere-stroke");
     }
 
-    function orthographic() {
+    function standardBuilder(methods) {
         return {
+            projection:  methods.projection,
+            bounds:      methods.bounds      || sphereBounds,
+            orientation: methods.orientation || standardOrientation,
+            defineMask:  methods.defineMask  || sphereMask,
+            defineMap:   methods.defineMap   || standardMapElements
+        };
+    }
+
+    function orthographic() {
+        return standardBuilder({
             projection: d3.geo.orthographic()
                 .translate(VIEW_CENTER)
                 .scale(200)
                 .precision(0.1)
                 .clipAngle(90),  // hides occluded side
-            bounds: sphereBounds,
-            orientation: standardOrientation,
-            defineMask: sphereMask,
             defineMap: function(mapSvg, foregroundSvg) {
                 var path = d3.geo.path().projection(this.projection);
                 var defs = mapSvg.append("defs");
@@ -76,38 +86,38 @@ var globes = function() {
                 gradientFill.append("stop").attr("stop-color", "#000000").attr("offset", "96%");
                 defs.append("path")
                     .attr("id", "sphere")
-                    .datum({type: "Sphere"});
+                    .datum({type: "Sphere"})
+                    .attr("d", path);
                 mapSvg.append("use")
                     .attr("xlink:href", "#sphere")
                     .attr("fill", "url(#orthographic-fill)");
                 mapSvg.append("path")
                     .attr("class", "graticule")
-                    .datum(d3.geo.graticule());
+                    .datum(d3.geo.graticule())
+                    .attr("d", path);
                 mapSvg.append("path")
                     .attr("class", "coastline");
                 foregroundSvg.append("use")
                     .attr("xlink:href", "#sphere")
                     .attr("class", "sphere-stroke");
             }
-        };
+        });
     }
 
     function waterman() {
-        return {
+        return standardBuilder({
             projection: d3.geo.polyhedron.waterman()
                 .rotate([20, 0])
                 .translate(VIEW_CENTER)
                 .scale(118)  // UNDONE: proper sizing
                 .precision(0.1),
-            bounds: sphereBounds,
-            orientation: standardOrientation,
-            defineMask: sphereMask,
             defineMap: function(mapSvg, foregroundSvg) {
                 var path = d3.geo.path().projection(this.projection);
                 var defs = mapSvg.append("defs");
                 defs.append("path")
                     .attr("id", "sphere")
-                    .datum({type: "Sphere"});
+                    .datum({type: "Sphere"})
+                    .attr("d", path);
                 defs.append("clipPath")
                     .attr("id", "clip")
                     .append("use")
@@ -118,7 +128,8 @@ var globes = function() {
                 mapSvg.append("path")
                     .attr("class", "graticule")
                     .attr("clip-path", "url(#clip)")
-                    .datum(d3.geo.graticule());
+                    .datum(d3.geo.graticule())
+                    .attr("d", path);
                 mapSvg.append("path")
                     .attr("class", "coastline")
                     .attr("clip-path", "url(#clip)");
@@ -126,49 +137,37 @@ var globes = function() {
                     .attr("xlink:href", "#sphere")
                     .attr("class", "sphere-stroke");
             }
-        };
+        });
     }
 
     function stereographic() {
-        return {
+        return standardBuilder({
             projection: d3.geo.stereographic()
                 .rotate([-43, -20])
                 .translate(VIEW_CENTER)
                 .scale(140)
                 .precision(1.0)
                 .clipAngle(180 - 0.0001)
-                .clipExtent([[0, 0], [view.width, view.height]]),
-            bounds: sphereBounds,
-            orientation: standardOrientation,
-            defineMask: sphereMask,
-            defineMap: standardMapElements
-        };
+                .clipExtent([[0, 0], [view.width, view.height]])
+        });
     }
 
     function conicEquidistant() {
-        return {
+        return standardBuilder({
             projection: d3.geo.conicEquidistant()
                 .translate(VIEW_CENTER)
                 .scale(140)
-                .precision(0.1),
-            bounds: sphereBounds,
-            orientation: standardOrientation,
-            defineMask: sphereMask,
-            defineMap: standardMapElements
-        };
+                .precision(0.1)
+        });
     }
 
     function winkel3() {
-        return {
+        return standardBuilder({
             projection: d3.geo.winkel3()
                 .translate(VIEW_CENTER)
                 .scale(140)
-                .precision(0.1),
-            bounds: sphereBounds,
-            orientation: standardOrientation,
-            defineMask: sphereMask,
-            defineMap: standardMapElements
-        };
+                .precision(0.1)
+        });
     }
 
     return {
