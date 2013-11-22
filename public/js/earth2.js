@@ -324,8 +324,8 @@
             var x, y;
             var net = 0;  // UNDONE: fix
             do {
-                x = Math.round(util.rand(bounds.x, bounds.xBound + 1));
-                y = Math.round(util.rand(bounds.y, bounds.yBound + 1));
+                x = Math.round(_.random(bounds.x, bounds.xMax));
+                y = Math.round(_.random(bounds.y, bounds.yMax));
             } while (field(x, y)[2] == NIL && net++ < 30);
             o.x = x;
             o.y = y;
@@ -337,16 +337,10 @@
         return field;
     }
 
-    function interpolateField(globe, grid, mask, cancel) {
-        if (!globe || !grid || !mask) return null;
+    function distortionFor(globe) {
 
-        log.time("interpolating field");
-        var d = when.defer();
-
-        var projection = globe.projection;
-        var distortion = µ.distortion(projection);
-        var bounds = globe.bounds();
-        var velocityScale = bounds.height / 39000;  // particle speed as number of pixels per unit vector
+        var velocityScale = globe.bounds().height / 39000;  // particle speed as number of pixels per unit vector
+        var distortion = µ.distortion(globe.projection);
         var dv = [];
 
         /**
@@ -370,13 +364,26 @@
             return wind;
         }
 
+        return distort;
+    }
+
+    function interpolateField(globe, grid, mask, cancel) {
+        if (!globe || !grid || !mask) return null;
+
+        log.time("interpolating field");
+        var d = when.defer();
+
+        var projection = globe.projection;
+        var bounds = globe.bounds();
+        var distort = distortionFor(globe);
+
         var columns = [];
         var point = [];
         var x = bounds.x;
         var interpolate = grid.interpolate;
         function interpolateColumn(x) {
             var column = [];
-            for (var y = bounds.y; y <= bounds.yMax; y += 2) {
+            for (var y = bounds.y; y <= bounds.yMax; y += 1) {
                 if (mask.isVisible(x, y)) {
                     point[0] = x; point[1] = y;
                     var coord = projection.invert(point);
@@ -388,21 +395,14 @@
                                 column[y] = distort(x, y, λ, φ, wind);
                                 var c = µ.asRainbowColorStyle(Math.min(wind[2], 25) / 25, Math.floor(255 * 0.4));
                                 mask.set(x, y, c[0], c[1], c[2], c[3]);
-                                mask.set(x+1, y, c[0], c[1], c[2], c[3]);
-                                mask.set(x+1, y+1, c[0], c[1], c[2], c[3]);
-                                mask.set(x, y+1, c[0], c[1], c[2], c[3]);
                                 continue;
                             }
                         }
                     }
                     mask.set(x, y, 0, 0, 0, 0);
-                    mask.set(x+1, y, 0, 0, 0, 0);
-                    mask.set(x, y+1, 0, 0, 0, 0);
-                    mask.set(x+1, y+1, 0, 0, 0, 0);
                 }
             }
             columns[x] = column;
-            columns[x+1] = column;
         }
 
         (function batchInterpolate() {
@@ -411,7 +411,7 @@
                     var start = +new Date();
                     while (x < bounds.xMax) {
                         interpolateColumn(x);
-                        x += 2;
+                        x += 1;
                         if ((+new Date() - start) > MAX_TASK_TIME) {
                             // Interpolation is taking too long. Schedule the next batch for later and yield.
                             report.progress("Interpolating: " + x + "/" + bounds.xMax);
@@ -456,10 +456,110 @@
         activeOverlay.submit(drawOverlay, field);
     });
 
+    function animate(globe, field, cancel) {
+        if (!globe || !field) return null;
+
+        var bounds = globe.bounds();
+        var colorStyles = µ.colorStyles();
+        var buckets = colorStyles.map(function() { return []; });
+        var particleCount = Math.round(bounds.width / 0.14);
+        var maxParticleAge = 40;  // max number of frames a particle is drawn before regeneration
+        var particles = [];
+
+        for (var i = 0; i < particleCount; i++) {
+            particles.push(field.randomize({age: _.random(0, maxParticleAge)}));
+        }
+
+        function evolve() {
+            buckets.forEach(function(bucket) { bucket.length = 0; });
+            particles.forEach(function(particle) {
+                if (particle.age > maxParticleAge) {
+                    field.randomize(particle).age = 0;
+                }
+                var x = particle.x;
+                var y = particle.y;
+                var v = field(x, y);  // vector at current position
+                var m = v[2];
+                if (m === NIL) {
+                    particle.age = maxParticleAge;  // particle has escaped the grid, never to return...
+                }
+                else {
+                    var xt = x + v[0];
+                    var yt = y + v[1];
+                    if (field(xt, yt)[2] !== NIL) {
+                        // Path from (x,y) to (xt,yt) is visible, so add this particle to the appropriate draw bucket.
+                        particle.xt = xt;
+                        particle.yt = yt;
+                        buckets[colorStyles.indexFor(m)].push(particle);
+                    }
+                    else {
+                        // Particle isn't visible, but it still moves through the field.
+                        particle.x = xt;
+                        particle.y = yt;
+                    }
+                }
+                particle.age += 1;
+            });
+        }
+
+        var isFF = /firefox/i.test(navigator.userAgent);
+        var fadeFillStyle = isFF ? "rgba(0, 0, 0, 0.95)" : "rgba(0, 0, 0, 0.97)";  // FF Mac alpha behaves differently
+
+        var g = d3.select("#animation").node().getContext("2d");
+        g.lineWidth = 0.75;
+        g.fillStyle = fadeFillStyle;
+
+        function draw() {
+            // Fade existing particle trails.
+            var prev = g.globalCompositeOperation;
+            g.globalCompositeOperation = "destination-in";
+            g.fillRect(bounds.x, bounds.y, bounds.width, bounds.height);
+            g.globalCompositeOperation = prev;
+
+            // Draw new particle trails.
+            buckets.forEach(function(bucket, i) {
+                if (bucket.length > 0) {
+                    g.beginPath();
+                    g.strokeStyle = colorStyles[i];
+                    bucket.forEach(function(particle) {
+                        g.moveTo(particle.x, particle.y);
+                        g.lineTo(particle.xt, particle.yt);
+                        particle.x = particle.xt;
+                        particle.y = particle.yt;
+                    });
+                    g.stroke();
+                }
+            });
+        }
+
+        (function frame() {
+            // log.debug("frame");
+            try {
+                if (!cancel.requested) {
+                    // var start = +new Date;
+                    evolve();
+                    draw();
+                    // var duration = (+new Date - start);
+                    setTimeout(frame, 40 /* - duration*/);  // desired milliseconds per frame
+                }
+            }
+            catch (e) {
+                report.error(e);
+            }
+        })();
+    }
+
+    var activeAnimation = debouncedValue();
+    activeAnimation.listenTo(activeField, "update", function(field) {
+        activeAnimation.submit(animate, activeGlobe.value(), field);
+    });
+
     function cleanDisplay() {
         console.log("cleaning");
         activeField.cancel();
+        activeAnimation.cancel();
         activeOverlay.cancel();
+        µ.clearCanvas(d3.select("#animation").node());
         µ.clearCanvas(d3.select("#overlay").node());
     }
 

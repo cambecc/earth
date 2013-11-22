@@ -223,6 +223,17 @@ var µ = function() {
         return [r, g, b, a];
     }
 
+    function colorStyles() {
+        var result = [];
+        for (var j = 85; j <= 255; j += 5) {
+            result.push(asColorStyle(j, j, j, 1.0));
+        }
+        result.indexFor = function(m) {  // map wind speed to a style
+            return Math.floor(Math.min(m, 17) / 17 * (result.length - 1));
+        }
+        return result;
+    }
+
     function clearCanvas(canvas) {
         canvas.getContext("2d").clearRect(0, 0, canvas.width, canvas.height);
         return canvas;
@@ -276,6 +287,7 @@ var µ = function() {
         removeChildren: removeChildren,
         asColorStyle: asColorStyle,
         asRainbowColorStyle: asRainbowColorStyle,
+        colorStyles: colorStyles,
         clearCanvas: clearCanvas,
         distortion: distortion
     };
