@@ -34,7 +34,7 @@ body {
 .sphere-stroke {
     fill: none;
     stroke: #000004;
-    stroke-width: 2;
+    stroke-width: 4;
     /* pointer-events: all; */
 }
 

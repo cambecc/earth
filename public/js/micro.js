@@ -2,6 +2,8 @@
 var µ = function() {
     "use strict";
 
+    var τ = 2 * Math.PI;
+
     // now that using _, any of these redundant now?
 
     /**
@@ -173,7 +175,7 @@ var µ = function() {
     }
 
     function ensureNumber(num, fallback) {
-        return Number.isFinite(num) || num === Number.NEGATIVE_INFINITY || num === Number.POSITIVE_INFINITY ?
+        return _.isFinite(num) || num === Number.NEGATIVE_INFINITY || num === Number.POSITIVE_INFINITY ?
             num :
             fallback;
     }
@@ -207,6 +209,55 @@ var µ = function() {
         return "rgba(" + r + ", " + g + ", " + b + ", " + a + ")";
     }
 
+    function asRainbowColorStyle(hue, a) {
+        // Map hue [0, 1] to radians [0, 5/6τ]. Don't allow a full rotation because that keeps hue == 0 and
+        // hue == 1 from mapping to the same color.
+        var rad = hue * τ * 5/6;
+        rad *= 0.75;  // increase frequency to 2/3 cycle per rad
+
+        var s = Math.sin(rad);
+        var c = Math.cos(rad);
+        var r = Math.floor(Math.max(0, -c) * 255);
+        var g = Math.floor(Math.max(s, 0) * 255);
+        var b = Math.floor(Math.max(c, 0, -s) * 255);
+        return [r, g, b, a];
+    }
+
+    function clearCanvas(canvas) {
+        canvas.getContext("2d").clearRect(0, 0, canvas.width, canvas.height);
+        return canvas;
+    }
+
+    function distortion(projection) {
+        // gis.stackexchange.com/questions/5068/how-to-create-an-accurate-tissot-indicatrix
+        // www.jasondavies.com/maps/tissot
+
+        var r = Math.pow(10, -5.2);
+        // CONSIDER: potentially useful for avoiding array allocations??
+        // var px, py;
+        // var stream = projection.stream({ point: function(x, y) { px = x; py = y; } });
+
+        return function(λ, φ, x, y, du, dv) {
+            var λ0 = λ > 0 ? λ - r : λ + r;
+            var φ0 = φ > 0 ? φ - r : φ + r;
+
+            var pλ = projection([λ0, φ]);
+            var pφ = projection([λ, φ0]);
+
+            if (!pλ || !pφ) {
+                return false;
+            }
+
+            var Δλ = λ - λ0;
+            var Δφ = φ - φ0;
+            du[0] = (x - pλ[0]) / Δλ;
+            du[1] = (pλ[1] - y) / Δλ;  // lat increases downward in pixel space
+            dv[0] = (x - pφ[0]) / Δφ;
+            dv[1] = (pφ[1] - y) / Δφ;  // lat increases downward in pixel space
+            return true;
+        };
+    }
+
     return {
         isTruthy: isTruthy,
         isValue: isValue,
@@ -223,7 +274,10 @@ var µ = function() {
         buildConfiguration: buildConfiguration,
         clampedBounds: clampedBounds,
         removeChildren: removeChildren,
-        asColorStyle: asColorStyle
+        asColorStyle: asColorStyle,
+        asRainbowColorStyle: asRainbowColorStyle,
+        clearCanvas: clearCanvas,
+        distortion: distortion
     };
 
 }();

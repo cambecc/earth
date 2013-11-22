@@ -9,6 +9,10 @@
 (function() {
     "use strict";
 
+    var NIL = -2;             // non-existent vector
+    var MAX_TASK_TIME = 100;  // amount of time before a task yields control (milliseconds)
+    var MIN_SLEEP_TIME = 25;  // amount of time a task waits before resuming (milliseconds)
+
     var view = µ.view();
     var log = µ.log();
     var report = {
@@ -71,7 +75,7 @@
                             configuration.save({orientation: globe.orientation()});
                             dispatch.trigger("end");
                         }
-                    }, 1000);
+                    }, 1000);  // UNDONE: use debounce here
                 }
             });
 
@@ -103,18 +107,49 @@
         return dispatch;
     }();
 
-    var Node = Backbone.Model.extend({
+    var DebouncedValue = Backbone.Model.extend({
         defaults: {
-            promise: when.reject("node has no value yet")
+            value: null
+        },
+        constructor: function() {
+            this.submit = _.debounce(this.submit, 0);
+            Backbone.Model.apply(this, arguments);
+        },
+        value: function() {
+            return this.get("value");
+        },
+        _cancel: function() {
+            // initially a nop
+        },
+        submit: function(callback) {
+            var context = this;
+            function cancel() {
+                cancel.requested = true;
+            }
+            function run(args) {
+                return cancel.requested ? null : callback.apply(null, args);
+            }
+            function accept(value) {
+                var r = cancel.requested ? null : context.set("value", value);
+                return r;
+            }
+            function reject(error) {
+                return cancel.requested ? null : report.error(error);
+            }
+            this._cancel();  // cancel the previous task--no effect if already completed
+            var args = _.rest(arguments).concat(this._cancel = cancel);
+            when.all(args).then(run).done(accept, reject);
         }
     });
 
     /**
      * @param resource the GeoJSON resource's URL
+     * @param cancel
      * @returns {Object} a promise for GeoJSON topology features: {boundaryLo:, boundaryHi:}
      */
-    function buildMesh(resource) {
+    function buildMesh(resource, cancel) {
         return µ.loadJson(resource).then(function(topo) {
+            if (cancel.requested) return null;
             report.progress("building meshes...");
             log.time("building meshes");
             var boundaryLo = topojson.feature(topo, topo.objects.coastline_110m);
@@ -128,6 +163,15 @@
     }
 
     /**
+     * The page's current topology mesh. There can be only one.
+     */
+    var activeMesh = new DebouncedValue();
+    activeMesh.listenTo(configuration, "change:topology", function(context, attr) {
+        activeMesh.submit(buildMesh, attr);
+    });
+
+
+    /**
      * @param {String} projectionName the desired projection's name.
      * @returns {Object} a promise for a globe object.
      */
@@ -138,8 +182,17 @@
             when.reject("Unknown projection: " + projectionName);
     }
 
-    function buildGrid(layer) {
+    /**
+     * The page's current globe model. There can be only one.
+     */
+    var activeGlobe = new DebouncedValue();
+    activeGlobe.listenTo(configuration, "change:projection", function(source, attr) {
+        activeGlobe.submit(buildGlobe, attr);
+    });
+
+    function buildGrid(layer, cancel) {
         return µ.loadJson(layer).then(function(data) {
+            if (cancel.requested) return null;
             report.progress("building grid...");
             log.time("build grid");
             var result = layers.buildGrid(data);
@@ -148,129 +201,276 @@
         });
     }
 
-    function buildGlobeController() {
-        return when.all([meshNode.get("promise"), globeNode.get("promise")]).then(µ.apply(function(mesh, globe) {
-            report.progress("Building globe...");
-            log.time("rendering map");
+    /**
+     * The page's current grid. There can be only one.
+     */
+    var activeGrid = new DebouncedValue();
+    activeGrid.listenTo(configuration, "change", function() {
+        var layerAttributes = ["date", "hour", "param", "surface", "level"];
+        if (_.intersection(_.keys(configuration.changedAttributes()), layerAttributes).length > 0) {
+            activeGrid.submit(buildGrid, configuration.toPath());
+        }
+    });
 
-            var dispatch = _.clone(Backbone.Events);
-            if (globeControllerNode._previous) {
-                globeControllerNode._previous.stopListening();
-            }
-            globeControllerNode._previous = dispatch;
+    function buildGlobeController(mesh, globe) {
+        if (!mesh || !globe) return null;
 
-            // First clear map and foreground svg contents.
-            µ.removeChildren(d3.select("#map").node());
-            µ.removeChildren(d3.select("#foreground").node());
-            // Create new map svg elements.
-            globe.defineMap(d3.select("#map"), d3.select("#foreground"));
+        report.progress("Building globe...");
+        log.time("rendering map");
 
-            var path = d3.geo.path().projection(globe.projection).pointRadius(7);
-            var coastline = d3.select(".coastline");
+        // UNDONE: better way to do the following?
+        var dispatch = _.clone(Backbone.Events);
+        if (activeGlobeController._previous) {
+            activeGlobeController._previous.stopListening();
+        }
+        activeGlobeController._previous = dispatch;
 
-            // Attach to map rendering events on input controller.
-            dispatch.listenTo(
-                inputController, {
-                    start: function() {
-                        coastline.datum(mesh.boundaryLo);
-                    },
-                    redraw: function() {
-                        d3.select("#display").selectAll("path").attr("d", path);
-                    },
-                    end: function() {  // UNDONE: need a better name for this even
-                        coastline.datum(mesh.boundaryHi);
-                    },
-                    click: function(point, coord) {
-                        // show the point on the map
-                        var position = d3.select("#position");
-                        if (!position.node()) {
-                            position = d3.select("#foreground").append("path").attr("id", "position");
-                        }
-                        position.datum({type: "Point", coordinates: coord}).attr("d", path);
+        // First clear map and foreground svg contents.
+        µ.removeChildren(d3.select("#map").node());
+        µ.removeChildren(d3.select("#foreground").node());
+        // Create new map svg elements.
+        globe.defineMap(d3.select("#map"), d3.select("#foreground"));
+
+        var path = d3.geo.path().projection(globe.projection).pointRadius(7);
+        var coastline = d3.select(".coastline");
+
+        // Attach to map rendering events on input controller.
+        dispatch.listenTo(
+            inputController, {
+                start: function() {
+                    coastline.datum(mesh.boundaryLo);
+                },
+                redraw: function() {
+                    d3.select("#display").selectAll("path").attr("d", path);
+                },
+                end: function() {  // UNDONE: need a better name for this event
+                    coastline.datum(mesh.boundaryHi);
+                },
+                click: function(point, coord) {
+                    // show the point on the map
+                    var position = d3.select("#position");
+                    if (!position.node()) {
+                        position = d3.select("#foreground").append("path").attr("id", "position");
                     }
-                });
+                    position.datum({type: "Point", coordinates: coord}).attr("d", path);
+                }
+            });
 
-            // Finally, inject the globe model into the input controller.
-            inputController.globe(globe);
+        // Finally, inject the globe model into the input controller.
+        inputController.globe(globe);
 
-            log.timeEnd("rendering map");
-
-        })).then(null, report.error);  // UNDONE: where is the correct place to put error catch?
+        log.timeEnd("rendering map");
     }
-
-    /**
-     * The page's current topology mesh. There can be only one.
-     */
-    var meshNode = new Node();
-    meshNode.listenTo(configuration, "change:topology", function() {
-        meshNode.set({promise: buildMesh(configuration.get("topology"))});
-    });
-
-    /**
-     * The page's current layer. There can be only one.
-     */
-    var gridNode = new Node();
-    var gridEventJoin = _.debounce(function() {
-        gridNode.set({promise: buildGrid(configuration.toPath())});
-    }, 0);
-    gridNode.listenTo(configuration, "change:date change:hour change:param change:surface change:level", gridEventJoin);
-
-    /**
-     * The page's current globe model. There can be only one.
-     */
-    var globeNode = new Node();
-    globeNode.listenTo(configuration, "change:projection", function() {
-        globeNode.set({promise: buildGlobe(configuration.get("projection"))});
-    });
 
     /**
      * The page's current globe controller. There can be only one.
      */
-    var globeControllerNode = new Node();
-    var eventJoin = _.debounce(function() {
-        globeControllerNode.set({promise: buildGlobeController()});
-    }, 0);
+    var activeGlobeController = new DebouncedValue();
+    activeGlobeController.listenTo(activeMesh, "change:value", function(source, mesh) {
+        activeGlobeController.submit(buildGlobeController, mesh, activeGlobe.value());
+    });
+    activeGlobeController.listenTo(activeGlobe, "change:value", function(source, globe) {
+        activeGlobeController.submit(buildGlobeController, activeMesh.value(), globe);
+    });
 
-    globeControllerNode.listenTo(meshNode, "change:promise", eventJoin);
-    globeControllerNode.listenTo(globeNode, "change:promise", eventJoin);
+    function createMask(globe) {
+        if (!globe) return null;
 
-    function createMask(globeTask) {
-        return when(globeTask).then(function(globe) {
-            log.time("render mask");
+        log.time("render mask");
 
-            // Create a detached canvas, ask the model to define the mask polygon, then fill with an opaque color.
-            var width = view.width, height = view.height;
-            var canvas = d3.select(document.createElement("canvas")).attr("width", width).attr("height", height).node();
-            var context = globe.defineMask(canvas.getContext("2d"));
-            context.fillStyle = µ.asColorStyle(255, 0, 0, 1);
-            context.fill();
-            // d3.select("#display").node().appendChild(canvas);  // make mask visible for debugging
+        // Create a detached canvas, ask the model to define the mask polygon, then fill with an opaque color.
+        var width = view.width, height = view.height;
+        var canvas = d3.select(document.createElement("canvas")).attr("width", width).attr("height", height).node();
+        var context = globe.defineMask(canvas.getContext("2d"));
+        context.fillStyle = µ.asColorStyle(255, 0, 0, 1);
+        context.fill();
+        // d3.select("#display").node().appendChild(canvas);  // make mask visible for debugging
 
-            var data = context.getImageData(0, 0, width, height).data;  // layout: [r, g, b, a, r, g, b, a, ...]
-            log.timeEnd("render mask");
-            return {
-                data: data,
-                isVisible: function(x, y) {
-                    var i = (y * width + x) * 4;
-                    return data[i + 3] > 0;  // non-zero alpha means pixel is visible
-                },
-                set: function(x, y, r, g, b, a) {
-                    var i = (y * width + x) * 4;
-                    data[i    ] = r;
-                    data[i + 1] = g;
-                    data[i + 2] = b;
-                    data[i + 3] = a;
-                }
-            };
-        }).then(null, report.error);
+        var data = context.getImageData(0, 0, width, height).data;  // layout: [r, g, b, a, r, g, b, a, ...]
+        log.timeEnd("render mask");
+        return {
+            data: data,
+            isVisible: function(x, y) {
+                var i = (y * width + x) * 4;
+                return data[i + 3] > 0;  // non-zero alpha means pixel is visible
+            },
+            set: function(x, y, r, g, b, a) {
+                var i = (y * width + x) * 4;
+                data[i    ] = r;
+                data[i + 1] = g;
+                data[i + 2] = b;
+                data[i + 3] = a;
+            }
+        };
     }
 
-    var maskNode = new Node();
-    var maskEventJoin = _.debounce(function() {
-        maskNode.set({promise: createMask(globeNode.get("promise"))});
-    }, 0);
-    maskNode.listenTo(globeNode, "change:promise", maskEventJoin);
-    maskNode.listenTo(inputController, "end", maskEventJoin);  // UNDONE: better name for this event -- reorientation
+    var activeMask = new DebouncedValue();
+    activeMask.listenTo(activeGlobe, "change:value", function(source, globe) {
+        activeMask.submit(createMask, globe);
+    });
+    activeMask.listenTo(inputController, "end", function() {  // UNDONE: better name for this event -- reorientation?
+        activeMask.submit(createMask, activeGlobe.value());
+    });
+
+    function createField(columns, bounds, mask) {
+        var nilVector = [NaN, NaN, NIL];
+        var field = function(x, y) {
+            var column = columns[Math.round(x)];
+            if (column) {
+                var v = column[Math.round(y)];
+                if (v) {
+                    return v;
+                }
+            }
+            return nilVector;
+        };
+
+        field.randomize = function(o) {
+            var x, y;
+            var net = 0;  // UNDONE: fix
+            do {
+                x = Math.round(util.rand(bounds.x, bounds.xBound + 1));
+                y = Math.round(util.rand(bounds.y, bounds.yBound + 1));
+            } while (field(x, y)[2] == NIL && net++ < 30);
+            o.x = x;
+            o.y = y;
+            return o;
+        };
+
+        field.overlay = mask.data;
+
+        return field;
+    }
+
+    function interpolateField(globe, grid, mask, cancel) {
+        if (!globe || !grid || !mask) return null;
+
+        log.time("interpolating field");
+        var d = when.defer();
+
+        var projection = globe.projection;
+        var distortion = µ.distortion(projection);
+        var bounds = globe.bounds();
+        var velocityScale = bounds.height / 39000;  // particle speed as number of pixels per unit vector
+        var dv = [];
+
+        /**
+         * Calculate distortion of the wind vector caused by the shape of the projection at point (x, y). The wind
+         * vector is modified in place and returned by this function.
+         */
+        function distort(x, y, λ, φ, wind) {
+            var u = wind[0], us = u * velocityScale;
+            var v = wind[1], vs = v * velocityScale;
+            var du = wind;
+
+            if (!distortion(λ, φ, x, y, du, dv)) {
+                throw new Error("whoops");
+            }
+
+            // Scale distortion vectors by u and v, then add.
+            wind[0] = du[0] * us + dv[0] * vs;
+            wind[1] = -(du[1] * us + dv[1] * vs);  // Reverse v component because y-axis grows down.
+            wind[2] = Math.sqrt(u * u + v * v);  // calculate the original wind magnitude
+
+            return wind;
+        }
+
+        var columns = [];
+        var point = [];
+        var x = bounds.x;
+        var interpolate = grid.interpolate;
+        function interpolateColumn(x) {
+            var column = [];
+            for (var y = bounds.y; y <= bounds.yMax; y += 2) {
+                if (mask.isVisible(x, y)) {
+                    point[0] = x; point[1] = y;
+                    var coord = projection.invert(point);
+                    if (coord) {
+                        var λ = coord[0], φ = coord[1];
+                        if (isFinite(λ)) {
+                            var wind = interpolate(λ, φ);
+                            if (wind) {
+                                column[y] = distort(x, y, λ, φ, wind);
+                                var c = µ.asRainbowColorStyle(Math.min(wind[2], 25) / 25, Math.floor(255 * 0.4));
+                                mask.set(x, y, c[0], c[1], c[2], c[3]);
+                                mask.set(x+1, y, c[0], c[1], c[2], c[3]);
+                                mask.set(x+1, y+1, c[0], c[1], c[2], c[3]);
+                                mask.set(x, y+1, c[0], c[1], c[2], c[3]);
+                                continue;
+                            }
+                        }
+                    }
+                    mask.set(x, y, 0, 0, 0, 0);
+                    mask.set(x+1, y, 0, 0, 0, 0);
+                    mask.set(x, y+1, 0, 0, 0, 0);
+                    mask.set(x+1, y+1, 0, 0, 0, 0);
+                }
+            }
+            columns[x] = column;
+            columns[x+1] = column;
+        }
+
+        (function batchInterpolate() {
+            try {
+                if (!cancel.requested) {
+                    var start = +new Date();
+                    while (x < bounds.xMax) {
+                        interpolateColumn(x);
+                        x += 2;
+                        if ((+new Date() - start) > MAX_TASK_TIME) {
+                            // Interpolation is taking too long. Schedule the next batch for later and yield.
+                            report.progress("Interpolating: " + x + "/" + bounds.xMax);
+                            setTimeout(batchInterpolate, MIN_SLEEP_TIME);
+                            return;
+                        }
+                    }
+                }
+                report.progress("");
+                d.resolve(createField(columns, bounds, mask));
+                log.timeEnd("interpolating field");
+            }
+            catch (e) {
+                d.reject(e);
+            }
+        })();
+
+        return d.promise;
+    }
+
+    var activeField = new DebouncedValue();
+    activeField.listenTo(activeMask, "change:value", function(source, mask) {
+        activeField.submit(interpolateField, activeGlobe.value(), activeGrid.value(), mask);
+    });
+    activeField.listenTo(activeGrid, "change:value", function(source, grid) {
+        activeField.submit(interpolateField, activeGlobe.value(), grid, activeMask.value());
+    });
+
+    function overlay(field) {
+        if (!field) return null;
+        log.time("overlay");
+        var canvas = d3.select("#overlay").node();
+        var context = canvas.getContext("2d");
+        var imageData = context.getImageData(0, 0, canvas.width, canvas.height);
+        imageData.data.set(field.overlay);
+        context.putImageData(imageData, 0, 0);
+        log.timeEnd("overlay");
+    }
+
+    function clearOverlay() {
+        console.log("clearing");
+        µ.clearCanvas(d3.select("#overlay").node());
+    }
+
+    var activeOverlay = new DebouncedValue();
+    activeOverlay.listenTo(activeField, "change:value", function(source, field) {
+        activeOverlay.submit(overlay, field);
+    });
+    activeOverlay.listenTo(inputController, "start", function() {
+        activeOverlay.submit(clearOverlay);
+    });
+    activeOverlay.listenTo(configuration, "change:projection change:orientation", function() {
+        activeOverlay.submit(clearOverlay);
+    });
 
     (function init() {
         report.progress("Initializing...");
@@ -294,12 +494,10 @@
             configuration.fetch({trigger: "hashchange"});
         });
 
-        gridNode.on("change", function() {
-            when(gridNode.get("promise")).then(function(grid) {
-                d3.select("#data-date").text(µ.toLocalISO(new Date(grid.meta.date)) + " (local)");
-                // d3.select("#data-layer").text(grid.recipe.description);
-                d3.select("#data-center").text("US National Weather Service");
-            });
+        activeGrid.on("change:value", function(source, grid) {
+            d3.select("#data-date").text(µ.toLocalISO(new Date(grid.meta.date)) + " (local)");
+            // d3.select("#data-layer").text(grid.recipe.description);
+            d3.select("#data-center").text("US National Weather Service");
         });
     }());
 
