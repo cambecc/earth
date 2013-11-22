@@ -107,40 +107,35 @@
         return dispatch;
     }();
 
-    var DebouncedValue = Backbone.Model.extend({
-        defaults: {
-            value: null
-        },
-        constructor: function() {
-            this.submit = _.debounce(this.submit, 0);
-            Backbone.Model.apply(this, arguments);
-        },
-        value: function() {
-            return this.get("value");
-        },
-        _cancel: function() {
-            // initially a nop
-        },
-        submit: function(callback) {
-            var context = this;
+    function debouncedValue() {
+
+        var value = null;
+        var handle = {
+            value: function() { return value; },
+            submit: _.debounce(submit, 0),
+            cancel: function() {}  // initially a nop
+        };
+
+        function submit(callback) {
             function cancel() {
                 cancel.requested = true;
             }
             function run(args) {
                 return cancel.requested ? null : callback.apply(null, args);
             }
-            function accept(value) {
-                var r = cancel.requested ? null : context.set("value", value);
-                return r;
+            function accept(newValue) {
+                return cancel.requested ? null : handle.trigger("update", value = newValue);
             }
             function reject(error) {
                 return cancel.requested ? null : report.error(error);
             }
-            this._cancel();  // cancel the previous task--no effect if already completed
-            var args = _.rest(arguments).concat(this._cancel = cancel);
+            handle.cancel();  // cancel the current task--no effect if already completed
+            var args = _.rest(arguments).concat(handle.cancel = cancel);
             when.all(args).then(run).done(accept, reject);
         }
-    });
+
+        return _.extend(handle, Backbone.Events);
+    }
 
     /**
      * @param resource the GeoJSON resource's URL
@@ -165,7 +160,7 @@
     /**
      * The page's current topology mesh. There can be only one.
      */
-    var activeMesh = new DebouncedValue();
+    var activeMesh = debouncedValue();
     activeMesh.listenTo(configuration, "change:topology", function(context, attr) {
         activeMesh.submit(buildMesh, attr);
     });
@@ -185,7 +180,7 @@
     /**
      * The page's current globe model. There can be only one.
      */
-    var activeGlobe = new DebouncedValue();
+    var activeGlobe = debouncedValue();
     activeGlobe.listenTo(configuration, "change:projection", function(source, attr) {
         activeGlobe.submit(buildGlobe, attr);
     });
@@ -204,7 +199,7 @@
     /**
      * The page's current grid. There can be only one.
      */
-    var activeGrid = new DebouncedValue();
+    var activeGrid = debouncedValue();
     activeGrid.listenTo(configuration, "change", function() {
         var layerAttributes = ["date", "hour", "param", "surface", "level"];
         if (_.intersection(_.keys(configuration.changedAttributes()), layerAttributes).length > 0) {
@@ -265,11 +260,11 @@
     /**
      * The page's current globe controller. There can be only one.
      */
-    var activeGlobeController = new DebouncedValue();
-    activeGlobeController.listenTo(activeMesh, "change:value", function(source, mesh) {
+    var activeGlobeController = debouncedValue();
+    activeGlobeController.listenTo(activeMesh, "update", function(mesh) {
         activeGlobeController.submit(buildGlobeController, mesh, activeGlobe.value());
     });
-    activeGlobeController.listenTo(activeGlobe, "change:value", function(source, globe) {
+    activeGlobeController.listenTo(activeGlobe, "update", function(globe) {
         activeGlobeController.submit(buildGlobeController, activeMesh.value(), globe);
     });
 
@@ -304,8 +299,8 @@
         };
     }
 
-    var activeMask = new DebouncedValue();
-    activeMask.listenTo(activeGlobe, "change:value", function(source, globe) {
+    var activeMask = debouncedValue();
+    activeMask.listenTo(activeGlobe, "update", function(globe) {
         activeMask.submit(createMask, globe);
     });
     activeMask.listenTo(inputController, "end", function() {  // UNDONE: better name for this event -- reorientation?
@@ -437,15 +432,15 @@
         return d.promise;
     }
 
-    var activeField = new DebouncedValue();
-    activeField.listenTo(activeMask, "change:value", function(source, mask) {
+    var activeField = debouncedValue();
+    activeField.listenTo(activeMask, "update", function(mask) {
         activeField.submit(interpolateField, activeGlobe.value(), activeGrid.value(), mask);
     });
-    activeField.listenTo(activeGrid, "change:value", function(source, grid) {
+    activeField.listenTo(activeGrid, "update", function(grid) {
         activeField.submit(interpolateField, activeGlobe.value(), grid, activeMask.value());
     });
 
-    function overlay(field) {
+    function drawOverlay(field) {
         if (!field) return null;
         log.time("overlay");
         var canvas = d3.select("#overlay").node();
@@ -456,20 +451,24 @@
         log.timeEnd("overlay");
     }
 
-    function clearOverlay() {
-        console.log("clearing");
+    var activeOverlay = debouncedValue();
+    activeOverlay.listenTo(activeField, "update", function(field) {
+        activeOverlay.submit(drawOverlay, field);
+    });
+
+    function cleanDisplay() {
+        console.log("cleaning");
+        activeField.cancel();
+        activeOverlay.cancel();
         µ.clearCanvas(d3.select("#overlay").node());
     }
 
-    var activeOverlay = new DebouncedValue();
-    activeOverlay.listenTo(activeField, "change:value", function(source, field) {
-        activeOverlay.submit(overlay, field);
-    });
+    var displayCleaner = debouncedValue();
     activeOverlay.listenTo(inputController, "start", function() {
-        activeOverlay.submit(clearOverlay);
+        displayCleaner.submit(cleanDisplay);
     });
     activeOverlay.listenTo(configuration, "change:projection change:orientation", function() {
-        activeOverlay.submit(clearOverlay);
+        displayCleaner.submit(cleanDisplay);
     });
 
     (function init() {
@@ -494,7 +493,7 @@
             configuration.fetch({trigger: "hashchange"});
         });
 
-        activeGrid.on("change:value", function(source, grid) {
+        activeGrid.on("update", function(grid) {
             d3.select("#data-date").text(µ.toLocalISO(new Date(grid.meta.date)) + " (local)");
             // d3.select("#data-layer").text(grid.recipe.description);
             d3.select("#data-center").text("US National Weather Service");
