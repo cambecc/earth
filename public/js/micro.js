@@ -115,7 +115,8 @@ var µ = function() {
                 level: tokens[5],                 // non-empty alphanumeric _
                 projection: "orthographic",
                 orientation: "",
-                topology: TOPOLOGY
+                topology: TOPOLOGY,
+                overlay: "wv"
             };
             µ.coalesce(tokens[6], "").split("/").forEach(function(segment) {
                 if (option = /^(\w+)(=([\d\-.,]*))?$/.exec(segment)) {
@@ -123,6 +124,9 @@ var µ = function() {
                         result.projection = option[1];                   // non-empty alphanumeric _
                         result.orientation = µ.coalesce(option[3], "");  // comma delimited string of numbers, or ""
                     }
+                }
+                else if (option = /^overlay=off$/.exec(segment)) {
+                    result.overlay = "off";
                 }
             });
         }
@@ -137,7 +141,8 @@ var µ = function() {
             var attr = this.attributes;
             var dir = attr.date === "current" ? "current" : attr.date + "/" + attr.hour + "Z";
             var proj = [attr.projection, attr.orientation].filter(µ.isTruthy).join("=");
-            return [dir, attr.param, attr.surface, attr.level, proj].join("/");
+            var ol = attr.overlay === "off" ? "overlay=off" : "";
+            return [dir, attr.param, attr.surface, attr.level, proj, ol].filter(µ.isTruthy).join("/");
         },
         toPath: function() {
             var attr = this.attributes;

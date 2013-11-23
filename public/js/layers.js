@@ -40,6 +40,10 @@ var layers = function() {
         }
     };
 
+    function recipeFor(type) {
+        return _.findWhere(_.values(LAYER_RECIPES), {name: [type.param, type.surface, type.level].join("-")});
+    }
+
     function bilinear(x, y, g00, g10, g01, g11) {
         // g(0, 0)(1 - x)(1 - y) + g(1, 0)x(1-y) + g(0, 1)(1 - x)y + g(1, 1)xy
 
@@ -53,7 +57,7 @@ var layers = function() {
         ];
     }
 
-    function buildGrid(data) {
+    function buildGrid(data, layerType) {
 
         var uRecord = null, vRecord = null;
         for (var r = 0; r < data.length; r++) {
@@ -127,10 +131,11 @@ var layers = function() {
             return null;
         }
 
-        return when.resolve({
+        return {
             meta: uRecord.meta,
-            interpolate: interpolate
-        });
+            interpolate: interpolate,
+            recipe: recipeFor(layerType)
+        };
     }
 
     return {

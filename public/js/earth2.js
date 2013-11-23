@@ -76,18 +76,39 @@
                             configuration.save({orientation: globe.orientation()});
                             dispatch.trigger("end");
                         }
-                    }, 1000);  // UNDONE: use debounce here
+                    }, 1000);
                 }
             });
 
         d3.select("#foreground").call(zoom);
 
+        function locate() {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(
+                    function(position) {
+                        var coord = [position.coords.longitude, position.coords.latitude], rotate;
+                        if (rotate = globe.locate(coord)) {
+                            dispatch.trigger("start");
+                            globe.projection.rotate(rotate);
+                            dispatch.trigger("redraw");
+                            configuration.save({orientation: globe.orientation()});
+                            dispatch.trigger("end");
+                        }
+                        dispatch.trigger("click", globe.projection(coord), coord);
+                    },
+                    log.error);
+            }
+        }
+
+        d3.select("#show-location").on("click", locate);
+
         function reorient() {
             if (globe) {
+                dispatch.trigger("start");
                 globe.orientation(configuration.get("orientation"));
                 zoom.scale(globe.projection.scale());
-                dispatch.trigger("end");  // a little odd here, but need to force redraw with hi-res boundary
-                dispatch.trigger("redraw");  // a little odd here, but need to force redraw with hi-res boundary
+                dispatch.trigger("redraw");
+                dispatch.trigger("end");
             }
         }
 
@@ -118,7 +139,7 @@
                 handle.cancel();
                 debouncedSubmit.apply(this, arguments);
             },
-            cancel: function() {}  // initially a nop
+            cancel: function() {}  // initially a nop. CONSIDER: if requested=true too, then flag signifies validity
         };
 
         function submit(callback) {
@@ -195,7 +216,7 @@
             if (cancel.requested) return null;
             report.progress("building grid...");
             log.time("build grid");
-            var result = layers.buildGrid(data);
+            var result = layers.buildGrid(data, configuration.pick("param", "surface", "level"));
             log.timeEnd("build grid");
             return result;
         });
@@ -246,6 +267,7 @@
                 },
                 end: function() {  // UNDONE: need a better name for this event
                     coastline.datum(mesh.boundaryHi);
+                    d3.select("#display").selectAll("path").attr("d", path);
                 },
                 click: function(point, coord) {
                     // show the point on the map
@@ -454,22 +476,6 @@
         activeField.submit(interpolateField, activeGlobe.value(), grid, activeMask.value());
     });
 
-    function drawOverlay(field) {
-        if (!field) return null;
-        log.time("overlay");
-        var canvas = d3.select("#overlay").node();
-        var context = canvas.getContext("2d");
-        var imageData = context.getImageData(0, 0, canvas.width, canvas.height);
-        imageData.data.set(field.overlay);
-        context.putImageData(imageData, 0, 0);
-        log.timeEnd("overlay");
-    }
-
-    var activeOverlay = debouncedValue();
-    activeOverlay.listenTo(activeField, "update", function(field) {
-        activeOverlay.submit(drawOverlay, field);
-    });
-
     function animate(globe, field, cancel) {
         if (!globe || !field) return null;
 
@@ -571,6 +577,33 @@
         activeAnimation.submit(animate, activeGlobe.value(), field);
     });
 
+    function drawOverlay(field, overlayFlag) {
+        if (!field) return null;
+        log.time("overlay");
+        if (overlayFlag === "off") {
+            µ.clearCanvas(d3.select("#overlay").node());
+        }
+        else {
+            var canvas = d3.select("#overlay").node();
+            var context = canvas.getContext("2d");
+            var imageData = context.getImageData(0, 0, canvas.width, canvas.height);
+            imageData.data.set(field.overlay);
+            context.putImageData(imageData, 0, 0);
+        }
+        log.timeEnd("overlay");
+    }
+
+    var activeOverlay = debouncedValue();
+    activeOverlay.listenTo(activeField, "update", function(field) {
+        activeOverlay.submit(drawOverlay, field, configuration.get("overlay"));
+    });
+    activeOverlay.listenTo(configuration, "change:overlay", function(source, overlayFlag) {
+        // if only the overlay flag has changed...
+        if (_.keys(configuration.changedAttributes()).length === 1) {
+            activeOverlay.submit(drawOverlay, activeField.value(), overlayFlag);
+        }
+    });
+
     function cleanDisplay() {
         log.time("clean display");
         activeField.cancel();
@@ -582,11 +615,15 @@
     }
 
     var displayCleaner = debouncedValue();
-    activeOverlay.listenTo(inputController, "start", function() {
+    displayCleaner.listenTo(inputController, "start", function() {
         displayCleaner.submit(cleanDisplay);
     });
-    activeOverlay.listenTo(configuration, "change:projection change:orientation", function() {
-        displayCleaner.submit(cleanDisplay);
+    displayCleaner.listenTo(configuration, "change", function() {
+        // if anything except the overlay flag has changed...
+        if (!_.has(configuration.changedAttributes(), "overlay") ||
+                _.keys(configuration.changedAttributes()).length > 1) {
+            displayCleaner.submit(cleanDisplay);
+        }
     });
 
     (function init() {
@@ -613,9 +650,10 @@
 
         activeGrid.on("update", function(grid) {
             d3.select("#data-date").text(µ.toLocalISO(new Date(grid.meta.date)) + " (local)");
-            // d3.select("#data-layer").text(grid.recipe.description);
+            d3.select("#data-layer").text(grid.recipe.description);
             d3.select("#data-center").text("US National Weather Service");
         });
+
     }());
 
     configuration.fetch();  // everything is now set up, so kick off the events

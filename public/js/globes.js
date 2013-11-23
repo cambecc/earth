@@ -90,6 +90,10 @@ var globes = function() {
         };
     }
 
+    function standardLocate() {
+        return null;
+    }
+
     function standardBuilder(methods) {
         return {
             factory:     methods.factory,
@@ -100,6 +104,7 @@ var globes = function() {
             scaleExtent: methods.scaleExtent || standardScaleExtent,
             orientation: methods.orientation || standardOrientation,
             manipulator: methods.manipulator || standardManipulator,
+            locate:      methods.locate      || standardLocate,
             defineMask:  methods.defineMask  || sphereMask,
             defineMap:   methods.defineMap   || standardMapElements
         };
@@ -189,6 +194,9 @@ var globes = function() {
                 foregroundSvg.append("use")
                     .attr("xlink:href", "#sphere")
                     .attr("class", "sphere-stroke");
+            },
+            locate: function(coord) {
+                return [-coord[0], -coord[1], this.projection.rotate()[2]];
             }
         });
     }
