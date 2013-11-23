@@ -272,6 +272,24 @@ var µ = function() {
         };
     }
 
+    /**
+     * Returns a human readable string for the provided coordinates.
+     */
+    function formatCoordinates(λ, φ) {
+        return Math.abs(φ).toFixed(2) + "º " + (φ >= 0 ? "N" : "S") + ", " +
+            Math.abs(λ).toFixed(2) + "º " + (λ >= 0 ? "E" : "W");
+    }
+
+    /**
+     * Returns a human readable string for the provided rectangular wind vector.
+     */
+    function formatVector(u, v) {
+        var d = Math.atan2(-u, -v) / τ * 360;  // calculate into-the-wind cardinal degrees
+        var wd = Math.round((d + 360) % 360 / 5) * 5;  // shift [-180, 180] to [0, 360], and round to nearest 5.
+        var m = Math.sqrt(u * u + v * v);
+        return wd.toFixed(0) + "º @ " + m.toFixed(1) + " m/s";
+    }
+
     return {
         isTruthy: isTruthy,
         isValue: isValue,
@@ -292,7 +310,9 @@ var µ = function() {
         asRainbowColorStyle: asRainbowColorStyle,
         colorStyles: colorStyles,
         clearCanvas: clearCanvas,
-        distortion: distortion
+        distortion: distortion,
+        formatCoordinates: formatCoordinates,
+        formatVector: formatVector
     };
 
 }();

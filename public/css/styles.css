@@ -141,7 +141,11 @@ a:hover, a:focus {
     -webkit-transition: color 25ms ease-in;
 }
 
-#progress, #location, #point-details, #show-menu {
+#progress, #location, #location-close, #location-details, #show-menu {
     font-size: 2.4rem;
     background-color: rgba(0, 0, 4, 0.6);
+}
+
+.invisible {
+    display: none;
 }

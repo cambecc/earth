@@ -654,6 +654,29 @@
             d3.select("#data-center").text("US National Weather Service");
         });
 
+        // Add event handlers for showing and removing location details.
+        inputController.on("click", function(point, coord) {
+            var grid = activeGrid.value();
+            if (!grid) return;
+            var λ = coord[0], φ = coord[1], wind = grid.interpolate(λ, φ);
+            if (µ.isValue(wind)) {
+                d3.select("#location").text("⁂ " + µ.formatCoordinates(λ, φ));
+                d3.select("#location-details").text("⁂ " + µ.formatVector(wind[0], wind[1]));
+                d3.select("#location-close").classed("invisible", false);
+            }
+        });
+
+        function clearDetails() {
+            d3.select("#location").text("");
+            d3.select("#location-details").text("");
+            d3.select("#location-close").classed("invisible", true);
+            d3.select("#position").remove();
+        }
+
+        d3.select("#location-close").on("click", clearDetails);
+        activeGrid.on("update", clearDetails);
+        activeRenderer.on("update", clearDetails);
+
     }());
 
     configuration.fetch();  // everything is now set up, so kick off the events
