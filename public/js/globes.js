@@ -3,12 +3,23 @@ var globes = function() {
     "use strict";
 
     var view = µ.view();
-    var VIEW_CENTER = [view.width / 2, view.height / 2];
 
     function sphereBounds() {
         return µ.clampedBounds(
             d3.geo.path().projection(this.projection).bounds({type: "Sphere"}),
             view);
+    }
+
+    function standardFit() {
+        var defaultProjection = this.factory();
+        var bounds = d3.geo.path().projection(defaultProjection).bounds({type: "Sphere"});
+        var hScale = (bounds[1][0] - bounds[0][0]) / defaultProjection.scale();
+        var vScale = (bounds[1][1] - bounds[0][1]) / defaultProjection.scale();
+        return Math.min(view.width / hScale, view.height / vScale) * 0.9;
+    }
+
+    function standardCenter() {
+        return [view.width / 2, view.height / 2];
     }
 
     function standardScaleExtent() {
@@ -23,22 +34,21 @@ var globes = function() {
     function standardOrientation(o) {
         var projection = this.projection;
         if (µ.isValue(o)) {
-            // UNDONE: when empty string, use default rotation
             var parts = o.split(",");
             var λ = +parts[0], φ = +parts[1], scale = +parts[2];
             if (_.isFinite(λ) && µ.within(φ, [-90, +90])) {
-                projection.rotate([-λ, -φ]);
+                projection.rotate([-λ, -φ, projection.rotate()[2]]);
             }
             else {
-                projection.rotate([0, 0]);
+                projection.rotate(this.factory().rotate());
             }
-            // UNDONE: when empty string, use default scale
             if (µ.within(scale, this.scaleExtent())) {
                 projection.scale(scale);
             }
             else {
-                projection.scale(100);
+                projection.scale(this.fit());
             }
+            projection.translate(this.center());
             return this;
         }
         var rotate = projection.rotate();
@@ -82,8 +92,11 @@ var globes = function() {
 
     function standardBuilder(methods) {
         return {
-            projection:  methods.projection,
+            factory:     methods.factory,
+            projection:  methods.factory(),
             bounds:      methods.bounds      || sphereBounds,
+            fit:         methods.fit         || standardFit,
+            center:      methods.center      || standardCenter,
             scaleExtent: methods.scaleExtent || standardScaleExtent,
             orientation: methods.orientation || standardOrientation,
             manipulator: methods.manipulator || standardManipulator,
@@ -92,13 +105,64 @@ var globes = function() {
         };
     }
 
+    // ============================================================================================
+
+    function atlantis() {
+        return standardBuilder({
+            factory: function() {
+                return d3.geo.mollweide().rotate([30, -45, 90]).precision(0.1);
+            }
+        });
+    }
+
+    function azimuthalEquidistant() {
+        return standardBuilder({
+            factory: function() {
+                return d3.geo.azimuthalEquidistant().precision(0.1).clipAngle(180 - 0.001);
+            }
+        });
+    }
+
+    function azimuthalEqualArea() {
+        return standardBuilder({
+            factory: function() {
+                return d3.geo.azimuthalEqualArea().precision(0.1).clipAngle(180 - 0.001);
+            }
+        });
+    }
+
+    function conicEquidistant() {
+        return standardBuilder({
+            factory: function() {
+                return d3.geo.conicEquidistant().precision(0.1);
+            },
+            center: function() {
+                return [view.width / 2, view.height / 2 + view.height * 0.065];
+            }
+        });
+    }
+
+    function equirectangular() {
+        return standardBuilder({
+            factory: function() {
+                return d3.geo.equirectangular().precision(0.1);
+            }
+        });
+    }
+
+    function mercator() {
+        return standardBuilder({
+            factory: function() {
+                return d3.geo.mercator().precision(0.1);
+            }
+        });
+    }
+
     function orthographic() {
         return standardBuilder({
-            projection: d3.geo.orthographic()
-                .translate(VIEW_CENTER)
-                .scale(200)
-                .precision(0.1)
-                .clipAngle(90),  // hides occluded side
+            factory: function() {
+                return d3.geo.orthographic().precision(0.1).clipAngle(90);
+            },
             defineMap: function(mapSvg, foregroundSvg) {
                 var path = d3.geo.path().projection(this.projection);
                 var defs = mapSvg.append("defs");
@@ -129,13 +193,23 @@ var globes = function() {
         });
     }
 
+    function stereographic() {
+        return standardBuilder({
+            factory: function() {
+                return d3.geo.stereographic()
+                    .rotate([-43, -20])
+                    .precision(1.0)
+                    .clipAngle(180 - 0.0001)
+                    .clipExtent([[0, 0], [view.width, view.height]]);
+            }
+        });
+    }
+
     function waterman() {
         return standardBuilder({
-            projection: d3.geo.polyhedron.waterman()
-                .rotate([20, 0])
-                .translate(VIEW_CENTER)
-                .scale(118)  // UNDONE: proper sizing
-                .precision(0.1),
+            factory: function() {
+                return d3.geo.polyhedron.waterman().rotate([20, 0]).precision(0.1);
+            },
             defineMap: function(mapSvg, foregroundSvg) {
                 var path = d3.geo.path().projection(this.projection);
                 var defs = mapSvg.append("defs");
@@ -146,7 +220,7 @@ var globes = function() {
                 defs.append("clipPath")
                     .attr("id", "clip")
                     .append("use")
-                        .attr("xlink:href", "#sphere");
+                    .attr("xlink:href", "#sphere");
                 mapSvg.append("use")
                     .attr("xlink:href", "#sphere")
                     .attr("class", "sphere-fill");
@@ -165,38 +239,21 @@ var globes = function() {
         });
     }
 
-    function stereographic() {
-        return standardBuilder({
-            projection: d3.geo.stereographic()
-                .rotate([-43, -20])
-                .translate(VIEW_CENTER)
-                .scale(140)
-                .precision(1.0)
-                .clipAngle(180 - 0.0001)
-                .clipExtent([[0, 0], [view.width, view.height]])
-        });
-    }
-
-    function conicEquidistant() {
-        return standardBuilder({
-            projection: d3.geo.conicEquidistant()
-                .translate(VIEW_CENTER)
-                .scale(140)
-                .precision(0.1)
-        });
-    }
-
     function winkel3() {
         return standardBuilder({
-            projection: d3.geo.winkel3()
-                .translate(VIEW_CENTER)
-                .scale(140)
-                .precision(0.1)
+            factory: function() {
+                return d3.geo.winkel3().precision(0.1);
+            }
         });
     }
 
     return d3.map({
-        conicEquidistant: conicEquidistant,
+        atlantis: atlantis,
+        azimuthal_equal_area: azimuthalEqualArea,
+        azimuthal_equidistant: azimuthalEquidistant,
+        conic_equidistant: conicEquidistant,
+        equirectangular: equirectangular,
+        mercator: mercator,
         orthographic: orthographic,
         stereographic: stereographic,
         waterman: waterman,

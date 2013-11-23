@@ -175,9 +175,7 @@ var µ = function() {
     }
 
     function ensureNumber(num, fallback) {
-        return _.isFinite(num) || num === Number.NEGATIVE_INFINITY || num === Number.POSITIVE_INFINITY ?
-            num :
-            fallback;
+        return _.isFinite(num) || num === Infinity || num === -Infinity ? num : fallback;
     }
 
     /**
