@@ -310,16 +310,14 @@
     }
 
     var activeMask = debouncedValue();
-//    activeMask.listenTo(activeGlobe, "update", function(globe) {
-//        activeMask.submit(createMask, globe, activeRenderer.value());
-//    });
     activeMask.listenTo(inputController, "end", function() {  // UNDONE: better name for this event -- reorientation?
         activeMask.submit(createMask, activeGlobe.value(), activeRenderer.value());
     });
 
     function createField(columns, bounds, mask) {
         var nilVector = [NaN, NaN, NIL];
-        var field = function(x, y) {
+
+        function field(x, y) {
             var column = columns[Math.round(x)];
             if (column) {
                 var v = column[Math.round(y)];
@@ -328,6 +326,12 @@
                 }
             }
             return nilVector;
+        }
+
+        // Frees the massive "columns" array for GC. Without this, the array is leaked (in Chrome) each time a new
+        // field is interpolated because the field closure's context is leaked, for reasons that defy explanation.
+        field.release = function() {
+            columns = null;
         };
 
         field.randomize = function(o) {
@@ -545,13 +549,16 @@
         (function frame() {
             // log.debug("frame");
             try {
-                if (!cancel.requested) {
-                    // var start = +new Date;
-                    evolve();
-                    draw();
-                    // var duration = (+new Date - start);
-                    setTimeout(frame, 40 /* - duration*/);  // desired milliseconds per frame
+                if (cancel.requested) {
+                    field.release();
+                    return;
                 }
+
+                // var start = Date.now();
+                evolve();
+                draw();
+                // var duration = (Date.now() - start);
+                setTimeout(frame, 40 /*- duration*/);  // desired milliseconds per frame
             }
             catch (e) {
                 report.error(e);
