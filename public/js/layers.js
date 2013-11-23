@@ -56,12 +56,13 @@ var layers = function() {
     function buildGrid(data) {
 
         var uRecord = null, vRecord = null;
-        data.forEach(function(record) {
+        for (var r = 0; r < data.length; r++) {
+            var record = data[r];
             switch (record.header.parameterNumber) {
                 case 2: uRecord = record; break; // U-component_of_wind
                 case 3: vRecord = record; break; // V-component_of_wind
             }
-        });
+        }
         if (!uRecord || !vRecord) {
             return when.reject("Failed to find both u,v component records");
         }

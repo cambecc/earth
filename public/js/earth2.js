@@ -32,6 +32,7 @@
     });
 
     var inputController = function buildInputController() {
+        log.debug("building input controller");
         var globe;
         var dispatch = _.clone(Backbone.Events);
         var moveCount = 0, isClick = false;
@@ -110,9 +111,13 @@
     function debouncedValue() {
 
         var value = null;
+        var debouncedSubmit = _.debounce(submit, 0);
         var handle = {
             value: function() { return value; },
-            submit: _.debounce(submit, 0),
+            submit: function() {
+                handle.cancel();
+                debouncedSubmit.apply(this, arguments);
+            },
             cancel: function() {}  // initially a nop
         };
 
@@ -129,7 +134,7 @@
             function reject(error) {
                 return cancel.requested ? null : report.error(error);
             }
-            handle.cancel();  // cancel the current task--no effect if already completed
+            // handle.cancel();  // cancel the current task--no effect if already completed
             var args = _.rest(arguments).concat(handle.cancel = cancel);
             when.all(args).then(run).done(accept, reject);
         }
@@ -207,7 +212,7 @@
         }
     });
 
-    function buildGlobeController(mesh, globe) {
+    function buildRenderer(mesh, globe) {
         if (!mesh || !globe) return null;
 
         report.progress("Building globe...");
@@ -215,10 +220,10 @@
 
         // UNDONE: better way to do the following?
         var dispatch = _.clone(Backbone.Events);
-        if (activeGlobeController._previous) {
-            activeGlobeController._previous.stopListening();
+        if (activeRenderer._previous) {
+            activeRenderer._previous.stopListening();
         }
-        activeGlobeController._previous = dispatch;
+        activeRenderer._previous = dispatch;
 
         // First clear map and foreground svg contents.
         µ.removeChildren(d3.select("#map").node());
@@ -228,6 +233,7 @@
 
         var path = d3.geo.path().projection(globe.projection).pointRadius(7);
         var coastline = d3.select(".coastline");
+        d3.select("#display").selectAll("path").attr("d", path);  // do an initial draw -- fixes issue with safari
 
         // Attach to map rendering events on input controller.
         dispatch.listenTo(
@@ -251,25 +257,29 @@
                 }
             });
 
-        // Finally, inject the globe model into the input controller.
-        inputController.globe(globe);
+        // Finally, inject the globe model into the input controller. Do it on the next event turn to ensure
+        // renderer is fully set up before events start flowing.
+        when(true).then(function() {
+            inputController.globe(globe);
+        });
 
         log.timeEnd("rendering map");
+        return "ready";
     }
 
     /**
-     * The page's current globe controller. There can be only one.
+     * The page's current globe renderer. There can be only one.
      */
-    var activeGlobeController = debouncedValue();
-    activeGlobeController.listenTo(activeMesh, "update", function(mesh) {
-        activeGlobeController.submit(buildGlobeController, mesh, activeGlobe.value());
+    var activeRenderer = debouncedValue();
+    activeRenderer.listenTo(activeMesh, "update", function(mesh) {
+        activeRenderer.submit(buildRenderer, mesh, activeGlobe.value());
     });
-    activeGlobeController.listenTo(activeGlobe, "update", function(globe) {
-        activeGlobeController.submit(buildGlobeController, activeMesh.value(), globe);
+    activeRenderer.listenTo(activeGlobe, "update", function(globe) {
+        activeRenderer.submit(buildRenderer, activeMesh.value(), globe);
     });
 
-    function createMask(globe) {
-        if (!globe) return null;
+    function createMask(globe, renderer) {
+        if (!globe || !renderer) return null;
 
         log.time("render mask");
 
@@ -300,11 +310,11 @@
     }
 
     var activeMask = debouncedValue();
-    activeMask.listenTo(activeGlobe, "update", function(globe) {
-        activeMask.submit(createMask, globe);
-    });
+//    activeMask.listenTo(activeGlobe, "update", function(globe) {
+//        activeMask.submit(createMask, globe, activeRenderer.value());
+//    });
     activeMask.listenTo(inputController, "end", function() {  // UNDONE: better name for this event -- reorientation?
-        activeMask.submit(createMask, activeGlobe.value());
+        activeMask.submit(createMask, activeGlobe.value(), activeRenderer.value());
     });
 
     function createField(columns, bounds, mask) {
@@ -555,12 +565,13 @@
     });
 
     function cleanDisplay() {
-        console.log("cleaning");
+        log.time("clean display");
         activeField.cancel();
         activeAnimation.cancel();
         activeOverlay.cancel();
         µ.clearCanvas(d3.select("#animation").node());
         µ.clearCanvas(d3.select("#overlay").node());
+        log.timeEnd("clean display");
     }
 
     var displayCleaner = debouncedValue();
