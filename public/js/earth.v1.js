@@ -325,10 +325,11 @@
         context.fill();
         // d3.select("#display").node().appendChild(canvas);  // make mask visible for debugging
 
-        var data = context.getImageData(0, 0, width, height).data;  // layout: [r, g, b, a, r, g, b, a, ...]
+        var imageData = context.getImageData(0, 0, width, height);
+        var data = imageData.data;  // layout: [r, g, b, a, r, g, b, a, ...]
         log.timeEnd("render mask");
         return {
-            data: data,
+            imageData: imageData,
             isVisible: function(x, y) {
                 var i = (y * width + x) * 4;
                 return data[i + 3] > 0;  // non-zero alpha means pixel is visible
@@ -380,7 +381,7 @@
             return o;
         };
 
-        field.overlay = mask.data;
+        field.overlay = mask.imageData;
 
         return field;
     }
@@ -596,11 +597,7 @@
             µ.clearCanvas(d3.select("#overlay").node());
         }
         else {
-            var canvas = d3.select("#overlay").node();
-            var context = canvas.getContext("2d");
-            var imageData = context.getImageData(0, 0, canvas.width, canvas.height);
-            imageData.data.set(field.overlay);
-            context.putImageData(imageData, 0, 0);
+            d3.select("#overlay").node().getContext("2d").putImageData(field.overlay, 0, 0);
         }
         log.timeEnd("overlay");
     }
