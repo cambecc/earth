@@ -38,8 +38,8 @@ var µ = function() {
         return Math.sqrt(Δx * Δx + Δy * Δy);
     }
 
-    function within(x, bounds) {
-        return bounds[0] <= x && x <= bounds[1];
+    function clamp(x, bounds) {
+        return Math.max(bounds[0], Math.min(x, bounds[1]));
     }
 
     function toLocalISO(date) {
@@ -296,7 +296,7 @@ var µ = function() {
         coalesce: coalesce,
         floorDiv: floorDiv,
         distance: distance,
-        within: within,
+        clamp: clamp,
         toLocalISO: toLocalISO,
         log: log,
         view: view,

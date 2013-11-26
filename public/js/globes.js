@@ -32,27 +32,17 @@ var globes = function() {
     }
 
     function standardOrientation(o) {
-        var projection = this.projection;
+        var projection = this.projection, rotate = projection.rotate();
         if (µ.isValue(o)) {
-            var parts = o.split(",");
-            var λ = +parts[0], φ = +parts[1], scale = +parts[2];
-            if (_.isFinite(λ) && µ.within(φ, [-90, +90])) {
-                projection.rotate([-λ, -φ, projection.rotate()[2]]);
-            }
-            else {
-                projection.rotate(this.factory().rotate());
-            }
-            if (µ.within(scale, this.scaleExtent())) {
-                projection.scale(scale);
-            }
-            else {
-                projection.scale(this.fit());
-            }
+            var parts = o.split(","), λ = +parts[0], φ = +parts[1], scale = +parts[2];
+            projection.rotate(_.isFinite(λ) && _.isFinite(φ) ?
+                [-λ, -φ, rotate[2]] :
+                this.factory().rotate());
+            projection.scale(_.isFinite(scale) ? µ.clamp(scale, this.scaleExtent()) : this.fit());
             projection.translate(this.center());
             return this;
         }
-        var rotate = projection.rotate();
-        return [-(rotate[0].toFixed(2)), -(rotate[1].toFixed(2)), Math.round(projection.scale())].join(",");
+        return [(-rotate[0]).toFixed(2), (-rotate[1]).toFixed(2), Math.round(projection.scale())].join(",");
     }
 
     function standardMapElements(mapSvg, foregroundSvg) {
