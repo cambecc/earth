@@ -21,14 +21,16 @@ console.log(new Date().toISOString() + " - Starting");
     "css/styles.css",
     "css/mplus-2p-thin-056.ttf",
     "data/earth-topo.json",
-    "data/weather/current/current-wind-isobaric-1000hPa-gfs-1.0.json",
+    "js/backbone.js",
     "js/d3.v3.js",
     "js/d3.geo.polyhedron.v0.js",
     "js/d3.geo.projection.v0.js",
-    "js/earth.js",
-    "js/mvi.js",
+    "js/earth2.js",
+    "js/globes.js",
+    "js/layers.js",
+    "js/micro.js",
     "js/topojson.v1.js",
-    "js/util.js",
+    "js/underscore.js",
     "js/when.js"
 
 ].forEach(function(key) {

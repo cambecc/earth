@@ -14,7 +14,7 @@ var AWS = require("aws-sdk");
 AWS.config.loadFromPath("./scratch/aws-config.json");
 var s3 = new AWS.S3();
 
-exports.S3_BUCKET = "test-nullschool-net";
+exports.S3_BUCKET = "test.nullschool.net";
 exports.S3_LAYER_HOME = "data/weather/";
 
 exports.headObject = function(params) {
@@ -40,14 +40,17 @@ function putObject(params, expectedETag) {
     return d.promise;
 }
 
-exports.uploadFile = function(path, bucket, key) {
+exports.uploadFile = function(path, bucket, key, metadata, predicate, cacheControl) {
 
-    var meta = headObject({Bucket: bucket, Key: key});
+    cacheControl = cacheControl || tool.cacheControl;
+    predicate = predicate || function() { return true; };
+    var existing = headObject({Bucket: bucket, Key: key});
     var options = {
         Bucket: bucket,
         Key: key,
         ContentType: tool.contentType(path),
-        CacheControl: tool.cacheControl(key)
+        CacheControl: cacheControl(key),
+        Metadata: metadata || {}
     };
 
     if (tool.isCompressionRequired(options.ContentType)) {
@@ -57,19 +60,22 @@ exports.uploadFile = function(path, bucket, key) {
 
     var md5 = when(path).then(function(path) { return tool.hash(fs.createReadStream(path)); });
 
-    return when.all([meta, path, md5]).then(apply(function(meta, path, md5) {
+    return when.join(existing, path, md5).spread(function(existing, path, md5) {
 
-        if (meta.statusCode !== 404 &&
-            meta.ContentLength * 1 === fs.statSync(path).size &&
-            meta.ETag.replace(/"/g, "") === md5 &&
-            meta.ContentType === options.ContentType &&
-            meta.CacheControl === options.CacheControl) {
-
-            return {unchanged: meta};
+        if (existing.statusCode !== 404 &&
+                existing.ContentLength * 1 === fs.statSync(path).size &&
+                existing.ETag.replace(/"/g, "") === md5.toString("hex") &&
+                existing.ContentType === options.ContentType &&
+                existing.CacheControl === options.CacheControl) {
+            return {unchanged: existing};
+        }
+        if (!predicate(existing)) {  // predicate must be true to perform upload
+            return {unchanged: existing};
         }
 
+        options.ContentMD5 = md5.toString("base64");
         options.Body = fs.createReadStream(path);
-        return putObject(options, md5);
+        return putObject(options, md5.toString("hex"));
 
-    }));
+    });
 };

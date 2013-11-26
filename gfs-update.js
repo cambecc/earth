@@ -33,44 +33,59 @@ var aws = require("./aws");
 var log = tool.log();
 
 var PRODUCT_TYPES = ["1.0"];
-var FORECASTS = [0, 3/*, 6, 9, 12, 15, 18, 21, 24*/];
-var GRIB2JSON_FLAGS = "-n -c -d";
+var FORECASTS = [0, 3, 6, 9/*, 12, 15, 18, 21, 24*/];
+var INDENT = undefined; // 2
+var GRIB2JSON_FLAGS = "-n -d";
 var LAYER_RECIPES = {
-    wi1: {
-        name: "wind-isobaric-1hPa",
-        filter: "--fc 2 --fp wind --fs 100 --fv 100",
-        description: "Wind Velocity @ 1 hPa",
-        stack: ["wi1000", "wi100", "wi10", "wi1"],
-        cross: ["wi1"]
-    },
+//    wi1: {
+//        name: "wind-isobaric-1hPa",
+//        filter: "--fc 2 --fp wind --fs 100 --fv 100",
+//        description: "Wind Velocity @ 1 hPa",
+//        stack: ["wi1000", "wi100", "wi10", "wi1"],
+//        cross: ["wi1"]
+//    },
     wi10: {
         name: "wind-isobaric-10hPa",
         filter: "--fc 2 --fp wind --fs 100 --fv 1000",
-        description: "Wind Velocity @ 10 hPa",
-        stack: ["wi1000", "wi100", "wi10", "wi1"],
-        cross: ["wi10"]
+        description: "Wind Velocity @ 10 hPa"
     },
-    wi100: {
-        name: "wind-isobaric-100hPa",
-        filter: "--fc 2 --fp wind --fs 100 --fv 10000",
-        description: "Wind Velocity @ 100 hPa",
-        stack: ["wi1000", "wi100", "wi10", "wi1"],
-        cross: ["wi100"]
+    wi70: {
+        name: "wind-isobaric-70hPa",
+        filter: "--fc 2 --fp wind --fs 100 --fv 7000",
+        description: "Wind Velocity @ 70 hPa"
+    },
+    wi250: {
+        name: "wind-isobaric-250hPa",
+        filter: "--fc 2 --fp wind --fs 100 --fv 25000",
+        description: "Wind Velocity @ 250 hPa"
+    },
+    wi500: {
+        name: "wind-isobaric-500hPa",
+        filter: "--fc 2 --fp wind --fs 100 --fv 50000",
+        description: "Wind Velocity @ 500 hPa"
+    },
+    wi700: {
+        name: "wind-isobaric-700hPa",
+        filter: "--fc 2 --fp wind --fs 100 --fv 70000",
+        description: "Wind Velocity @ 700 hPa"
+    },
+    wi850: {
+        name: "wind-isobaric-850hPa",
+        filter: "--fc 2 --fp wind --fs 100 --fv 85000",
+        description: "Wind Velocity @ 850 hPa"
     },
     wi1000: {
         name: "wind-isobaric-1000hPa",
         filter: "--fc 2 --fp wind --fs 100 --fv 100000",
-        description: "Wind Velocity @ 1000 hPa",
-        stack: ["wi1000", "wi100", "wi10", "wi1"],
-        cross: ["wi1000", "ti1000"]
-    },
-    ti1000: {
-        name: "temp-isobaric-1000hPa",
-        filter: "--fc 0 --fp 0 --fs 100 --fv 100000",
-        description: "Temperature @ 1000 hPa",
-        stack: [],
-        cross: ["wi1000", "ti1000"]
+        description: "Wind Velocity @ 1000 hPa"
     }
+//    ti1000: {
+//        name: "temp-isobaric-1000hPa",
+//        filter: "--fc 0 --fp 0 --fs 100 --fv 100000",
+//        description: "Temperature @ 1000 hPa",
+//        stack: [],
+//        cross: ["wi1000", "ti1000"]
+//    }
 };
 
 var servers = [
@@ -135,7 +150,7 @@ function download(product) {
                 releaseServer(server);
                 if (result.statusCode >= 300) {
                     log.info(util.format("download failed: %s", util.inspect(result)));
-                    return when.reject(result);  // ??
+                    return product;
                 }
                 mkdirp.sync(product.dir(GRIB_HOME));
                 fs.renameSync(tempStream.path, localPath); // UNDONE: cleanup temp, and don't affect other dls in progress
@@ -186,8 +201,17 @@ function extractLayer(layer) {
     var productPath = layer.product.path(GRIB_HOME);
     var layerPath = layer.path(LAYER_HOME);
 
+    if (!fs.existsSync(productPath)) {
+        log.info("product file not found, skipping: " + productPath);
+        return null;
+    }
+
     if (fs.existsSync(layerPath)) {
-        log.info("already exists: " + layerPath);
+        var existing = require("./" + layerPath);
+        var refTime = existing.refTime;
+        if (refTime && new Date(refTime) >= layer.product.cycle.date()) {
+            log.info("already exists and is newer: " + layerPath);
+        }
         return when.resolve(layer);
     }
 
@@ -208,19 +232,19 @@ function extractLayer(layer) {
         }
 
         mkdirp.sync(layer.dir(LAYER_HOME));
-        fs.writeFileSync(layerPath, JSON.stringify(data, null, 2));
+        fs.writeFileSync(layerPath, JSON.stringify(data, null, INDENT));
         log.info("successfully built: " + layerPath);
         return layer;
     });
 }
 
-var extractLayer_throttled = guard(guard.n(1), extractLayer);
+var extractLayer_throttled = guard(guard.n(2), extractLayer);
 
 function extractLayers(product) {
-    var recipes = Object.keys(LAYER_RECIPES).map(function(recipeId) {
+    var layers = Object.keys(LAYER_RECIPES).map(function(recipeId) {
         return gfs.layer(LAYER_RECIPES[recipeId], product);
     });
-    return when.map(recipes, extractLayer_throttled);
+    return when.map(layers, extractLayer_throttled);
 }
 
 function pushLayer(layer) {
@@ -228,9 +252,21 @@ function pushLayer(layer) {
         return null;  // no layer, so nothing to do
     }
     var layerPath = layer.path(LAYER_HOME);
+    if (!fs.existsSync(layerPath)) {
+        log.info("Layer file not found, skipping: " + layerPath);
+        return null;
+    }
     var key = layer.path(aws.S3_LAYER_HOME);
-    return aws.uploadFile(layerPath, aws.S3_BUCKET, key).then(function(result) {
-        console.log(key + ": " + util.inspect(result));
+    var metadata = {
+        "reference-time": layer.product.cycle.date().toISOString()
+    }
+    function isNewerThan(existing) {
+        var refTime = (existing.meta || {})["reference-time"];
+        return !refTime || new Date(refTime) < layer.product.cycle.date();
+    }
+    var cacheControl = gfs.cacheControlFor(layer);
+    return aws.uploadFile(layerPath, aws.S3_BUCKET, key, metadata, isNewerThan, cacheControl).then(function(result) {
+        log.info(key + ": " + util.inspect(result));
         return true;
     });
 }
@@ -256,10 +292,13 @@ function processCycle(cycle) {
     var pushed = /*when(extracted); // */when.map(extracted, pushLayers);
 
     return pushed.then(function(result) {
-        console.log(result);
+        log.info("batch complete");
     });
 }
 
-var main = processCycle(gfs.cycle(date).previous());
-
-main.then(null, tool.report);
+var stop = new Date("2013-11-26T00:00Z");
+var current = gfs.cycle(new Date("2013-11-26T06:00Z"));
+while (current.date().getTime() >= stop.getTime()) {
+    processCycle(current).otherwise(tool.report);
+    current = current.previous();
+}

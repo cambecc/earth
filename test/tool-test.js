@@ -32,6 +32,10 @@ exports.testCompress = function(test) {
 
 exports.testHash = function(test) {
     tool.hash(new ReadableString("abc")).then(function(hash) {
+        test.equal(hash.toString("hex"), "900150983cd24fb0d6963f7d28e17f72");
+        test.done();
+    }).then(null, tool.report);
+    tool.hash(new ReadableString("abc"), "md5", "hex").then(function(hash) {
         test.equal(hash, "900150983cd24fb0d6963f7d28e17f72");
         test.done();
     }).then(null, tool.report);

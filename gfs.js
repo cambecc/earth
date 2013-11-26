@@ -182,3 +182,18 @@ exports.layer = function(recipe, product) {
         }
     };
 };
+
+var SECOND = 1;
+var MINUTE = 60 * SECOND;
+var HOUR = 60 * MINUTE;
+var DAY = 24 * HOUR;
+
+exports.cacheControlFor = function(layer) {
+    return function() {
+        // All forecast products farther out than three hours are replaced during the next cycle, so they live
+        // only a short time. The 00 and 03 forecast products will never be replaced by future runs, so they
+        // live a very long time.
+        var maxAge = layer.product.forecastHour <= 3 ? 30 * DAY : 1 * HOUR;
+        return "public, max-age=" + maxAge;
+    }
+}

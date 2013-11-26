@@ -60,22 +60,25 @@ exports.cacheControl = function() {
     var MINUTE = 60 * SECOND;
     var HOUR = 60 * MINUTE;
     var DAY = 24 * HOUR;
-    var DEFAULT = 30 * MINUTE;
+    var DEFAULT = 6 * HOUR;
 
     var rules = [
         // very-short-lived
         [/data\/.*\/current/, 1 * MINUTE],
 
         // short-lived (default behavior for all other resources)
-        [/js\/earth\.js/, DEFAULT],  // override medium-lived .js rule below
-        [/js\/mvi\.js/, DEFAULT],  // override medium-lived .js rule below
-        [/js\/util\.js/, DEFAULT],  // override medium-lived .js rule below
+        [/js\/earth2\.js/, DEFAULT],  // override medium-lived .js rule below
+        [/js\/globes\.js/, DEFAULT],  // override medium-lived .js rule below
+        [/js\/layers\.js/, DEFAULT],  // override medium-lived .js rule below
+        [/js\/micro\.js/, DEFAULT],   // override medium-lived .js rule below
 
         // long-lived
         [/js\/.*\.js/, 30 * DAY],
-        [/earth-topo\.json/, 30 * DAY],
-        [/mplus-.*\.ttf/, 30 * DAY],
-        [/\.png|\.ico/, 30 * DAY]
+
+        // extremely long-lived
+        [/\.png|\.ico/, 365 * DAY],
+        [/earth-topo\.json/, 365 * DAY],
+        [/mplus-.*\.ttf/, 365 * DAY]
     ];
 
     return function(key) {
@@ -101,9 +104,10 @@ exports.compress = function(input, options) {
 
 exports.hash = function(input, algorithm, encoding) {
     var d = when.defer(), hash = crypto.createHash(algorithm || "md5");
-    hash.setEncoding(encoding || "hex");
+    hash.setEncoding(encoding = encoding || "binary");
     input.pipe(hash).on("finish", function() {
-        d.resolve(hash.read());
+        var output = hash.read();
+        d.resolve(encoding === "binary" ? new Buffer(output, "binary") : output);
     });
     return d.promise;
 };
