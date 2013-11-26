@@ -3,40 +3,33 @@ var layers = function() {
     "use strict";
 
     var LAYER_RECIPES = {
-        wi1: {
-            name: "wind-isobaric-1hPa",
-            filter: "--fc 2 --fp wind --fs 100 --fv 100",
-            description: "Wind Velocity @ 1 hPa",
-            stack: ["wi1000", "wi100", "wi10", "wi1"],
-            cross: ["wi1"]
-        },
         wi10: {
             name: "wind-isobaric-10hPa",
-            filter: "--fc 2 --fp wind --fs 100 --fv 1000",
-            description: "Wind Velocity @ 10 hPa",
-            stack: ["wi1000", "wi100", "wi10", "wi1"],
-            cross: ["wi10"]
+            description: "Wind Velocity @ 10 hPa"
         },
-        wi100: {
-            name: "wind-isobaric-100hPa",
-            filter: "--fc 2 --fp wind --fs 100 --fv 10000",
-            description: "Wind Velocity @ 100 hPa",
-            stack: ["wi1000", "wi100", "wi10", "wi1"],
-            cross: ["wi100"]
+        wi70: {
+            name: "wind-isobaric-70hPa",
+            description: "Wind Velocity @ 70 hPa"
+        },
+        wi250: {
+            name: "wind-isobaric-250hPa",
+            description: "Wind Velocity @ 250 hPa"
+        },
+        wi500: {
+            name: "wind-isobaric-500hPa",
+            description: "Wind Velocity @ 500 hPa"
+        },
+        wi700: {
+            name: "wind-isobaric-700hPa",
+            description: "Wind Velocity @ 700 hPa"
+        },
+        wi850: {
+            name: "wind-isobaric-850hPa",
+            description: "Wind Velocity @ 850 hPa"
         },
         wi1000: {
             name: "wind-isobaric-1000hPa",
-            filter: "--fc 2 --fp wind --fs 100 --fv 100000",
-            description: "Wind Velocity @ 1000 hPa",
-            stack: ["wi1000", "wi100", "wi10", "wi1"],
-            cross: ["wi1000", "ti1000"]
-        },
-        ti1000: {
-            name: "temp-isobaric-1000hPa",
-            filter: "--fc 0 --fp 0 --fs 100 --fv 100000",
-            description: "Temperature @ 1000 hPa",
-            stack: [],
-            cross: ["wi1000", "ti1000"]
+            description: "Wind Velocity @ 1000 hPa"
         }
     };
 

@@ -22,13 +22,18 @@
         },
         error: function(e) {
             log.error(e);
-            var msg = e.error ? e.error == 404 ? "No Data" : e.error + " " + e.message : e;
+            var msg = e.status ? e.status == 404 ? "No Data" : e.status + " " + e.message : e;
             report.progress(msg).classed("bad", true);
+        },
+        reset: function() {
+            d3.select("#progress").classed("bad", false);
+            report.progress("");
         }
     };
     var configuration = µ.buildConfiguration(d3.set(globes.keys()));
     configuration.on("change", function event_logger() {
         log.debug("changed: " + JSON.stringify(configuration.changedAttributes()));
+        report.reset();
     });
 
     var inputController = function buildInputController() {
@@ -169,9 +174,9 @@
      * @returns {Object} a promise for GeoJSON topology features: {boundaryLo:, boundaryHi:}
      */
     function buildMesh(resource, cancel) {
+        report.progress("Downloading...");
         return µ.loadJson(resource).then(function(topo) {
             if (cancel.requested) return null;
-            report.progress("building meshes...");
             log.time("building meshes");
             var boundaryLo = topojson.feature(topo, topo.objects.coastline_110m);
             var boundaryHi = topojson.feature(topo, topo.objects.coastline_50m);
@@ -211,15 +216,22 @@
         activeGlobe.submit(buildGlobe, attr);
     });
 
+    var nextId = 0;
+    var downloadsInProgress = {};
+
     function buildGrid(layer, cancel) {
-        return µ.loadJson(layer).then(function(data) {
+        report.progress("Downloading...");
+        var id = nextId++;
+        var task = µ.loadJson(layer).then(function(data) {
             if (cancel.requested) return null;
-            report.progress("building grid...");
             log.time("build grid");
             var result = layers.buildGrid(data, configuration.pick("param", "surface", "level"));
             log.timeEnd("build grid");
             return result;
-        });
+        }).ensure(function() { delete downloadsInProgress[id]; });
+
+        downloadsInProgress[id] = task;
+        return task;
     }
 
     /**
@@ -236,7 +248,7 @@
     function buildRenderer(mesh, globe) {
         if (!mesh || !globe) return null;
 
-        report.progress("Building globe...");
+        report.progress("Rendering Globe...");
         log.time("rendering map");
 
         // UNDONE: better way to do the following?
@@ -604,25 +616,37 @@
         }
     });
 
-    function cleanDisplay() {
+    /**
+     * Wipes the display to prepare for new projection and/or orientation, and stops all currently
+     * active display tasks.
+     * @param clear true if the canvases must be cleared. Otherwise only active display tasks, like
+     *        animation, are stopped.
+     */
+    function cleanDisplay(clear) {
         log.time("clean display");
         activeField.cancel();
         activeAnimation.cancel();
         activeOverlay.cancel();
-        µ.clearCanvas(d3.select("#animation").node());
-        µ.clearCanvas(d3.select("#overlay").node());
+        if (clear) {
+            µ.clearCanvas(d3.select("#animation").node());
+            µ.clearCanvas(d3.select("#overlay").node());
+        }
         log.timeEnd("clean display");
     }
 
     var displayCleaner = debouncedValue();
     displayCleaner.listenTo(inputController, "start", function() {
-        displayCleaner.submit(cleanDisplay);
+        displayCleaner.submit(cleanDisplay, true);  // orientation is beginning to change, so clear the display
     });
     displayCleaner.listenTo(configuration, "change", function() {
         // if anything except the overlay flag has changed...
         if (!_.has(configuration.changedAttributes(), "overlay") ||
                 _.keys(configuration.changedAttributes()).length > 1) {
-            displayCleaner.submit(cleanDisplay);
+            // HACK: if only the layer changes, don't immediately wipe the canvases. We will wait for the download
+            //       to finish, which will then kick off a new field->animation->overlay flow to overwrite the
+            //       currently visible display.
+            var clear = _.keys(_.pick(configuration.changedAttributes(), "projection", "orientation")).length > 0;
+            displayCleaner.submit(cleanDisplay, clear);
         }
     });
 
@@ -676,6 +700,51 @@
         d3.select("#location-close").on("click", clearDetails);
         activeGrid.on("update", clearDetails);
         activeRenderer.on("update", clearDetails);
+
+        var THREE_HOURS = 3 * 60 * 60 * 1000;
+
+        // Add event handlers for the time navigation buttons.
+        function navToHours(offset) {
+            if (_.size(downloadsInProgress) > 0) {
+                log.debug("Download in progress--ignoring nav request.");
+                return;
+            }
+
+            // When the active layer is considered "current", use its time as now, otherwise use current time as
+            // now (but rounded down to the nearest three-hour block).
+            var grid = activeGrid.value();
+            var now = grid ? new Date(grid.meta.date).getTime() : Math.floor(Date.now() / THREE_HOURS) * THREE_HOURS;
+
+            var parts = configuration.get("date").split("/");  // yyyy/mm/dd or "current"
+            var hhmm = configuration.get("hour");
+            var timestamp = parts.length > 1 ?
+                Date.UTC(+parts[0], parts[1] - 1, +parts[2], +hhmm.substring(0, 2)) :
+                parts[0] === "current" ? now : null;
+
+            if (isFinite(timestamp)) {
+                timestamp += offset * (60 * 60 * 1000);
+                parts = new Date(timestamp).toISOString().split(/[- T:]/);
+                configuration.save({
+                    date: [parts[0], parts[1], parts[2]].join("/"),
+                    hour: [parts[3], "00"].join("")});
+            }
+        }
+        d3.select("#nav-prev-day"     ).on("click", navToHours.bind(null, -24));
+        d3.select("#nav-next-day"     ).on("click", navToHours.bind(null, +24));
+        d3.select("#nav-prev-forecast").on("click", navToHours.bind(null, -3));
+        d3.select("#nav-next-forecast").on("click", navToHours.bind(null, +3));
+        d3.select("#nav-now").on("click", function() { configuration.save({date: "current", hour: ""}); });
+
+        d3.select("#none").on("click", function() { configuration.save({overlay: "off"}); });
+        d3.select("#wind").on("click", function() { configuration.save({overlay: "wv"}); });
+
+        d3.select("#iso-1000").on("click", function() { configuration.save({level: "1000hPa"}); });
+        d3.select("#iso-850" ).on("click", function() { configuration.save({level: "850hPa"}); });
+        d3.select("#iso-700" ).on("click", function() { configuration.save({level: "700hPa"}); });
+        d3.select("#iso-500" ).on("click", function() { configuration.save({level: "500hPa"}); });
+        d3.select("#iso-250" ).on("click", function() { configuration.save({level: "250hPa"}); });
+        d3.select("#iso-70"  ).on("click", function() { configuration.save({level: "70hPa"}); });
+        d3.select("#iso-10"  ).on("click", function() { configuration.save({level: "10hPa"}); });
 
     }());
 

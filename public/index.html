@@ -25,22 +25,26 @@
                 <p>Data | <span id="data-center"></span></p>
                 <span>Control | </span>
                     <span class="text-button" id="show-location">⚐</span><span> – </span>
-                    <span class="text-button" id="previous-day">&nbsp;«&nbsp;</span><span> – </span>
-                    <span class="text-button" id="previous-forecast">&nbsp;&nbsp;‹&nbsp;&nbsp;</span><span> – </span>
-                    <span class="text-button" id="next-forecast">&nbsp;&nbsp;›&nbsp;&nbsp;</span><span> – </span>
-                    <span class="text-button" id="next-day">&nbsp;»&nbsp;</span><span> – </span>
-                    <span class="text-button" id="current-conditions">Now</span><p></p>
+                    <span class="text-button" id="nav-prev-day">&nbsp;«&nbsp;</span><span> – </span>
+                    <span class="text-button" id="nav-prev-forecast">&nbsp;&nbsp;‹&nbsp;&nbsp;</span><span> – </span>
+                    <span class="text-button" id="nav-next-forecast">&nbsp;&nbsp;›&nbsp;&nbsp;</span><span> – </span>
+                    <span class="text-button" id="nav-next-day">&nbsp;»&nbsp;</span><span> – </span>
+                    <span class="text-button" id="nav-now">Now</span><p></p>
                 <span>Height | (hPa) </span>
-                    <span class="text-button" id="1000">1000</span><span> – </span>
-                    <span class="text-button" id="200">200</span><span> – </span>
-                    <span class="text-button" id="100">100</span><span> – </span>
-                    <span class="text-button" id="10">10</span><span> – </span>
-                    <span class="text-button" id="1">1</span><p></p>
+                    <span class="text-button" id="iso-1000">1000</span><span> – </span>
+                    <span class="text-button" id="iso-850">850</span><span> – </span>
+                    <span class="text-button" id="iso-700">700</span><span> – </span>
+                    <span class="text-button" id="iso-500">500</span><span> – </span>
+                    <span class="text-button" id="iso-250">250</span><span> – </span>
+                    <span class="text-button" id="iso-70">70</span><span> – </span>
+                    <span class="text-button" id="iso-10">10</span><p></p>
                 <span>Overlay | </span>
                     <span class="text-button" id="none">None</span><span> – </span>
                     <span class="text-button" id="wind">Wind</span><p></p>
                 <p><a href="/about.html">more</a></p>
-                <!--<p>免責事項 | 正確な情報を提供するためのものではありません</p>-->
+<!--
+                <p>免責事項 | 正確な情報を提供するためのものではありません</p>
+-->
             </div>
         </div>
     </div>
@@ -52,15 +56,10 @@
     <script src="/js/d3.geo.projection.v0.js" charset="utf-8"></script>
     <script src="/js/d3.geo.polyhedron.v0.js" charset="utf-8"></script>
     <script src="/js/topojson.v1.js" charset="utf-8"></script>
-<!--
-    <script src="/js/util.js" charset="utf-8"></script>
-    <script src="/js/mvi.js" charset="utf-8"></script>
-    <script src="/js/earth.js" charset="utf-8"></script>
--->
     <script src="/js/micro.js" charset="utf-8"></script>
     <script src="/js/globes.js" charset="utf-8"></script>
     <script src="/js/layers.js" charset="utf-8"></script>
-    <script src="/js/earth2.js" charset="utf-8"></script>
+    <script src="/js/earth.v1.js" charset="utf-8"></script>
 
 </body>
 </html>
