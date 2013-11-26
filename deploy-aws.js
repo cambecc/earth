@@ -25,7 +25,7 @@ console.log(new Date().toISOString() + " - Starting");
     "js/d3.v3.js",
     "js/d3.geo.polyhedron.v0.js",
     "js/d3.geo.projection.v0.js",
-    "js/earth2.js",
+    "js/earth.v1.js",
     "js/globes.js",
     "js/layers.js",
     "js/micro.js",

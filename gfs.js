@@ -152,26 +152,30 @@ exports.product = function(type, cycle, forecastHour) {
  *
  * @param {Object} recipe the recipe {name:, filter:} for the layer.
  * @param {Object} product the GFS product.
+ * @param {Boolean} [isCurrent] the layer is the special "current" form.
  * @returns {Object} the layer object.
  */
-exports.layer = function(recipe, product) {
+exports.layer = function(recipe, product, isCurrent) {
     return {
         recipe: recipe,
         product: product,
+        isCurrent: isCurrent,
 
         /**
          * @returns {String} the name of this layer's JSON file.
          */
         file: function() {
             var parts = product.date().toISOString().split(/[- T:]/);  // extract hh and mm from date
-            return util.format("%s%s-%s-gfs-%s.json", parts[3], parts[4], recipe.name, product.resolution());
+            var timestamp = isCurrent ? "current" : (parts[3] + parts[4]);
+            return util.format("%s-%s-gfs-%s.json", timestamp, recipe.name, product.resolution());
         },
         /**
          * @param {String} [parent] the parent directory
          * @returns {String} the directory containing this layer's JSON file, under the (optional) specified parent.
          */
         dir: function(parent) {
-            return tool.coalesce(parent, "") + tool.yyyymmddPath(product.date()) + "/";
+            var timestamp = isCurrent ? "current" : tool.yyyymmddPath(product.date());
+            return tool.coalesce(parent, "") + timestamp + "/";
         },
         /**
          * @param {String} [parent] the parent directory
@@ -179,9 +183,21 @@ exports.layer = function(recipe, product) {
          */
         path: function(parent) {
             return this.dir(parent) + this.file();
+        },
+        /**
+         * @returns {Object} the following forecast layer.
+         */
+        next: function() {
+            return layer(recipe, product.next(), isCurrent);
+        },
+        /**
+         * @returns {Object} the preceding forecast layer.
+         */
+        previous: function() {
+            return layer(recipe, product.previous(), isCurrent);
         }
     };
-};
+}; var layer = exports.layer;
 
 var SECOND = 1;
 var MINUTE = 60 * SECOND;
@@ -192,8 +208,8 @@ exports.cacheControlFor = function(layer) {
     return function() {
         // All forecast products farther out than three hours are replaced during the next cycle, so they live
         // only a short time. The 00 and 03 forecast products will never be replaced by future runs, so they
-        // live a very long time.
-        var maxAge = layer.product.forecastHour <= 3 ? 30 * DAY : 1 * HOUR;
+        // live a very long time. If it's a "current" layer, then it always lives a short time.
+        var maxAge = layer.isCurrent || layer.product.forecastHour > 3 ? 1 * HOUR : 30 * DAY;
         return "public, max-age=" + maxAge;
     }
 }

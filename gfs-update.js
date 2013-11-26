@@ -207,7 +207,7 @@ function extractLayer(layer) {
     }
 
     if (fs.existsSync(layerPath)) {
-        var existing = require("./" + layerPath);
+        var existing = require("./" + layerPath);  // HACK
         var refTime = existing.refTime;
         if (refTime && new Date(refTime) >= layer.product.cycle.date()) {
             log.info("already exists and is newer: " + layerPath);
@@ -261,7 +261,7 @@ function pushLayer(layer) {
         "reference-time": layer.product.cycle.date().toISOString()
     }
     function isNewerThan(existing) {
-        var refTime = (existing.meta || {})["reference-time"];
+        var refTime = (existing.Metadata || {})["reference-time"];
         return !refTime || new Date(refTime) < layer.product.cycle.date();
     }
     var cacheControl = gfs.cacheControlFor(layer);
@@ -296,9 +296,59 @@ function processCycle(cycle) {
     });
 }
 
-var stop = new Date("2013-11-26T00:00Z");
-var current = gfs.cycle(new Date("2013-11-26T06:00Z"));
-while (current.date().getTime() >= stop.getTime()) {
-    processCycle(current).otherwise(tool.report);
-    current = current.previous();
+function processCycles(bounds) {
+    var result = [];
+    var stop = new Date(bounds.until);
+    var cycle = gfs.cycle(new Date(bounds.from));
+    while (cycle.date().getTime() >= stop.getTime()) {
+        result.push(processCycle(cycle));
+        cycle = cycle.previous();
+    }
+    return when.all(result);
 }
+
+function copyCurrent() {
+    // The set of current layers is determined by the current time. Search for the best set of layers
+    // available given the current time and upload them to S3 under the "data/weather/current" path.
+
+    var now = Date.now(), threeDaysAgo = now - 3*24*60*60*1000;
+
+    // Start from the next cycle in the future and search backwards until we find the most recent layer.
+    var mostRecentLayer = gfs.layer(LAYER_RECIPES.wi1000, gfs.product(PRODUCT_TYPES[0], gfs.cycle(now).next(), 0));
+    while (mostRecentLayer.product.date() > now) {
+        mostRecentLayer = mostRecentLayer.previous();
+    }
+
+    // Continue search backwards until we find a layer that exists on disk. Might be several hours ago.
+    while (!fs.existsSync(mostRecentLayer.path(LAYER_HOME))) {
+        mostRecentLayer = mostRecentLayer.previous();
+        if (mostRecentLayer.product.date() < threeDaysAgo) {
+            // Nothing recent exists, so give up.
+            log.info("No recent layers found.");
+            return;
+        }
+    }
+
+    // The layer we found belongs to a cycle/product. Crack it open to find out which one.
+    var header = require(mostRecentLayer.path("./" + LAYER_HOME))[0].header;  // HACK
+    var product = gfs.product(PRODUCT_TYPES[0], gfs.cycle(header.refTime), header.forecastTime);
+
+    // Symlink the layers from the "data/weather/current" directory:
+    var layers = Object.keys(LAYER_RECIPES).map(function(recipeId) {
+        // create symlink:  current/current-foo-bar.json -> ../2013/11/26/0300-foo-bar.json
+
+        var src = gfs.layer(LAYER_RECIPES[recipeId], product, false);
+        var dest = gfs.layer(LAYER_RECIPES[recipeId], product, true);
+
+        mkdirp.sync(dest.dir(LAYER_HOME));
+        var destPath = dest.path(LAYER_HOME);
+        fs.unlinkSync(destPath);  // remove existing symlinks, if any
+        fs.symlinkSync(src.path("../"), destPath);
+        return dest;
+    });
+
+    // Now push to S3.
+    return pushLayers(layers);
+}
+
+processCycles({from: "2013-11-26T06:00Z", until: "2013-11-26T00:00Z"}).then(copyCurrent).done(null, tool.report);
