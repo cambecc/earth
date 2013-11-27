@@ -76,16 +76,6 @@ var µ = function() {
     }
 
     /**
-     * Returns a function that takes an array and applies it as arguments to the specified function. Yup. Basically
-     * the same as when.js/apply.
-     */
-    function apply(f) {
-        return function(args) {
-            return f.apply(null, args);
-        };
-    }
-
-    /**
      * Returns a promise for a JSON resource (URL) fetched via XHR. If the load fails, the promise rejects with an
      * object describing the reason: {status: http-status-code, message: http-status-text, resource:}.
      */
@@ -301,7 +291,6 @@ var µ = function() {
         log: log,
         view: view,
         loadJson: loadJson,
-        apply: apply,
         parse: parse,
         buildConfiguration: buildConfiguration,
         clampedBounds: clampedBounds,

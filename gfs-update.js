@@ -351,4 +351,8 @@ function copyCurrent() {
     return pushLayers(layers);
 }
 
-processCycles({from: "2013-11-26T06:00Z", until: "2013-11-26T00:00Z"}).then(copyCurrent).done(null, tool.report);
+var yesterday = Date.now() - 24*60*60*1000;
+processCycles({from: Date.now(), until: yesterday})
+    .then(copyCurrent)
+    .otherwise(tool.report)
+    .done();

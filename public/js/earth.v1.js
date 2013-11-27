@@ -30,6 +30,42 @@
             report.progress("");
         }
     };
+
+    function debouncedField() {
+
+        var value = null;
+        var _submit = _.debounce(doSubmit, 0);
+        var handle = {
+            value: function() { return value; },
+            cancel: function() {},  // initially a nop.
+            submit: function() {
+                handle.cancel();  // immediately cancel any pending task
+                _submit.apply(this, arguments);
+            }
+        };
+        handle.cancel.requested = true;
+
+        function doSubmit(callback) {
+            function cancel() {
+                cancel.requested = true;
+            }
+            function run(args) {
+                return cancel.requested ? null : callback.apply(null, args);
+            }
+            function accept(newValue) {
+                return cancel.requested ? null : handle.trigger("update", value = newValue);
+            }
+            function reject(error) {
+                return cancel.requested ? null : report.error(error);
+            }
+            var args = _.rest(arguments).concat(handle.cancel = cancel);
+            when.all(args).then(run).done(accept, reject);
+            handle.trigger("submit");
+        }
+
+        return _.extend(handle, Backbone.Events);
+    }
+
     var configuration = µ.buildConfiguration(d3.set(globes.keys()));
     configuration.on("change", function event_logger() {
         log.debug("changed: " + JSON.stringify(configuration.changedAttributes()));
@@ -78,7 +114,7 @@
                     setTimeout(function() {
                         if (moveCount === expected) {
                             moveCount = 0;
-                            configuration.save({orientation: globe.orientation()});
+                            configuration.save({orientation: globe.orientation()}, {source: "zoomend"});
                             dispatch.trigger("end");
                         }
                     }, 1000);
@@ -107,8 +143,9 @@
 
         d3.select("#show-location").on("click", locate);
 
-        function reorient() {
-            if (globe) {
+        function reorient(source, value, options) {
+            options = options || {};
+            if (globe && options.source !== "zoomend") {
                 dispatch.trigger("start");
                 globe.orientation(configuration.get("orientation"));
                 zoom.scale(globe.projection.scale());
@@ -134,40 +171,6 @@
         return dispatch;
     }();
 
-    function debouncedValue() {
-
-        var value = null;
-        var debouncedSubmit = _.debounce(submit, 0);
-        var handle = {
-            value: function() { return value; },
-            submit: function() {
-                handle.cancel();
-                debouncedSubmit.apply(this, arguments);
-            },
-            cancel: function() {}  // initially a nop. CONSIDER: if requested=true too, then flag signifies validity
-        };
-
-        function submit(callback) {
-            function cancel() {
-                cancel.requested = true;
-            }
-            function run(args) {
-                return cancel.requested ? null : callback.apply(null, args);
-            }
-            function accept(newValue) {
-                return cancel.requested ? null : handle.trigger("update", value = newValue);
-            }
-            function reject(error) {
-                return cancel.requested ? null : report.error(error);
-            }
-            // handle.cancel();  // cancel the current task--no effect if already completed
-            var args = _.rest(arguments).concat(handle.cancel = cancel);
-            when.all(args).then(run).done(accept, reject);
-        }
-
-        return _.extend(handle, Backbone.Events);
-    }
-
     /**
      * @param resource the GeoJSON resource's URL
      * @param cancel
@@ -191,7 +194,7 @@
     /**
      * The page's current topology mesh. There can be only one.
      */
-    var activeMesh = debouncedValue();
+    var activeMesh = debouncedField();
     activeMesh.listenTo(configuration, "change:topology", function(context, attr) {
         activeMesh.submit(buildMesh, attr);
     });
@@ -211,7 +214,7 @@
     /**
      * The page's current globe model. There can be only one.
      */
-    var activeGlobe = debouncedValue();
+    var activeGlobe = debouncedField();
     activeGlobe.listenTo(configuration, "change:projection", function(source, attr) {
         activeGlobe.submit(buildGlobe, attr);
     });
@@ -237,7 +240,7 @@
     /**
      * The page's current grid. There can be only one.
      */
-    var activeGrid = debouncedValue();
+    var activeGrid = debouncedField();
     activeGrid.listenTo(configuration, "change", function() {
         var layerAttributes = ["date", "hour", "param", "surface", "level"];
         if (_.intersection(_.keys(configuration.changedAttributes()), layerAttributes).length > 0) {
@@ -277,9 +280,10 @@
                 redraw: function() {
                     d3.select("#display").selectAll("path").attr("d", path);
                 },
-                end: function() {  // UNDONE: need a better name for this event
+                end: function() {
                     coastline.datum(mesh.boundaryHi);
                     d3.select("#display").selectAll("path").attr("d", path);
+                    activeRenderer.trigger("render");
                 },
                 click: function(point, coord) {
                     // show the point on the map
@@ -304,7 +308,7 @@
     /**
      * The page's current globe renderer. There can be only one.
      */
-    var activeRenderer = debouncedValue();
+    var activeRenderer = debouncedField();
     activeRenderer.listenTo(activeMesh, "update", function(mesh) {
         activeRenderer.submit(buildRenderer, mesh, activeGlobe.value());
     });
@@ -312,8 +316,8 @@
         activeRenderer.submit(buildRenderer, activeMesh.value(), globe);
     });
 
-    function createMask(globe, renderer) {
-        if (!globe || !renderer) return null;
+    function createMask(globe) {
+        if (!globe) return null;
 
         log.time("render mask");
 
@@ -343,11 +347,6 @@
             }
         };
     }
-
-    var activeMask = debouncedValue();
-    activeMask.listenTo(inputController, "end", function() {  // UNDONE: better name for this event -- reorientation?
-        activeMask.submit(createMask, activeGlobe.value(), activeRenderer.value());
-    });
 
     function createField(columns, bounds, mask) {
         var nilVector = [NaN, NaN, NIL];
@@ -416,8 +415,10 @@
         return distort;
     }
 
-    function interpolateField(globe, grid, mask, cancel) {
-        if (!globe || !grid || !mask) return null;
+    function interpolateField(globe, grid, cancel) {
+        if (!globe || !grid) return null;
+
+        var mask = createMask(globe);
 
         log.time("interpolating field");
         var d = when.defer();
@@ -481,12 +482,12 @@
         return d.promise;
     }
 
-    var activeField = debouncedValue();
-    activeField.listenTo(activeMask, "update", function(mask) {
-        activeField.submit(interpolateField, activeGlobe.value(), activeGrid.value(), mask);
+    var activeField = debouncedField();
+    activeField.listenTo(activeRenderer, "render", function() {
+        activeField.submit(interpolateField, activeGlobe.value(), activeGrid.value());
     });
     activeField.listenTo(activeGrid, "update", function(grid) {
-        activeField.submit(interpolateField, activeGlobe.value(), grid, activeMask.value());
+        activeField.submit(interpolateField, activeGlobe.value(), grid);
     });
 
     function animate(globe, field, cancel) {
@@ -585,7 +586,7 @@
         })();
     }
 
-    var activeAnimation = debouncedValue();
+    var activeAnimation = debouncedField();
     activeAnimation.listenTo(activeField, "update", function(field) {
         activeAnimation.submit(animate, activeGlobe.value(), field);
     });
@@ -602,7 +603,7 @@
         log.timeEnd("overlay");
     }
 
-    var activeOverlay = debouncedValue();
+    var activeOverlay = debouncedField();
     activeOverlay.listenTo(activeField, "update", function(field) {
         activeOverlay.submit(drawOverlay, field, configuration.get("overlay"));
     });
@@ -631,7 +632,7 @@
         log.timeEnd("clean display");
     }
 
-    var displayCleaner = debouncedValue();
+    var displayCleaner = debouncedField();
     displayCleaner.listenTo(inputController, "start", function() {
         displayCleaner.submit(cleanDisplay, true);  // orientation is beginning to change, so clear the display
     });
