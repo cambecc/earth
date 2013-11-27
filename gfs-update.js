@@ -262,7 +262,7 @@ function pushLayer(layer) {
     }
     function isNewerThan(existing) {
         var refTime = (existing.Metadata || {})["reference-time"];
-        return !refTime || new Date(refTime) < layer.product.cycle.date();
+        return !refTime || new Date(refTime) < layer.product.cycle.date() || layer.isCurrent;
     }
     var cacheControl = gfs.cacheControlFor(layer);
     return aws.uploadFile(layerPath, aws.S3_BUCKET, key, metadata, isNewerThan, cacheControl).then(function(result) {

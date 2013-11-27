@@ -129,11 +129,8 @@
                     function(position) {
                         var coord = [position.coords.longitude, position.coords.latitude], rotate;
                         if (rotate = globe.locate(coord)) {
-                            dispatch.trigger("start");
                             globe.projection.rotate(rotate);
-                            dispatch.trigger("redraw");
-                            configuration.save({orientation: globe.orientation()});
-                            dispatch.trigger("end");
+                            configuration.save({orientation: globe.orientation()});  // triggers reorientation
                         }
                         dispatch.trigger("click", globe.projection(coord), coord);
                     },
@@ -154,9 +151,7 @@
             }
         }
 
-        dispatch.listenTo(configuration, {
-            "change:orientation": reorient
-        });
+        dispatch.listenTo(configuration, "change:orientation", reorient);
 
         dispatch.globe = function(_) {
             if (!_) {
@@ -276,9 +271,11 @@
             inputController, {
                 start: function() {
                     coastline.datum(mesh.boundaryLo);
+                    activeRenderer.trigger("start");
                 },
                 redraw: function() {
                     d3.select("#display").selectAll("path").attr("d", path);
+                    activeRenderer.trigger("redraw");
                 },
                 end: function() {
                     coastline.datum(mesh.boundaryHi);
@@ -483,6 +480,13 @@
     }
 
     var activeField = debouncedField();
+    activeField.listenTo(activeRenderer, "start", function() {
+        activeField.cancel();
+    });
+    activeField.listenTo(activeRenderer, "redraw", function() {
+        // forcefully cancel active field on every redraw because sometimes field interpolation sneaks through.
+        activeField.cancel();
+    });
     activeField.listenTo(activeRenderer, "render", function() {
         activeField.submit(interpolateField, activeGlobe.value(), activeGrid.value());
     });
@@ -567,18 +571,14 @@
         }
 
         (function frame() {
-            // log.debug("frame");
             try {
                 if (cancel.requested) {
                     field.release();
                     return;
                 }
-
-                // var start = Date.now();
                 evolve();
                 draw();
-                // var duration = (Date.now() - start);
-                setTimeout(frame, 40 /*- duration*/);  // desired milliseconds per frame
+                setTimeout(frame, 40);  // desired milliseconds per frame
             }
             catch (e) {
                 report.error(e);
@@ -587,64 +587,36 @@
     }
 
     var activeAnimation = debouncedField();
+    activeAnimation.listenTo(activeRenderer, "start", function() {
+        activeAnimation.cancel();
+        µ.clearCanvas(d3.select("#animation").node());
+    });
+    activeAnimation.listenTo(activeField, "submit", function() {
+        activeAnimation.cancel();
+    });
     activeAnimation.listenTo(activeField, "update", function(field) {
         activeAnimation.submit(animate, activeGlobe.value(), field);
     });
 
-    function drawOverlay(field, overlayFlag) {
+    function drawOverlay(field, flag) {
         if (!field) return null;
-        log.time("overlay");
-        if (overlayFlag === "off") {
-            µ.clearCanvas(d3.select("#overlay").node());
-        }
-        else {
+        µ.clearCanvas(d3.select("#overlay").node());
+        if (flag !== "off") {
             d3.select("#overlay").node().getContext("2d").putImageData(field.overlay, 0, 0);
         }
-        log.timeEnd("overlay");
     }
 
     var activeOverlay = debouncedField();
     activeOverlay.listenTo(activeField, "update", function(field) {
         activeOverlay.submit(drawOverlay, field, configuration.get("overlay"));
     });
+    activeOverlay.listenTo(activeRenderer, "start", function() {
+        activeOverlay.submit(drawOverlay, activeField.value(), "off");
+    });
     activeOverlay.listenTo(configuration, "change:overlay", function(source, overlayFlag) {
         // if only the overlay flag has changed...
         if (_.keys(configuration.changedAttributes()).length === 1) {
             activeOverlay.submit(drawOverlay, activeField.value(), overlayFlag);
-        }
-    });
-
-    /**
-     * Wipes the display to prepare for new projection and/or orientation, and stops all currently
-     * active display tasks.
-     * @param clear true if the canvases must be cleared. Otherwise only active display tasks, like
-     *        animation, are stopped.
-     */
-    function cleanDisplay(clear) {
-        log.time("clean display");
-        activeField.cancel();
-        activeAnimation.cancel();
-        activeOverlay.cancel();
-        if (clear) {
-            µ.clearCanvas(d3.select("#animation").node());
-            µ.clearCanvas(d3.select("#overlay").node());
-        }
-        log.timeEnd("clean display");
-    }
-
-    var displayCleaner = debouncedField();
-    displayCleaner.listenTo(inputController, "start", function() {
-        displayCleaner.submit(cleanDisplay, true);  // orientation is beginning to change, so clear the display
-    });
-    displayCleaner.listenTo(configuration, "change", function() {
-        // if anything except the overlay flag has changed...
-        if (!_.has(configuration.changedAttributes(), "overlay") ||
-                _.keys(configuration.changedAttributes()).length > 1) {
-            // HACK: if only the layer changes, don't immediately wipe the canvases. We will wait for the download
-            //       to finish, which will then kick off a new field->animation->overlay flow to overwrite the
-            //       currently visible display.
-            var clear = _.keys(_.pick(configuration.changedAttributes(), "projection", "orientation")).length > 0;
-            displayCleaner.submit(cleanDisplay, clear);
         }
     });
 
