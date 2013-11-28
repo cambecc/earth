@@ -2,7 +2,7 @@
 <html>
 <head>
     <meta charset="utf-8"/>
-    <title>Earth</title>
+    <title>earth</title>
     <link rel="shortcut icon" href="/favicon.ico"/>
     <link rel="stylesheet" type="text/css" href="/css/styles.css"/>
 </head>
@@ -15,13 +15,17 @@
 
     <div id="details">
 
-        <p id="progress">Sample progress...</p>
+        <p id="progress"></p>
         <div id="location">
-            <p><span id="location-coord"></span><span id="location-close" class="text-button"> ✕</span></p>
+            <p>
+                <span id="location-coord"></span>
+                <span id="location-close" class="invisible text-button"> ✕ </span>
+            </p>
             <p id="location-value"></p>
         </div>
-        <p id="show-menu">earth</p>
-        <div id="menu">
+        <p id="show-menu" class="text-button">earth</p>
+
+        <div id="menu" class="invisible">
             <p>Date | <span id="data-date"></span></p>
             <p>Layer | <span id="data-layer"></span></p>
             <p>Data | <span id="data-center"></span></p>

@@ -502,8 +502,11 @@
         var buckets = colorStyles.map(function() { return []; });
         var particleCount = Math.round(bounds.width / 0.14);
         var maxParticleAge = 40;  // max number of frames a particle is drawn before regeneration
-        var particles = [];
+        var isFF = /firefox/i.test(navigator.userAgent);  // HACK
+        var fadeFillStyle = isFF ? "rgba(0, 0, 0, 0.95)" : "rgba(0, 0, 0, 0.97)";  // FF Mac alpha behaves differently
 
+        log.debug("particle count: " + particleCount);
+        var particles = [];
         for (var i = 0; i < particleCount; i++) {
             particles.push(field.randomize({age: _.random(0, maxParticleAge)}));
         }
@@ -539,9 +542,6 @@
                 particle.age += 1;
             });
         }
-
-        var isFF = /firefox/i.test(navigator.userAgent);
-        var fadeFillStyle = isFF ? "rgba(0, 0, 0, 0.95)" : "rgba(0, 0, 0, 0.97)";  // FF Mac alpha behaves differently
 
         var g = d3.select("#animation").node().getContext("2d");
         g.lineWidth = 0.75;
@@ -625,7 +625,7 @@
 
         d3.selectAll(".fill-screen").attr("width", view.width).attr("height", view.height);
         d3.select("#show-menu").on("click", function() {
-            d3.select("#menu").classed("visible", !d3.select("#menu").classed("visible"));
+            d3.select("#menu").classed("invisible", !d3.select("#menu").classed("invisible"));
         });
 
         // Tweak document to distinguish CSS styling between touch and non-touch environments. Hacky hack.
