@@ -54,7 +54,7 @@ var globes = function() {
             .attr("d", path);
         mapSvg.append("use")
             .attr("xlink:href", "#sphere")
-            .attr("class", "sphere-fill");
+            .attr("class", "background-sphere");
         mapSvg.append("path")
             .attr("class", "graticule")
             .datum(d3.geo.graticule())
@@ -63,7 +63,7 @@ var globes = function() {
             .attr("class", "coastline");
         foregroundSvg.append("use")
             .attr("xlink:href", "#sphere")
-            .attr("class", "sphere-stroke");
+            .attr("class", "foreground-sphere");
     }
 
     function standardManipulator(startMouse, startScale) {
@@ -183,7 +183,7 @@ var globes = function() {
                     .attr("class", "coastline");
                 foregroundSvg.append("use")
                     .attr("xlink:href", "#sphere")
-                    .attr("class", "sphere-stroke");
+                    .attr("class", "foreground-sphere");
             },
             locate: function(coord) {
                 return [-coord[0], -coord[1], this.projection.rotate()[2]];
@@ -221,7 +221,7 @@ var globes = function() {
                     .attr("xlink:href", "#sphere");
                 mapSvg.append("use")
                     .attr("xlink:href", "#sphere")
-                    .attr("class", "sphere-fill");
+                    .attr("class", "background-sphere");
                 mapSvg.append("path")
                     .attr("class", "graticule")
                     .attr("clip-path", "url(#clip)")
@@ -232,7 +232,7 @@ var globes = function() {
                     .attr("clip-path", "url(#clip)");
                 foregroundSvg.append("use")
                     .attr("xlink:href", "#sphere")
-                    .attr("class", "sphere-stroke");
+                    .attr("class", "foreground-sphere");
             }
         });
     }

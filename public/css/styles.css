@@ -1,63 +1,38 @@
+/*
+ * At-Rules
+ */
+
 @font-face {
     font-family: mplus-2p-thin;
     src: url("/css/mplus-2p-thin-056.ttf");
 }
+@font-face {
+    font-family: mplus-2p-light;
+    src: url("/css/mplus-2p-light-057.ttf");
+}
 
-html, body, div, span, h1, h2, h3, h4, h5, h6, p, a {
+/*
+ * Styling Reset
+ */
+
+html, body, div, span, h1, h2, h3, h4, h5, h6, p, a, svg, canvas {
     margin: 0;
     padding: 0;
     border: 0;
-    vertical-align: baseline;
     font: 1em mplus-2p-thin,Helvetica,arial,freesans,clean,sans-serif;
+    -webkit-font-smoothing: subpixel-antialiased; /* safari disables subpixel antialiasing for some reason */
 }
+
+/*
+ * Page Styling
+ */
 
 body {
+    color: #eeeeee;
     background: #000004;
-    overflow-x: hidden;
-    line-height: 0;
-    color: #eee;
 }
 
-.coastline {
-    fill: none;
-    stroke: #fff;
-    stroke-width: 0.8;
-}
-
-.graticule {
-    fill: none;
-    stroke: #505050;
-    stroke-opacity: 0.7;
-    stroke-width: 1;
-}
-
-.sphere-stroke {
-    fill: none;
-    stroke: #000004;
-    stroke-width: 4;
-    /* pointer-events: all; */
-}
-
-.sphere-fill {
-    fill: #303030;
-}
-
-#warn {
-    margin-top: 25%;
-    margin-left: 2%;
-}
-
-#position {
-    fill: none;
-    stroke: #3aff3a;
-    stroke-width: 2.5;
-}
-
-#display {
-    position: relative;
-}
-
-#animation, #overlay, #foreground {
+#map, #animation, #overlay, #foreground {
     position: absolute;
     top: 0;
     left: 0;
@@ -75,22 +50,21 @@ body {
     overflow: hidden;
     transition: opacity 1s ease, max-height 1s ease;
     -webkit-transition: opacity 1s ease, max-height 1s ease;
+
+    padding: 0 1rem 0 1rem; /* UNDONE: duplicate */
+    border-radius: 0.5rem/0.5rem;
 }
 
 #menu.visible {
     max-height: 30em;
     overflow: hidden;
     opacity: 1;
-    background-color: rgba(30, 30, 30, 0.8);
     transition: opacity 1s ease, max-height 1s ease;
     -webkit-transition: opacity 1s ease, max-height 1s ease;
-}
 
-#notice {
-    position: absolute;
-    top: 5%;
-    right: 2%;
-    font-size: 1.0em;
+    background-color: rgba(30, 30, 30, 0.8); /* UNDONE: duplicate */
+    padding: 0 1rem 0 1rem;
+    border-radius: 0.5rem/0.5rem;
 }
 
 h1, h2 {
@@ -141,11 +115,56 @@ a:hover, a:focus {
     -webkit-transition: color 25ms ease-in;
 }
 
-#progress, #location, #location-close, #location-details, #show-menu {
+#progress, #location, #show-menu {
     font-size: 2.4rem;
     background-color: rgba(0, 0, 4, 0.6);
+    padding: 0 1rem 0 1rem;
+    border-radius: 0.5rem/0.5rem;
+    display: table;
 }
 
-.invisible {
+#location p {
+    font-size: 2.4rem;
+    display: table;
+}
+
+#location span {
+    font-size: 2.4rem;
+}
+
+#location-close.invisible {
     display: none;
+}
+
+/*
+ * SVG Element Styling
+ */
+
+.coastline {
+    stroke: #ffffff;
+    stroke-width: 0.8;
+    fill: none;
+}
+
+.graticule {
+    stroke: #505050;
+    stroke-width: 1.0;
+    fill: none;
+}
+
+.background-sphere {
+    stroke: none;
+    fill: #303030;
+}
+
+.foreground-sphere {
+    stroke: #000004;
+    stroke-width: 4.0;
+    fill: none;
+}
+
+.location-mark {
+    stroke: #3aff3a;
+    stroke-width: 2.5;
+    fill: none;
 }

@@ -264,7 +264,7 @@
 
         var path = d3.geo.path().projection(globe.projection).pointRadius(7);
         var coastline = d3.select(".coastline");
-        d3.select("#display").selectAll("path").attr("d", path);  // do an initial draw -- fixes issue with safari
+        d3.selectAll("path").attr("d", path);  // do an initial draw -- fixes issue with safari
 
         // Attach to map rendering events on input controller.
         dispatch.listenTo(
@@ -274,21 +274,21 @@
                     activeRenderer.trigger("start");
                 },
                 redraw: function() {
-                    d3.select("#display").selectAll("path").attr("d", path);
+                    d3.selectAll("path").attr("d", path);
                     activeRenderer.trigger("redraw");
                 },
                 end: function() {
                     coastline.datum(mesh.boundaryHi);
-                    d3.select("#display").selectAll("path").attr("d", path);
+                    d3.selectAll("path").attr("d", path);
                     activeRenderer.trigger("render");
                 },
                 click: function(point, coord) {
                     // show the point on the map
-                    var position = d3.select("#position");
-                    if (!position.node()) {
-                        position = d3.select("#foreground").append("path").attr("id", "position");
+                    var mark = d3.select(".location-mark");
+                    if (!mark.node()) {
+                        mark = d3.select("#foreground").append("path").attr("class", "location-mark");
                     }
-                    position.datum({type: "Point", coordinates: coord}).attr("d", path);
+                    mark.datum({type: "Point", coordinates: coord}).attr("d", path);
                 }
             });
 
@@ -623,7 +623,7 @@
     (function init() {
         report.progress("Initializing...");
 
-        d3.selectAll(".full-view").attr("width", view.width).attr("height", view.height);
+        d3.selectAll(".fill-screen").attr("width", view.width).attr("height", view.height);
         d3.select("#show-menu").on("click", function() {
             d3.select("#menu").classed("visible", !d3.select("#menu").classed("visible"));
         });
@@ -654,17 +654,17 @@
             if (!grid) return;
             var λ = coord[0], φ = coord[1], wind = grid.interpolate(λ, φ);
             if (µ.isValue(wind)) {
-                d3.select("#location").text("⁂ " + µ.formatCoordinates(λ, φ));
-                d3.select("#location-details").text("⁂ " + µ.formatVector(wind[0], wind[1]));
+                d3.select("#location-coord").text("⁂ " + µ.formatCoordinates(λ, φ));
+                d3.select("#location-value").text("⁂ " + µ.formatVector(wind[0], wind[1]));
                 d3.select("#location-close").classed("invisible", false);
             }
         });
 
         function clearDetails() {
-            d3.select("#location").text("");
-            d3.select("#location-details").text("");
+            d3.select("#location-coord").text("");
+            d3.select("#location-value").text("");
             d3.select("#location-close").classed("invisible", true);
-            d3.select("#position").remove();
+            d3.select(".location-mark").remove();
         }
 
         d3.select("#location-close").on("click", clearDetails);

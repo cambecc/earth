@@ -8,44 +8,45 @@
 </head>
 <body>
 
-    <div id="display">
-        <svg id="map" class="full-view" xmlns="http://www.w3.org/2000/svg" version="1.1"></svg>
-        <canvas id="animation" class="full-view"></canvas>
-        <canvas id="overlay" class="full-view"></canvas>
-        <svg id="foreground" class="full-view" xmlns="http://www.w3.org/2000/svg" version="1.1"></svg>
+    <svg id="map" class="fill-screen" xmlns="http://www.w3.org/2000/svg" version="1.1"></svg>
+    <canvas id="animation" class="fill-screen"></canvas>
+    <canvas id="overlay" class="fill-screen"></canvas>
+    <svg id="foreground" class="fill-screen" xmlns="http://www.w3.org/2000/svg" version="1.1"></svg>
 
-        <div id="details">
-            <p id="progress"></p>
-            <p><span id="location"></span><span class="invisible text-button" id="location-close"> ✕</span></p>
-            <p id="location-details"></p>
-            <span class="text-button" id="show-menu">earth</span>
-            <div id="menu">
-                <p>Date | <span id="data-date"></span></p>
-                <p>Layer | <span id="data-layer"></span></p>
-                <p>Data | <span id="data-center"></span></p>
-                <span>Control | </span>
-                    <span class="text-button" id="show-location">⚐</span><span> – </span>
-                    <span class="text-button" id="nav-prev-day">&nbsp;«&nbsp;</span><span> – </span>
-                    <span class="text-button" id="nav-prev-forecast">&nbsp;&nbsp;‹&nbsp;&nbsp;</span><span> – </span>
-                    <span class="text-button" id="nav-next-forecast">&nbsp;&nbsp;›&nbsp;&nbsp;</span><span> – </span>
-                    <span class="text-button" id="nav-next-day">&nbsp;»&nbsp;</span><span> – </span>
-                    <span class="text-button" id="nav-now">Now</span><p></p>
-                <span>Height | (hPa) </span>
-                    <span class="text-button" id="iso-1000">1000</span><span> – </span>
-                    <span class="text-button" id="iso-850">850</span><span> – </span>
-                    <span class="text-button" id="iso-700">700</span><span> – </span>
-                    <span class="text-button" id="iso-500">500</span><span> – </span>
-                    <span class="text-button" id="iso-250">250</span><span> – </span>
-                    <span class="text-button" id="iso-70">70</span><span> – </span>
-                    <span class="text-button" id="iso-10">10</span><p></p>
-                <span>Overlay | </span>
-                    <span class="text-button" id="none">None</span><span> – </span>
-                    <span class="text-button" id="wind">Wind</span><p></p>
-                <p><a href="/about.html">more</a></p>
+    <div id="details">
+
+        <p id="progress">Sample progress...</p>
+        <div id="location">
+            <p><span id="location-coord"></span><span id="location-close" class="text-button"> ✕</span></p>
+            <p id="location-value"></p>
+        </div>
+        <p id="show-menu">earth</p>
+        <div id="menu">
+            <p>Date | <span id="data-date"></span></p>
+            <p>Layer | <span id="data-layer"></span></p>
+            <p>Data | <span id="data-center"></span></p>
+            <span>Control | </span>
+                <span class="text-button" id="show-location">⚐</span><span> – </span>
+                <span class="text-button" id="nav-prev-day">&nbsp;«&nbsp;</span><span> – </span>
+                <span class="text-button" id="nav-prev-forecast">&nbsp;&nbsp;‹&nbsp;&nbsp;</span><span> – </span>
+                <span class="text-button" id="nav-next-forecast">&nbsp;&nbsp;›&nbsp;&nbsp;</span><span> – </span>
+                <span class="text-button" id="nav-next-day">&nbsp;»&nbsp;</span><span> – </span>
+                <span class="text-button" id="nav-now">Now</span><p></p>
+            <span>Height | (hPa) </span>
+                <span class="text-button" id="iso-1000">1000</span><span> – </span>
+                <span class="text-button" id="iso-850">850</span><span> – </span>
+                <span class="text-button" id="iso-700">700</span><span> – </span>
+                <span class="text-button" id="iso-500">500</span><span> – </span>
+                <span class="text-button" id="iso-250">250</span><span> – </span>
+                <span class="text-button" id="iso-70">70</span><span> – </span>
+                <span class="text-button" id="iso-10">10</span><p></p>
+            <span>Overlay | </span>
+                <span class="text-button" id="none">None</span><span> – </span>
+                <span class="text-button" id="wind">Wind</span><p></p>
+            <p><a href="/about.html">more</a></p>
 <!--
-                <p>免責事項 | 正確な情報を提供するためのものではありません</p>
+            <p>免責事項 | 正確な情報を提供するためのものではありません</p>
 -->
-            </div>
         </div>
     </div>
 

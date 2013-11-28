@@ -351,8 +351,9 @@ function copyCurrent() {
     return pushLayers(layers);
 }
 
-var yesterday = Date.now() - 24*60*60*1000;
-processCycles({from: Date.now(), until: yesterday})
+var now = Date.now(), lastCycle = gfs.cycle(now).previous().date();
+
+processCycles({from: now, until: lastCycle})
     .then(copyCurrent)
     .otherwise(tool.report)
     .done();
