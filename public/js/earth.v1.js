@@ -83,50 +83,52 @@
         log.debug("building input controller");
         var globe;
         var dispatch = _.clone(Backbone.Events);
-        var moveCount = 0, isClick = false;
-        var startMouse, startScale, manipulator;
+        var op = null;
 
         var zoom = d3.behavior.zoom()
             .on("zoomstart", function() {
-                startMouse = d3.mouse(this);
-                startScale = zoom.scale();
-                manipulator = globe.manipulator(startMouse, startScale);
-                isClick = true;
+                var startMouse = d3.mouse(this), startScale = zoom.scale();
+                op = {
+                    type: "click",
+                    startMouse: startMouse,
+                    startScale: startScale,
+                    manipulator: globe.manipulator(startMouse, startScale)
+                };
             })
             .on("zoom", function() {
-                var currentMouse = d3.mouse(this);
-                var currentScale = d3.event.scale;
-                // some hysteresis to avoid spurious 1-pixel rotations -- UNDONE: and one/zero level zooms
-                if (moveCount === 0 && startScale === currentScale && µ.distance(startMouse, currentMouse) < 2) {
-                    return;
+                var currentMouse = d3.mouse(this), currentScale = d3.event.scale;
+                if (op.type === "click" || op.type === "spurious") {
+                    if (currentScale === op.startScale && µ.distance(currentMouse, op.startMouse) < 2) {
+                        op.type = "spurious";
+                        return;  // to reduce annoyance, ignore op if mouse has barely moved and no zoom is occurring
+                    }
+                    dispatch.trigger("moveStart");
+                    op.type = "drag";
                 }
-                isClick = false;
-                if (moveCount === 0) {
-                    dispatch.trigger("start");
+                if (currentScale != op.startScale) {
+                    op.type = "zoom";  // whenever a scale change is detected, (stickily) switch to a zoom operation
                 }
-                manipulator.move(currentMouse, currentScale);
-                dispatch.trigger("redraw");
-                moveCount++;
+
+                // when zooming, we ignore whatever the mouse is doing--really cleans up behavior on touch devices
+                op.manipulator.move(op.type === "zoom" ? null : currentMouse, currentScale);
+                dispatch.trigger("move");
             })
             .on("zoomend", function() {
-                if (isClick) {
-                    isClick = false;
-                    var coord = globe.projection.invert(startMouse);
-                    if (coord && _.isFinite(coord[0]) && _.isFinite(coord[1])) {
-                        dispatch.trigger("click", startMouse, coord);
-                    }
+                if (op.type === "click") {
+                    dispatch.trigger("click", op.startMouse, globe.projection.invert(op.startMouse));
                 }
-                else {
-                    var expected = moveCount;
-                    setTimeout(function() {
-                        if (moveCount === expected) {
-                            moveCount = 0;
-                            configuration.save({orientation: globe.orientation()}, {source: "zoomend"});
-                            dispatch.trigger("end");
-                        }
-                    }, 1000);
+                else if (op.type !== "spurious") {
+                    signalEnd();
                 }
+                op = null;
             });
+
+        var signalEnd = _.debounce(function() {
+            if (!op || op.type !== "drag" && op.type !== "zoom") {
+                configuration.save({orientation: globe.orientation()}, {source: "moveEnd"});
+                dispatch.trigger("moveEnd");
+            }
+        }, 1000);
 
         d3.select("#foreground").call(zoom);
 
@@ -151,12 +153,12 @@
 
         function reorient(source, value, options) {
             options = options || {};
-            if (globe && options.source !== "zoomend") {
-                dispatch.trigger("start");
+            if (globe && options.source !== "moveEnd") {
+                dispatch.trigger("moveStart");
                 globe.orientation(configuration.get("orientation"));
                 zoom.scale(globe.projection.scale());
-                dispatch.trigger("redraw");
-                dispatch.trigger("end");
+                dispatch.trigger("move");
+                dispatch.trigger("moveEnd");
             }
         }
 
@@ -278,26 +280,28 @@
         // Attach to map rendering events on input controller.
         dispatch.listenTo(
             inputController, {
-                start: function() {
+                moveStart: function() {
                     coastline.datum(mesh.boundaryLo);
                     activeRenderer.trigger("start");
                 },
-                redraw: function() {
+                move: function() {
                     d3.selectAll("path").attr("d", path);
                     activeRenderer.trigger("redraw");
                 },
-                end: function() {
+                moveEnd: function() {
                     coastline.datum(mesh.boundaryHi);
                     d3.selectAll("path").attr("d", path);
                     activeRenderer.trigger("render");
                 },
                 click: function(point, coord) {
                     // show the point on the map
-                    var mark = d3.select(".location-mark");
-                    if (!mark.node()) {
-                        mark = d3.select("#foreground").append("path").attr("class", "location-mark");
+                    if (coord && _.isFinite(coord[0]) && _.isFinite(coord[1])) {
+                        var mark = d3.select(".location-mark");
+                        if (!mark.node()) {
+                            mark = d3.select("#foreground").append("path").attr("class", "location-mark");
+                        }
+                        mark.datum({type: "Point", coordinates: coord}).attr("d", path);
                     }
-                    mark.datum({type: "Point", coordinates: coord}).attr("d", path);
                 }
             });
 

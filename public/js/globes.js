@@ -72,9 +72,11 @@ var globes = function() {
         var rotation = [projection.rotate()[0] / sensitivity, -projection.rotate()[1] / sensitivity];
         return {
             move: function(mouse, scale) {
-                var xd = mouse[0] - startMouse[0] + rotation[0];
-                var yd = mouse[1] - startMouse[1] + rotation[1];
-                projection.rotate([xd * sensitivity, -yd * sensitivity, projection.rotate()[2]]);
+                if (mouse) {
+                    var xd = mouse[0] - startMouse[0] + rotation[0];
+                    var yd = mouse[1] - startMouse[1] + rotation[1];
+                    projection.rotate([xd * sensitivity, -yd * sensitivity, projection.rotate()[2]]);
+                }
                 projection.scale(scale);
             }
         };
