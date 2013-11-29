@@ -50,7 +50,7 @@ var layers = function() {
         ];
     }
 
-    function buildGrid(data, layerType) {
+    function buildGrid(data) {
 
         var uRecord = null, vRecord = null;
         for (var r = 0; r < data.length; r++) {
@@ -126,13 +126,13 @@ var layers = function() {
 
         return {
             meta: uRecord.meta,
-            interpolate: interpolate,
-            recipe: recipeFor(layerType)
+            interpolate: interpolate
         };
     }
 
     return {
-        buildGrid: buildGrid
+        buildGrid: buildGrid,
+        recipeFor: recipeFor
     };
 
 }();

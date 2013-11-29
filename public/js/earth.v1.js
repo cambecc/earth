@@ -25,7 +25,11 @@
         },
         error: function(e) {
             log.error(e);
-            var msg = e.status ? e.status == 404 ? "No Data" : e.status + " " + e.message : e;
+            var msg = e.status ? e.status + " " + e.message : e;
+            switch (e.status) {
+                case -1: msg = "Server Down"; break;
+                case 404: msg = "No Data"; break;
+            }
             report.progress(msg).classed("bad", true);
         },
         reset: function() {
@@ -228,7 +232,7 @@
         var task = µ.loadJson(layer).then(function(data) {
             if (cancel.requested) return null;
             log.time("build grid");
-            var result = layers.buildGrid(data, configuration.pick("param", "surface", "level"));
+            var result = layers.buildGrid(data);
             log.timeEnd("build grid");
             return result;
         }).ensure(function() { delete downloadsInProgress[id]; });
@@ -600,6 +604,9 @@
         activeAnimation.cancel();
         µ.clearCanvas(d3.select("#animation").node());
     });
+    activeAnimation.listenTo(activeGrid, "submit", function() {
+        activeAnimation.cancel();
+    });
     activeAnimation.listenTo(activeField, "submit", function() {
         activeAnimation.cancel();
     });
@@ -629,7 +636,7 @@
         }
     });
 
-    (function init() {
+    function init() {
         report.progress("Initializing...");
 
         d3.selectAll(".fill-screen").attr("width", view.width).attr("height", view.height);
@@ -651,27 +658,41 @@
             configuration.fetch({trigger: "hashchange"});
         });
 
+        var THREE_HOURS = 3 * 60 * 60 * 1000;
+
+        function activeDate(grid) {
+            // When the active layer is considered "current", use its time as now, otherwise use current time as
+            // now (but rounded down to the nearest three-hour block).
+            var now = grid ? new Date(grid.meta.date).getTime() : Math.floor(Date.now() / THREE_HOURS) * THREE_HOURS;
+            var parts = configuration.get("date").split("/");  // yyyy/mm/dd or "current"
+            var hhmm = configuration.get("hour");
+            return parts.length > 1 ?
+                Date.UTC(+parts[0], parts[1] - 1, +parts[2], +hhmm.substring(0, 2)) :
+                parts[0] === "current" ? now : null;
+        }
+
         function showDate(grid) {
-            if (!grid) return;
-            var dateElement = d3.select("#data-date");
-            var zone = dateElement.classed("local") ? "Local" : "UTC";
-            var date = zone === "UTC" ? µ.toUTCISO(new Date(grid.meta.date)) : µ.toLocalISO(new Date(grid.meta.date));
-            dateElement.text(date + " " + zone);
-            d3.select("#toggle-zone").text(zone === "UTC" ? "⇄ Local" : "⇄ UTC");
+            var date = new Date(activeDate(grid)), isLocal = d3.select("#data-date").classed("local");
+            var formatted = isLocal ? µ.toLocalISO(date) : µ.toUTCISO(date);
+            d3.select("#data-date").text(formatted + " " + (isLocal ? "Local" : "UTC"));
+            d3.select("#toggle-zone").text("⇄ " + (isLocal ? "UTC" : "Local"));
         }
 
-        function changeZone() {
-            d3.select("#data-date").classed("local", !d3.select("#data-date").classed("local"));
-            showDate(activeGrid.value());
-        }
-
-        d3.select("#toggle-zone").on("click", changeZone);
-
-        activeGrid.on("update", function(grid) {
+        function showGridDetails(grid) {
             showDate(grid);
-            d3.select("#toggle-zone").classed("invisible", false);
-            d3.select("#data-layer").text(grid.recipe.description);
-            d3.select("#data-center").text("US National Weather Service");
+            var recipe = layers.recipeFor(configuration.pick("param", "surface", "level"));
+            d3.select("#data-layer").text(recipe.description);
+        }
+
+        activeGrid.on("submit", function() {
+            showGridDetails(null);
+        });
+        activeGrid.on("update", function(grid) {
+            showGridDetails(grid);
+        });
+        d3.select("#toggle-zone").on("click", function() {
+            d3.select("#data-date").classed("local", !d3.select("#data-date").classed("local"));
+            showDate(activeGrid.cancel.requested ? null : activeGrid.value());
         });
 
         // Add event handlers for showing and removing location details.
@@ -697,8 +718,6 @@
         activeGrid.on("update", clearDetails);
         activeRenderer.on("update", clearDetails);
 
-        var THREE_HOURS = 3 * 60 * 60 * 1000;
-
         // Add event handlers for the time navigation buttons.
         function navToHours(offset) {
             if (_.size(downloadsInProgress) > 0) {
@@ -706,20 +725,10 @@
                 return;
             }
 
-            // When the active layer is considered "current", use its time as now, otherwise use current time as
-            // now (but rounded down to the nearest three-hour block).
-            var grid = activeGrid.value();
-            var now = grid ? new Date(grid.meta.date).getTime() : Math.floor(Date.now() / THREE_HOURS) * THREE_HOURS;
-
-            var parts = configuration.get("date").split("/");  // yyyy/mm/dd or "current"
-            var hhmm = configuration.get("hour");
-            var timestamp = parts.length > 1 ?
-                Date.UTC(+parts[0], parts[1] - 1, +parts[2], +hhmm.substring(0, 2)) :
-                parts[0] === "current" ? now : null;
-
+            var timestamp = activeDate(activeGrid.value());
             if (isFinite(timestamp)) {
                 timestamp += offset * (60 * 60 * 1000);
-                parts = new Date(timestamp).toISOString().split(/[- T:]/);
+                var parts = new Date(timestamp).toISOString().split(/[- T:]/);
                 configuration.save({
                     date: [parts[0], parts[1], parts[2]].join("/"),
                     hour: [parts[3], "00"].join("")});
@@ -749,8 +758,9 @@
             d3.select("#" + key).on("click", navToProjection.bind(null, key));
         });
 
-    }());
+        configuration.fetch();  // everything is now set up, so kick off the events
+    }
 
-    configuration.fetch();  // everything is now set up, so kick off the events
+    when(true).then(init).otherwise(report.error);
 
 })();
