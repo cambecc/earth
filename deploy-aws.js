@@ -19,7 +19,7 @@ console.log(new Date().toISOString() + " - Starting");
     "index.html",
     "natural-earth.png",
     "css/styles.css",
-    "css/mplus-2p-thin-056.ttf",
+    "css/mplus-2p-light-057.ttf",
     "data/earth-topo.json",
     "js/backbone.js",
     "js/d3.v3.js",

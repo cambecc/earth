@@ -3,10 +3,6 @@
  **************************************************************************************************/
 
 @font-face {
-    font-family: mplus-2p-thin;
-    src: url("/css/mplus-2p-thin-056.ttf");
-}
-@font-face {
     font-family: mplus-2p-light;
     src: url("/css/mplus-2p-light-057.ttf");
 }
@@ -19,7 +15,7 @@ html, body, div, span, h1, h2, h3, h4, h5, h6, p, a, svg, canvas {
     margin: 0;
     padding: 0;
     border: 0;
-    font: 1em mplus-2p-thin,Helvetica,arial,freesans,clean,sans-serif;
+    font: 1em mplus-2p-light,Helvetica,arial,freesans,clean,sans-serif;
     -webkit-font-smoothing: subpixel-antialiased; /* safari disables subpixel antialiasing for some reason */
 }
 
@@ -33,9 +29,9 @@ a, .text-button {
 
 a:hover, a:focus, .no-touch .text-button:hover, .no-touch .text-button:focus, .text-button:active {
     color: #ffffff;
+    cursor: pointer;
     transition: color 125ms ease-in;
     -webkit-transition: color 125ms ease-in;
-    cursor: pointer;
 }
 
 body {
@@ -55,7 +51,7 @@ body {
     left: 2%;
 }
 
-#progress, #location, #show-menu {
+#progress, #location, #start {
     font-size: 2.4rem;
     background-color: rgba(0, 0, 4, 0.6);
     border-radius: 0.5rem/0.5rem;
@@ -64,7 +60,11 @@ body {
     padding: 0 1rem 0 1rem;
 }
 
-#location-close.invisible {
+#progress-bar {
+    padding-left: 1rem;
+}
+
+span.invisible {
     display: none;
 }
 
@@ -77,7 +77,7 @@ body {
     margin-top: 1rem;
     padding: 0.5rem 1rem 0.5rem 1rem;
     opacity: 1;
-    max-height: 20rem;
+    max-height: 25rem;
     transition: opacity 1s ease, max-height 1s ease, margin-top 1s ease;
     -webkit-transition: opacity 1s ease, max-height 1s ease, margin-top 1s ease;
 }
@@ -89,6 +89,19 @@ body {
     max-height: 0;
     transition: opacity 1s ease, max-height 1s ease, margin-top 1s ease;
     -webkit-transition: opacity 1s ease, max-height 1s ease, margin-top 1s ease;
+}
+
+#nav-now {
+    padding-right: 1rem;
+}
+
+#nav-prev-day, #nav-prev-forecast, #nav-next-forecast, #nav-next-day {
+    padding-left: 1rem;
+    padding-right: 1rem;
+}
+
+#show-location {
+    padding-left: 0.25rem;
 }
 
 /**************************************************************************************************

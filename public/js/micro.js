@@ -42,6 +42,13 @@ var µ = function() {
         return Math.max(bounds[0], Math.min(x, bounds[1]));
     }
 
+    function toUTCISO(date) {
+        return date.getUTCFullYear() + "-" +
+            (date.getUTCMonth() + 101).toString().substr(1) + "-" +
+            (date.getUTCDate() + 100).toString().substr(1) + " " +
+            (date.getUTCHours() + 100).toString().substr(1) + ":00";
+    }
+
     function toLocalISO(date) {
         return date.getFullYear() + "-" +
             (date.getMonth() + 101).toString().substr(1) + "-" +
@@ -288,6 +295,7 @@ var µ = function() {
         distance: distance,
         clamp: clamp,
         toLocalISO: toLocalISO,
+        toUTCISO: toUTCISO,
         log: log,
         view: view,
         loadJson: loadJson,

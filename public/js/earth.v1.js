@@ -12,6 +12,9 @@
     var NIL = -2;             // non-existent vector
     var MAX_TASK_TIME = 100;  // amount of time before a task yields control (milliseconds)
     var MIN_SLEEP_TIME = 25;  // amount of time a task waits before resuming (milliseconds)
+    var BLACK = [0, 0, 0, 0];
+    var COMPLETED = "▪▪▪▪▪▪▪▪▪▪▪▪▪▪▪▪▪▪▪▪▪▪";
+    var REMAINING = "▫▫▫▫▫▫▫▫▫▫▫▫▫▫▫▫▫▫▫▫▫▫";
 
     var view = µ.view();
     var log = µ.log();
@@ -125,8 +128,10 @@
 
         function locate() {
             if (navigator.geolocation) {
+                report.progress("Finding current position...");
                 navigator.geolocation.getCurrentPosition(
                     function(position) {
+                        report.progress("");
                         var coord = [position.coords.longitude, position.coords.latitude], rotate;
                         if (rotate = globe.locate(coord)) {
                             globe.projection.rotate(rotate);
@@ -335,12 +340,13 @@
                 var i = (y * width + x) * 4;
                 return data[i + 3] > 0;  // non-zero alpha means pixel is visible
             },
-            set: function(x, y, r, g, b, a) {
+            set: function(x, y, rgba) {
                 var i = (y * width + x) * 4;
-                data[i    ] = r;
-                data[i + 1] = g;
-                data[i + 2] = b;
-                data[i + 3] = a;
+                data[i    ] = rgba[0];
+                data[i + 1] = rgba[1];
+                data[i + 2] = rgba[2];
+                data[i + 3] = rgba[3];
+                return this;
             }
         };
     }
@@ -430,27 +436,28 @@
         var interpolate = grid.interpolate;
         function interpolateColumn(x) {
             var column = [];
-            for (var y = bounds.y; y <= bounds.yMax; y += 1) {
+            for (var y = bounds.y; y <= bounds.yMax; y += 2) {
                 if (mask.isVisible(x, y)) {
                     point[0] = x; point[1] = y;
                     var coord = projection.invert(point);
+                    var color = BLACK;
                     if (coord) {
                         var λ = coord[0], φ = coord[1];
                         if (isFinite(λ)) {
                             var wind = interpolate(λ, φ);
                             if (wind) {
-                                column[y] = distort(x, y, λ, φ, wind);
-                                var c = µ.asRainbowColorStyle(Math.min(wind[2], 25) / 25, Math.floor(255 * 0.4));
-                                mask.set(x, y, c[0], c[1], c[2], c[3]);
-                                continue;
+                                column[y+1] = column[y] = distort(x, y, λ, φ, wind);
+                                color = µ.asRainbowColorStyle(Math.min(wind[2], 25) / 25, Math.floor(255 * 0.4));
                             }
                         }
                     }
-                    mask.set(x, y, 0, 0, 0, 0);
+                    mask.set(x, y, color).set(x+1, y, color).set(x, y+1, color).set(x+1, y+1, color);
                 }
             }
-            columns[x] = column;
+            columns[x+1] = columns[x] = column;
         }
+
+        report.progress("");
 
         (function batchInterpolate() {
             try {
@@ -458,22 +465,24 @@
                     var start = +new Date();
                     while (x < bounds.xMax) {
                         interpolateColumn(x);
-                        x += 1;
+                        x += 2;
                         if ((+new Date() - start) > MAX_TASK_TIME) {
                             // Interpolation is taking too long. Schedule the next batch for later and yield.
-                            report.progress("Interpolating: " + x + "/" + bounds.xMax);
+                            var pct = Math.ceil((x - bounds.x) / (bounds.xMax - bounds.x) * REMAINING.length);
+                            var str = COMPLETED.substr(0, pct) + REMAINING.substr(0, REMAINING.length - pct);
+                            d3.select("#progress-bar").text(str).classed("invisible", false);
                             setTimeout(batchInterpolate, MIN_SLEEP_TIME);
                             return;
                         }
                     }
                 }
-                report.progress("");
                 d.resolve(createField(columns, bounds, mask));
-                log.timeEnd("interpolating field");
             }
             catch (e) {
                 d.reject(e);
             }
+            d3.select("#progress-bar").text("").classed("invisible", true);
+            log.timeEnd("interpolating field");
         })();
 
         return d.promise;
@@ -642,8 +651,25 @@
             configuration.fetch({trigger: "hashchange"});
         });
 
+        function showDate(grid) {
+            if (!grid) return;
+            var dateElement = d3.select("#data-date");
+            var zone = dateElement.classed("local") ? "Local" : "UTC";
+            var date = zone === "UTC" ? µ.toUTCISO(new Date(grid.meta.date)) : µ.toLocalISO(new Date(grid.meta.date));
+            dateElement.text(date + " " + zone);
+            d3.select("#toggle-zone").text(zone === "UTC" ? "⇄ Local" : "⇄ UTC");
+        }
+
+        function changeZone() {
+            d3.select("#data-date").classed("local", !d3.select("#data-date").classed("local"));
+            showDate(activeGrid.value());
+        }
+
+        d3.select("#toggle-zone").on("click", changeZone);
+
         activeGrid.on("update", function(grid) {
-            d3.select("#data-date").text(µ.toLocalISO(new Date(grid.meta.date)) + " (local)");
+            showDate(grid);
+            d3.select("#toggle-zone").classed("invisible", false);
             d3.select("#data-layer").text(grid.recipe.description);
             d3.select("#data-center").text("US National Weather Service");
         });
@@ -715,6 +741,13 @@
         d3.select("#iso-250" ).on("click", function() { configuration.save({level: "250hPa"}); });
         d3.select("#iso-70"  ).on("click", function() { configuration.save({level: "70hPa"}); });
         d3.select("#iso-10"  ).on("click", function() { configuration.save({level: "10hPa"}); });
+
+        function navToProjection(projection) {
+            configuration.save({projection: projection, orientation: ""});
+        }
+        globes.keys().forEach(function(key) {
+            d3.select("#" + key).on("click", navToProjection.bind(null, key));
+        });
 
     }());
 
