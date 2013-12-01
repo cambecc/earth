@@ -4,7 +4,7 @@
  * The file characters.txt is used to build a subset font. This utility allows (somewhat incomplete)
  * detection of new chars that may not be included in the site's font, requiring a font rebuild.
  *
- * Font sub-setting of the M+ font used for the site can be performed here: http://font-face.jp/
+ * Font sub-setting of the M+ font used for the site can be performed here: http://font-face.jp/#mplus-2p-light
  */
 
 var fs = require("fs");

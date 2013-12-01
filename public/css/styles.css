@@ -6,6 +6,10 @@
     font-family: mplus-2p-light;
     src: url("/css/mplus-2p-light-057.ttf");
 }
+@font-face {
+    font-family: mplus-2p-light-sub-1;
+    src: url("/css/mplus-2p-light-sub-1.ttf");
+}
 
 /**************************************************************************************************
  * Styling Reset
@@ -15,7 +19,7 @@ html, body, div, span, h1, h2, h3, h4, h5, h6, p, a, svg, canvas {
     margin: 0;
     padding: 0;
     border: 0;
-    font: 1em mplus-2p-light,Helvetica,arial,freesans,clean,sans-serif;
+    font: 1em mplus-2p-light-sub-1,Helvetica,arial,freesans,clean,sans-serif;
     -webkit-font-smoothing: subpixel-antialiased; /* safari disables subpixel antialiasing for some reason */
 }
 
