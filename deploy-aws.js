@@ -20,6 +20,7 @@ console.log(new Date().toISOString() + " - Starting");
     "natural-earth.png",
     "css/styles.css",
     "css/mplus-2p-light-057.ttf",
+    "css/mplus-2p-light-sub-1.ttf",
     "data/earth-topo.json",
     "libs/d3.geo/0.0.0/d3.geo.polyhedron.v0.min.js",
     "libs/d3.geo/0.0.0/d3.geo.projection.v0.min.js",
