@@ -10,6 +10,8 @@
  * @author Brian Cavalier
  * @author John Hann
  * @version 2.6.0
+ *
+ * modified by @cambecc to work as-in in the browser
  */
 when = function(define, global) { 'use strict';
 return define(function () {

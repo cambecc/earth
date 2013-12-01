@@ -12,7 +12,7 @@ console.log("============================================================");
 console.log(new Date().toISOString() + " - Starting");
 
 // UNDONE: delete objects in S3 but not in the list below
-// UNDONE: super awesome logic that defines and iterates file sets, to eliminate this list
+// UNDONE: super awesome logic that defines and iterates file sets, to eliminate this list:
 [
 
     "about.html",
@@ -21,17 +21,13 @@ console.log(new Date().toISOString() + " - Starting");
     "css/styles.css",
     "css/mplus-2p-light-057.ttf",
     "data/earth-topo.json",
-    "js/backbone.js",
-    "js/d3.v3.js",
-    "js/d3.geo.polyhedron.v0.js",
-    "js/d3.geo.projection.v0.js",
-    "js/earth.v1.js",
-    "js/globes.js",
-    "js/layers.js",
-    "js/micro.js",
-    "js/topojson.v1.js",
-    "js/underscore.js",
-    "js/when.js"
+    "libs/d3.geo/0.0.0/d3.geo.polyhedron.v0.min.js",
+    "libs/d3.geo/0.0.0/d3.geo.projection.v0.min.js",
+    "libs/earth/1.0.0/earth.js",
+    "libs/earth/1.0.0/globes.js",
+    "libs/earth/1.0.0/layers.js",
+    "libs/earth/1.0.0/micro.js",
+    "libs/when/2.6.0/when.js"
 
 ].forEach(function(key) {
     aws.uploadFile("public/" + key, aws.S3_BUCKET, key).then(function(result) {

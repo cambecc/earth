@@ -63,17 +63,11 @@ exports.cacheControl = function() {
     var DEFAULT = 6 * HOUR;
 
     var rules = [
-        // very-short-lived
-        [/data\/.*\/current/, 1 * MINUTE],
-
         // short-lived (default behavior for all other resources)
-        [/js\/earth\.v1\.js/, DEFAULT],  // override medium-lived .js rule below
-        [/js\/globes\.js/, DEFAULT],  // override medium-lived .js rule below
-        [/js\/layers\.js/, DEFAULT],  // override medium-lived .js rule below
-        [/js\/micro\.js/, DEFAULT],   // override medium-lived .js rule below
+        [/libs\/earth\/.*\.js/, DEFAULT],  // override medium-lived .js rule below
 
         // long-lived
-        [/js\/.*\.js/, 30 * DAY],
+        [/libs\/.*\.js/, 30 * DAY],
 
         // extremely long-lived
         [/\.png|\.ico/, 365 * DAY],
