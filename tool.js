@@ -1,5 +1,5 @@
 /**
- * tool - a set of general utility functions
+ * tool - a dumping ground for general utility functions
  */
 
 "use strict";
@@ -15,6 +15,7 @@ var mime = require("express").static.mime;
 var temp = require("temp");
 var spawn = require("child_process").spawn;
 var fs = require("fs");
+var path = require("path");
 
 // CF won't compress MIME type "application/x-font-ttf" (the express.js default) but will compress "font/ttf".
 // https://support.cloudflare.com/hc/en-us/articles/200168396-What-will-CloudFlare-gzip-
@@ -284,4 +285,46 @@ exports.yyyymmddPath = function(date, zone) {
 
 exports.ensureTrailing = function(s, c) {
     return s.lastIndexOf(c) < s.length - 1 ? s + c : s;
+};
+
+/**
+ * Recursively walks a directory, invoking onFile for each file found.
+ *
+ * @param dir the starting directory of the walk
+ * @param onFile a callback function(err, file, name, dir, stats) where file is the path of the file relative to
+ *               the start of the walk, name is the name of the file, dir is the directory containing the
+ *               the file, and stats is the fs.Stats object for the file. If the file is a directory, the callback
+ *               can return true to skip walking the contents of the directory.
+ */
+exports.walk = function(dir, onFile) {
+    var d = when.defer();
+    var pending = 1;
+
+    function visit(dir, name) {
+        var file = path.join(dir, name);
+        fs.stat(file, function(err, stats) {
+            var abort = onFile(err, file, name, dir, stats);
+            if (!abort && stats && stats.isDirectory()) {
+                return expand(file);
+            }
+            if (!--pending) {
+                d.resolve();
+            }
+        });
+    }
+
+    function expand(dir) {
+        fs.readdir(dir, function(err, names) {
+            pending += names.length;
+            names.forEach(function(name) {
+                visit(dir, name);
+            });
+            if (!--pending) {
+                d.resolve();
+            }
+        });
+    }
+
+    expand(dir);
+    return d.promise;
 };
