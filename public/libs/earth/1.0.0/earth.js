@@ -188,7 +188,7 @@
             if (cancel.requested) return null;
             log.time("building meshes");
             var boundaryLo = topojson.feature(topo, topo.objects.coastline_110m);
-            var boundaryHi = topojson.feature(topo, topo.objects.coastline_50m);
+            var boundaryHi = µ.isMobile() ? boundaryLo : topojson.feature(topo, topo.objects.coastline_50m);
             log.timeEnd("building meshes");
             return {
                 boundaryLo: boundaryLo,
@@ -517,10 +517,10 @@
         var bounds = globe.bounds();
         var colorStyles = µ.colorStyles();
         var buckets = colorStyles.map(function() { return []; });
-        var particleCount = Math.round(bounds.width / 0.14);
+        var multiplier = µ.isMobile() ? 5.5 : 7;  // reduce particle count for mobile devices
+        var particleCount = Math.round(bounds.width * multiplier);
         var maxParticleAge = 40;  // max number of frames a particle is drawn before regeneration
-        var isFF = /firefox/i.test(navigator.userAgent);  // HACK
-        var fadeFillStyle = isFF ? "rgba(0, 0, 0, 0.95)" : "rgba(0, 0, 0, 0.97)";  // FF Mac alpha behaves differently
+        var fadeFillStyle = µ.isFF() ? "rgba(0, 0, 0, 0.95)" : "rgba(0, 0, 0, 0.97)";  // FF Mac alpha behaves oddly
 
         log.debug("particle count: " + particleCount);
         var particles = [];

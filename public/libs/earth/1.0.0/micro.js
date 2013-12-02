@@ -2,9 +2,9 @@
 var µ = function() {
     "use strict";
 
-    var τ = 2 * Math.PI;
-
     // now that using _, any of these redundant now?
+
+    var τ = 2 * Math.PI;
 
     /**
      * @returns {Boolean} true if the specified value is truthy.
@@ -287,6 +287,20 @@ var µ = function() {
         return wd.toFixed(0) + "º @ " + m.toFixed(1) + " m/s";
     }
 
+    /**
+     * @returns {Boolean} true if agent is probably firefox. Don't really care if this is accurate.
+     */
+    function isFF() {
+        return /firefox/i.test(navigator.userAgent);
+    }
+
+    /**
+     * @returns {Boolean} true if agent is probably a mobile device. Don't really care if this is accurate.
+     */
+    function isMobile() {
+        return /android|blackberry|iemobile|ipad|iphone|ipod|opera mini|webos/i.test(navigator.userAgent);
+    }
+
     return {
         isTruthy: isTruthy,
         isValue: isValue,
@@ -309,7 +323,9 @@ var µ = function() {
         clearCanvas: clearCanvas,
         distortion: distortion,
         formatCoordinates: formatCoordinates,
-        formatVector: formatVector
+        formatVector: formatVector,
+        isFF: isFF,
+        isMobile: isMobile
     };
 
 }();
