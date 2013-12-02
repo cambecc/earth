@@ -34,7 +34,7 @@ var log = tool.log();
 
 var PRODUCT_TYPES = ["1.0"];
 var FORECASTS = [0, 3, 6, 9/*, 12, 15, 18, 21, 24*/];
-var INDENT = undefined; // 2
+var INDENT;  // = 2;
 var GRIB2JSON_FLAGS = "-n -d";
 var LAYER_RECIPES = {
 //    wi1: {
@@ -177,7 +177,7 @@ function createTemp(options) {
 
 function processLayer(layer, path) {
     var data = require(path);
-    if (data.length == 0) {
+    if (data.length === 0) {
         return null;  // no records
     }
     data.forEach(function(record) {
@@ -259,7 +259,7 @@ function pushLayer(layer) {
     var key = layer.path(aws.S3_LAYER_HOME);
     var metadata = {
         "reference-time": layer.product.cycle.date().toISOString()
-    }
+    };
     function isNewerThan(existing) {
         var refTime = (existing.Metadata || {})["reference-time"];
         return !refTime || new Date(refTime) < layer.product.cycle.date() || layer.isCurrent;

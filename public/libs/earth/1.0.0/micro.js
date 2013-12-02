@@ -103,7 +103,7 @@ var µ = function() {
         //  option := type [ "=" number [ "," number [ ... ] ] ]
         //  example: 2013/11/14/0900Z/wind/isobaric/1000hPa/orthographic=26.50,-153.00,1430
         var tokens, option, result = {};
-        if (tokens = /^(current|\d{4}\/\d{2}\/\d{2}\/(\d{4})Z)\/(\w+)\/(\w+)\/(\w+)([\/].+)?/.exec(hash)) {
+        if ((tokens = /^(current|\d{4}\/\d{2}\/\d{2}\/(\d{4})Z)\/(\w+)\/(\w+)\/(\w+)([\/].+)?/.exec(hash))) {
             result = {
                 date: tokens[1].substr(0, 10),    // "current" or "yyyy/mm/dd"
                 hour: µ.coalesce(tokens[2], ""),  // "hhhh" or ""
@@ -116,13 +116,13 @@ var µ = function() {
                 overlay: "wv"
             };
             µ.coalesce(tokens[6], "").split("/").forEach(function(segment) {
-                if (option = /^(\w+)(=([\d\-.,]*))?$/.exec(segment)) {
+                if ((option = /^(\w+)(=([\d\-.,]*))?$/.exec(segment))) {
                     if (projectionNames.has(option[1])) {
                         result.projection = option[1];                   // non-empty alphanumeric _
                         result.orientation = µ.coalesce(option[3], "");  // comma delimited string of numbers, or ""
                     }
                 }
-                else if (option = /^overlay=off$/.exec(segment)) {
+                else if ((option = /^overlay=off$/.exec(segment))) {
                     result.overlay = "off";
                 }
             });
@@ -230,7 +230,7 @@ var µ = function() {
         }
         result.indexFor = function(m) {  // map wind speed to a style
             return Math.floor(Math.min(m, 17) / 17 * (result.length - 1));
-        }
+        };
         return result;
     }
 
@@ -291,14 +291,14 @@ var µ = function() {
      * @returns {Boolean} true if agent is probably firefox. Don't really care if this is accurate.
      */
     function isFF() {
-        return /firefox/i.test(navigator.userAgent);
+        return (/firefox/i).test(navigator.userAgent);
     }
 
     /**
      * @returns {Boolean} true if agent is probably a mobile device. Don't really care if this is accurate.
      */
     function isMobile() {
-        return /android|blackberry|iemobile|ipad|iphone|ipod|opera mini|webos/i.test(navigator.userAgent);
+        return (/android|blackberry|iemobile|ipad|iphone|ipod|opera mini|webos/i).test(navigator.userAgent);
     }
 
     return {

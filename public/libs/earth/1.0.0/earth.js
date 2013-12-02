@@ -1,7 +1,7 @@
 /**
  * earth - a project to visualize global air data.
  *
- * Copyright (c) 2013 Cameron Beccario
+ * Copyright (c) 2014 Cameron Beccario
  * The MIT License - http://opensource.org/licenses/MIT
  *
  * https://github.com/cambecc/earth
@@ -138,8 +138,9 @@
                 navigator.geolocation.getCurrentPosition(
                     function(position) {
                         report.progress("");
-                        var coord = [position.coords.longitude, position.coords.latitude], rotate;
-                        if (rotate = globe.locate(coord)) {
+                        var coord = [position.coords.longitude, position.coords.latitude];
+                        var rotate = globe.locate(coord);
+                        if (rotate) {
                             globe.projection.rotate(rotate);
                             configuration.save({orientation: globe.orientation()});  // triggers reorientation
                         }

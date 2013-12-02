@@ -211,5 +211,6 @@ exports.cacheControlFor = function(layer) {
         // live a very long time. If it's a "current" layer, then it always lives a short time.
         var maxAge = layer.isCurrent || layer.product.forecastHour > 3 ? 1 * HOUR : 30 * DAY;
         return "public, max-age=" + maxAge;
-    }
-}
+    };
+};
+
