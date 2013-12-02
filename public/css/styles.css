@@ -51,6 +51,10 @@ body {
     background: #000004;
 }
 
+#display {
+    cursor: default;
+}
+
 #map, #animation, #overlay, #foreground {
     position: absolute;
     top: 0;
@@ -140,6 +144,8 @@ body {
     stroke: #000004;
     stroke-width: 4.0;
     fill: none;
+    -moz-user-select: none;  /* Oddly, Win FF sometimes selects this SVG element. Disable. */
+    user-select: none;
 }
 
 .location-mark {
