@@ -4,6 +4,15 @@ var globes = function() {
 
     var view = µ.view();
 
+    /**
+     * @returns {Array} rotation of globe to current position of user. Aside from asking for geolocation,
+     * which user may reject, there is not much available except timezone. Better than nothing.
+     */
+    function currentPosition() {
+        var λ = µ.floorDiv(new Date().getTimezoneOffset() / 4, 360);
+        return [λ, 0];
+    }
+
     function sphereBounds() {
         return µ.clampedBounds(
             d3.geo.path().projection(this.projection).bounds({type: "Sphere"}),
@@ -131,7 +140,7 @@ var globes = function() {
     function conicEquidistant() {
         return standardBuilder({
             factory: function() {
-                return d3.geo.conicEquidistant().precision(0.1);
+                return d3.geo.conicEquidistant().rotate(currentPosition()).precision(0.1);
             },
             center: function() {
                 return [view.width / 2, view.height / 2 + view.height * 0.065];
@@ -142,7 +151,7 @@ var globes = function() {
     function equirectangular() {
         return standardBuilder({
             factory: function() {
-                return d3.geo.equirectangular().precision(0.1);
+                return d3.geo.equirectangular().rotate(currentPosition()).precision(0.1);
             }
         });
     }
@@ -150,7 +159,7 @@ var globes = function() {
     function mercator() {
         return standardBuilder({
             factory: function() {
-                return d3.geo.mercator().precision(0.1);
+                return d3.geo.mercator().rotate(currentPosition()).precision(0.1);
             }
         });
     }
@@ -158,7 +167,7 @@ var globes = function() {
     function orthographic() {
         return standardBuilder({
             factory: function() {
-                return d3.geo.orthographic().precision(0.1).clipAngle(90);
+                return d3.geo.orthographic().rotate(currentPosition()).precision(0.1).clipAngle(90);
             },
             defineMap: function(mapSvg, foregroundSvg) {
                 var path = d3.geo.path().projection(this.projection);

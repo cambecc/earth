@@ -38,6 +38,14 @@ a:hover, a:focus, .no-touch .text-button:hover, .no-touch .text-button:focus, .t
     -webkit-transition: color 125ms ease-in;
 }
 
+span.invisible {
+    display: none;
+}
+
+svg {
+    overflow: hidden;  /* Do not let IE draw outside the bounds of the svg element. */
+}
+
 body {
     color: #eeeeee;
     background: #000004;
@@ -53,6 +61,7 @@ body {
     position: absolute;
     bottom: 3%;
     left: 2%;
+    pointer-events: none;  /* This div is just a container--do not let it interfere with operation of the map. */
 }
 
 #progress, #location, #start {
@@ -62,14 +71,7 @@ body {
     display: table;
     margin-top: 1rem;
     padding: 0 1rem 0 1rem;
-}
-
-#progress-bar {
-    padding-left: 1rem;
-}
-
-span.invisible {
-    display: none;
+    pointer-events: all;
 }
 
 #menu {
@@ -77,6 +79,7 @@ span.invisible {
     background-color: rgba(5, 10, 30, 0.85);
     border-radius: 0.5rem/0.5rem;
     overflow: hidden;
+    pointer-events: all;
 
     margin-top: 1rem;
     padding: 0.5rem 1rem 0.5rem 1rem;
@@ -93,6 +96,10 @@ span.invisible {
     max-height: 0;
     transition: opacity 1s ease, max-height 1s ease, margin-top 1s ease;
     -webkit-transition: opacity 1s ease, max-height 1s ease, margin-top 1s ease;
+}
+
+#progress-bar {
+    padding-left: 1rem;
 }
 
 #nav-now {

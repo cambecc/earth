@@ -130,7 +130,7 @@
             }
         }, 1000);
 
-        d3.select("#foreground").call(zoom);
+        d3.select("#display").call(zoom);
 
         function locate() {
             if (navigator.geolocation) {

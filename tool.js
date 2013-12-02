@@ -64,6 +64,9 @@ exports.cacheControl = function() {
     var DEFAULT = 6 * HOUR;
 
     var rules = [
+        // very-short-lived
+        [/data\/.*\/current/, 1 * MINUTE],
+
         // short-lived (default behavior for all other resources)
         [/libs\/earth\/.*\.js/, DEFAULT],  // override medium-lived .js rule below
 
