@@ -3,10 +3,6 @@
  **************************************************************************************************/
 
 @font-face {
-    font-family: mplus-2p-light;
-    src: url("/css/mplus-2p-light-057.ttf");
-}
-@font-face {
     font-family: mplus-2p-light-sub-1;
     src: url("/css/mplus-2p-light-sub-1.ttf");
 }
@@ -49,6 +45,13 @@ svg {
 body {
     color: #eeeeee;
     background: #000004;
+}
+
+#warn {
+    font-size: 2.0em;
+    position: absolute;
+    top: 10%;
+    left: 2%;
 }
 
 #display {

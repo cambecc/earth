@@ -1,12 +1,21 @@
 <!DOCTYPE html>
-<html>
+<html itemscope itemtype="http://schema.org/Map" prefix="og: http://ogp.me/ns# fb: http://ogp.me/ns/fb#">
 <head>
     <meta charset="utf-8"/>
     <title>earth</title>
+
+    <meta itemprop="name" property="og:title" content="earth"/>
+    <meta name="description" itemprop="description" property="og:description" content="Global Wind Map"/>
+    <meta name="author" itemprop="author" content="Cameron Beccario"/>
+    <meta itemprop="image" property="og:image" content="http://test.nullschool.net/preview.png"/>
     <link rel="shortcut icon" href="/favicon.ico"/>
+    <link rel="apple-touch-icon" sizes="120x120" href="/iphone-icon.png"/>
+    <link rel="apple-touch-icon" sizes="152x152" href="/ipad-icon.png"/>
     <link rel="stylesheet" type="text/css" href="/css/styles.css"/>
 </head>
 <body>
+
+    <!--[if lte IE 8]><p id="warn">This site works on IE9 or newer.</p><![endif]-->
 
     <div id="display">
         <svg id="map" class="fill-screen" xmlns="http://www.w3.org/2000/svg" version="1.1"></svg>
@@ -67,9 +76,6 @@
                 class="proj text-button" id="waterman" title="Waterman Butterfly">WB</span> – <span
                 class="proj text-button" id="winkel3" title="Winkel Tripel">W3</span>
             </p>
-<!--
-            <p>免責事項 | 正確な情報を提供するためのものではありません</p>
--->
             <p><a href="/about.html">about</a></p>
         </div>
     </div>
@@ -87,6 +93,17 @@
     <script src="/libs/earth/1.0.0/globes.js" charset="utf-8"></script>
     <script src="/libs/earth/1.0.0/layers.js" charset="utf-8"></script>
     <script src="/libs/earth/1.0.0/earth.js" charset="utf-8"></script>
+
+    <script>
+        (function(i, s, o, g, r, a, m) {
+            i['GoogleAnalyticsObject'] = r;
+            i[r] = i[r] || function() { (i[r].q = i[r].q || []).push(arguments); }, i[r].l = 1 * new Date();
+            a = s.createElement(o), m = s.getElementsByTagName(o)[0];
+            a.async = 1; a.src = g; m.parentNode.insertBefore(a, m);
+        })(window, document, 'script', '//www.google-analytics.com/analytics.js', 'ga');
+        ga('create', 'UA-44235933-2', 'nullschool.net');
+        ga('send', 'pageview');
+    </script>
 
 </body>
 </html>

@@ -16,8 +16,12 @@ console.log(new Date().toISOString() + " - Starting");
 [
 
     "about.html",
+    "favicon.ico",
+    "ipad-icon.png",
+    "iphone-icon.png",
     "index.html",
     "natural-earth.png",
+    "preview.png",
     "css/styles.css",
     "css/mplus-2p-light-057.ttf",
     "css/mplus-2p-light-sub-1.ttf",
