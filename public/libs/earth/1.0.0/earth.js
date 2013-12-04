@@ -85,18 +85,22 @@
         var dispatch = _.clone(Backbone.Events);
         var op = null;
 
+        function newOp(startMouse, startScale) {
+            return {
+                type: "click",
+                startMouse: startMouse,
+                startScale: startScale,
+                manipulator: globe.manipulator(startMouse, startScale)
+            };
+        }
+
         var zoom = d3.behavior.zoom()
             .on("zoomstart", function() {
-                var startMouse = d3.mouse(this), startScale = zoom.scale();
-                op = {
-                    type: "click",
-                    startMouse: startMouse,
-                    startScale: startScale,
-                    manipulator: globe.manipulator(startMouse, startScale)
-                };
+                op = op || newOp(d3.mouse(this), zoom.scale());
             })
             .on("zoom", function() {
                 var currentMouse = d3.mouse(this), currentScale = d3.event.scale;
+                op = op || newOp(currentMouse, 1);  // Fix bug on some browsers where zoomstart fires out of order.
                 if (op.type === "click" || op.type === "spurious") {
                     if (currentScale === op.startScale && µ.distance(currentMouse, op.startMouse) < 2) {
                         op.type = "spurious";
