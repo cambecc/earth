@@ -63,7 +63,7 @@
                 return cancel.requested ? null : handle.trigger("update", value = newValue);
             }
             function reject(error) {
-                return cancel.requested ? null : report.error(error);
+                return report.error(error);
             }
             var args = _.rest(arguments).concat(handle.cancel = cancel);
             when.all(args).then(run).done(accept, reject);
@@ -158,7 +158,6 @@
                 dispatch.trigger("moveStart");
                 globe.orientation(configuration.get("orientation"));
                 zoom.scale(globe.projection.scale());
-                dispatch.trigger("move");
                 dispatch.trigger("moveEnd");
             }
         }
