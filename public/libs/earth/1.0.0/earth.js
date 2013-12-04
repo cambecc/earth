@@ -278,6 +278,13 @@
         var coastline = d3.select(".coastline");
         d3.selectAll("path").attr("d", path);  // do an initial draw -- fixes issue with safari
 
+        function doDraw() {
+            d3.selectAll("path").attr("d", path);
+            activeRenderer.trigger("redraw");
+            doDraw_throttled = _.throttle(doDraw, 5, {leading: false});
+        }
+        var doDraw_throttled = _.throttle(doDraw, 5, {leading: false});
+
         // Attach to map rendering events on input controller.
         dispatch.listenTo(
             inputController, {
@@ -286,8 +293,7 @@
                     activeRenderer.trigger("start");
                 },
                 move: function() {
-                    d3.selectAll("path").attr("d", path);
-                    activeRenderer.trigger("redraw");
+                    doDraw_throttled();
                 },
                 moveEnd: function() {
                     coastline.datum(mesh.boundaryHi);
