@@ -156,7 +156,7 @@
             options = options || {};
             if (globe && options.source !== "moveEnd") {
                 dispatch.trigger("moveStart");
-                globe.orientation(configuration.get("orientation"));
+                globe.orientation(configuration.get("orientation"), view);
                 zoom.scale(globe.projection.scale());
                 dispatch.trigger("moveEnd");
             }
@@ -212,9 +212,12 @@
      */
     function buildGlobe(projectionName) {
         var builder = globes.get(projectionName);
-        return builder ?
-            when(builder()) :
-            when.reject("Unknown projection: " + projectionName);
+        if (!builder) {
+            return when.reject("Unknown projection: " + projectionName);
+        }
+        var globe = builder();
+        globe.projection = globe.newProjection(view);  // augment globe with the shared projection instance we'll use.
+        return when(globe);
     }
 
     /**
@@ -404,7 +407,7 @@
 
     function distortionFor(globe) {
 
-        var velocityScale = globe.bounds().height / 39000;  // particle speed as number of pixels per unit vector
+        var velocityScale = globe.bounds(view).height / 39000;  // particle speed as number of pixels per unit vector
         var distortion = µ.distortion(globe.projection);
         var dv = [];
 
@@ -441,7 +444,7 @@
         var d = when.defer();
 
         var projection = globe.projection;
-        var bounds = globe.bounds();
+        var bounds = globe.bounds(view);
         var distort = distortionFor(globe);
 
         var columns = [];
@@ -520,7 +523,7 @@
     function animate(globe, field, cancel) {
         if (!globe || !field) return null;
 
-        var bounds = globe.bounds();
+        var bounds = globe.bounds(view);
         var colorStyles = µ.colorStyles();
         var buckets = colorStyles.map(function() { return []; });
         var multiplier = µ.isMobile() ? 5.5 : 7;  // reduce particle count for mobile devices
@@ -648,7 +651,6 @@
 
     function init() {
         report.progress("Initializing...");
-
         d3.selectAll(".fill-screen").attr("width", view.width).attr("height", view.height);
         d3.select("#show-menu").on("click", function() {
             d3.select("#menu").classed("invisible", !d3.select("#menu").classed("invisible"));
@@ -766,6 +768,12 @@
         }
         globes.keys().forEach(function(key) {
             d3.select("#" + key).on("click", navToProjection.bind(null, key));
+        });
+
+        d3.select(window).on("orientationchange", function() {
+            // Rebuild globe using the new orientation and view size.
+            view = µ.view();
+            activeGlobe.submit(buildGlobe, configuration.get("projection"));
         });
 
         configuration.fetch();  // everything is now set up, so kick off the events
