@@ -342,7 +342,9 @@ function copyCurrent() {
 
         mkdirp.sync(dest.dir(LAYER_HOME));
         var destPath = dest.path(LAYER_HOME);
-        fs.unlinkSync(destPath);  // remove existing symlinks, if any
+        if (fs.existsSync(destPath)) {
+            fs.unlinkSync(destPath);  // remove existing symlinks, if any
+        }
         fs.symlinkSync(src.path("../"), destPath);
         return dest;
     });
