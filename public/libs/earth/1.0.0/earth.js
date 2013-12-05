@@ -12,9 +12,9 @@
     var NIL = -2;             // non-existent vector
     var MAX_TASK_TIME = 100;  // amount of time before a task yields control (milliseconds)
     var MIN_SLEEP_TIME = 25;  // amount of time a task waits before resuming (milliseconds)
-    var BLACK = [0, 0, 0, 0];
-    var COMPLETED = "▪▪▪▪▪▪▪▪▪▪▪▪▪▪▪▪▪▪▪▪▪▪";
+    var BLACK = [0, 0, 0, 0]; // rgba
     var REMAINING = "▫▫▫▫▫▫▫▫▫▫▫▫▫▫▫▫▫▫▫▫▫▫";
+    var COMPLETED = "▪▪▪▪▪▪▪▪▪▪▪▪▪▪▪▪▪▪▪▪▪▪";
 
     var view = µ.view();
     var log = µ.log();
@@ -102,7 +102,7 @@
                 var currentMouse = d3.mouse(this), currentScale = d3.event.scale;
                 op = op || newOp(currentMouse, 1);  // Fix bug on some browsers where zoomstart fires out of order.
                 if (op.type === "click" || op.type === "spurious") {
-                    if (currentScale === op.startScale && µ.distance(currentMouse, op.startMouse) < 2) {
+                    if (currentScale === op.startScale && µ.distance(currentMouse, op.startMouse) < 4) {
                         op.type = "spurious";
                         return;  // to reduce annoyance, ignore op if mouse has barely moved and no zoom is occurring
                     }
@@ -490,8 +490,8 @@
                         if ((+new Date() - start) > MAX_TASK_TIME) {
                             // Interpolation is taking too long. Schedule the next batch for later and yield.
                             var pct = Math.ceil((x - bounds.x) / (bounds.xMax - bounds.x) * REMAINING.length);
-                            var str = COMPLETED.substr(0, pct) + REMAINING.substr(0, REMAINING.length - pct);
-                            d3.select("#progress-bar").text(str).classed("invisible", false);
+                            var bar = COMPLETED.substr(0, pct) + REMAINING.substr(0, REMAINING.length - pct);
+                            d3.select("#progress-bar").text(bar).classed("invisible", false);
                             setTimeout(batchInterpolate, MIN_SLEEP_TIME);
                             return;
                         }
