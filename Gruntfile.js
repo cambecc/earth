@@ -6,7 +6,7 @@ module.exports = function(grunt) {
     grunt.initConfig({
         pkg: grunt.file.readJSON("package.json"),
         jshint: {
-            files: ["*.js", "public/libs/earth/**/*.js", "test/**/*.js"],
+            files: ["server/**/*.js", "public/libs/earth/**/*.js"],
             options: {
                 // ignores: ["public/js/d3*.js", "public/js/topojson*.js", "public/js/when*.js"],
                 globals: {

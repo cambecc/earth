@@ -116,7 +116,9 @@ exports.product = function(type, cycle, forecastHour) {
          * @returns {String} the directory containing this product's GRIB file, under the (optional) specified parent.
          */
         dir: function(parent) {
-            var result = tool.coalesce(parent, "") + util.format("gfs.%s%s", tool.yyyymmdd(cycle.date()), tool.pad(cycle.hour, 2));
+            var result =
+                tool.coalesce(parent, "") +
+                util.format("gfs.%s%s", tool.yyyymmdd(cycle.date()), tool.pad(cycle.hour, 2));
             return (type === "master" ? result + "/master" : result) + "/";
         },
         /**
@@ -213,4 +215,3 @@ exports.cacheControlFor = function(layer) {
         return "public, max-age=" + maxAge;
     };
 };
-

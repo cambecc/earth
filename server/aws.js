@@ -8,10 +8,10 @@ var util = require("util");
 var fs = require("fs");
 var when = require("when");
 var apply = require("when/apply");
-var tool = require(__dirname + "/tool");
+var tool = require("./tool");
 var AWS = require("aws-sdk");
 
-AWS.config.loadFromPath("./scratch/aws-config.json");
+AWS.config.loadFromPath("../scratch/aws-config.json");
 var s3 = new AWS.S3();
 
 exports.S3_BUCKET = "test.nullschool.net";

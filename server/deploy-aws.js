@@ -12,7 +12,7 @@ console.log("============================================================");
 console.log(new Date().toISOString() + " - Starting");
 
 // UNDONE: delete objects in S3 but not in the list below
-// UNDONE: super awesome logic that defines and iterates file sets, to eliminate this list:
+// UNDONE: super awesome logic that defines and iterates file sets, to eliminate this list. too lazy right now.
 [
 
     "about.html",
@@ -35,7 +35,7 @@ console.log(new Date().toISOString() + " - Starting");
     "libs/when/2.6.0/when.js"
 
 ].forEach(function(key) {
-    aws.uploadFile("public/" + key, aws.S3_BUCKET, key).then(function(result) {
+    aws.uploadFile("../public/" + key, aws.S3_BUCKET, key).then(function(result) {
         console.log(key + ": " + util.inspect(result));
     }, tool.report);
 });

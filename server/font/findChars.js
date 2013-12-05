@@ -7,10 +7,12 @@
  * Font sub-setting of the M+ font used for the site can be performed here: http://font-face.jp/#mplus-2p-light
  */
 
+"use strict";
+
 var fs = require("fs");
 var when = require("when");
 var guard = require('when/guard');
-var tool = require("../tool.js");
+var tool = require("../tool");
 
 var inspections = [];
 var existingChars = {};
@@ -53,7 +55,7 @@ function onFile(err, file, name, dir, stats) {
 }
 
 inspect(existingChars, "characters.txt").then(function() {
-    return tool.walk("../public", onFile).then(function() {
+    return tool.walk("../../public", onFile).then(function() {
         return when.all(inspections).then(function() {
             var n = 0, keys = Object.keys(uniqueChars);
             keys.sort();

@@ -2,18 +2,11 @@
  * gfs-update - downloads GFS files and deploys them to AWS S3
  */
 
-// TODO: freshly downloaded grib files should overwrite existing layers, but only if they come from an older run
 // TODO: allow extraction and push to S3 to occur right after download rather than waiting for all downloads to finish
-// TODO: process json files to add nav info and add readable fields to header for browser to display -- like the actual
-//       date and layer type
 // TODO: handle case where two separate process pipelines, from two different runs, may be trying to extract the same
 //       layer at once, or push to the S3 at once
-// TODO: process to keep CURRENT up to date... somehow...
 // TODO: optimize process of doing catch-up against several cycles. Don't want to keep re-putting items into S3.
 //       probably a combination of checking for age of layer and doing catch-up in reverse chronological order
-// TODO: cache-control for forecast layers should be short -- because they will be replaced. But the final layers
-//       should have a long cache time.
-// TODO: failure to download one grib file aborts whole process
 
 "use strict";
 
