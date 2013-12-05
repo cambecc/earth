@@ -298,7 +298,6 @@ var µ = function() {
      * @returns {Boolean} true if agent is probably a mobile device. Don't really care if this is accurate.
      */
     function isMobile() {
-        return true;
         return (/android|blackberry|iemobile|ipad|iphone|ipod|opera mini|webos/i).test(navigator.userAgent);
     }
 
@@ -320,7 +319,6 @@ var µ = function() {
         removeChildren: removeChildren,
         asColorStyle: asColorStyle,
         asRainbowColorStyle: asRainbowColorStyle,
-        asSinebowColorStyle: asSinebowColorStyle,
         colorStyles: colorStyles,
         clearCanvas: clearCanvas,
         distortion: distortion,
