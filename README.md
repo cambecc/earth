@@ -22,13 +22,13 @@ those that clarify accepted best practices.
 building and launching
 ----------------------
 
-After installing node.js and npm, clone the project and install project dependencies:
+After installing node.js and npm, clone "earth" and install dependencies:
 
     git clone https://github.com/cambecc/earth
     cd earth
     npm install
 
-Next, launch the web server used for development, on a port of your choice:
+Next, launch the development web server:
 
     cd server
     node dev-server.js 8080
@@ -38,9 +38,22 @@ Finally, point your browser to:
     http://localhost:8080
 
 The server acts as a stand-in for static S3 bucket hosting and so contains almost no server-side logic. It
-serves all files located in the _earth/public_ directory. See _public/index.html_ and _public/libs/earth/*.js_
-for the main entry points. Data files are located in the _public/data_ directory, and there is one sample
-weather layer located at _data/weather/current_.
+serves all files located in the `earth/public` directory. See `public/index.html` and `public/libs/earth/*.js`
+for the main entry points. Data files are located in the `public/data` directory, and there is one sample
+weather layer located at `data/weather/current`.
+
+getting data
+------------
+
+
+
+font subsetting
+---------------
+
+This project uses [M+ Fonts](http://mplus-fonts.sourceforge.jp/). To reduce download size, a subset font is
+constructed out of the unique characters utilized by the site. See the `earth/server/font/findChars.js` script
+for details. Font subsetting is be performed by the [M+Web FONTS Subsetter](http://mplus.font-face.jp/), and
+the resulting font is placed in `earth/public/styles`.
 
 inspiration
 -----------
