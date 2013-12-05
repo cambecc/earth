@@ -49,6 +49,8 @@ var globes = function() {
                 var projection = this.projection;
                 var sensitivity = 60 / startScale;  // seems to provide a good drag scaling factor
                 var rotation = [projection.rotate()[0] / sensitivity, -projection.rotate()[1] / sensitivity];
+                var original = projection.precision();
+                projection.precision(original * 10);
                 return {
                     move: function(mouse, scale) {
                         if (mouse) {
@@ -57,6 +59,9 @@ var globes = function() {
                             projection.rotate([xd * sensitivity, -yd * sensitivity, projection.rotate()[2]]);
                         }
                         projection.scale(scale);
+                    },
+                    end: function() {
+                        projection.precision(original);
                     }
                 };
             },

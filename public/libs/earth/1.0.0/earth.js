@@ -118,6 +118,7 @@
                 dispatch.trigger("move");
             })
             .on("zoomend", function() {
+                op.manipulator.end();
                 if (op.type === "click") {
                     dispatch.trigger("click", op.startMouse, globe.projection.invert(op.startMouse));
                 }
@@ -191,12 +192,12 @@
         return µ.loadJson(resource).then(function(topo) {
             if (cancel.requested) return null;
             log.time("building meshes");
-            var boundaryLo = topojson.feature(topo, topo.objects.coastline_110m);
-            var boundaryHi = µ.isMobile() ? boundaryLo : topojson.feature(topo, topo.objects.coastline_50m);
+            var lo = topojson.feature(topo, µ.isMobile() ? topo.objects.coastline_tiny : topo.objects.coastline_110m);
+            var hi = topojson.feature(topo, µ.isMobile() ? topo.objects.coastline_110m : topo.objects.coastline_50m);
             log.timeEnd("building meshes");
             return {
-                boundaryLo: boundaryLo,
-                boundaryHi: boundaryHi
+                boundaryLo: lo,
+                boundaryHi: hi
             };
         });
     }
@@ -208,7 +209,6 @@
     activeMesh.listenTo(configuration, "change:topology", function(context, attr) {
         activeMesh.submit(buildMesh, attr);
     });
-
 
     /**
      * @param {String} projectionName the desired projection's name.

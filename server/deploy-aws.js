@@ -26,6 +26,7 @@ console.log(new Date().toISOString() + " - Starting");
     "styles/mplus-2p-light-057.ttf",
     "styles/mplus-2p-light-sub-1.ttf",
     "data/earth-topo.json",
+    "data/earth-topo-mobile.json",
     "libs/d3.geo/0.0.0/d3.geo.polyhedron.v0.min.js",
     "libs/d3.geo/0.0.0/d3.geo.projection.v0.min.js",
     "libs/earth/1.0.0/earth.js",

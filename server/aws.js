@@ -11,7 +11,7 @@ var apply = require("when/apply");
 var tool = require("./tool");
 var AWS = require("aws-sdk");
 
-AWS.config.loadFromPath("../scratch/aws-config.json");
+AWS.config.loadFromPath("../private/aws-config.json");
 var s3 = new AWS.S3();
 
 exports.S3_BUCKET = "test.nullschool.net";

@@ -106,7 +106,7 @@ var µ = function() {
         if ((tokens = /^(current|\d{4}\/\d{2}\/\d{2}\/(\d{4})Z)\/(\w+)\/(\w+)\/(\w+)([\/].+)?/.exec(hash))) {
             result = {
                 date: tokens[1].substr(0, 10),    // "current" or "yyyy/mm/dd"
-                hour: µ.coalesce(tokens[2], ""),  // "hhhh" or ""
+                hour: coalesce(tokens[2], ""),    // "hhhh" or ""
                 param: tokens[3],                 // non-empty alphanumeric _
                 surface: tokens[4],               // non-empty alphanumeric _
                 level: tokens[5],                 // non-empty alphanumeric _
@@ -115,11 +115,11 @@ var µ = function() {
                 topology: TOPOLOGY,
                 overlay: "wv"
             };
-            µ.coalesce(tokens[6], "").split("/").forEach(function(segment) {
+            coalesce(tokens[6], "").split("/").forEach(function(segment) {
                 if ((option = /^(\w+)(=([\d\-.,]*))?$/.exec(segment))) {
                     if (projectionNames.has(option[1])) {
-                        result.projection = option[1];                   // non-empty alphanumeric _
-                        result.orientation = µ.coalesce(option[3], "");  // comma delimited string of numbers, or ""
+                        result.projection = option[1];                 // non-empty alphanumeric _
+                        result.orientation = coalesce(option[3], "");  // comma delimited string of numbers, or ""
                     }
                 }
                 else if ((option = /^overlay=off$/.exec(segment))) {
@@ -131,15 +131,15 @@ var µ = function() {
     }
 
     var DEFAULT_CONFIG = "current/wind/isobaric/1000hPa/orthographic";
-    var TOPOLOGY = "/data/earth-topo.json";
+    var TOPOLOGY = isMobile() ? "/data/earth-topo-mobile.json" : "/data/earth-topo.json";
     var Configuration = Backbone.Model.extend({
         id: 0,
         toHash: function() {
             var attr = this.attributes;
             var dir = attr.date === "current" ? "current" : attr.date + "/" + attr.hour + "Z";
-            var proj = [attr.projection, attr.orientation].filter(µ.isTruthy).join("=");
+            var proj = [attr.projection, attr.orientation].filter(isTruthy).join("=");
             var ol = attr.overlay === "off" ? "overlay=off" : "";
-            return [dir, attr.param, attr.surface, attr.level, proj, ol].filter(µ.isTruthy).join("/");
+            return [dir, attr.param, attr.surface, attr.level, proj, ol].filter(isTruthy).join("/");
         },
         toPath: function() {
             var attr = this.attributes;
@@ -298,6 +298,7 @@ var µ = function() {
      * @returns {Boolean} true if agent is probably a mobile device. Don't really care if this is accurate.
      */
     function isMobile() {
+        return true;
         return (/android|blackberry|iemobile|ipad|iphone|ipod|opera mini|webos/i).test(navigator.userAgent);
     }
 
@@ -319,6 +320,7 @@ var µ = function() {
         removeChildren: removeChildren,
         asColorStyle: asColorStyle,
         asRainbowColorStyle: asRainbowColorStyle,
+        asSinebowColorStyle: asSinebowColorStyle,
         colorStyles: colorStyles,
         clearCanvas: clearCanvas,
         distortion: distortion,

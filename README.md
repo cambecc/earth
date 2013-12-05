@@ -42,17 +42,25 @@ serves all files located in the `earth/public` directory. See `public/index.html
 for the main entry points. Data files are located in the `public/data` directory, and there is one sample
 weather layer located at `data/weather/current`.
 
-getting data
-------------
+getting map data
+----------------
 
-
+    curl "http://www.nacis.org/naturalearth/50m/physical/ne_50m_coastline.zip" -o ne_50m_coastline.zip
+    curl "http://www.nacis.org/naturalearth/110m/physical/ne_110m_coastline.zip" -o ne_110m_coastline.zip
+    unzip -o ne_\*_coastline.zip
+    ogr2ogr -f GeoJSON coastline_50m.json ne_50m_coastline.shp
+    ogr2ogr -f GeoJSON coastline_110m.json ne_110m_coastline.shp
+    ogr2ogr -simplify 1 -f GeoJSON coastline_tiny.json ne_110m_coastline.shp
+    topojson -o earth-topo.json coastline_50m.json coastline_110m.json
+    topojson -o earth-topo-mobile.json coastline_110m.json coastline_tiny.json
+    cp earth-topo*.json ~/code/earth/public/data/
 
 font subsetting
 ---------------
 
-This project uses [M+ Fonts](http://mplus-fonts.sourceforge.jp/). To reduce download size, a subset font is
+This project uses [M+ FONTS](http://mplus-fonts.sourceforge.jp/). To reduce download size, a subset font is
 constructed out of the unique characters utilized by the site. See the `earth/server/font/findChars.js` script
-for details. Font subsetting is be performed by the [M+Web FONTS Subsetter](http://mplus.font-face.jp/), and
+for details. Font subsetting is performed by the [M+Web FONTS Subsetter](http://mplus.font-face.jp/), and
 the resulting font is placed in `earth/public/styles`.
 
 inspiration
