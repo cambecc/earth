@@ -37,7 +37,10 @@ Finally, point your browser to:
 
     http://localhost:8080
 
-There is one sample data layer included in the repository.
+The server acts as a stand-in for static S3 bucket hosting and so contains almost no server-side logic. It
+serves all files located in the _earth/public_ directory. See _public/index.html_ and _public/libs/earth/*.js_
+for the main entry points. Data files are located in the _public/data_ directory, and there is one sample
+weather layer located at _data/weather/current_.
 
 inspiration
 -----------
