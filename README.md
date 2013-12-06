@@ -113,6 +113,7 @@ Building this project required solutions to some interesting problems. Here are 
      components. For example, downloading a new layer produces a new grid, which triggers reinterpolation, which
      in turn triggers a new particle animator. Events flow through the page without much coordination,
      sometimes causing visual artifacts that (usually) quickly disappear.
+   * There's gotta be a better way to do this. Any ideas?
 
 inspiration
 -----------
