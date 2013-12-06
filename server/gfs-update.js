@@ -15,6 +15,7 @@ console.log(new Date().toISOString() + " - Starting");
 
 var util = require("util");
 var fs = require("fs");
+var _ = require("underscore");
 var mkdirp = require("mkdirp");
 var temp = require("temp");
 var when = require("when");
@@ -26,17 +27,9 @@ var aws = require("./aws");
 var log = tool.log();
 
 var PRODUCT_TYPES = ["1.0"];
-var FORECASTS = [0, 3, 6, 9/*, 12, 15, 18, 21, 24*/];
 var INDENT;  // = 2;
-var GRIB2JSON_FLAGS = "-n -d";
+var GRIB2JSON_FLAGS = "-c -d -n";
 var LAYER_RECIPES = {
-//    wi1: {
-//        name: "wind-isobaric-1hPa",
-//        filter: "--fc 2 --fp wind --fs 100 --fv 100",
-//        description: "Wind Velocity @ 1 hPa",
-//        stack: ["wi1000", "wi100", "wi10", "wi1"],
-//        cross: ["wi1"]
-//    },
     wi10: {
         name: "wind-isobaric-10hPa",
         filter: "--fc 2 --fp wind --fs 100 --fv 1000",
@@ -88,22 +81,36 @@ var servers = [
 
 var GRIB_HOME = tool.ensureTrailing(process.argv[2], "/");
 var LAYER_HOME = tool.ensureTrailing(process.argv[3], "/");
-var date = process.argv[4] === "now" ? new Date() : new Date(process.argv[4]);
+var startDate = interpretDateArgument(process.argv[4]);
+var endDate = interpretDateArgument(process.argv[5], startDate);
+var forecasts = _.rest(process.argv, 6).map(function(s) { return +s; });
+if (forecasts.length === 0) {
+    forecasts = [0, 3];
+}
 
 temp.track(true);
 
-log.info(GRIB_HOME);
-log.info(LAYER_HOME);
-log.info(date.toISOString());
+log.info("arguments: \n" + util.inspect({
+    gribHome: GRIB_HOME,
+    layerHome: LAYER_HOME,
+    startDate: startDate,
+    endDate: endDate,
+    forecasts: forecasts}));
 
 mkdirp.sync(GRIB_HOME);
 mkdirp.sync(LAYER_HOME);
 
-//function nap(millis) {
-//    return function(value) {
-//        return typeof value === "number" ? delay(value, millis) : delay(millis, value);
-//    };
-//}
+function interpretDateArgument(s, base) {
+    if (s === "now" || !s) {
+        return new Date();
+    }
+    if (s.substr(0, 1) === "T") {
+        var result = new Date(base);
+        result.setHours(result.getHours() + (+s.substr(1)));
+        return result;
+    }
+    return new Date(s);
+}
 
 function nextServer() {
     if (servers.length === 0) {
@@ -231,7 +238,7 @@ function extractLayer(layer) {
     });
 }
 
-var extractLayer_throttled = guard(guard.n(2), extractLayer);
+var extractLayer_throttled = guard(guard.n(1), extractLayer);
 
 function extractLayers(product) {
     var layers = Object.keys(LAYER_RECIPES).map(function(recipeId) {
@@ -275,7 +282,7 @@ function processCycle(cycle) {
     var products = [];
 
     PRODUCT_TYPES.forEach(function(type) {
-        FORECASTS.forEach(function(forecastHour) {
+        forecasts.forEach(function(forecastHour) {
             products.push(gfs.product(type, cycle, forecastHour));
         });
     });
@@ -346,12 +353,7 @@ function copyCurrent() {
     return pushLayers(layers);
 }
 
-var now = Date.now();
-var lastCycle = gfs.cycle(now).previous().date();
-var awhileAgo = gfs.cycle("2013-11-30T18:00Z").date();
-var yesterday = gfs.cycle(now).previous().previous().previous().previous().date();
-
-processCycles({from: now, until: yesterday})
+processCycles({from: startDate, until: endDate})
     .then(copyCurrent)
     .otherwise(tool.report)
     .done();
