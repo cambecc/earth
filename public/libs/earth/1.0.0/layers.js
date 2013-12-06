@@ -64,8 +64,6 @@ var layers = function() {
             return when.reject("Failed to find both u,v component records");
         }
 
-        // displayLayerMetadata(uRecord.meta, hashController.recipe);
-
         var header = uRecord.header;
         var λ0 = header.lo1, φ0 = header.la1;  // the grid's origin (e.g., 0.0E, 90.0N)
         var Δλ = header.dx, Δφ = header.dy;    // distance between grid points (e.g., 2.5 deg lon, 2.5 deg lat)
@@ -74,6 +72,8 @@ var layers = function() {
         if (uData.length != vData.length) {
             return when.reject("Mismatched data point lengths");
         }
+        var date = new Date(header.refTime);
+        date.setHours(date.getHours() + header.forecastTime);
 
         // Scan mode 0 assumed. Longitude increases from λ0, and latitude decreases from φ0.
         // http://www.nco.ncep.noaa.gov/pmb/docs/grib2/grib2_table3-4.shtml
@@ -125,7 +125,7 @@ var layers = function() {
         }
 
         return {
-            meta: uRecord.meta,
+            date: date,
             interpolate: interpolate
         };
     }

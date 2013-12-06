@@ -679,7 +679,7 @@
         function activeDate(grid) {
             // When the active layer is considered "current", use its time as now, otherwise use current time as
             // now (but rounded down to the nearest three-hour block).
-            var now = grid ? new Date(grid.meta.date).getTime() : Math.floor(Date.now() / THREE_HOURS) * THREE_HOURS;
+            var now = grid ? grid.date.getTime() : Math.floor(Date.now() / THREE_HOURS) * THREE_HOURS;
             var parts = configuration.get("date").split("/");  // yyyy/mm/dd or "current"
             var hhmm = configuration.get("hour");
             return parts.length > 1 ?
