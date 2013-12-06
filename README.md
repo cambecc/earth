@@ -69,13 +69,12 @@ operated by the US National Weather Service. Forecasts are produced four times d
 download from [NOMADS](http://nomads.ncep.noaa.gov/). The files are in [GRIB2](http://en.wikipedia.org/wiki/GRIB)
 format and contain over [300 records](http://www.nco.ncep.noaa.gov/pmb/products/gfs/gfs.t00z.pgrbf00.grib2.shtml).
 We need only a few of these records to visualize wind data at a particular isobar. The following commands download
-the 1000hPa wind vectors and convert them to JSON format using the [grib2json](https://github.com/cambecc/grib2json)
+the 1000 hPa wind vectors and convert them to JSON format using the [grib2json](https://github.com/cambecc/grib2json)
 utility:
 
     YYYYMMDD=<a date, for example: 20131201>
-    curl -o gfs.t00z.pgrbf00.grib2 \
-        "http://nomads.ncep.noaa.gov/cgi-bin/filter_gfs.pl?file=gfs.t00z.pgrbf00.grib2&lev_1000_mb=on&var_UGRD=on&var_VGRD=on&dir=%2Fgfs.${YYYYMMDD}00"
-    grib2json -n -c -d -o current-wind-isobaric-1000hPa-gfs-1.0.json gfs.t00z.pgrbf00.grib2
+    curl "http://nomads.ncep.noaa.gov/cgi-bin/filter_gfs.pl?file=gfs.t00z.pgrbf00.grib2&lev_1000_mb=on&var_UGRD=on&var_VGRD=on&dir=%2Fgfs.${YYYYMMDD}00" -o gfs.t00z.pgrbf00.grib2
+    grib2json -c -d -o current-wind-isobaric-1000hPa-gfs-1.0.json gfs.t00z.pgrbf00.grib2
     cp current-wind-isobaric-1000hPa-gfs-1.0.json <earth-git-repository>/public/data/weather/current
 
 font subsetting

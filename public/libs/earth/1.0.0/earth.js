@@ -21,7 +21,7 @@
     var report = {
         progress: function(msg) {
             var s = d3.select("#progress");
-            return s.classed("bad") ? s : s.text(msg ? "⁂ " + msg : "");  // don't overwrite errors
+            return s.classed("bad") ? s : s.text(msg || "");  // don't overwrite errors
         },
         error: function(e) {
             log.error(e);
@@ -717,8 +717,8 @@
             if (!grid) return;
             var λ = coord[0], φ = coord[1], wind = grid.interpolate(λ, φ);
             if (µ.isValue(wind)) {
-                d3.select("#location-coord").text("⁂ " + µ.formatCoordinates(λ, φ));
-                d3.select("#location-value").text("⁂ " + µ.formatVector(wind[0], wind[1]));
+                d3.select("#location-coord").text(µ.formatCoordinates(λ, φ));
+                d3.select("#location-value").text(µ.formatVector(wind[0], wind[1]));
                 d3.select("#location-close").classed("invisible", false);
             }
         });

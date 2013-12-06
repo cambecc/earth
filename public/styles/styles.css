@@ -92,8 +92,8 @@ body {
     padding: 0.5rem 1rem 0.5rem 1rem;
     opacity: 1;
     max-height: 25rem;
-    transition: opacity 1s ease, max-height 1s ease, margin-top 1s ease;
-    -webkit-transition: opacity 1s ease, max-height 1s ease, margin-top 1s ease;
+    transition: opacity 250ms ease, max-height 250ms ease, margin-top 250ms ease;
+    -webkit-transition: opacity 250ms ease, max-height 250ms ease, margin-top 250ms ease;
 }
 
 #menu.invisible {
@@ -101,8 +101,8 @@ body {
     padding: 0 1rem 0 1rem;
     opacity: 0;
     max-height: 0;
-    transition: opacity 1s ease, max-height 1s ease, margin-top 1s ease;
-    -webkit-transition: opacity 1s ease, max-height 1s ease, margin-top 1s ease;
+    transition: opacity 250ms ease, max-height 250ms ease, margin-top 250ms ease;
+    -webkit-transition: opacity 250ms ease, max-height 250ms ease, margin-top 250ms ease;
 }
 
 #progress-bar {
