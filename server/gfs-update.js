@@ -345,8 +345,11 @@ function copyCurrent() {
         if (fs.existsSync(destPath)) {
             fs.unlinkSync(destPath);  // remove existing file, if any
         }
-        fs.createReadStream(src.path(LAYER_HOME)).pipe(fs.createWriteStream(destPath));
-        return dest;
+        var d = when.defer();
+        fs.createReadStream(src.path(LAYER_HOME)).pipe(fs.createWriteStream(destPath)).on("finish", function() {
+            d.resolve(dest);
+        });
+        return d.promise;
     });
 
     // Now push to S3.
