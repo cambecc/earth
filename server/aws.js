@@ -14,7 +14,7 @@ var AWS = require("aws-sdk");
 AWS.config.loadFromPath("../private/aws-config.json");
 var s3 = new AWS.S3();
 
-exports.S3_BUCKET = "test.nullschool.net";
+exports.S3_BUCKET = "earth.nullschool.net";
 exports.S3_LAYER_HOME = "data/weather/";
 
 exports.headObject = function(params) {
@@ -50,6 +50,7 @@ exports.uploadFile = function(path, bucket, key, metadata, predicate, cacheContr
         Key: key,
         ContentType: tool.contentType(path),
         CacheControl: cacheControl(key),
+        StorageClass: "REDUCED_REDUNDANCY",  // cheaper
         Metadata: metadata || {}
     };
 
