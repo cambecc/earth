@@ -298,9 +298,9 @@ function processCycle(cycle) {
 
 function processCycles(bounds) {
     var result = [];
-    var stop = new Date(bounds.until);
+    var stop = gfs.cycle(new Date(bounds.until));
     var cycle = gfs.cycle(new Date(bounds.from));
-    while (cycle.date().getTime() >= stop.getTime()) {
+    while (cycle.date().getTime() >= stop.date().getTime()) {
         result.push(processCycle(cycle));
         cycle = cycle.previous();
     }
