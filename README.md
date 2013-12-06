@@ -85,6 +85,27 @@ constructed out of the unique characters utilized by the site. See the `earth/se
 for details. Font subsetting is performed by the [M+Web FONTS Subsetter](http://mplus.font-face.jp/), and
 the resulting font is placed in `earth/public/styles`.
 
+implementation notes
+--------------------
+
+Building this project required solutions to some interesting problems. Here are a few:
+
+   * The browser interpolates each point (x, y) from the GFS grid using [bilinear
+     interpolation](http://en.wikipedia.org/wiki/Bilinear_interpolation).
+   * The SVG map of the earth is overlaid with an HTML5 Canvas, where the animation is drawn. Another HTML5
+     Canvas sits on top and displays the colored overlay. Both canvases must know where the boundaries of the
+     globe are rendered by the SVG engine, but this pixel-for-pixel information is difficult to obtain directly
+     from the SVG elements. To workaround this problem, the globe's bounding sphere is re-rendered to a
+     detached Canvas element, and the Canvas' pixels operate as a mask to distinguish points that lie outside
+     and inside the globe's bounds.
+   * Each type of projection warps and distorts the earth in a particular way, and the degree of distortion must
+     be calculated for each point (x, y) to ensure wind particle paths are rendered correctly. For example,
+     imagine looking at a globe where a wind particle is moving north from the equator. If the particle starts
+     from the center, it will trace a path straight up. However, if the particle starts from the globe's edge,
+     it will trace a path that curves toward the pole. [Finite difference approximations](http://gis.stackexchange.com/a/5075/23451)
+     are used to estimate this distortion.
+   * WTF is up with the polar regions? I do not know why GFS data looks so odd at the poles.
+
 inspiration
 -----------
 
