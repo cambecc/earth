@@ -98,13 +98,21 @@ Building this project required solutions to some interesting problems. Here are 
      from the center, it will trace a path straight up. However, if the particle starts from the globe's edge,
      it will trace a path that curves toward the pole. [Finite difference approximations](http://gis.stackexchange.com/a/5075/23451)
      are used to estimate this distortion during the interpolation process.
+   * WTF is up with the polar regions? I do not know why GFS data looks so odd at the poles.
    * The SVG map of the earth is overlaid with an HTML5 Canvas, where the animation is drawn. Another HTML5
      Canvas sits on top and displays the colored overlay. Both canvases must know where the boundaries of the
      globe are rendered by the SVG engine, but this pixel-for-pixel information is difficult to obtain directly
      from the SVG elements. To workaround this problem, the globe's bounding sphere is re-rendered to a
      detached Canvas element, and the Canvas' pixels operate as a mask to distinguish points that lie outside
      and inside the globe's bounds.
-   * WTF is up with the polar regions? I do not know why GFS data looks so odd at the poles.
+   * Most configuration options are persisted in the hash fragment to allow deep linking and back-button
+     navigation. I use a [backbone.js Model](http://backbonejs.org/#Model) to represent the configuration.
+     Changes to the model persist to the hash fragment (and vice versa) and trigger "change" events which flow to
+     other components.
+   * Components use [backbone.js Events](http://backbonejs.org/#Events) to trigger changes in other downstream
+     components. For example, downloading a new layer produces a new grid, which triggers reinterpolation, which
+     in turn triggers a new particle animator. Events flow through the page without much coordination,
+     sometimes causing visual artifacts that (usually) quickly disappear.
 
 inspiration
 -----------
