@@ -172,11 +172,12 @@ var download_throttled = guard(guard.n(servers.length), download);
 
 function createTemp(options) {
     var tempStream = temp.createWriteStream(options), tempPath = tempStream.path;
-    return tempStream.end(), tempPath;
+    tempStream.end();
+    return tempPath;
 }
 
 function processLayer(layer, path) {
-    var data = require(path);
+    var data = tool.readJSONSync(path);
     if (data.length === 0) {
         return null;  // no records
     }
@@ -207,12 +208,11 @@ function extractLayer(layer) {
     }
 
     if (fs.existsSync(layerPath)) {
-        var existing = require("./" + layerPath);  // HACK
-        var refTime = existing.refTime;
-        if (refTime && new Date(refTime) >= layer.product.cycle.date()) {
-            log.info("already exists and is newer: " + layerPath);
+        var refTime = tool.readJSONSync("./" + layerPath)[0].header.refTime;  // HACK
+        if (new Date(refTime) >= layer.product.cycle.date()) {
+            log.info("newer layer already exists for: " + layerPath);
+            return when.resolve(layer);
         }
-        return when.resolve(layer);
     }
 
     var tempPath = createTemp({suffix: ".json"});
@@ -238,7 +238,7 @@ function extractLayer(layer) {
     });
 }
 
-var extractLayer_throttled = guard(guard.n(1), extractLayer);
+var extractLayer_throttled = guard(guard.n(2), extractLayer);
 
 function extractLayers(product) {
     var layers = Object.keys(LAYER_RECIPES).map(function(recipeId) {
@@ -271,7 +271,7 @@ function pushLayer(layer) {
     });
 }
 
-var pushLayer_throttled = guard(guard.n(1), pushLayer);
+var pushLayer_throttled = guard(guard.n(8), pushLayer);
 
 function pushLayers(layers) {
     return when.map(layers, pushLayer_throttled);
@@ -289,7 +289,7 @@ function processCycle(cycle) {
 
     var downloads = when.map(products, download_throttled);
     var extracted = when.map(downloads, extractLayers);
-    var pushed = /*when(extracted); // */when.map(extracted, pushLayers);
+    var pushed = when.map(extracted, pushLayers);
 
     return pushed.then(function(result) {
         log.info("batch complete");
@@ -330,7 +330,7 @@ function copyCurrent() {
     }
 
     // The layer we found belongs to a cycle/product. Crack it open to find out which one.
-    var header = require(mostRecentLayer.path("./" + LAYER_HOME))[0].header;  // HACK
+    var header = tool.readJSONSync(mostRecentLayer.path("./" + LAYER_HOME))[0].header;  // HACK
     var product = gfs.product(PRODUCT_TYPES[0], gfs.cycle(header.refTime), header.forecastTime);
 
     // Symlink the layers from the "data/weather/current" directory:
@@ -343,9 +343,9 @@ function copyCurrent() {
         mkdirp.sync(dest.dir(LAYER_HOME));
         var destPath = dest.path(LAYER_HOME);
         if (fs.existsSync(destPath)) {
-            fs.unlinkSync(destPath);  // remove existing symlinks, if any
+            fs.unlinkSync(destPath);  // remove existing file, if any
         }
-        fs.symlinkSync(src.path("../"), destPath);
+        fs.createReadStream(src.path(LAYER_HOME)).pipe(fs.createWriteStream(destPath));
         return dest;
     });
 

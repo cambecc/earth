@@ -160,8 +160,9 @@ exports.download = function(resource, output) {
 
 exports.grib2json = function(args, out, err) {
     var d = when.defer();
-    log.info("grib2json " + args);
-    var child = spawn("grib2json", args instanceof Array ? args : args.split(" "));
+    var command = process.platform.indexOf("win") >= 0 ? "grib2json.bat" : "grib2json";
+    log.info(command + " " + args);
+    var child = spawn(command, args instanceof Array ? args : args.split(" "));
 
     if (out) {
         child.stdout.pipe(out);
@@ -330,4 +331,8 @@ exports.walk = function(dir, onFile) {
 
     expand(dir);
     return d.promise;
+};
+
+exports.readJSONSync = function(path) {
+    return JSON.parse(fs.readFileSync(path, {encoding: "utf8"}));
 };
