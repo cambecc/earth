@@ -71,7 +71,7 @@ body {
     pointer-events: none;  /* This div is just a container--do not let it interfere with operation of the map. */
 }
 
-#progress, #location, #start {
+#status, #location, #start {
     font-size: 2.4rem;
     background-color: rgba(0, 0, 4, 0.6);
     border-radius: 0.5rem/0.5rem;
@@ -105,7 +105,7 @@ body {
     -webkit-transition: opacity 250ms ease, max-height 250ms ease, margin-top 250ms ease;
 }
 
-#progress-bar {
+#progress {
     padding-left: 1rem;
 }
 

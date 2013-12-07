@@ -101,13 +101,11 @@ mkdirp.sync(GRIB_HOME);
 mkdirp.sync(LAYER_HOME);
 
 function interpretDateArgument(s, base) {
-    if (s === "now" || !s) {
-        return new Date();
+    if (s && s.substr(0, 3) === "now") {
+        return tool.addHours(new Date(), s.length > 3 ? +s.substr(3) : 0);
     }
-    if (s.substr(0, 1) === "T") {
-        var result = new Date(base);
-        result.setHours(result.getHours() + (+s.substr(1)));
-        return result;
+    if (s && s.substr(0, 1) === "T") {
+        return tool.addHours(new Date(base), +s.substr(1));
     }
     return new Date(s);
 }
@@ -213,6 +211,7 @@ function extractLayer(layer) {
             log.info("newer layer already exists for: " + layerPath);
             return when.resolve(layer);
         }
+        log.info("replacing obsolete layer: " + layerPath);
     }
 
     var tempPath = createTemp({suffix: ".json"});

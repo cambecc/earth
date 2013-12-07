@@ -71,7 +71,7 @@ var µ = function() {
     }
 
     /**
-     * @returns {width: (Number), height: (Number)} an object that describes the size of the browser's view, in pixels.
+     * @returns {width: (Number), height: (Number)} an object that describes the size of the browser's current view.
      */
     function view() {
         var w = window;

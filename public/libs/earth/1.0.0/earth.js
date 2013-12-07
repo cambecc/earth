@@ -9,34 +9,47 @@
 (function() {
     "use strict";
 
-    var NIL = -2;             // non-existent vector
-    var MAX_TASK_TIME = 100;  // amount of time before a task yields control (milliseconds)
-    var MIN_SLEEP_TIME = 25;  // amount of time a task waits before resuming (milliseconds)
-    var BLACK = [0, 0, 0, 0]; // rgba
-    var REMAINING = "▫▫▫▫▫▫▫▫▫▫▫▫▫▫▫▫▫▫▫▫▫▫";
-    var COMPLETED = "▪▪▪▪▪▪▪▪▪▪▪▪▪▪▪▪▪▪▪▪▪▪";
+    var MAX_TASK_TIME = 100;                  // amount of time before a task yields control (milliseconds)
+    var MIN_SLEEP_TIME = 25;                  // amount of time a task waits before resuming (milliseconds)
+    var NULL_WIND_VECTOR = [NaN, NaN, null];  // singleton for no wind in the form: [u, v, magnitude]
+    var TRANSPARENT_BLACK = [0, 0, 0, 0];     // singleton 0 rgba
+    var REMAINING = "▫▫▫▫▫▫▫▫▫▫▫▫▫▫▫▫▫▫▫▫▫▫";   // glyphs for remaining progress bar
+    var COMPLETED = "▪▪▪▪▪▪▪▪▪▪▪▪▪▪▪▪▪▪▪▪▪▪";   // glyphs for completed progress bar
 
     var view = µ.view();
     var log = µ.log();
-    var report = {
-        progress: function(msg) {
-            var s = d3.select("#progress");
-            return s.classed("bad") ? s : s.text(msg || "");  // don't overwrite errors
-        },
-        error: function(e) {
-            log.error(e);
-            var msg = e.status ? e.status + " " + e.message : e;
-            switch (e.status) {
-                case -1: msg = "Server Down"; break;
-                case 404: msg = "No Data"; break;
+
+    /**
+     * An object to display various types of messages to the user.
+     */
+    var report = function() {
+        var s = d3.select("#status"), p = d3.select("#progress"), total = REMAINING.length;
+        return {
+            status: function(msg) {
+                return s.classed("bad") ? s : s.text(msg);  // errors are sticky until reset
+            },
+            error: function(err) {
+                var msg = err.status ? err.status + " " + err.message : err;
+                switch (err.status) {
+                    case -1: msg = "Server Down"; break;
+                    case 404: msg = "No Data"; break;
+                }
+                log.error(err);
+                return s.classed("bad", true).text(msg);
+            },
+            reset: function() {
+                return s.classed("bad", false).text("");
+            },
+            progress: function(amount) {  // amount of progress to report in the range [0, 1]
+                if (0 <= amount && amount < 1) {
+                    var i = Math.ceil(amount * total);
+                    var bar = COMPLETED.substr(0, i) + REMAINING.substr(0, total - i);
+                    return p.classed("invisible", false).text(bar);
+                }
+                return p.classed("invisible", true).text("");  // progress complete
             }
-            report.progress(msg).classed("bad", true);
-        },
-        reset: function() {
-            d3.select("#progress").classed("bad", false);
-            report.progress("");
         }
-    };
+    }();
 
     function debouncedField() {
 
@@ -64,6 +77,8 @@
             }
             function reject(error) {
                 return report.error(error);
+//                report.error(error);
+//                return cancel.requested ? null : handle.trigger("update", value = null);
             }
             var args = _.rest(arguments).concat(handle.cancel = cancel);
             when.all(args).then(run).done(accept, reject);
@@ -139,10 +154,10 @@
 
         function locate() {
             if (navigator.geolocation) {
-                report.progress("Finding current position...");
+                report.status("Finding current position...");
                 navigator.geolocation.getCurrentPosition(
                     function(position) {
-                        report.progress("");
+                        report.status("");
                         var coord = [position.coords.longitude, position.coords.latitude];
                         var rotate = globe.locate(coord);
                         if (rotate) {
@@ -188,7 +203,7 @@
      * @returns {Object} a promise for GeoJSON topology features: {boundaryLo:, boundaryHi:}
      */
     function buildMesh(resource, cancel) {
-        report.progress("Downloading...");
+        report.status("Downloading...");
         return µ.loadJson(resource).then(function(topo) {
             if (cancel.requested) return null;
             log.time("building meshes");
@@ -236,7 +251,7 @@
     var downloadsInProgress = {};
 
     function buildGrid(layer, cancel) {
-        report.progress("Downloading...");
+        report.status("Downloading...");
         var id = nextId++;
         var task = µ.loadJson(layer).then(function(data) {
             if (cancel.requested) return null;
@@ -264,7 +279,7 @@
     function buildRenderer(mesh, globe) {
         if (!mesh || !globe) return null;
 
-        report.progress("Rendering Globe...");
+        report.status("Rendering Globe...");
         log.time("rendering map");
 
         // UNDONE: better way to do the following?
@@ -373,17 +388,14 @@
     }
 
     function createField(columns, bounds, mask) {
-        var nilVector = [NaN, NaN, NIL];
 
+        /**
+         * @returns {Array} wind vector [u, v, magnitude] at the point (x, y), or [NaN, NaN, null] if wind
+         *          is undefined at that point.
+         */
         function field(x, y) {
             var column = columns[Math.round(x)];
-            if (column) {
-                var v = column[Math.round(y)];
-                if (v) {
-                    return v;
-                }
-            }
-            return nilVector;
+            return column && column[Math.round(y)] || NULL_WIND_VECTOR;
         }
 
         // Frees the massive "columns" array for GC. Without this, the array is leaked (in Chrome) each time a new
@@ -392,13 +404,13 @@
             columns = null;
         };
 
-        field.randomize = function(o) {
+        field.randomize = function(o) {  // UNDONE: this method is terrible
             var x, y;
-            var net = 0;  // UNDONE: fix
+            var net = 0;
             do {
                 x = Math.round(_.random(bounds.x, bounds.xMax));
                 y = Math.round(_.random(bounds.y, bounds.yMax));
-            } while (field(x, y)[2] == NIL && net++ < 30);
+            } while (field(x, y)[2] === null && net++ < 30);
             o.x = x;
             o.y = y;
             return o;
@@ -461,7 +473,7 @@
                 if (mask.isVisible(x, y)) {
                     point[0] = x; point[1] = y;
                     var coord = projection.invert(point);
-                    var color = BLACK;
+                    var color = TRANSPARENT_BLACK;
                     if (coord) {
                         var λ = coord[0], φ = coord[1];
                         if (isFinite(λ)) {
@@ -478,20 +490,18 @@
             columns[x+1] = columns[x] = column;
         }
 
-        report.progress("");
+        report.status("");
 
         (function batchInterpolate() {
             try {
                 if (!cancel.requested) {
-                    var start = +new Date();
+                    var start = Date.now();
                     while (x < bounds.xMax) {
                         interpolateColumn(x);
                         x += 2;
-                        if ((+new Date() - start) > MAX_TASK_TIME) {
+                        if ((Date.now() - start) > MAX_TASK_TIME) {
                             // Interpolation is taking too long. Schedule the next batch for later and yield.
-                            var pct = Math.ceil((x - bounds.x) / (bounds.xMax - bounds.x) * REMAINING.length);
-                            var bar = COMPLETED.substr(0, pct) + REMAINING.substr(0, REMAINING.length - pct);
-                            d3.select("#progress-bar").text(bar).classed("invisible", false);
+                            report.progress((x - bounds.x) / (bounds.xMax - bounds.x));
                             setTimeout(batchInterpolate, MIN_SLEEP_TIME);
                             return;
                         }
@@ -502,7 +512,7 @@
             catch (e) {
                 d.reject(e);
             }
-            d3.select("#progress-bar").text("").classed("invisible", true);
+            report.progress(1);  // 100% complete
             log.timeEnd("interpolating field");
         })();
 
@@ -551,13 +561,13 @@
                 var y = particle.y;
                 var v = field(x, y);  // vector at current position
                 var m = v[2];
-                if (m === NIL) {
+                if (m === null) {
                     particle.age = maxParticleAge;  // particle has escaped the grid, never to return...
                 }
                 else {
                     var xt = x + v[0];
                     var yt = y + v[1];
-                    if (field(xt, yt)[2] !== NIL) {
+                    if (field(xt, yt)[2] !== null) {
                         // Path from (x,y) to (xt,yt) is visible, so add this particle to the appropriate draw bucket.
                         particle.xt = xt;
                         particle.yt = yt;
@@ -654,7 +664,7 @@
     });
 
     function init() {
-        report.progress("Initializing...");
+        report.status("Initializing...");
         d3.selectAll(".fill-screen").attr("width", view.width).attr("height", view.height);
         d3.select("#show-menu").on("click", function() {
             d3.select("#menu").classed("invisible", !d3.select("#menu").classed("invisible"));

@@ -38,15 +38,13 @@ var layers = function() {
     }
 
     function bilinear(x, y, g00, g10, g01, g11) {
-        // g(0, 0)(1 - x)(1 - y) + g(1, 0)x(1-y) + g(0, 1)(1 - x)y + g(1, 1)xy
-
-        var s = (1 - x) * (1 - y);
-        var t = x * (1 - y);
-        var u = (1 - x) * y;
-        var v = x * y;
+        var a = (1 - x) * (1 - y);
+        var b = x * (1 - y);
+        var c = (1 - x) * y;
+        var d = x * y;
         return [
-            g00[0] * s + g10[0] * t + g01[0] * u + g11[0] * v,
-            g00[1] * s + g10[1] * t + g01[1] * u + g11[1] * v
+            g00[0] * a + g10[0] * b + g01[0] * c + g11[0] * d,
+            g00[1] * a + g10[1] * b + g01[1] * c + g11[1] * d
         ];
     }
 
