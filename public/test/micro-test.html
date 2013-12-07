@@ -10,6 +10,7 @@
     <script src="../libs/underscore.js/1.5.2/underscore.js"></script>
     <script src="../libs/backbone.js/1.1.0/backbone.js"></script>
     <script src="../libs/d3/3.3.10/d3.js"></script>
+    <script src="../libs/when/2.6.0/when.js"></script>
     <script src="../libs/earth/1.0.0/micro.js"></script>
 
     <script>
@@ -145,6 +146,121 @@
             });
             equal(config.toHash(), "2013/11/20/0800Z/a/b/c/x");
             equal(config.toPath(), "/data/weather/2013/11/20/0800-a-b-c-gfs-1.0.json");
+        });
+
+        asyncTest("agent-submit-simple", 4, function() {
+            var agent = µ.newAgent();
+            agent.submit(function(x) {
+                ok(this.cancel && !this.cancel.requested);
+                equal(x, 10);
+                equal(arguments.length, 1);
+                return 42;
+            }, 10);
+            setTimeout(function() {
+                equal(agent.value(), 42);
+                start();
+            }, 10);
+        });
+
+        asyncTest("agent-submit-then-cancel", 6, function() {
+            var agent = µ.newAgent();
+
+            agent.submit(function() {
+                ok(false);
+            });
+            ok(!agent.cancel.requested);
+            agent.cancel();
+            ok(agent.cancel.requested);
+
+            agent.submit(function() {
+                ok(false);
+            });
+            var prevCancel = agent.cancel;
+            ok(!agent.cancel.requested);
+
+            agent.submit(function() {
+                ok(true);
+                start();
+            });
+            ok(prevCancel.requested);
+            ok(!agent.cancel.requested);
+        });
+
+        asyncTest("agent-submit-then-cancel-running-task", 3, function() {
+            var agent = µ.newAgent();
+
+            agent.submit(function() {
+                var context = this;
+                ok(!context.cancel.requested);
+                var d = when.defer();
+                setTimeout(function() {
+                    ok(context.cancel.requested);
+                    d.resolve("ignored");
+                }, 20);
+                return d.promise;
+            });
+
+            setTimeout(function() {
+                agent.cancel();
+            }, 10);
+
+            setTimeout(function() {
+                ok(agent.value() == null);
+                agent.cancel();
+                start();
+            }, 30);
+        });
+
+        asyncTest("agent-submit-event-emitting", 4, function() {
+            var agent = µ.newAgent();
+
+            agent.on("submit", function(context) {
+                ok(context, agent);
+            });
+            agent.on("update", function(value, context) {
+                ok(value, 10);
+                ok(value, agent.value());
+                ok(context, agent);
+                start();
+            });
+
+            agent.submit(function(x) {
+                return x;
+            }, when(true).then(function() { return 10; }));  // argument is a promise
+        });
+
+        asyncTest("agent-exception-reject-event-emitting", 3, function() {
+            var agent = µ.newAgent();
+
+            agent.on("submit", function(context) {
+                ok(context, agent);
+            });
+            agent.on("reject", function(err, context) {
+                ok(err.message, "whoops!");
+                ok(context, agent);
+                start();
+            });
+
+            agent.submit(function() {
+                throw new Error("whoops!");
+            });
+        });
+
+        asyncTest("agent-promise-reject-event-emitting", 3, function() {
+            var agent = µ.newAgent();
+
+            agent.on("submit", function(context) {
+                ok(context, agent);
+            });
+            agent.on("reject", function(err, context) {
+                ok(err, "whoops!");
+                ok(context, agent);
+                start();
+            });
+
+            agent.submit(function() {
+                return when.reject("whoops!");
+            });
         });
 
     </script>

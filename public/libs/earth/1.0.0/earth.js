@@ -51,41 +51,8 @@
         }
     }();
 
-    function debouncedField() {
-
-        var value = null;
-        var _submit = _.debounce(doSubmit, 0);
-        var handle = {
-            value: function() { return value; },
-            cancel: function() {},  // initially a nop.
-            submit: function() {
-                handle.cancel();  // immediately cancel any pending task
-                _submit.apply(this, arguments);
-            }
-        };
-        handle.cancel.requested = true;
-
-        function doSubmit(callback) {
-            function cancel() {
-                cancel.requested = true;
-            }
-            function run(args) {
-                return cancel.requested ? null : callback.apply(null, args);
-            }
-            function accept(newValue) {
-                return cancel.requested ? null : handle.trigger("update", value = newValue);
-            }
-            function reject(error) {
-                return report.error(error);
-//                report.error(error);
-//                return cancel.requested ? null : handle.trigger("update", value = null);
-            }
-            var args = _.rest(arguments).concat(handle.cancel = cancel);
-            when.all(args).then(run).done(accept, reject);
-            handle.trigger("submit");
-        }
-
-        return _.extend(handle, Backbone.Events);
+    function newAgent() {
+        return µ.newAgent().on("reject", report.error);
     }
 
     var configuration = µ.buildConfiguration(d3.set(globes.keys()));
@@ -199,10 +166,10 @@
 
     /**
      * @param resource the GeoJSON resource's URL
-     * @param cancel
      * @returns {Object} a promise for GeoJSON topology features: {boundaryLo:, boundaryHi:}
      */
-    function buildMesh(resource, cancel) {
+    function buildMesh(resource) {
+        var cancel = this.cancel;
         report.status("Downloading...");
         return µ.loadJson(resource).then(function(topo) {
             if (cancel.requested) return null;
@@ -220,9 +187,9 @@
     /**
      * The page's current topology mesh. There can be only one.
      */
-    var activeMesh = debouncedField();
-    activeMesh.listenTo(configuration, "change:topology", function(context, attr) {
-        activeMesh.submit(buildMesh, attr);
+    var meshAgent = newAgent();
+    meshAgent.listenTo(configuration, "change:topology", function(context, attr) {
+        meshAgent.submit(buildMesh, attr);
     });
 
     /**
@@ -240,19 +207,19 @@
     }
 
     /**
-     * The page's current globe model. There can be only one.
+     * The page's current globe model.
      */
-    var activeGlobe = debouncedField();
-    activeGlobe.listenTo(configuration, "change:projection", function(source, attr) {
-        activeGlobe.submit(buildGlobe, attr);
+    var globeAgent = newAgent();
+    globeAgent.listenTo(configuration, "change:projection", function(source, attr) {
+        globeAgent.submit(buildGlobe, attr);
     });
 
     var nextId = 0;
     var downloadsInProgress = {};
 
-    function buildGrid(layer, cancel) {
+    function buildGrid(layer) {
         report.status("Downloading...");
-        var id = nextId++;
+        var cancel = this.cancel, id = nextId++;
         var task = µ.loadJson(layer).then(function(data) {
             if (cancel.requested) return null;
             log.time("build grid");
@@ -266,13 +233,13 @@
     }
 
     /**
-     * The page's current grid. There can be only one.
+     * The page's current grid.
      */
-    var activeGrid = debouncedField();
-    activeGrid.listenTo(configuration, "change", function() {
+    var gridAgent = newAgent();
+    gridAgent.listenTo(configuration, "change", function() {
         var layerAttributes = ["date", "hour", "param", "surface", "level"];
         if (_.intersection(_.keys(configuration.changedAttributes()), layerAttributes).length > 0) {
-            activeGrid.submit(buildGrid, configuration.toPath());
+            gridAgent.submit(buildGrid, configuration.toPath());
         }
     });
 
@@ -284,10 +251,10 @@
 
         // UNDONE: better way to do the following?
         var dispatch = _.clone(Backbone.Events);
-        if (activeRenderer._previous) {
-            activeRenderer._previous.stopListening();
+        if (rendererAgent._previous) {
+            rendererAgent._previous.stopListening();
         }
-        activeRenderer._previous = dispatch;
+        rendererAgent._previous = dispatch;
 
         // First clear map and foreground svg contents.
         µ.removeChildren(d3.select("#map").node());
@@ -301,7 +268,7 @@
 
         function doDraw() {
             d3.selectAll("path").attr("d", path);
-            activeRenderer.trigger("redraw");
+            rendererAgent.trigger("redraw");
             doDraw_throttled = _.throttle(doDraw, 5, {leading: false});
         }
         var doDraw_throttled = _.throttle(doDraw, 5, {leading: false});
@@ -311,7 +278,7 @@
             inputController, {
                 moveStart: function() {
                     coastline.datum(mesh.boundaryLo);
-                    activeRenderer.trigger("start");
+                    rendererAgent.trigger("start");
                 },
                 move: function() {
                     doDraw_throttled();
@@ -319,7 +286,7 @@
                 moveEnd: function() {
                     coastline.datum(mesh.boundaryHi);
                     d3.selectAll("path").attr("d", path);
-                    activeRenderer.trigger("render");
+                    rendererAgent.trigger("render");
                 },
                 click: function(point, coord) {
                     // show the point on the map
@@ -344,15 +311,14 @@
     }
 
     /**
-     * The page's current globe renderer. There can be only one.
+     * The page's current globe renderer.
      */
-    var activeRenderer = debouncedField();
-    activeRenderer.listenTo(activeMesh, "update", function(mesh) {
-        activeRenderer.submit(buildRenderer, mesh, activeGlobe.value());
-    });
-    activeRenderer.listenTo(activeGlobe, "update", function(globe) {
-        activeRenderer.submit(buildRenderer, activeMesh.value(), globe);
-    });
+    var rendererAgent = newAgent();
+    function startRendering() {
+        rendererAgent.submit(buildRenderer, meshAgent.value(), globeAgent.value());
+    }
+    rendererAgent.listenTo(meshAgent, "update", startRendering);
+    rendererAgent.listenTo(globeAgent, "update", startRendering);
 
     function createMask(globe) {
         if (!globe) return null;
@@ -451,13 +417,13 @@
         return distort;
     }
 
-    function interpolateField(globe, grid, cancel) {
+    function interpolateField(globe, grid) {
         if (!globe || !grid) return null;
 
         var mask = createMask(globe);
 
         log.time("interpolating field");
-        var d = when.defer();
+        var d = when.defer(), cancel = this.cancel;
 
         var projection = globe.projection;
         var bounds = globe.bounds(view);
@@ -519,24 +485,22 @@
         return d.promise;
     }
 
-    var activeField = debouncedField();
-    activeField.listenTo(activeRenderer, "start", function() {
-        activeField.cancel();
-    });
-    activeField.listenTo(activeRenderer, "redraw", function() {
-        // forcefully cancel active field on every redraw because sometimes field interpolation sneaks through.
-        activeField.cancel();
-    });
-    activeField.listenTo(activeRenderer, "render", function() {
-        activeField.submit(interpolateField, activeGlobe.value(), activeGrid.value());
-    });
-    activeField.listenTo(activeGrid, "update", function(grid) {
-        activeField.submit(interpolateField, activeGlobe.value(), grid);
-    });
+    var fieldAgent = newAgent();
+    function startInterpolation() {
+        fieldAgent.submit(interpolateField, globeAgent.value(), gridAgent.value());
+    }
+    function cancelInterpolation() {
+        fieldAgent.cancel();
+    }
+    fieldAgent.listenTo(rendererAgent, "start", cancelInterpolation);
+    fieldAgent.listenTo(rendererAgent, "redraw", cancelInterpolation);
+    fieldAgent.listenTo(rendererAgent, "render", startInterpolation);
+    fieldAgent.listenTo(gridAgent, "update", startInterpolation);
 
-    function animate(globe, field, cancel) {
+    function animate(globe, field) {
         if (!globe || !field) return null;
 
+        var cancel = this.cancel;
         var bounds = globe.bounds(view);
         var colorStyles = µ.colorStyles();
         var buckets = colorStyles.map(function() { return []; });
@@ -626,20 +590,19 @@
         })();
     }
 
-    var activeAnimation = debouncedField();
-    activeAnimation.listenTo(activeRenderer, "start", function() {
-        activeAnimation.cancel();
+    var animatorAgent = newAgent();
+    animatorAgent.listenTo(fieldAgent, "update", function(field) {
+        animatorAgent.submit(animate, globeAgent.value(), field);
+    });
+    function stopCurrentAnimation() {
+        animatorAgent.cancel();
+    }
+    animatorAgent.listenTo(rendererAgent, "start", function() {
+        stopCurrentAnimation();
         µ.clearCanvas(d3.select("#animation").node());
     });
-    activeAnimation.listenTo(activeGrid, "submit", function() {
-        activeAnimation.cancel();
-    });
-    activeAnimation.listenTo(activeField, "submit", function() {
-        activeAnimation.cancel();
-    });
-    activeAnimation.listenTo(activeField, "update", function(field) {
-        activeAnimation.submit(animate, activeGlobe.value(), field);
-    });
+    animatorAgent.listenTo(gridAgent, "submit", stopCurrentAnimation);
+    animatorAgent.listenTo(fieldAgent, "submit", stopCurrentAnimation);
 
     function drawOverlay(field, flag) {
         if (!field) return null;
@@ -649,17 +612,17 @@
         }
     }
 
-    var activeOverlay = debouncedField();
-    activeOverlay.listenTo(activeField, "update", function(field) {
-        activeOverlay.submit(drawOverlay, field, configuration.get("overlay"));
+    var overlayAgent = newAgent();
+    overlayAgent.listenTo(fieldAgent, "update", function() {
+        overlayAgent.submit(drawOverlay, fieldAgent.value(), configuration.get("overlay"));
     });
-    activeOverlay.listenTo(activeRenderer, "start", function() {
-        activeOverlay.submit(drawOverlay, activeField.value(), "off");
+    overlayAgent.listenTo(rendererAgent, "start", function() {
+        overlayAgent.submit(drawOverlay, fieldAgent.value(), "off");
     });
-    activeOverlay.listenTo(configuration, "change:overlay", function(source, overlayFlag) {
+    overlayAgent.listenTo(configuration, "change:overlay", function(source, overlayFlag) {
         // if only the overlay flag has changed...
         if (_.keys(configuration.changedAttributes()).length === 1) {
-            activeOverlay.submit(drawOverlay, activeField.value(), overlayFlag);
+            overlayAgent.submit(drawOverlay, fieldAgent.value(), overlayFlag);
         }
     });
 
@@ -710,20 +673,20 @@
             d3.select("#data-layer").text(recipe.description);
         }
 
-        activeGrid.on("submit", function() {
+        gridAgent.on("submit", function() {
             showGridDetails(null);
         });
-        activeGrid.on("update", function(grid) {
+        gridAgent.on("update", function(grid) {
             showGridDetails(grid);
         });
         d3.select("#toggle-zone").on("click", function() {
             d3.select("#data-date").classed("local", !d3.select("#data-date").classed("local"));
-            showDate(activeGrid.cancel.requested ? null : activeGrid.value());
+            showDate(gridAgent.cancel.requested ? null : gridAgent.value());
         });
 
         // Add event handlers for showing and removing location details.
         inputController.on("click", function(point, coord) {
-            var grid = activeGrid.value();
+            var grid = gridAgent.value();
             if (!grid) return;
             var λ = coord[0], φ = coord[1], wind = grid.interpolate(λ, φ);
             if (µ.isValue(wind)) {
@@ -741,8 +704,8 @@
         }
 
         d3.select("#location-close").on("click", clearDetails);
-        activeGrid.on("update", clearDetails);
-        activeRenderer.on("update", clearDetails);
+        gridAgent.on("update", clearDetails);
+        rendererAgent.on("update", clearDetails);
 
         // Add event handlers for the time navigation buttons.
         function navToHours(offset) {
@@ -751,7 +714,7 @@
                 return;
             }
 
-            var timestamp = activeDate(activeGrid.value());
+            var timestamp = activeDate(gridAgent.value());
             if (isFinite(timestamp)) {
                 timestamp += offset * (60 * 60 * 1000);
                 var parts = new Date(timestamp).toISOString().split(/[- T:]/);
@@ -787,7 +750,7 @@
         d3.select(window).on("orientationchange", function() {
             // Rebuild globe using the new orientation and view size.
             view = µ.view();
-            activeGlobe.submit(buildGlobe, configuration.get("projection"));
+            globeAgent.submit(buildGlobe, configuration.get("projection"));
         });
 
         configuration.fetch();  // everything is now set up, so kick off the events
