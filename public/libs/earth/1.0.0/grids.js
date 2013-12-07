@@ -1,4 +1,11 @@
-
+/**
+ * grids - interpolates grids of weather data
+ *
+ * Copyright (c) 2014 Cameron Beccario
+ * The MIT License - http://opensource.org/licenses/MIT
+ *
+ * https://github.com/cambecc/earth
+ */
 var layers = function() {
     "use strict";
 
@@ -48,6 +55,30 @@ var layers = function() {
         ];
     }
 
+    /**
+     * Builds an interpolator for the specified data in the form of JSON-ified GRIB files. Example:
+     *
+     *     [
+     *       {
+     *         "header": {
+     *           "refTime": "2013-11-30T18:00:00.000Z",
+     *           "parameterNumber": 2,
+     *           "forecastTime": 6,
+     *           "scanMode": 0,
+     *           "nx": 360,
+     *           "ny": 181,
+     *           "lo1": 0,
+     *           "la1": 90,
+     *           "lo2": 359,
+     *           "la2": -90,
+     *           "dx": 1,
+     *           "dy": 1
+     *         },
+     *         "data": [3.42, 3.31, 3.19, 3.08, 2.96, 2.84, 2.72, 2.6, 2.47, ...]
+     *       }
+     *     ]
+     *
+     */
     function buildGrid(data) {
 
         var uRecord = null, vRecord = null;
@@ -91,7 +122,7 @@ var layers = function() {
 
         function interpolate(λ, φ) {
             var i = µ.floorDiv(λ - λ0, 360) / Δλ;  // calculate longitude index in wrapped range [0, 360)
-            var j = (φ0 - φ) / Δφ;              // calculate latitude index in direction +90 to -90
+            var j = (φ0 - φ) / Δφ;                 // calculate latitude index in direction +90 to -90
 
             //         1      2           After converting λ and φ to fractional grid indexes i and j, we find the
             //        fi  i   ci          four points "G" that enclose point (i, j). These points are at the four

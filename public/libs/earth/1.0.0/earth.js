@@ -201,9 +201,7 @@
         if (!builder) {
             return when.reject("Unknown projection: " + projectionName);
         }
-        var globe = builder();
-        globe.projection = globe.newProjection(view);  // augment globe with the shared projection instance we'll use.
-        return when(globe);
+        return when(builder(view));
     }
 
     /**

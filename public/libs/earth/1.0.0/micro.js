@@ -176,26 +176,6 @@ var µ = function() {
         return result;
     }
 
-    function ensureNumber(num, fallback) {
-        return _.isFinite(num) || num === Infinity || num === -Infinity ? num : fallback;
-    }
-
-    /**
-     * @param bounds the projection bounds: [[x0, y0], [x1, y1]]
-     * @param view the view bounds {width:, height:}
-     * @returns {Object} the projection bounds clamped to the specified view, as a structured object:
-     *          {x:, y:, xMax:, yMax:, width:, height:}
-     */
-    function clampedBounds(bounds, view) {
-        var upperLeft = bounds[0];
-        var lowerRight = bounds[1];
-        var x = Math.max(Math.floor(ensureNumber(upperLeft[0], 0)), 0);
-        var y = Math.max(Math.floor(ensureNumber(upperLeft[1], 0)), 0);
-        var xMax = Math.min(Math.ceil(ensureNumber(lowerRight[0], view.width)), view.width - 1);
-        var yMax = Math.min(Math.ceil(ensureNumber(lowerRight[1], view.height)), view.height - 1);
-        return {x: x, y: y, xMax: xMax, yMax: yMax, width: xMax - x + 1, height: yMax - y + 1};
-    }
-
     function removeChildren(node) {
         while (node.firstChild) {
             node.removeChild(node.firstChild);
@@ -428,7 +408,6 @@ var µ = function() {
         loadJson: loadJson,
         parse: parse,
         buildConfiguration: buildConfiguration,
-        clampedBounds: clampedBounds,
         removeChildren: removeChildren,
         asColorStyle: asColorStyle,
         asRainbowColorStyle: asRainbowColorStyle,
