@@ -9,8 +9,25 @@
 (function() {
     "use strict";
 
-    var MAX_TASK_TIME = 100;                  // amount of time before a task yields control (milliseconds)
-    var MIN_SLEEP_TIME = 25;                  // amount of time a task waits before resuming (milliseconds)
+    var SECOND = 1000;
+    var MINUTE = 60 * SECOND;
+    var HOUR = 60 * MINUTE;
+    var MAX_TASK_TIME = 100;                  // amount of time before a task yields control (millis)
+    var MIN_SLEEP_TIME = 25;                  // amount of time a task waits before resuming (millis)
+    var MIN_MOVE = 4;                         // slack before a drag operation beings (pixels)
+    var MOVE_END_WAIT = 1000;                 // time to wait for a move operation to be considered done (millis)
+
+    var VELOCITY_SCALE = 1/39000;             // scale for wind velocity (completely arbitrary--this value looks nice)
+    var OVERLAY_ALPHA = Math.floor(0.4*255);  // overlay transparency (on scale [0, 255])
+    var MAX_WIND = 25;                        // max wind velocity shown by the overlay (m/s)
+    var INTENSITY_SCALE_STEP = 10;            // step size of particle intensity color scale
+    var MAX_WIND_INTENSITY = 17;              // wind velocity at which particle intensity is maximum (m/s)
+    var MAX_PARTICLE_AGE = 40;                // max number of frames a particle is drawn before regeneration
+    var PARTICLE_LINE_WIDTH = 0.75;           // line width of a drawn particle
+    var PARTICLE_MULTIPLIER = 7;              // particle count scalar (completely arbitrary--this values looks nice)
+    var PARTICLE_REDUCTION = 0.75;            // reduce particle count to this much of normal for mobile devices
+    var FRAME_RATE = 40;                      // desired milliseconds per frame
+
     var NULL_WIND_VECTOR = [NaN, NaN, null];  // singleton for no wind in the form: [u, v, magnitude]
     var TRANSPARENT_BLACK = [0, 0, 0, 0];     // singleton 0 rgba
     var REMAINING = "▫▫▫▫▫▫▫▫▫▫▫▫▫▫▫▫▫▫▫▫▫▫";   // glyphs for remaining progress bar
@@ -55,21 +72,49 @@
         return µ.newAgent().on("reject", report.error);
     }
 
-    var configuration = µ.buildConfiguration(d3.set(globes.keys()));
-    configuration.on("change", function event_logger() {
-        log.debug("changed: " + JSON.stringify(configuration.changedAttributes()));
-        report.reset();
-    });
+    // Construct the page's main internal components:
 
-    var inputController = function buildInputController() {
-        log.debug("building input controller");
-        var globe;
-        var dispatch = _.clone(Backbone.Events);
-        var op = null;
+    var configuration = µ.buildConfiguration(globes);  // holds the page's current configuration settings
+    var inputController = buildInputController();      // interprets drag/zoom operations
+    var meshAgent = newAgent();      // map data for the earth
+    var globeAgent = newAgent();     // the model of the globe
+    var gridAgent = newAgent();      // the grid of weather data
+    var rendererAgent = newAgent();  // the globe SVG renderer
+    var fieldAgent = newAgent();     // the interpolated wind vector field
+    var animatorAgent = newAgent();  // the wind animator
+    var overlayAgent = newAgent();   // color overlay over the animation
 
+    /**
+     * The input controller is an object that translates move operations (drag and/or zoom) into mutations of the
+     * current globe's projection, and emits events so other page components can react to these move operations.
+     *
+     * D3's built-in Zoom behavior is used to bind to the document's drag/zoom events, and the input controller
+     * interprets D3's events as move operations on the globe. This method is complicated due to the complex
+     * event behavior that occurs during drag and zoom.
+     *
+     * D3 move operations usually occur as "zoomstart" -> ("zoom")* -> "zoomend" event chain. During "zoom" events
+     * the scale and mouse may change, implying a zoom or drag operation accordingly. These operations are quite
+     * noisy. What should otherwise be one smooth continuous zoom is usually comprised of several "zoomstart" ->
+     * "zoom" -> "zoomend" event chains. A debouncer is used to eliminate the noise by waiting a short period of
+     * time to ensure the user has finished the move operation.
+     *
+     * The "zoom" events may not occur; a simple click operation occurs as: "zoomstart" -> "zoomend". There is
+     * additional logic for other corner cases, such as spurious drags which move the globe just a few pixels
+     * (most likely unintentional), and the tendency for some touch devices to issue events out of order:
+     * "zoom" -> "zoomstart" -> "zoomend".
+     *
+     * This object emits clean "moveStart" -> ("move")* -> "moveEnd" events for move operations, and "click" events
+     * for normal clicks. Spurious moves emit no events.
+     */
+    function buildInputController() {
+        var globe, op = null;
+
+        /**
+         * @returns {Object} an object to represent the state for one move operation.
+         */
         function newOp(startMouse, startScale) {
             return {
-                type: "click",
+                type: "click",  // initially assumed to be a click operation
                 startMouse: startMouse,
                 startScale: startScale,
                 manipulator: globe.manipulator(startMouse, startScale)
@@ -78,15 +123,16 @@
 
         var zoom = d3.behavior.zoom()
             .on("zoomstart", function() {
-                op = op || newOp(d3.mouse(this), zoom.scale());
+                op = op || newOp(d3.mouse(this), zoom.scale());  // a new operation begins
             })
             .on("zoom", function() {
                 var currentMouse = d3.mouse(this), currentScale = d3.event.scale;
                 op = op || newOp(currentMouse, 1);  // Fix bug on some browsers where zoomstart fires out of order.
                 if (op.type === "click" || op.type === "spurious") {
-                    if (currentScale === op.startScale && µ.distance(currentMouse, op.startMouse) < 4) {
+                    if (currentScale === op.startScale && µ.distance(currentMouse, op.startMouse) < MIN_MOVE) {
+                        // to reduce annoyance, ignore op if mouse has barely moved and no zoom is occurring
                         op.type = "spurious";
-                        return;  // to reduce annoyance, ignore op if mouse has barely moved and no zoom is occurring
+                        return;
                     }
                     dispatch.trigger("moveStart");
                     op.type = "drag";
@@ -95,19 +141,19 @@
                     op.type = "zoom";  // whenever a scale change is detected, (stickily) switch to a zoom operation
                 }
 
-                // when zooming, we ignore whatever the mouse is doing--really cleans up behavior on touch devices
+                // when zooming, ignore whatever the mouse is doing--really cleans up behavior on touch devices
                 op.manipulator.move(op.type === "zoom" ? null : currentMouse, currentScale);
                 dispatch.trigger("move");
             })
             .on("zoomend", function() {
                 op.manipulator.end();
                 if (op.type === "click") {
-                    dispatch.trigger("click", op.startMouse, globe.projection.invert(op.startMouse));
+                    dispatch.trigger("click", globe.projection.invert(op.startMouse));
                 }
                 else if (op.type !== "spurious") {
                     signalEnd();
                 }
-                op = null;
+                op = null;  // the drag/zoom/click operation is over
             });
 
         var signalEnd = _.debounce(function() {
@@ -115,54 +161,49 @@
                 configuration.save({orientation: globe.orientation()}, {source: "moveEnd"});
                 dispatch.trigger("moveEnd");
             }
-        }, 1000);
+        }, MOVE_END_WAIT);  // wait for a bit to decide if user has stopped moving the globe
 
         d3.select("#display").call(zoom);
-
-        function locate() {
+        d3.select("#show-location").on("click", function() {
             if (navigator.geolocation) {
                 report.status("Finding current position...");
-                navigator.geolocation.getCurrentPosition(
-                    function(position) {
+                navigator.geolocation.getCurrentPosition(function(pos) {
                         report.status("");
-                        var coord = [position.coords.longitude, position.coords.latitude];
-                        var rotate = globe.locate(coord);
+                        var coord = [pos.coords.longitude, pos.coords.latitude], rotate = globe.locate(coord);
                         if (rotate) {
                             globe.projection.rotate(rotate);
                             configuration.save({orientation: globe.orientation()});  // triggers reorientation
                         }
                         dispatch.trigger("click", globe.projection(coord), coord);
-                    },
-                    log.error);
+                }, log.error);
             }
+        });
+
+        function reorient() {
+            var options = arguments[3] || {};
+            if (!globe || options.source === "moveEnd") {
+                // reorientation occurred because the user just finished a move operation, so globe is already
+                // oriented correctly.
+                return;
+            }
+            dispatch.trigger("moveStart");
+            globe.orientation(configuration.get("orientation"), view);
+            zoom.scale(globe.projection.scale());
+            dispatch.trigger("moveEnd");
         }
 
-        d3.select("#show-location").on("click", locate);
-
-        function reorient(source, value, options) {
-            options = options || {};
-            if (globe && options.source !== "moveEnd") {
-                dispatch.trigger("moveStart");
-                globe.orientation(configuration.get("orientation"), view);
-                zoom.scale(globe.projection.scale());
-                dispatch.trigger("moveEnd");
+        var dispatch = _.extend({
+            globe: function(_) {
+                if (_) {
+                    globe = _;
+                    zoom.scaleExtent(globe.scaleExtent());
+                    reorient();
+                }
+                return _ ? this : globe;
             }
-        }
-
-        dispatch.listenTo(configuration, "change:orientation", reorient);
-
-        dispatch.globe = function(_) {
-            if (!_) {
-                return globe;
-            }
-            globe = _;
-            zoom.scaleExtent(globe.scaleExtent());
-            reorient();
-            return this;
-        };
-
-        return dispatch;
-    }();
+        }, Backbone.Events);
+        return dispatch.listenTo(configuration, "change:orientation", reorient);
+    }
 
     /**
      * @param resource the GeoJSON resource's URL
@@ -185,14 +226,6 @@
     }
 
     /**
-     * The page's current topology mesh. There can be only one.
-     */
-    var meshAgent = newAgent();
-    meshAgent.listenTo(configuration, "change:topology", function(context, attr) {
-        meshAgent.submit(buildMesh, attr);
-    });
-
-    /**
      * @param {String} projectionName the desired projection's name.
      * @returns {Object} a promise for a globe object.
      */
@@ -204,14 +237,7 @@
         return when(builder(view));
     }
 
-    /**
-     * The page's current globe model.
-     */
-    var globeAgent = newAgent();
-    globeAgent.listenTo(configuration, "change:projection", function(source, attr) {
-        globeAgent.submit(buildGlobe, attr);
-    });
-
+    // Some hacky stuff to ensure only one layer can be downloaded at a time.
     var nextId = 0;
     var downloadsInProgress = {};
 
@@ -230,16 +256,21 @@
         return task;
     }
 
-    /**
-     * The page's current grid.
-     */
-    var gridAgent = newAgent();
-    gridAgent.listenTo(configuration, "change", function() {
-        var layerAttributes = ["date", "hour", "param", "surface", "level"];
-        if (_.intersection(_.keys(configuration.changedAttributes()), layerAttributes).length > 0) {
-            gridAgent.submit(buildGrid, configuration.toPath());
+    function navToHours(offset) {
+        if (_.size(downloadsInProgress) > 0) {
+            log.debug("Download in progress--ignoring nav request.");
+            return;
         }
-    });
+
+        var timestamp = activeDate(gridAgent.value());
+        if (isFinite(timestamp)) {
+            timestamp += offset * HOUR;
+            var parts = new Date(timestamp).toISOString().split(/[- T:]/);
+            configuration.save({
+                date: [parts[0], parts[1], parts[2]].join("/"),
+                hour: [parts[3], "00"].join("")});
+        }
+    }
 
     function buildRenderer(mesh, globe) {
         if (!mesh || !globe) return null;
@@ -264,12 +295,15 @@
         var coastline = d3.select(".coastline");
         d3.selectAll("path").attr("d", path);  // do an initial draw -- fixes issue with safari
 
+        // Throttled draw method helps with slow devices that would get overwhelmed by too many redraw events.
+        var REDRAW_WAIT = 5;  // milliseconds
+        var doDraw_throttled = _.throttle(doDraw, REDRAW_WAIT, {leading: false});
+
         function doDraw() {
             d3.selectAll("path").attr("d", path);
             rendererAgent.trigger("redraw");
-            doDraw_throttled = _.throttle(doDraw, 5, {leading: false});
+            doDraw_throttled = _.throttle(doDraw, REDRAW_WAIT, {leading: false});
         }
-        var doDraw_throttled = _.throttle(doDraw, 5, {leading: false});
 
         // Attach to map rendering events on input controller.
         dispatch.listenTo(
@@ -286,7 +320,7 @@
                     d3.selectAll("path").attr("d", path);
                     rendererAgent.trigger("render");
                 },
-                click: function(point, coord) {
+                click: function(coord) {
                     // show the point on the map
                     if (coord && _.isFinite(coord[0]) && _.isFinite(coord[1])) {
                         var mark = d3.select(".location-mark");
@@ -307,16 +341,6 @@
         log.timeEnd("rendering map");
         return "ready";
     }
-
-    /**
-     * The page's current globe renderer.
-     */
-    var rendererAgent = newAgent();
-    function startRendering() {
-        rendererAgent.submit(buildRenderer, meshAgent.value(), globeAgent.value());
-    }
-    rendererAgent.listenTo(meshAgent, "update", startRendering);
-    rendererAgent.listenTo(globeAgent, "update", startRendering);
 
     function createMask(globe) {
         if (!globe) return null;
@@ -370,11 +394,11 @@
 
         field.randomize = function(o) {  // UNDONE: this method is terrible
             var x, y;
-            var net = 0;
+            var safetyNet = 0;
             do {
                 x = Math.round(_.random(bounds.x, bounds.xMax));
                 y = Math.round(_.random(bounds.y, bounds.yMax));
-            } while (field(x, y)[2] === null && net++ < 30);
+            } while (field(x, y)[2] === null && safetyNet++ < 30);
             o.x = x;
             o.y = y;
             return o;
@@ -410,7 +434,7 @@
 
         var projection = globe.projection;
         var bounds = globe.bounds(view);
-        var velocityScale = bounds.height / 39000;
+        var velocityScale = bounds.height * VELOCITY_SCALE;
 
         var columns = [];
         var point = [];
@@ -430,7 +454,7 @@
                             if (wind) {
                                 wind = distort(projection, λ, φ, x, y, velocityScale, wind);
                                 column[y+1] = column[y] = wind;
-                                color = µ.sinebowColorStyle(Math.min(wind[2], 25) / 25, Math.floor(255 * 0.4));
+                                color = µ.sinebowColorStyle(Math.min(wind[2], MAX_WIND) / MAX_WIND, OVERLAY_ALPHA);
                             }
                         }
                     }
@@ -469,40 +493,29 @@
         return d.promise;
     }
 
-    var fieldAgent = newAgent();
-    function startInterpolation() {
-        fieldAgent.submit(interpolateField, globeAgent.value(), gridAgent.value());
-    }
-    function cancelInterpolation() {
-        fieldAgent.cancel();
-    }
-    fieldAgent.listenTo(rendererAgent, "start", cancelInterpolation);
-    fieldAgent.listenTo(rendererAgent, "redraw", cancelInterpolation);
-    fieldAgent.listenTo(rendererAgent, "render", startInterpolation);
-    fieldAgent.listenTo(gridAgent, "update", startInterpolation);
-
     function animate(globe, field) {
-        if (!globe || !field) return null;
+        if (!globe || !field) return;
 
         var cancel = this.cancel;
         var bounds = globe.bounds(view);
-        var colorStyles = µ.windColorScale(10, 17);
+        var colorStyles = µ.windColorScale(INTENSITY_SCALE_STEP, MAX_WIND_INTENSITY);
         var buckets = colorStyles.map(function() { return []; });
-        var multiplier = µ.isMobile() ? 5.5 : 7;  // reduce particle count for mobile devices
-        var particleCount = Math.round(bounds.width * multiplier);
-        var maxParticleAge = 40;  // max number of frames a particle is drawn before regeneration
+        var particleCount = Math.round(bounds.width * PARTICLE_MULTIPLIER);
+        if (µ.isMobile()) {
+            particleCount *= PARTICLE_REDUCTION;
+        }
         var fadeFillStyle = µ.isFF() ? "rgba(0, 0, 0, 0.95)" : "rgba(0, 0, 0, 0.97)";  // FF Mac alpha behaves oddly
 
         log.debug("particle count: " + particleCount);
         var particles = [];
         for (var i = 0; i < particleCount; i++) {
-            particles.push(field.randomize({age: _.random(0, maxParticleAge)}));
+            particles.push(field.randomize({age: _.random(0, MAX_PARTICLE_AGE)}));
         }
 
         function evolve() {
             buckets.forEach(function(bucket) { bucket.length = 0; });
             particles.forEach(function(particle) {
-                if (particle.age > maxParticleAge) {
+                if (particle.age > MAX_PARTICLE_AGE) {
                     field.randomize(particle).age = 0;
                 }
                 var x = particle.x;
@@ -510,7 +523,7 @@
                 var v = field(x, y);  // vector at current position
                 var m = v[2];
                 if (m === null) {
-                    particle.age = maxParticleAge;  // particle has escaped the grid, never to return...
+                    particle.age = MAX_PARTICLE_AGE;  // particle has escaped the grid, never to return...
                 }
                 else {
                     var xt = x + v[0];
@@ -532,7 +545,7 @@
         }
 
         var g = d3.select("#animation").node().getContext("2d");
-        g.lineWidth = 0.75;
+        g.lineWidth = PARTICLE_LINE_WIDTH;
         g.fillStyle = fadeFillStyle;
 
         function draw() {
@@ -566,7 +579,7 @@
                 }
                 evolve();
                 draw();
-                setTimeout(frame, 40);  // desired milliseconds per frame
+                setTimeout(frame, FRAME_RATE);
             }
             catch (e) {
                 report.error(e);
@@ -574,42 +587,62 @@
         })();
     }
 
-    var animatorAgent = newAgent();
-    animatorAgent.listenTo(fieldAgent, "update", function(field) {
-        animatorAgent.submit(animate, globeAgent.value(), field);
-    });
-    function stopCurrentAnimation() {
-        animatorAgent.cancel();
-    }
-    animatorAgent.listenTo(rendererAgent, "start", function() {
-        stopCurrentAnimation();
-        µ.clearCanvas(d3.select("#animation").node());
-    });
-    animatorAgent.listenTo(gridAgent, "submit", stopCurrentAnimation);
-    animatorAgent.listenTo(fieldAgent, "submit", stopCurrentAnimation);
-
     function drawOverlay(field, flag) {
-        if (!field) return null;
+        if (!field) return;
+
         µ.clearCanvas(d3.select("#overlay").node());
         if (flag !== "off") {
             d3.select("#overlay").node().getContext("2d").putImageData(field.overlay, 0, 0);
         }
     }
 
-    var overlayAgent = newAgent();
-    overlayAgent.listenTo(fieldAgent, "update", function() {
-        overlayAgent.submit(drawOverlay, fieldAgent.value(), configuration.get("overlay"));
-    });
-    overlayAgent.listenTo(rendererAgent, "start", function() {
-        overlayAgent.submit(drawOverlay, fieldAgent.value(), "off");
-    });
-    overlayAgent.listenTo(configuration, "change:overlay", function(source, overlayFlag) {
-        // if only the overlay flag has changed...
-        if (_.keys(configuration.changedAttributes()).length === 1) {
-            overlayAgent.submit(drawOverlay, fieldAgent.value(), overlayFlag);
-        }
-    });
+    function activeDate(grid) {
+        // When the active layer is considered "current", use its time as now, otherwise use current time as
+        // now (but rounded down to the nearest three-hour block).
+        var THREE_HOURS = 3 * HOUR;
+        var now = grid ? grid.date.getTime() : Math.floor(Date.now() / THREE_HOURS) * THREE_HOURS;
+        var parts = configuration.get("date").split("/");  // yyyy/mm/dd or "current"
+        var hhmm = configuration.get("hour");
+        return parts.length > 1 ?
+            Date.UTC(+parts[0], parts[1] - 1, +parts[2], +hhmm.substring(0, 2)) :
+            parts[0] === "current" ? now : null;
+    }
 
+    function showDate(grid) {
+        var date = new Date(activeDate(grid)), isLocal = d3.select("#data-date").classed("local");
+        var formatted = isLocal ? µ.toLocalISO(date) : µ.toUTCISO(date);
+        d3.select("#data-date").text(formatted + " " + (isLocal ? "Local" : "UTC"));
+        d3.select("#toggle-zone").text("⇄ " + (isLocal ? "UTC" : "Local"));
+    }
+
+    function showGridDetails(grid) {
+        showDate(grid);
+        var recipe = layers.recipeFor(configuration.pick("param", "surface", "level"));
+        d3.select("#data-layer").text(recipe.description);
+    }
+
+    function showLocationDetails(coord) {
+        var grid = gridAgent.value();
+        if (!grid) return;
+        var λ = coord[0], φ = coord[1], wind = grid.interpolate(λ, φ);
+        if (µ.isValue(wind)) {
+            d3.select("#location-coord").text(µ.formatCoordinates(λ, φ));
+            d3.select("#location-value").text(µ.formatVector(wind));
+            d3.select("#location-close").classed("invisible", false);
+        }
+    }
+
+    function clearLocationDetails() {
+        d3.select("#location-coord").text("");
+        d3.select("#location-value").text("");
+        d3.select("#location-close").classed("invisible", true);
+        d3.select(".location-mark").remove();
+    }
+
+    /**
+     * Registers all event handlers to bind components and page elements together. There must be a cleaner
+     * way to accomplish this...
+     */
     function init() {
         report.status("Initializing...");
         d3.selectAll(".fill-screen").attr("width", view.width).attr("height", view.height);
@@ -631,32 +664,23 @@
             configuration.fetch({trigger: "hashchange"});
         });
 
-        var THREE_HOURS = 3 * 60 * 60 * 1000;
+        configuration.on("change", report.reset);
 
-        function activeDate(grid) {
-            // When the active layer is considered "current", use its time as now, otherwise use current time as
-            // now (but rounded down to the nearest three-hour block).
-            var now = grid ? grid.date.getTime() : Math.floor(Date.now() / THREE_HOURS) * THREE_HOURS;
-            var parts = configuration.get("date").split("/");  // yyyy/mm/dd or "current"
-            var hhmm = configuration.get("hour");
-            return parts.length > 1 ?
-                Date.UTC(+parts[0], parts[1] - 1, +parts[2], +hhmm.substring(0, 2)) :
-                parts[0] === "current" ? now : null;
-        }
+        meshAgent.listenTo(configuration, "change:topology", function(context, attr) {
+            meshAgent.submit(buildMesh, attr);
+        });
 
-        function showDate(grid) {
-            var date = new Date(activeDate(grid)), isLocal = d3.select("#data-date").classed("local");
-            var formatted = isLocal ? µ.toLocalISO(date) : µ.toUTCISO(date);
-            d3.select("#data-date").text(formatted + " " + (isLocal ? "Local" : "UTC"));
-            d3.select("#toggle-zone").text("⇄ " + (isLocal ? "UTC" : "Local"));
-        }
+        globeAgent.listenTo(configuration, "change:projection", function(source, attr) {
+            globeAgent.submit(buildGlobe, attr);
+        });
 
-        function showGridDetails(grid) {
-            showDate(grid);
-            var recipe = layers.recipeFor(configuration.pick("param", "surface", "level"));
-            d3.select("#data-layer").text(recipe.description);
-        }
-
+        gridAgent.listenTo(configuration, "change", function() {
+            // Build a new grid if any layer-related attributes have changed.
+            var changed = _.keys(configuration.changedAttributes());
+            if (_.intersection(changed, ["date", "hour", "param", "surface", "level"]).length > 0) {
+                gridAgent.submit(buildGrid, configuration.toPath());
+            }
+        });
         gridAgent.on("submit", function() {
             showGridDetails(null);
         });
@@ -668,45 +692,56 @@
             showDate(gridAgent.cancel.requested ? null : gridAgent.value());
         });
 
-        // Add event handlers for showing and removing location details.
-        inputController.on("click", function(point, coord) {
-            var grid = gridAgent.value();
-            if (!grid) return;
-            var λ = coord[0], φ = coord[1], wind = grid.interpolate(λ, φ);
-            if (µ.isValue(wind)) {
-                d3.select("#location-coord").text(µ.formatCoordinates(λ, φ));
-                d3.select("#location-value").text(µ.formatVector(wind));
-                d3.select("#location-close").classed("invisible", false);
+        function startRendering() {
+            rendererAgent.submit(buildRenderer, meshAgent.value(), globeAgent.value());
+        }
+        rendererAgent.listenTo(meshAgent, "update", startRendering);
+        rendererAgent.listenTo(globeAgent, "update", startRendering);
+
+        function startInterpolation() {
+            fieldAgent.submit(interpolateField, globeAgent.value(), gridAgent.value());
+        }
+        function cancelInterpolation() {
+            fieldAgent.cancel();
+        }
+        fieldAgent.listenTo(gridAgent, "update", startInterpolation);
+        fieldAgent.listenTo(rendererAgent, "render", startInterpolation);
+        fieldAgent.listenTo(rendererAgent, "start", cancelInterpolation);
+        fieldAgent.listenTo(rendererAgent, "redraw", cancelInterpolation);
+
+        animatorAgent.listenTo(fieldAgent, "update", function(field) {
+            animatorAgent.submit(animate, globeAgent.value(), field);
+        });
+        function stopCurrentAnimation() {
+            animatorAgent.cancel();
+        }
+        animatorAgent.listenTo(rendererAgent, "start", function() {
+            stopCurrentAnimation();
+            µ.clearCanvas(d3.select("#animation").node());
+        });
+        animatorAgent.listenTo(gridAgent, "submit", stopCurrentAnimation);
+        animatorAgent.listenTo(fieldAgent, "submit", stopCurrentAnimation);
+
+        overlayAgent.listenTo(fieldAgent, "update", function() {
+            overlayAgent.submit(drawOverlay, fieldAgent.value(), configuration.get("overlay"));
+        });
+        overlayAgent.listenTo(rendererAgent, "start", function() {
+            overlayAgent.submit(drawOverlay, fieldAgent.value(), "off");
+        });
+        overlayAgent.listenTo(configuration, "change:overlay", function(source, overlayFlag) {
+            // if only the overlay flag has changed...
+            if (_.keys(configuration.changedAttributes()).length === 1) {
+                overlayAgent.submit(drawOverlay, fieldAgent.value(), overlayFlag);
             }
         });
 
-        function clearDetails() {
-            d3.select("#location-coord").text("");
-            d3.select("#location-value").text("");
-            d3.select("#location-close").classed("invisible", true);
-            d3.select(".location-mark").remove();
-        }
-
-        d3.select("#location-close").on("click", clearDetails);
-        gridAgent.on("update", clearDetails);
-        rendererAgent.on("update", clearDetails);
+        // Add event handlers for showing and removing location details.
+        inputController.on("click", showLocationDetails);
+        gridAgent.on("update", clearLocationDetails);
+        rendererAgent.on("update", clearLocationDetails);
+        d3.select("#location-close").on("click", clearLocationDetails);
 
         // Add event handlers for the time navigation buttons.
-        function navToHours(offset) {
-            if (_.size(downloadsInProgress) > 0) {
-                log.debug("Download in progress--ignoring nav request.");
-                return;
-            }
-
-            var timestamp = activeDate(gridAgent.value());
-            if (isFinite(timestamp)) {
-                timestamp += offset * (60 * 60 * 1000);
-                var parts = new Date(timestamp).toISOString().split(/[- T:]/);
-                configuration.save({
-                    date: [parts[0], parts[1], parts[2]].join("/"),
-                    hour: [parts[3], "00"].join("")});
-            }
-        }
         d3.select("#nav-prev-day"     ).on("click", navToHours.bind(null, -24));
         d3.select("#nav-next-day"     ).on("click", navToHours.bind(null, +24));
         d3.select("#nav-prev-forecast").on("click", navToHours.bind(null, -3));
@@ -724,6 +759,7 @@
         d3.select("#iso-70"  ).on("click", function() { configuration.save({level: "70hPa"}); });
         d3.select("#iso-10"  ).on("click", function() { configuration.save({level: "10hPa"}); });
 
+        // Add handlers for all projection buttons.
         function navToProjection(projection) {
             configuration.save({projection: projection, orientation: ""});
         }
@@ -731,15 +767,18 @@
             d3.select("#" + key).on("click", navToProjection.bind(null, key));
         });
 
+        // When touch device changes between portrait and landscape, rebuild globe using the new view size.
         d3.select(window).on("orientationchange", function() {
-            // Rebuild globe using the new orientation and view size.
             view = µ.view();
             globeAgent.submit(buildGlobe, configuration.get("projection"));
         });
-
-        configuration.fetch();  // everything is now set up, so kick off the events
     }
 
-    when(true).then(init).otherwise(report.error);
+    function start() {
+        // Everything is now set up, so load configuration from the hash fragment and kick off change events.
+        configuration.fetch();
+    }
+
+    when(true).then(init).then(start).otherwise(report.error);
 
 })();

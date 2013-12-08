@@ -244,7 +244,7 @@ var globes = function() {
                     .attr("cx", "50%").attr("cy", "49%").attr("r", "50%");
                 gradientFill.append("stop").attr("stop-color", "#303030").attr("offset", "69%");
                 gradientFill.append("stop").attr("stop-color", "#202020").attr("offset", "91%");
-                gradientFill.append("stop").attr("stop-color", "#000000").attr("offset", "96%");
+                gradientFill.append("stop").attr("stop-color", "#000005").attr("offset", "96%");
                 defs.append("path")
                     .attr("id", "sphere")
                     .datum({type: "Sphere"})

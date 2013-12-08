@@ -258,7 +258,7 @@ var µ = function() {
      * itself by invoking this.cancel().
      *
      * Example pseudocode:
-     *
+     * <pre>
      *     var agent = newAgent();
      *     agent.on("update", function(value) {
      *         console.log("task completed: " + value);  // same as agent.value()
@@ -271,6 +271,7 @@ var µ = function() {
      *     }
      *
      *     agent.submit(someLongAsynchronousProcess, 10);
+     * </pre>
      *
      * @returns {Object}
      */
@@ -396,11 +397,8 @@ var µ = function() {
     }
 
     /**
-     * A Backbone.js Model that persists itself as a URL hash fragment. The model holds the current configuration
-     * as a set of attributes. Changing these attributes emits "change" events and also modifies the URL hash
-     * fragment (thus allowing back-button navigation). Similarly, manual changes to the URL hash fragment, or
-     * navigating to a URL, triggers "change" events which ripple through the components on the page as they adjust
-     * to the new settings.
+     * A Backbone.js Model that persists its attributes as a human readable URL hash fragment. Loading from and
+     * storing to the hash fragment is handled by the sync method.
      */
     var Configuration = Backbone.Model.extend({
         id: 0,
@@ -408,7 +406,7 @@ var µ = function() {
         _projectionNames: null,
 
         /**
-         * @returns {String} the hash fragment for the current state of the model.
+         * @returns {String} this configuration converted to a hash fragment.
          */
         toHash: function() {
             var attr = this.attributes;
@@ -419,7 +417,7 @@ var µ = function() {
         },
 
         /**
-         * @returns {String} the path to the weather data JSON file as currently configured.
+         * @returns {String} the path to the weather data JSON file implied by this configuration.
          */
         toPath: function() {
             var attr = this.attributes;
@@ -430,7 +428,8 @@ var µ = function() {
         },
 
         /**
-         * Synchronizes between the configuration model and the hash fragment in the URL bar.
+         * Synchronizes between the configuration model and the hash fragment in the URL bar. Invocations
+         * caused by "hashchange" events must have the {trigger: "hashchange"} option specified.
          */
         sync: function(method, model, options) {
             switch (method) {
@@ -451,6 +450,14 @@ var µ = function() {
     });
 
     /**
+     * A Backbone.js Model to hold the page's configuration as a set of attributes: date, layer, projection,
+     * orientation, etc. Changes to the configuration fire events which the page's components react to. For
+     * example, configuration.save({projection: "orthographic"}) fires an event which causes the globe to be
+     * re-rendered with an orthographic projection.
+     *
+     * All configuration attributes are persisted in a human readable form to the page's hash fragment (and
+     * vice versa). This allows deep linking and back-button navigation.
+     *
      * @returns {Configuration} Model to represent the hash fragment, using the specified set of allowed projections.
      */
     function buildConfiguration(projectionNames) {
