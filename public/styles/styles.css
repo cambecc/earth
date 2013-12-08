@@ -128,7 +128,7 @@ body {
 
 .coastline {
     stroke: #ffffff;
-    stroke-width: 0.8;
+    stroke-width: 1.0;
     fill: none;
 }
 
@@ -162,11 +162,38 @@ body {
  **************************************************************************************************/
 
 #about {
-    position: absolute;
-    left: 2%;
     font-size: 1.5rem;
 }
 
 #about h1 {
     font-size: 2.4rem;
+    text-align: center;
+}
+
+#about div {
+    clear: both;
+}
+
+#about img {
+    display: block;
+    margin: auto;
+}
+
+#about .left {
+    width: 50%;
+    float: left;
+    text-align: right;
+}
+
+#about .right {
+    width: 50%;
+    float: right;
+}
+
+#about .center {
+    text-align: center;
+}
+
+#footer {
+    padding-bottom: 2rem;
 }

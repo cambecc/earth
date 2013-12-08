@@ -65,7 +65,7 @@
                 }
                 return p.classed("invisible", true).text("");  // progress complete
             }
-        }
+        };
     }();
 
     function newAgent() {

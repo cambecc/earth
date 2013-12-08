@@ -135,7 +135,7 @@ var µ = function() {
         var Δr = end[0] - r, Δg = end[1] - g, Δb = end[2] - b;
         return function(i, a) {
             return [Math.floor(r + i * Δr), Math.floor(g + i * Δg), Math.floor(b + i * Δb), a];
-        }
+        };
     }
 
     /**
@@ -271,7 +271,7 @@ var µ = function() {
      * its result ignored. Invocation of a task may even be skipped entirely if cancellation occurs early enough.
      *
      * Agents are Backbone.js Event emitters. When a submitted task is accepted for invocation by an agent, a
-     * "submit" event is emitted. This event provides the agent as its sole argument. When a task finishes and
+     * "submit" event is emitted. This event has the agent as its sole argument. When a task finishes and
      * the agent's value changes, an "update" event is emitted, providing (value, agent) as arguments. If a task
      * fails by either throwing an exception or rejecting a promise, a "reject" event having arguments (err, agent)
      * is emitted.
@@ -308,7 +308,7 @@ var µ = function() {
             return function cancel() {
                 cancel.requested = true;
                 return agent;
-            }
+            };
         }
 
         /**
