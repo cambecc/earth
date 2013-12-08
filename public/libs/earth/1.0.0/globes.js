@@ -14,7 +14,7 @@ var globes = function() {
      *          which user may reject, there is not much available except timezone. Better than nothing.
      */
     function currentPosition() {
-        var λ = µ.floorDiv(new Date().getTimezoneOffset() / 4, 360);  // 24 hours * 60 min / 4 === 360 degrees
+        var λ = µ.floorMod(new Date().getTimezoneOffset() / 4, 360);  // 24 hours * 60 min / 4 === 360 degrees
         return [λ, 0];
     }
 

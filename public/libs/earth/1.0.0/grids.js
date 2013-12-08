@@ -49,10 +49,9 @@ var layers = function() {
         var b = x * (1 - y);
         var c = (1 - x) * y;
         var d = x * y;
-        return [
-            g00[0] * a + g10[0] * b + g01[0] * c + g11[0] * d,
-            g00[1] * a + g10[1] * b + g01[1] * c + g11[1] * d
-        ];
+        var u = g00[0] * a + g10[0] * b + g01[0] * c + g11[0] * d;
+        var v = g00[1] * a + g10[1] * b + g01[1] * c + g11[1] * d;
+        return [u, v, Math.sqrt(u * u + v * v)];
     }
 
     /**
@@ -121,7 +120,7 @@ var layers = function() {
         }
 
         function interpolate(λ, φ) {
-            var i = µ.floorDiv(λ - λ0, 360) / Δλ;  // calculate longitude index in wrapped range [0, 360)
+            var i = µ.floorMod(λ - λ0, 360) / Δλ;  // calculate longitude index in wrapped range [0, 360)
             var j = (φ0 - φ) / Δφ;                 // calculate latitude index in direction +90 to -90
 
             //         1      2           After converting λ and φ to fractional grid indexes i and j, we find the

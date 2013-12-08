@@ -327,7 +327,7 @@
         var width = view.width, height = view.height;
         var canvas = d3.select(document.createElement("canvas")).attr("width", width).attr("height", height).node();
         var context = globe.defineMask(canvas.getContext("2d"));
-        context.fillStyle = µ.asColorStyle(255, 0, 0, 1);
+        context.fillStyle = "rgba(255, 0, 0, 1)";
         context.fill();
         // d3.select("#display").node().appendChild(canvas);  // make mask visible for debugging
 
@@ -385,34 +385,19 @@
         return field;
     }
 
-    function distortionFor(globe) {
+    /**
+     * Calculate distortion of the wind vector caused by the shape of the projection at point (x, y). The wind
+     * vector is modified in place and returned by this function.
+     */
+    function distort(projection, λ, φ, x, y, scale, wind) {
+        var u = wind[0] * scale;
+        var v = wind[1] * scale;
+        var d = µ.distortion(projection, λ, φ, x, y);
 
-        var velocityScale = globe.bounds(view).height / 39000;  // particle speed as number of pixels per unit vector
-        var distortion = µ.distortion(globe.projection);
-        var dv = [];
-
-        /**
-         * Calculate distortion of the wind vector caused by the shape of the projection at point (x, y). The wind
-         * vector is modified in place and returned by this function.
-         */
-        function distort(x, y, λ, φ, wind) {
-            var u = wind[0], us = u * velocityScale;
-            var v = wind[1], vs = v * velocityScale;
-            var du = wind;
-
-            if (!distortion(λ, φ, x, y, du, dv)) {
-                throw new Error("whoops");
-            }
-
-            // Scale distortion vectors by u and v, then add.
-            wind[0] = du[0] * us + dv[0] * vs;
-            wind[1] = -(du[1] * us + dv[1] * vs);  // Reverse v component because y-axis grows down.
-            wind[2] = Math.sqrt(u * u + v * v);  // calculate the original wind magnitude
-
-            return wind;
-        }
-
-        return distort;
+        // Scale distortion vectors by u and v, then add.
+        wind[0] = d[0] * u + d[2] * v;
+        wind[1] = d[1] * u + d[3] * v;
+        return wind;
     }
 
     function interpolateField(globe, grid) {
@@ -425,7 +410,7 @@
 
         var projection = globe.projection;
         var bounds = globe.bounds(view);
-        var distort = distortionFor(globe);
+        var velocityScale = bounds.height / 39000;
 
         var columns = [];
         var point = [];
@@ -443,8 +428,9 @@
                         if (isFinite(λ)) {
                             var wind = interpolate(λ, φ);
                             if (wind) {
-                                column[y+1] = column[y] = distort(x, y, λ, φ, wind);
-                                color = µ.asRainbowColorStyle(Math.min(wind[2], 25) / 25, Math.floor(255 * 0.4));
+                                wind = distort(projection, λ, φ, x, y, velocityScale, wind);
+                                column[y+1] = column[y] = wind;
+                                color = µ.sinebowColorStyle(Math.min(wind[2], 25) / 25, Math.floor(255 * 0.4));
                             }
                         }
                     }
@@ -500,7 +486,7 @@
 
         var cancel = this.cancel;
         var bounds = globe.bounds(view);
-        var colorStyles = µ.colorStyles();
+        var colorStyles = µ.windColorScale(10, 17);
         var buckets = colorStyles.map(function() { return []; });
         var multiplier = µ.isMobile() ? 5.5 : 7;  // reduce particle count for mobile devices
         var particleCount = Math.round(bounds.width * multiplier);
@@ -689,7 +675,7 @@
             var λ = coord[0], φ = coord[1], wind = grid.interpolate(λ, φ);
             if (µ.isValue(wind)) {
                 d3.select("#location-coord").text(µ.formatCoordinates(λ, φ));
-                d3.select("#location-value").text(µ.formatVector(wind[0], wind[1]));
+                d3.select("#location-value").text(µ.formatVector(wind));
                 d3.select("#location-close").classed("invisible", false);
             }
         });
