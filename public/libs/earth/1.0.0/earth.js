@@ -17,13 +17,13 @@
     var MIN_MOVE = 4;                         // slack before a drag operation beings (pixels)
     var MOVE_END_WAIT = 1000;                 // time to wait for a move operation to be considered done (millis)
 
-    var VELOCITY_SCALE = 1/39000;             // scale for wind velocity (completely arbitrary--this value looks nice)
+    var VELOCITY_SCALE = 1/60000;             // scale for wind velocity (completely arbitrary--this value looks nice)
     var OVERLAY_ALPHA = Math.floor(0.4*255);  // overlay transparency (on scale [0, 255])
-    var MAX_WIND = 25;                        // max wind velocity shown by the overlay (m/s)
+    var MAX_WIND = 100;                       // max wind velocity shown by the overlay (m/s)
     var INTENSITY_SCALE_STEP = 10;            // step size of particle intensity color scale
     var MAX_WIND_INTENSITY = 17;              // wind velocity at which particle intensity is maximum (m/s)
     var MAX_PARTICLE_AGE = 40;                // max number of frames a particle is drawn before regeneration
-    var PARTICLE_LINE_WIDTH = 0.75;           // line width of a drawn particle
+    var PARTICLE_LINE_WIDTH = 1.0;            // line width of a drawn particle
     var PARTICLE_MULTIPLIER = 7;              // particle count scalar (completely arbitrary--this values looks nice)
     var PARTICLE_REDUCTION = 0.75;            // reduce particle count to this much of normal for mobile devices
     var FRAME_RATE = 40;                      // desired milliseconds per frame
@@ -454,7 +454,7 @@
                             if (wind) {
                                 wind = distort(projection, λ, φ, x, y, velocityScale, wind);
                                 column[y+1] = column[y] = wind;
-                                color = µ.sinebowColorStyle(Math.min(wind[2], MAX_WIND) / MAX_WIND, OVERLAY_ALPHA);
+                                color = µ.extendedSinebowColor(Math.min(wind[2], MAX_WIND) / MAX_WIND, OVERLAY_ALPHA);
                             }
                         }
                     }
@@ -498,7 +498,7 @@
 
         var cancel = this.cancel;
         var bounds = globe.bounds(view);
-        var colorStyles = µ.windColorScale(INTENSITY_SCALE_STEP, MAX_WIND_INTENSITY);
+        var colorStyles = µ.windIntensityColorScale(INTENSITY_SCALE_STEP, MAX_WIND_INTENSITY);
         var buckets = colorStyles.map(function() { return []; });
         var particleCount = Math.round(bounds.width * PARTICLE_MULTIPLIER);
         if (µ.isMobile()) {
@@ -594,6 +594,15 @@
         if (flag !== "off") {
             d3.select("#overlay").node().getContext("2d").putImageData(field.overlay, 0, 0);
         }
+
+//        // Draw color scale for reference.
+//        var g = d3.select("#overlay").node().getContext("2d");
+//        var n = view.width / 2;
+//        for (var i = n; i >= 0; i--) {
+//            var c = µ.extendedSinebowColor((1 - (i / n)), 0.9);
+//            g.fillStyle = "rgba(" + c[0] + "," + c[1] + "," + c[2] + ",0.9)";
+//            g.fillRect(view.width - 50 - i, view.height - 170, 1, 30);
+//        }
     }
 
     function activeDate(grid) {
