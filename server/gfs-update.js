@@ -382,7 +382,11 @@ function processCycles() {
         when(gfs.cycle(opt.startDate));
 
     return when(findStart).then(function(startCycle) {
-        var endCycle = gfs.cycle(opt.back ? tool.addHours(startCycle.date(), opt.back) : opt.endDate);
+        var endCycle = opt.back ?
+            gfs.cycle(tool.addHours(startCycle.date(), opt.back)) :
+            opt.endDate === opt.startDate ?
+                startCycle :
+                gfs.cycle(opt.endDate);
         var cycle = startCycle;
         var first = true;
 
