@@ -16,7 +16,7 @@
  *       actual 00:00 00:03 00:06 00:09 00:12 00:15 00:18 00:21 00:00 00:03 00:06 00:09 00:12 00:15 00:18 00:21 00:00
  *        time  11-29 11-29 11-29 11-29 11-29 11-29 11-29 11-29 11-30 11-30 11-30 11-30 11-30 11-30 11-30 11-30 12-01
  *
- * See http://www.emc.ncep.noaa.gov/index.php?branch=GFS.
+ * See http://www.emc.ncep.noaa.gov/index.php?branch=GFS
  */
 
 "use strict";
@@ -110,6 +110,7 @@ exports.product = function(type, cycle, forecastHour) {
                 case "2.5":    return util.format("gfs.t%sz.pgrbf%s.2p5deg.grib2", cc, ff);
                 case "master": return util.format("gfs.t%sz.mastergrb2f%s", cc, ff);
             }
+            throw new Error("unknown type: " + type);
         },
         /**
          * @param {String} [parent] the parent directory
@@ -211,7 +212,7 @@ exports.cacheControlFor = function(layer) {
         // All forecast products farther out than three hours are replaced during the next cycle, so they live
         // only a short time. The 00 and 03 forecast products will never be replaced by future runs, so they
         // live a very long time. If it's a "current" layer, then it always lives a short time.
-        var maxAge = layer.isCurrent || layer.product.forecastHour > 3 ? 1 * HOUR : 30 * DAY;
+        var maxAge = layer.isCurrent || layer.product.forecastHour > 3 ? HOUR : 30 * DAY;
         return "public, max-age=" + maxAge;
     };
 };

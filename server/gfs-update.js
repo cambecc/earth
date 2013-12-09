@@ -1,14 +1,30 @@
 /**
- * gfs-update - downloads GFS files and deploys them to AWS S3
+ * gfs-update - a fairly ugly script to download a range of GFS files and deploy extracted layers to AWS S3
  */
 
 // TODO: allow extraction and push to S3 to occur right after download rather than waiting for all downloads to finish
 // TODO: handle case where two separate process pipelines, from two different runs, may be trying to extract the same
 //       layer at once, or push to the S3 at once
-// TODO: optimize process of doing catch-up against several cycles. Don't want to keep re-putting items into S3.
-//       probably a combination of checking for age of layer and doing catch-up in reverse chronological order
 
 "use strict";
+
+var argv = require("optimist")
+    .usage("Usage: $0 -g {path} -l {path} -f now|recent|{date} [-u now|{date}] [-b {hours}] [-d {num}]")
+    .demand(["g", "l", "f"])
+    .alias("g", "gribhome")
+        .describe("g", "path where to save downloaded GRIB files")
+    .alias("l", "layerhome")
+        .describe("l", "path where to save extracted layers")
+    .alias("f", "from")
+        .describe("f", "begin update from cycle corresponding to this time, going backwards chronologically")
+    .alias("u", "until")
+        .describe("u", "end update at cycle corresponding to this time")
+    .alias("b", "back")
+        .describe("b", "end update at cycle going back this many hours from the start")
+    .alias("d", "depth")
+        .default("d", 1)
+        .describe("d", "forecast depth to fetch for first cycle (default depth of '1')")
+    .argv;
 
 console.log("============================================================");
 console.log(new Date().toISOString() + " - Starting");
@@ -24,9 +40,11 @@ var guard = require('when/guard');
 var tool = require("./tool");
 var gfs = require("./gfs");
 var aws = require("./aws");
+var scraper = require("./scraper");
 var log = tool.log();
 
-var PRODUCT_TYPES = ["1.0"];
+temp.track(true);
+
 var INDENT;  // = 2;
 var GRIB2JSON_FLAGS = "-c -d -n";
 var LAYER_RECIPES = {
@@ -79,36 +97,51 @@ var servers = [
     gfs.servers.NCEP
 ];
 
-var GRIB_HOME = tool.ensureTrailing(process.argv[2], "/");
-var LAYER_HOME = tool.ensureTrailing(process.argv[3], "/");
-var startDate = interpretDateArgument(process.argv[4]);
-var endDate = interpretDateArgument(process.argv[5], startDate);
-var forecasts = _.rest(process.argv, 6).map(function(s) { return +s; });
-if (forecasts.length === 0) {
-    forecasts = [0, 3];
-}
+var opt = function() {
 
-temp.track(true);
+    log.info("arguments: \n" +
+        util.inspect(_.pick(argv, "gribhome", "layerhome", "from", "until", "back", "_")));
 
-log.info("arguments: \n" + util.inspect({
-    gribHome: GRIB_HOME,
-    layerHome: LAYER_HOME,
-    startDate: startDate,
-    endDate: endDate,
-    forecasts: forecasts}));
+    var startDate = argv.from === "now" ?
+        new Date() :
+        argv.from === "recent" ?
+            "recent" :
+            new Date(argv.from);
 
-mkdirp.sync(GRIB_HOME);
-mkdirp.sync(LAYER_HOME);
-
-function interpretDateArgument(s, base) {
-    if (s && s.substr(0, 3) === "now") {
-        return tool.addHours(new Date(), s.length > 3 ? +s.substr(3) : 0);
+    var endDate = null, back = null;
+    if (argv.back) {
+        back = -argv.back;
+        endDate = tool.addHours(startDate, back);
     }
-    if (s && s.substr(0, 1) === "T") {
-        return tool.addHours(new Date(base), +s.substr(1));
+    else {
+        endDate = !argv.until ?
+            startDate :
+            argv.until === "now" ?
+                new Date() :
+                new Date(argv.until);
     }
-    return new Date(s);
-}
+
+    var forecasts = [0];
+    for (var i = 1; i <= argv.depth; i++) {
+        forecasts.push(i * 3);
+    }
+
+    return {
+        gribHome: tool.ensureTrailing(argv.gribhome, "/"),
+        layerHome: tool.ensureTrailing(argv.layerhome, "/"),
+        startDate: startDate,
+        endDate: endDate,
+        back: back,
+        firstForecasts: forecasts,
+        subsequentForecasts: [0, 3],
+        productType: "1.0"
+    };
+}();
+
+log.info("options: \n" + util.inspect(opt));
+
+mkdirp.sync(opt.gribHome);
+mkdirp.sync(opt.layerHome);
 
 function nextServer() {
     if (servers.length === 0) {
@@ -131,7 +164,7 @@ function releaseServer(server) {
  */
 function download(product) {
     // CONSIDER: generalize this function by removing dependency on product object
-    var localPath = product.path(GRIB_HOME);
+    var localPath = product.path(opt.gribHome);
     if (fs.existsSync(localPath)) {
         log.info("already exists: " + localPath);
         return when.resolve(product);
@@ -150,7 +183,7 @@ function download(product) {
                     log.info(util.format("download failed: %s", util.inspect(result)));
                     return product;
                 }
-                mkdirp.sync(product.dir(GRIB_HOME));
+                mkdirp.sync(product.dir(opt.gribHome));
                 fs.renameSync(tempStream.path, localPath); // UNDONE: cleanup temp, and don't affect other dls in progress
                 var kps = Math.round(result.received / 1024 / result.duration * 1000);
                 log.info("download complete: " + kps + "Kps "  + remotePath);
@@ -197,8 +230,8 @@ function processLayer(layer, path) {
 }
 
 function extractLayer(layer) {
-    var productPath = layer.product.path(GRIB_HOME);
-    var layerPath = layer.path(LAYER_HOME);
+    var productPath = layer.product.path(opt.gribHome);
+    var layerPath = layer.path(opt.layerHome);
 
     if (!fs.existsSync(productPath)) {
         log.info("product file not found, skipping: " + productPath);
@@ -230,7 +263,7 @@ function extractLayer(layer) {
             return null;
         }
 
-        mkdirp.sync(layer.dir(LAYER_HOME));
+        mkdirp.sync(layer.dir(opt.layerHome));
         fs.writeFileSync(layerPath, JSON.stringify(data, null, INDENT));
         log.info("successfully built: " + layerPath);
         return layer;
@@ -250,7 +283,7 @@ function pushLayer(layer) {
     if (!layer) {
         return null;  // no layer, so nothing to do
     }
-    var layerPath = layer.path(LAYER_HOME);
+    var layerPath = layer.path(opt.layerHome);
     if (!fs.existsSync(layerPath)) {
         log.info("Layer file not found, skipping: " + layerPath);
         return null;
@@ -276,34 +309,86 @@ function pushLayers(layers) {
     return when.map(layers, pushLayer_throttled);
 }
 
-function processCycle(cycle) {
-    log.info(JSON.stringify(cycle));
-    var products = [];
+function processCycle(cycle, forecasts) {
+    log.info(JSON.stringify(cycle) + " " + forecasts);
 
-    PRODUCT_TYPES.forEach(function(type) {
-        forecasts.forEach(function(forecastHour) {
-            products.push(gfs.product(type, cycle, forecastHour));
-        });
+    var products = forecasts.map(function(forecastHour) {
+        return gfs.product(opt.productType, cycle, forecastHour);
     });
-
     var downloads = when.map(products, download_throttled);
     var extracted = when.map(downloads, extractLayers);
     var pushed = when.map(extracted, pushLayers);
 
-    return pushed.then(function(result) {
+    return pushed.then(function() {
         log.info("batch complete");
     });
 }
 
-function processCycles(bounds) {
+function checkProductsExist(url, dir, productType, forecasts) {
+    // get the cycle that matches the directory: "gfs.yyyymmddhh"
+    var cycle = gfs.cycle(tool.toISOString({
+        year: dir.substr(4, 4),
+        month: dir.substr(8, 2),
+        day: dir.substr(10, 2),
+        hour: dir.substr(12, 2)}));
+
+    // build list of files we expect to exist
+    var expectedFiles = forecasts.map(function(forecastHour) {
+        return gfs.product(productType, cycle, forecastHour).file();
+    });
+
+    // fetch contents of the directory then check if all expected files exist
+    return scraper.fetch(url + dir).then(function(dom) {
+        var allFiles = scraper.extractAttributes("a", "href", dom);
+        var actualFiles = _.intersection(expectedFiles, allFiles);
+        return actualFiles.length === expectedFiles.length ? cycle : null;
+    });
+}
+
+function inspectRecentCycles(url, productType, forecasts) {
+
+    // fetch list of directories on the server and check the most recent ones for the products we require
+    return when(scraper.fetch(url)).then(function(dom) {
+        var dirs = scraper.matchText(/gfs\.\d{10}\/$/, dom).map(function(n) { return n[0]; });
+        dirs = _.last(dirs.sort(), 3);  // inspect at most the last three directories, then give up.
+        var i = dirs.length;
+
+        return function check() {
+            return i > 0 ?
+                checkProductsExist(url, dirs[--i], productType, forecasts).then(function(cycle) {
+                    return cycle ? cycle : check();
+                }) :
+                when.reject("cannot find most recent cycle");
+        }();
+    });
+}
+
+function findMostRecent() {
+    var server = nextServer();
+    return inspectRecentCycles("http://" + server, opt.productType, opt.firstForecasts).ensure(function() {
+        releaseServer(server);
+    });
+}
+
+function processCycles() {
     var result = [];
-    var stop = gfs.cycle(new Date(bounds.until));
-    var cycle = gfs.cycle(new Date(bounds.from));
-    while (cycle.date().getTime() >= stop.date().getTime()) {
-        result.push(processCycle(cycle));
-        cycle = cycle.previous();
-    }
-    return when.all(result);
+    var findStart = opt.startDate === "recent" ?
+        findMostRecent() :
+        when(gfs.cycle(opt.startDate));
+
+    return when(findStart).then(function(startCycle) {
+        var endCycle = gfs.cycle(opt.back ? tool.addHours(startCycle.date(), opt.back) : opt.endDate);
+        var cycle = startCycle;
+        var first = true;
+
+        while (cycle.date().getTime() >= endCycle.date().getTime()) {
+            result.push(processCycle(cycle, first ? opt.firstForecasts : opt.subsequentForecasts));
+            cycle = cycle.previous();
+            first = false;
+        }
+
+        return when.all(result);
+    });
 }
 
 function copyCurrent() {
@@ -313,13 +398,13 @@ function copyCurrent() {
     var now = Date.now(), threeDaysAgo = now - 3*24*60*60*1000;
 
     // Start from the next cycle in the future and search backwards until we find the most recent layer.
-    var mostRecentLayer = gfs.layer(LAYER_RECIPES.wi1000, gfs.product(PRODUCT_TYPES[0], gfs.cycle(now).next(), 0));
+    var mostRecentLayer = gfs.layer(LAYER_RECIPES.wi1000, gfs.product(opt.productType, gfs.cycle(now).next(), 0));
     while (mostRecentLayer.product.date() > now) {
         mostRecentLayer = mostRecentLayer.previous();
     }
 
     // Continue search backwards until we find a layer that exists on disk. Might be several hours ago.
-    while (!fs.existsSync(mostRecentLayer.path(LAYER_HOME))) {
+    while (!fs.existsSync(mostRecentLayer.path(opt.layerHome))) {
         mostRecentLayer = mostRecentLayer.previous();
         if (mostRecentLayer.product.date() < threeDaysAgo) {
             // Nothing recent exists, so give up.
@@ -329,8 +414,8 @@ function copyCurrent() {
     }
 
     // The layer we found belongs to a cycle/product. Crack it open to find out which one.
-    var header = tool.readJSONSync(mostRecentLayer.path("./" + LAYER_HOME))[0].header;  // HACK
-    var product = gfs.product(PRODUCT_TYPES[0], gfs.cycle(header.refTime), header.forecastTime);
+    var header = tool.readJSONSync(mostRecentLayer.path("./" + opt.layerHome))[0].header;  // HACK
+    var product = gfs.product(opt.productType, gfs.cycle(header.refTime), header.forecastTime);
 
     // Symlink the layers from the "data/weather/current" directory:
     var layers = Object.keys(LAYER_RECIPES).map(function(recipeId) {
@@ -339,13 +424,13 @@ function copyCurrent() {
         var src = gfs.layer(LAYER_RECIPES[recipeId], product, false);
         var dest = gfs.layer(LAYER_RECIPES[recipeId], product, true);
 
-        mkdirp.sync(dest.dir(LAYER_HOME));
-        var destPath = dest.path(LAYER_HOME);
+        mkdirp.sync(dest.dir(opt.layerHome));
+        var destPath = dest.path(opt.layerHome);
         if (fs.existsSync(destPath)) {
             fs.unlinkSync(destPath);  // remove existing file, if any
         }
         var d = when.defer();
-        fs.createReadStream(src.path(LAYER_HOME)).pipe(fs.createWriteStream(destPath)).on("finish", function() {
+        fs.createReadStream(src.path(opt.layerHome)).pipe(fs.createWriteStream(destPath)).on("finish", function() {
             d.resolve(dest);
         });
         return d.promise;
@@ -355,7 +440,7 @@ function copyCurrent() {
     return pushLayers(layers);
 }
 
-processCycles({from: startDate, until: endDate})
+processCycles()
     .then(copyCurrent)
     .otherwise(tool.report)
     .done();

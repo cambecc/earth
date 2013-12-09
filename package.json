@@ -20,7 +20,9 @@
         "aws-sdk": "1.12.0",
         "express": "3.4.4",
         "winston": "0.7.2",
-        "mkdirp": "0.3.5"
+        "mkdirp": "0.3.5",
+        "htmlparser": "1.7.6",
+        "optimist": "0.6.0"
     },
     "devDependencies": {
         "nodeunit": "0.8.2",
