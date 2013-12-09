@@ -16,14 +16,14 @@ console.log(new Date().toISOString() + " - Starting");
 [
 
     "about.html",
+    "cover.jpg",
     "favicon.ico",
     "ipad-icon.png",
     "iphone-icon.png",
     "index.html",
-    "natural-earth.png",
+    "natural-earth.jpg",
     "preview.jpg",
     "styles/styles.css",
-    "styles/mplus-2p-light-057.ttf",
     "styles/mplus-2p-light-sub.ttf",
     "data/earth-topo.json",
     "data/earth-topo-mobile.json",
