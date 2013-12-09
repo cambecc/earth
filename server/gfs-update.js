@@ -1,5 +1,10 @@
 /**
  * gfs-update - a fairly ugly script to download a range of GFS files and deploy extracted layers to AWS S3
+ *
+ * Example usage: to download products in the range of cycles from the most recent cycle until the cycle 24 hours
+ * previous, pulling down the first nine forecasts from the first cycle in the range:
+ *
+ *     node gfs-update.js -g ../scratch -l ../scratch/data/weather --from recent --back 6 --depth 9
  */
 
 // TODO: allow extraction and push to S3 to occur right after download rather than waiting for all downloads to finish
