@@ -74,9 +74,8 @@ exports.cacheControl = function() {
         [/libs\/.*\.js/, 30 * DAY],
 
         // extremely long-lived
-        [/\.png|\.ico/, 365 * DAY],
-        [/earth-topo\.json/, 365 * DAY],
-        [/mplus-.*\.ttf/, 365 * DAY]
+        [/\.(ico|png|jpg|ttf)$/, 365 * DAY],
+        [/earth-topo\.json/, 365 * DAY]
     ];
 
     return function(key) {

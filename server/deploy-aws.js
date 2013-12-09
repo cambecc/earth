@@ -21,7 +21,7 @@ console.log(new Date().toISOString() + " - Starting");
     "iphone-icon.png",
     "index.html",
     "natural-earth.png",
-    "preview.png",
+    "preview.jpg",
     "styles/styles.css",
     "styles/mplus-2p-light-057.ttf",
     "styles/mplus-2p-light-sub.ttf",
