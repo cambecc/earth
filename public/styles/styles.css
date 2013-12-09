@@ -4,7 +4,7 @@
 
 @font-face {
     font-family: mplus-2p-light-sub-1;
-    src: url("/styles/mplus-2p-light-sub.ttf");
+    src: url("/styles/mplus-2p-light-sub.ttf?v1");
 }
 
 /**************************************************************************************************
@@ -168,15 +168,29 @@ body {
 #about h1 {
     font-size: 2.4rem;
     text-align: center;
+    padding-top: 2rem;
 }
 
 #about div {
     clear: both;
 }
 
+.blurb {
+    padding-top: 2rem;
+    padding-bottom: 2rem;
+}
+
 #about img {
     display: block;
     margin: auto;
+}
+
+#about:first-child {
+    padding-top: 3rem;
+}
+
+#cover {
+    border: 1px solid #eeeeee;
 }
 
 #about .left {
@@ -194,6 +208,10 @@ body {
     text-align: center;
 }
 
-#footer {
-    padding-bottom: 2rem;
+#about .pad {
+    visibility: hidden;
+}
+
+#closing {
+    padding-bottom: 2.5rem;
 }

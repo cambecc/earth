@@ -9,62 +9,82 @@
 <body>
 
     <div id="about">
-        <img src="/cover.jpg"/>
+        <div>
+            <img id="cover" src="/cover.jpg"/>
+        </div>
         <h1>earth</h1>
-        <div>
-            <p class="left">Community |&nbsp;</p>
-            <p class="right"><a href="https://www.facebook.com/pages/Earth/1421330998100626">Facebook Page</a></p>
+        <div class="blurb">
+            <p class="center">a visualization of global weather conditions</p>
+            <p class="center">forecast by supercomputers every three hours</p>
         </div>
         <div>
-            <p class="left">Author |&nbsp;</p>
-            <p class="right">Cameron Beccario <a href="https://twitter.com/cambecc">@cambecc</a></p>
+            <p class="left">Community |</p>
+            <p class="right">&nbsp;<a href="https://www.facebook.com/pages/Earth/1421330998100626">Facebook Page</a></p>
         </div>
         <div>
-            <p class="left">Source |&nbsp;</p>
-            <p class="right"><a href="https://github.com/cambecc/earth">github.com/cambecc/earth</a></p>
+            <p class="left">Author |</p>
+            <p class="right">&nbsp;Cameron Beccario <a href="https://twitter.com/cambecc">@cambecc</a></p>
         </div>
         <div>
-            <p class="left">Modules |&nbsp;</p>
-            <p class="right">
-                <a href="http://d3js.org/">D3.js</a>,
+            <p class="left">Source |</p>
+            <p class="right">&nbsp;<a href="https://github.com/cambecc/earth">github.com/cambecc/earth</a></p>
+        </div>
+        <div>
+            <p class="left">Modules |</p>
+            <p class="right">&nbsp;<a href="http://d3js.org/">D3.js</a>,
                 <a href="https://github.com/cujojs/when">when.js</a>,
                 <a href="http://backbonejs.org/">backbone.js</a>,
                 <a href="http://nodejs.org">node.js</a>
             </p>
         </div>
         <div>
-            <p class="left">Weather Data |&nbsp;</p>
-            <p class="right"><a href="http://www.emc.ncep.noaa.gov">NCEP - US National Weather Service</a></p>
+            <p class="left">Weather Data |</p>
+            <p class="right">&nbsp;Global Forecast System
+                <br/>&nbsp;<a href="http://www.emc.ncep.noaa.gov">NCEP - US National Weather Service</a></p>
         </div>
         <div>
-            <p class="left">GRIB Decoder |&nbsp;</p>
-            <p class="right"><a href="https://github.com/Unidata/thredds">UCAR/Unidata THREDDS</a></p>
+            <p class="left">GRIB Decoder |</p>
+            <p class="right">&nbsp;<a href="https://github.com/Unidata/thredds">UCAR/Unidata THREDDS</a></p>
         </div>
         <div>
-            <p class="left">Geographic Data |&nbsp;</p>
-            <p class="right"><a href="http://www.naturalearthdata.com">Natural Earth</a></p>
+            <p class="left">Geographic Data |</p>
+            <p class="right">&nbsp;<a href="http://www.naturalearthdata.com">Natural Earth</a></p>
         </div>
         <div>
+            <p class="left">Font |</p>
+            <p class="right">&nbsp;<a href="http://mplus-fonts.sourceforge.jp/">M+ FONTS</a></p>
+        </div>
+        <div>
+            <p class="left">See Also |</p>
+            <p class="right">&nbsp;<a href="http://air.nullschool.net">東京風速</a></p>
+        </div>
+        <div>
+            <p class="left">Inspiration |</p>
+            <p class="right">&nbsp;<a href="http://hint.fm/wind">HINT.FM wind map</a></p>
+        </div>
+        <div class="blurb">
+            <p class="center">atmospheric pressure corresponds roughly to altitude</p>
+            <p class="center">several pressure surfaces are meteorologically interesting</p>
+            <p class="center">note: 1 hectopascal (hPa) ≡ 1 millibar (mb)</p>
+        </div>
+        <div><p class="left">1000 hPa |</p><p class="right">&nbsp;<span class="pad">00,</span>~100 m, surface conditions</p></div>
+        <div><p class="left"> 850 hPa |</p><p class="right">&nbsp;<span class="pad">0</span>~1,500 m, <a href="http://en.wikipedia.org/wiki/Planetary_boundary_layer">planetary boundary</a>, low</p></div>
+        <div><p class="left"> 700 hPa |</p><p class="right">&nbsp;<span class="pad">0</span>~3,500 m, planetary boundary, high</p></div>
+        <div><p class="left"> 500 hPa |</p><p class="right">&nbsp;<span class="pad">0</span>~5,000 m, <a href="http://en.wikipedia.org/wiki/Vorticity#Atmospheric_sciences">vorticity</a></p></div>
+        <div><p class="left"> 250 hPa |</p><p class="right">&nbsp;~10,500 m, <a href="http://en.wikipedia.org/wiki/Jet_stream">jet stream</a></p></div>
+        <div><p class="left">  70 hPa |</p><p class="right">&nbsp;~17,500 m, <a href="http://en.wikipedia.org/wiki/Stratosphere">stratosphere</a></p></div>
+        <div><p class="left">  10 hPa |</p><p class="right">&nbsp;~26,500 m, even more stratosphere</p></div>
+        <div>
+        </div>
+        <div class="blurb">
             <img src="/natural-earth.jpg"/>
         </div>
-        <div>
-            <p class="left">Font |&nbsp;</p>
-            <p class="right"><a href="http://mplus-fonts.sourceforge.jp/">M+ FONTS</a></p>
-        </div>
-        <div>
-            <p class="left">See Also |&nbsp;</p>
-            <p class="right"><a href="http://air.nullschool.net">Tokyo Wind Map</a></p>
-        </div>
-        <div>
-            <p class="left">Inspiration |&nbsp;</p>
-            <p class="right"><a href="http://hint.fm/wind">HINT.FM wind map</a></p>
-        </div>
-        <div>
+        <div id="closing">
+            <p class="center">weather data is generated from numerical models</p>
+            <p class="center">earth.nullschool.net implies no guarantee of accuracy</p>
             <p class="center">正確な情報を提供するためのものではありません</p>
         </div>
-        <div></div>
     </div>
-    <div id="footer">
-    </div>
+
 </body>
 </html>
