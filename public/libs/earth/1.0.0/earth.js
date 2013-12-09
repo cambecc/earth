@@ -148,7 +148,7 @@
             .on("zoomend", function() {
                 op.manipulator.end();
                 if (op.type === "click") {
-                    dispatch.trigger("click", globe.projection.invert(op.startMouse));
+                    dispatch.trigger("click", op.startMouse, globe.projection.invert(op.startMouse));
                 }
                 else if (op.type !== "spurious") {
                     signalEnd();
@@ -320,8 +320,11 @@
                     d3.selectAll("path").attr("d", path);
                     rendererAgent.trigger("render");
                 },
-                click: function(coord) {
-                    // show the point on the map
+                click: function(point, coord) {
+                    // show the point on the map if defined
+                    if (fieldAgent.value() && fieldAgent.value()(point[0], point[1])[2] === null) {
+                        return;  // no wind vector at this point, so ignore.
+                    }
                     if (coord && _.isFinite(coord[0]) && _.isFinite(coord[1])) {
                         var mark = d3.select(".location-mark");
                         if (!mark.node()) {
@@ -630,11 +633,11 @@
         d3.select("#data-layer").text(recipe.description);
     }
 
-    function showLocationDetails(coord) {
-        var grid = gridAgent.value();
-        if (!grid) return;
+    function showLocationDetails(point, coord) {
+        var grid = gridAgent.value(), field = fieldAgent.value();
+        if (!grid || !field) return;
         var λ = coord[0], φ = coord[1], wind = grid.interpolate(λ, φ);
-        if (µ.isValue(wind)) {
+        if (µ.isValue(wind) && field(point[0], point[1])[2] !== null) {
             d3.select("#location-coord").text(µ.formatCoordinates(λ, φ));
             d3.select("#location-value").text(µ.formatVector(wind));
             d3.select("#location-close").classed("invisible", false);
