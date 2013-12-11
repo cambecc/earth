@@ -4,7 +4,7 @@
 
 @font-face {
     font-family: mplus-2p-light-sub-1;
-    src: url("/styles/mplus-2p-light-sub.ttf?v1");
+    src: url("/styles/mplus-2p-light-sub.ttf?v2");
 }
 
 /**************************************************************************************************
@@ -120,6 +120,12 @@ body {
 
 #show-location {
     padding-left: 0.25rem;
+}
+
+#lang {
+    font-size: 1.25rem;
+    float: right;
+    padding-top: 0.5rem;
 }
 
 /**************************************************************************************************

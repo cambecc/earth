@@ -203,10 +203,10 @@ var globes = function() {
         });
     }
 
-    function azimuthalEqualArea() {
+    function azimuthalEquidistant() {
         return newGlobe({
             newProjection: function() {
-                return d3.geo.azimuthalEqualArea().precision(0.1).rotate([0, -90]).clipAngle(180 - 0.001);
+                return d3.geo.azimuthalEquidistant().precision(0.1).rotate([0, -90]).clipAngle(180 - 0.001);
             }
         });
     }
@@ -324,7 +324,7 @@ var globes = function() {
 
     return d3.map({
         atlantis: atlantis,
-        azimuthal_equal_area: azimuthalEqualArea,
+        azimuthal_equidistant: azimuthalEquidistant,
         conic_equidistant: conicEquidistant,
         equirectangular: equirectangular,
         orthographic: orthographic,

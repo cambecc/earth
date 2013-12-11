@@ -22,7 +22,8 @@
         "winston": "0.7.2",
         "mkdirp": "0.3.5",
         "htmlparser": "1.7.6",
-        "optimist": "0.6.0"
+        "optimist": "0.6.0",
+        "swig": "1.2.2"
     },
     "devDependencies": {
         "nodeunit": "0.8.2",
