@@ -5,6 +5,10 @@
  * previous, pulling down the first nine forecasts from the first cycle in the range:
  *
  *     node gfs-update.js -g ../scratch -l ../scratch/data/weather --from recent --back 6 --depth 9
+ *
+ * To update the set of "current" layers only, do not specify any cycles:
+ *
+ *     node gfs-update.js -g ../scratch -l ../scratch/data/weather
  */
 
 // TODO: allow extraction and push to S3 to occur right after download rather than waiting for all downloads to finish
