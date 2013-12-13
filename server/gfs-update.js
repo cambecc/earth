@@ -15,7 +15,7 @@
 
 var argv = require("optimist")
     .usage("Usage: $0 -g {path} -l {path} -f now|recent|{date} [-u now|{date}] [-b {hours}] [-d {num}]")
-    .demand(["g", "l", "f"])
+    .demand(["g", "l"])
     .alias("g", "gribhome")
         .describe("g", "path where to save downloaded GRIB files")
     .alias("l", "layerhome")
@@ -107,23 +107,25 @@ var opt = function() {
     log.info("arguments: \n" +
         util.inspect(_.pick(argv, "gribhome", "layerhome", "from", "until", "back", "_")));
 
-    var startDate = argv.from === "now" ?
-        new Date() :
-        argv.from === "recent" ?
-            "recent" :
-            new Date(argv.from);
+    var startDate = null, endDate = null, back = null;
+    if (argv.from) {
+        startDate = argv.from === "now" ?
+            new Date() :
+            argv.from === "recent" ?
+                "recent" :
+                new Date(argv.from);
 
-    var endDate = null, back = null;
-    if (argv.back) {
-        back = -argv.back;
-        endDate = tool.addHours(startDate, back);
-    }
-    else {
-        endDate = !argv.until ?
-            startDate :
-            argv.until === "now" ?
-                new Date() :
-                new Date(argv.until);
+        if (argv.back) {
+            back = -argv.back;
+            endDate = tool.addHours(startDate, back);
+        }
+        else {
+            endDate = !argv.until ?
+                startDate :
+                argv.until === "now" ?
+                    new Date() :
+                    new Date(argv.until);
+        }
     }
 
     var forecasts = [0];
@@ -377,6 +379,10 @@ function findMostRecent() {
 
 function processCycles() {
     var result = [];
+    if (!opt.startDate) {
+        // No start date, so nothing to do.
+        return when.resolve(result);
+    }
     var findStart = opt.startDate === "recent" ?
         findMostRecent() :
         when(gfs.cycle(opt.startDate));
@@ -417,8 +423,7 @@ function copyCurrent() {
         mostRecentLayer = mostRecentLayer.previous();
         if (mostRecentLayer.product.date() < threeDaysAgo) {
             // Nothing recent exists, so give up.
-            log.info("No recent layers found.");
-            return;
+            return when.reject("No recent layers found.");
         }
     }
 
