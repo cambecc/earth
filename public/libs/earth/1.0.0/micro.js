@@ -233,7 +233,8 @@ var µ = function() {
      *
      * This method uses finite difference estimates to calculate warping by adding a very small amount (h) to
      * both the longitude and latitude to create two lines. These lines are then projected to pixel space, where
-     * the slopes of the lines represent how much the projection warps longitude and latitude at that location.
+     * they become diagonals of triangles that represent how much the projection warps longitude and latitude at
+     * that location.
      *
      * <pre>
      *        (λ, φ+h)                  (xλ, yλ)
@@ -244,19 +245,25 @@ var µ = function() {
      * </pre>
      *
      * See:
+     *     Map Projections: A Working Manual, Snyder, John P: pubs.er.usgs.gov/publication/pp1395
      *     gis.stackexchange.com/questions/5068/how-to-create-an-accurate-tissot-indicatrix
      *     www.jasondavies.com/maps/tissot
      *
-     * @returns {Array} array of derivatives [dx/dλ, dy/dλ, dx/dφ, dy/dφ]
+     * @returns {Array} array of scaled derivatives [dx/dλ, dy/dλ, dx/dφ, dy/dφ]
      */
     function distortion(projection, λ, φ, x, y) {
         var hλ = λ < 0 ? H : -H;
         var hφ = φ < 0 ? H : -H;
         var pλ = projection([λ + hλ, φ]);
         var pφ = projection([λ, φ + hφ]);
+
+        // Meridian scale factor (see Snyder, equation 4-3), where R = 1. This handles issue where length of 1º λ
+        // changes depending on φ. Without this, there is a pinching effect at the poles.
+        var k = Math.cos(φ / 360 * τ);
+
         return [
-            (pλ[0] - x) / hλ,
-            (pλ[1] - y) / hλ,
+            (pλ[0] - x) / hλ / k,
+            (pλ[1] - y) / hλ / k,
             (pφ[0] - x) / hφ,
             (pφ[1] - y) / hφ
         ];

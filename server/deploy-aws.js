@@ -1,5 +1,7 @@
 /**
- * aws - deploys "earth" files to AWS S3
+ * deploy-aws - deploys "earth" files to AWS S3
+ *
+ * Ideally this script would be converted to a grunt task and take advantage its file selectors.
  */
 
 "use strict";
@@ -27,6 +29,8 @@ console.log(new Date().toISOString() + " - Starting");
     "styles/mplus-2p-light-sub.ttf",
     "data/earth-topo.json",
     "data/earth-topo-mobile.json",
+    "jp/about.html",
+    "jp/index.html",
     "libs/d3.geo/0.0.0/d3.geo.polyhedron.v0.min.js",
     "libs/d3.geo/0.0.0/d3.geo.projection.v0.min.js",
     "libs/earth/1.0.0/earth.js",

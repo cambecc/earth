@@ -3,14 +3,14 @@
 <head>
     <meta charset="utf-8"/>
     <title>earth</title>
-    <meta itemprop="name"                                      content="earth"/>
-    <meta itemprop="description"     name="description"        content="an animated map of global wind conditions"/>
+    <meta itemprop="name"                                      content="地球"/>
+    <meta itemprop="description"     name="description"        content="世界中の風速状況がビジュアライズ"/>
     <meta itemprop="author"          name="author"             content="Cameron Beccario"/>
 
     <meta name="twitter:card"                                  content="summary_large_image"/>
     <meta                            property="og:type"        content="website"/>
-    <meta name="twitter:title"       property="og:title"       content="earth"/>
-    <meta name="twitter:description" property="og:description" content="an animated map of global wind conditions"/>
+    <meta name="twitter:title"       property="og:title"       content="地球"/>
+    <meta name="twitter:description" property="og:description" content="世界中の風速状況がビジュアライズ"/>
     <meta name="twitter:url"         property="og:url"         content="http://earth.nullschool.net"/>
     <meta name="twitter:image:src"   property="og:image"       content="http://earth.nullschool.net/preview.jpg"/>
     <meta name="twitter:site"                                  content="@cambecc"/>
@@ -26,7 +26,7 @@
 </head>
 <body>
 
-    <!--[if lte IE 8]><p id="warn">This site requires IE9 or newer.</p><![endif]-->
+    <!--[if lte IE 8]><p id="warn">このサイトはIE9より以上が必要です。</p><![endif]-->
 
     <div id="display">
         <svg id="map" class="fill-screen" xmlns="http://www.w3.org/2000/svg" version="1.1"></svg>
@@ -43,26 +43,26 @@
             <p id="location-value"></p>
         </div>
         <p id="start">
-            <span id="show-menu" class="text-button">earth</span>
+            <span id="show-menu" class="text-button">地球</span>
             <span id="progress" class="invisible"></span>
         </p>
 
         <div id="menu" class="invisible">
-            <p>Date |
+            <p>日付 |
                 <span id="data-date" class="local"></span>
                 <span id="toggle-zone" class="text-button"></span>
             </p>
-            <p>Layer | <span id="data-layer"></span></p>
-            <p>Data | <span id="data-center">NCEP / US National Weather Service / NOAA</span></p>
-            <p>Control | <span
-                class="text-button" id="nav-now" title="Current Conditions">Now</span><span
-                class="text-button" id="nav-prev-day" title="-1 Day"> « </span> – <span
-                class="text-button" id="nav-prev-forecast" title="-3 Hours"> ‹ </span> – <span
-                class="text-button" id="nav-next-forecast" title="+3 Hours"> › </span> – <span
-                class="text-button" id="nav-next-day" title="+1 Day"> » </span><span
-                class="text-button" id="show-location" title="Current Position">〖◯〗</span>
+            <p>曲面 | <span id="data-layer"></span></p>
+            <p>データ | <span id="data-center">NCEP / アメリカ国立気象局 / NOAA</span></p>
+            <p>操作 | <span
+                class="text-button" id="nav-now" title="現在状況">最新</span><span
+                class="text-button" id="nav-prev-day" title="前日"> « </span> – <span
+                class="text-button" id="nav-prev-forecast" title="3時間前"> ‹ </span> – <span
+                class="text-button" id="nav-next-forecast" title="3時間後"> › </span> – <span
+                class="text-button" id="nav-next-day" title="前日"> » </span><span
+                class="text-button" id="show-location" title="現在地">〖◯〗</span>
             </p>
-            <p>Height | <span
+            <p>高度 | <span
                 class="text-button" id="iso-1000">1000</span> – <span
                 class="text-button" id="iso-850">850</span> – <span
                 class="text-button" id="iso-700">700</span> – <span
@@ -71,23 +71,23 @@
                 class="text-button" id="iso-70">70</span> – <span
                 class="text-button" id="iso-10">10</span> hPa
             </p>
-            <p>Overlay | <span
-                class="text-button" id="none">None</span> – <span
-                class="text-button" id="wind">Wind</span>
+            <p>レイヤー | <span
+                class="text-button" id="none">無</span> – <span
+                class="text-button" id="wind">風速</span>
             </p>
-            <p>Projection | <span
-                class="proj text-button" id="atlantis" title="Atlantis">A</span> – <span
-                class="proj text-button" id="azimuthal_equidistant" title="Azimuthal Equidistant">AE</span> – <span
-                class="proj text-button" id="conic_equidistant" title="Conic Equidistant">CE</span> – <span
-                class="proj text-button" id="equirectangular" title="Equirectangular">E</span> – <span
-                class="proj text-button" id="orthographic" title="Orthographic">O</span> – <span
-                class="proj text-button" id="stereographic" title="Stereographic">S</span> – <span
-                class="proj text-button" id="waterman" title="Waterman Butterfly">WB</span> – <span
-                class="proj text-button" id="winkel3" title="Winkel Tripel">W3</span>
+            <p>投影法 | <span
+                class="proj text-button" id="atlantis" title="アトランティス">A</span> – <span
+                class="proj text-button" id="azimuthal_equidistant" title="正距方位">AE</span> – <span
+                class="proj text-button" id="conic_equidistant" title="正距円錐">CE</span> – <span
+                class="proj text-button" id="equirectangular" title="正距円筒">E</span> – <span
+                class="proj text-button" id="orthographic" title="正射">O</span> – <span
+                class="proj text-button" id="stereographic" title="平射">S</span> – <span
+                class="proj text-button" id="waterman" title="ウォーターマン蝶型">WB</span> – <span
+                class="proj text-button" id="winkel3" title="ヴィンケル第3">W3</span>
             </p>
             <!--<p>免責事項 | 正確な情報を提供するためのものではありません</p>-->
-            <p id="lang"><a href="/jp">日本語</a></p>
-            <p><a href="about.html">about</a></p>
+            <p id="lang"><a href="/">English</a></p>
+            <p><a href="about.html">サイトについて</a></p>
         </div>
     </div>
 

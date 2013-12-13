@@ -1,0 +1,191 @@
+{
+    "Date": {
+        "ja": "日付"
+    },
+    "Layer": {
+        "ja": "曲面"
+    },
+    "earth": {
+        "ja": "地球"
+    },
+    "an animated map of global wind conditions": {
+        "ja": "世界中の風速状況がビジュアライズ"
+    },
+    "This site requires IE9 or newer.": {
+        "ja": "このサイトはIE9より以上が必要です。"
+    },
+    "Data": {
+        "ja": "データ"
+    },
+    "NCEP / US National Weather Service / NOAA": {
+        "ja": "NCEP / アメリカ国立気象局 / NOAA"
+    },
+    "Control": {
+        "ja": "操作"
+    },
+    "Current Conditions": {
+        "ja": "現在状況"
+    },
+    "Now": {
+        "ja": "最新"
+    },
+    "-1 Day": {
+        "ja": "前日"
+    },
+    "-3 Hours": {
+        "ja": "3時間前"
+    },
+    "+3 Hours": {
+        "ja": "3時間後"
+    },
+    "+1 Day": {
+        "ja": "前日"
+    },
+    "Current Position": {
+        "ja": "現在地"
+    },
+    "Height": {
+        "ja": "高度"
+    },
+    "Overlay": {
+        "ja": "レイヤー"
+    },
+    "None": {
+        "ja": "無"
+    },
+    "Wind": {
+        "ja": "風速"
+    },
+    "Projection": {
+        "ja": "投影法"
+    },
+    "Atlantis": {
+        "ja": "アトランティス"
+    },
+    "Azimuthal Equidistant": {
+        "ja": "正距方位"
+    },
+    "Conic Equidistant": {
+        "ja": "正距円錐"
+    },
+    "Equirectangular": {
+        "ja": "正距円筒"
+    },
+    "Orthographic": {
+        "ja": "正射"
+    },
+    "Stereographic": {
+        "ja": "平射"
+    },
+    "Waterman Butterfly": {
+        "ja": "ウォーターマン蝶型"
+    },
+    "Winkel Tripel": {
+        "ja": "ヴィンケル第3"
+    },
+    "about": {
+        "ja": "サイトについて"
+    },
+    "about earth": {
+        "ja": "地球について"
+    },
+    "a visualization of global weather conditions": {
+        "ja": "世界中の気象状況がビジュアライズ"
+    },
+    "forecast by supercomputers": {
+        "ja": "スーパーコンピュータが予報"
+    },
+    "updated every three hours": {
+        "ja": "３時間ごとの更新"
+    },
+    "Community": {
+        "ja": "コミュニティ"
+    },
+    "Author": {
+        "ja": "作り手"
+    },
+    "Source": {
+        "ja": "ソースコード"
+    },
+    "Modules": {
+        "ja": "使用ライブラリ"
+    },
+    "Weather Data": {
+        "ja": "天気予報データ"
+    },
+    "GRIB Decoder": {
+        "ja": "GRIB デコーダ"
+    },
+    "Geographic Data": {
+        "ja": "地理データ"
+    },
+    "Font": {
+        "ja": "フォント"
+    },
+    "Earlier Work": {
+        "ja": "関連サイト"
+    },
+    "Tokyo Wind Map": {
+        "ja": "東京風速"
+    },
+    "Inspiration": {
+        "ja": "インスピレーション"
+    },
+    "atmospheric pressure corresponds roughly to altitude": {
+        "ja": "各気圧によるおおむねの高度"
+    },
+    "several pressure surfaces are meteorologically interesting": {
+        "ja": ""
+    },
+    "note: 1 hectopascal (hPa) ≡ 1 millibar (mb)": {
+        "ja": "note: 1 ヘクトパスカル (hPa) ≡ 1 ミリバール (mb)"
+    },
+    "surface conditions": {
+        "ja": "地上付近"
+    },
+    "http://en.wikipedia.org/wiki/Planetary_boundary_layer": {
+        "ja": "http://ja.wikipedia.org/wiki/大気境界層"
+    },
+    "planetary boundary": {
+        "ja": "大気境界層"
+    },
+    ", low" : {
+        "ja": "、低"
+    },
+    ", high": {
+        "ja": "、高"
+    },
+    "http://en.wikipedia.org/wiki/Vorticity": {
+        "ja": "http://ja.wikipedia.org/wiki/渦度"
+    },
+    "vorticity": {
+        "ja": "渦度"
+    },
+    "http://en.wikipedia.org/wiki/Jet_stream": {
+        "ja": "http://ja.wikipedia.org/wiki/ジェット気流"
+    },
+    "jet stream": {
+        "ja": "ジェット気流"
+    },
+    "http://en.wikipedia.org/wiki/Stratosphere": {
+        "ja": "http://ja.wikipedia.org/wiki/成層圏"
+    },
+    "stratosphere": {
+        "ja": "成層圏"
+    },
+    "even more stratosphere": {
+        "ja": "もっと成層圏"
+    },
+    "weather data is generated from numerical models": {
+        "ja": ""
+    },
+    "earth.nullschool.net implies no guarantee of accuracy": {
+        "ja": "正確な情報を提供するためのものではありません"
+    },
+    "/jp": {
+        "ja": "/"
+    },
+    "日本語": {
+        "ja": "English"
+    }
+}

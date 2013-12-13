@@ -148,7 +148,7 @@ var layers = function() {
                     }
                 }
             }
-            // log.debug("cannot interpolate: " + λ + "," + φ + ": " + fi + " " + ci + " " + fj + " " + cj);
+            // console.log("cannot interpolate: " + λ + "," + φ + ": " + fi + " " + ci + " " + fj + " " + cj);
             return null;
         }
 
