@@ -98,7 +98,6 @@ Building this project required solutions to some interesting problems. Here are 
      from the center, it will trace a path straight up. However, if the particle starts from the globe's edge,
      it will trace a path that curves toward the pole. [Finite difference approximations](http://gis.stackexchange.com/a/5075/23451)
      are used to estimate this distortion during the interpolation process.
-   * WTF is up with the polar regions? I do not know why GFS data looks so odd at the poles.
    * The SVG map of the earth is overlaid with an HTML5 Canvas, where the animation is drawn. Another HTML5
      Canvas sits on top and displays the colored overlay. Both canvases must know where the boundaries of the
      globe are rendered by the SVG engine, but this pixel-for-pixel information is difficult to obtain directly
