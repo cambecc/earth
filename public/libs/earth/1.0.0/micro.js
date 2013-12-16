@@ -12,7 +12,7 @@ var µ = function() {
     var τ = 2 * Math.PI;
     var H = Math.pow(10, -5.2);
     var DEFAULT_CONFIG = "current/wind/isobaric/1000hPa/orthographic";
-    var TOPOLOGY = isMobile() ? "/data/earth-topo-mobile.json" : "/data/earth-topo.json";
+    var TOPOLOGY = isMobile() ? "/data/earth-topo-mobile.json?v2" : "/data/earth-topo.json?v2";
 
     /**
      * @returns {Boolean} true if the specified value is truthy.
@@ -206,10 +206,11 @@ var µ = function() {
      * Returns a human readable string for the provided rectangular wind vector.
      * See http://mst.nerc.ac.uk/wind_vect_convs.html.
      */
-    function formatVector(wind) {
+    function formatVector(wind, units) {
         var d = Math.atan2(-wind[0], -wind[1]) / τ * 360;  // calculate into-the-wind cardinal degrees
         var wd = Math.round((d + 360) % 360 / 5) * 5;  // shift [-180, 180] to [0, 360], and round to nearest 5.
-        return wd.toFixed(0) + "º @ " + wind[2].toFixed(1) + " m/s";
+        var mag = units === "kn" ? (wind[2] * 1.943844).toFixed(0) : wind[2].toFixed(1);  // either knots or m/s
+        return wd.toFixed(0) + "º @ " + mag + " " + units;
     }
 
     /**

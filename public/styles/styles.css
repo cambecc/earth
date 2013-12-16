@@ -132,7 +132,7 @@ body {
  * SVG Element Styling
  **************************************************************************************************/
 
-.coastline {
+.coastline, .lakes {
     stroke: #ffffff;
     stroke-width: 1.0;
     fill: none;

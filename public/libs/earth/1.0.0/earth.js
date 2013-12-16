@@ -215,12 +215,17 @@
         return µ.loadJson(resource).then(function(topo) {
             if (cancel.requested) return null;
             log.time("building meshes");
-            var lo = topojson.feature(topo, µ.isMobile() ? topo.objects.coastline_tiny : topo.objects.coastline_110m);
-            var hi = topojson.feature(topo, µ.isMobile() ? topo.objects.coastline_110m : topo.objects.coastline_50m);
+            var o = topo.objects;
+            var coastLo = topojson.feature(topo, µ.isMobile() ? o.coastline_tiny : o.coastline_110m);
+            var coastHi = topojson.feature(topo, µ.isMobile() ? o.coastline_110m : o.coastline_50m);
+            var lakesLo = topojson.feature(topo, µ.isMobile() ? o.lakes_tiny : o.lakes_110m);
+            var lakesHi = topojson.feature(topo, µ.isMobile() ? o.lakes_110m : o.lakes_50m);
             log.timeEnd("building meshes");
             return {
-                boundaryLo: lo,
-                boundaryHi: hi
+                coastLo: coastLo,
+                coastHi: coastHi,
+                lakesLo: lakesLo,
+                lakesHi: lakesHi
             };
         });
     }
@@ -293,6 +298,7 @@
 
         var path = d3.geo.path().projection(globe.projection).pointRadius(7);
         var coastline = d3.select(".coastline");
+        var lakes = d3.select(".lakes");
         d3.selectAll("path").attr("d", path);  // do an initial draw -- fixes issue with safari
 
         // Throttled draw method helps with slow devices that would get overwhelmed by too many redraw events.
@@ -309,14 +315,16 @@
         dispatch.listenTo(
             inputController, {
                 moveStart: function() {
-                    coastline.datum(mesh.boundaryLo);
+                    coastline.datum(mesh.coastLo);
+                    lakes.datum(mesh.lakesLo);
                     rendererAgent.trigger("start");
                 },
                 move: function() {
                     doDraw_throttled();
                 },
                 moveEnd: function() {
-                    coastline.datum(mesh.boundaryHi);
+                    coastline.datum(mesh.coastHi);
+                    lakes.datum(mesh.lakesHi);
                     d3.selectAll("path").attr("d", path);
                     rendererAgent.trigger("render");
                 },
@@ -633,21 +641,34 @@
         d3.select("#data-layer").text(recipe.description);
     }
 
+    function showLocationValue(wind) {
+        var units = d3.select("#location-value").classed("kn") ? "kn" : "m/s";
+        d3.select("#location-value").text(µ.formatVector(wind, units));
+        d3.select("#toggle-units")
+            .text("⇄ " + (units === "kn" ? "m/s" : "kn"))
+            .classed("invisible", false);
+        d3.select("#toggle-units").on("click", function() {
+            d3.select("#location-value").classed("kn", !d3.select("#location-value").classed("kn"));
+            showLocationValue(wind);
+        });
+    }
+
     function showLocationDetails(point, coord) {
         var grid = gridAgent.value(), field = fieldAgent.value();
         if (!grid || !field) return;
         var λ = coord[0], φ = coord[1], wind = grid.interpolate(λ, φ);
         if (µ.isValue(wind) && field(point[0], point[1])[2] !== null) {
             d3.select("#location-coord").text(µ.formatCoordinates(λ, φ));
-            d3.select("#location-value").text(µ.formatVector(wind));
             d3.select("#location-close").classed("invisible", false);
+            showLocationValue(wind);
         }
     }
 
     function clearLocationDetails() {
         d3.select("#location-coord").text("");
-        d3.select("#location-value").text("");
         d3.select("#location-close").classed("invisible", true);
+        d3.select("#location-value").text("");
+        d3.select("#toggle-units").classed("invisible", true);
         d3.select(".location-mark").remove();
     }
 
