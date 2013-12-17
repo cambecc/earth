@@ -644,7 +644,7 @@
     var unitToggles = {
         "ja": ["m/s", "kn"],
         "en": ["km/h", "kn"]
-    }
+    };
 
     function showLocationValue(wind) {
         var toggle = unitToggles[d3.select("body").attr("data-lang") || "en"];

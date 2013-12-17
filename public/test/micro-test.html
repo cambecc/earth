@@ -63,7 +63,7 @@
             orthographic: function() {}
         });
 
-        var TOPOLOGY = "/data/earth-topo.json";
+        var TOPOLOGY = "/data/earth-topo.json?v2";
         function args(x) {
             x.hour = x.hour || "";
             x.topology = x.topology || TOPOLOGY;
@@ -84,6 +84,9 @@
             deepEqual(
                 µ.parse("2013/11/20/0900Z/wind/isobaric/1000hPa", builders),
                 args({date: "2013/11/20", hour: "0900", param: "wind", surface: "isobaric", level: "1000hPa"}));
+            deepEqual(
+                µ.parse("2013/1/1/900Z/wind/isobaric/1000hPa", builders),
+                args({date: "2013/01/01", hour: "0900", param: "wind", surface: "isobaric", level: "1000hPa"}));
             deepEqual(
                 µ.parse("9999/99/99/9999Z/temp/something/1hPa", builders),
                 args({date: "9999/99/99", hour: "9999", param: "temp", surface: "something", level: "1hPa"}));

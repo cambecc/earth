@@ -60,6 +60,15 @@ var µ = function() {
     }
 
     /**
+     * Pad number with leading zeros. Does not support fractional or negative numbers.
+     */
+    function zeroPad(n, width) {
+        var s = n.toString();
+        var i = Math.max(width - s.length, 0);
+        return new Array(i + 1).join("0") + s;
+    }
+
+    /**
      * @returns {Boolean} true if agent is probably firefox. Don't really care if this is accurate.
      */
     function isFF() {
@@ -75,16 +84,16 @@ var µ = function() {
 
     function toUTCISO(date) {
         return date.getUTCFullYear() + "-" +
-            (date.getUTCMonth() + 101).toString().substr(1) + "-" +
-            (date.getUTCDate() + 100).toString().substr(1) + " " +
-            (date.getUTCHours() + 100).toString().substr(1) + ":00";
+            zeroPad(date.getUTCMonth() + 1, 2) + "-" +
+            zeroPad(date.getUTCDate(), 2) + " " +
+            zeroPad(date.getUTCHours(), 2) + ":00";
     }
 
     function toLocalISO(date) {
         return date.getFullYear() + "-" +
-            (date.getMonth() + 101).toString().substr(1) + "-" +
-            (date.getDate() + 100).toString().substr(1) + " " +
-            (date.getHours() + 100).toString().substr(1) + ":00";
+            zeroPad(date.getMonth() + 1, 2) + "-" +
+            zeroPad(date.getDate(), 2) + " " +
+            zeroPad(date.getHours(), 2) + ":00";
     }
 
     /**
@@ -406,20 +415,26 @@ var µ = function() {
      * @returns {Object} the result of the parse.
      */
     function parse(hash, projectionNames) {
-        var tokens, option, result = {};
-        if ((tokens = /^(current|\d{4}\/\d{2}\/\d{2}\/(\d{4})Z)\/(\w+)\/(\w+)\/(\w+)([\/].+)?/.exec(hash))) {
+        var option, result = {};
+        //             1        2        3          4          5            6      7      8    9
+        var tokens = /^(current|(\d{4})\/(\d{1,2})\/(\d{1,2})\/(\d{3,4})Z)\/(\w+)\/(\w+)\/(\w+)([\/].+)?/.exec(hash);
+        if (tokens) {
+            var date = tokens[1] === "current" ?
+                "current" :
+                tokens[2] + "/" + zeroPad(tokens[3], 2) + "/" + zeroPad(tokens[4], 2);
+            var hour = isValue(tokens[5]) ? zeroPad(tokens[5], 4) : "";
             result = {
-                date: tokens[1].substr(0, 10),    // "current" or "yyyy/mm/dd"
-                hour: coalesce(tokens[2], ""),    // "hhhh" or ""
-                param: tokens[3],                 // non-empty alphanumeric _
-                surface: tokens[4],               // non-empty alphanumeric _
-                level: tokens[5],                 // non-empty alphanumeric _
+                date: date,                  // "current" or "yyyy/mm/dd"
+                hour: hour,                  // "hhhh" or ""
+                param: tokens[6],            // non-empty alphanumeric _
+                surface: tokens[7],          // non-empty alphanumeric _
+                level: tokens[8],            // non-empty alphanumeric _
                 projection: "orthographic",
                 orientation: "",
                 topology: TOPOLOGY,
                 overlay: "wv"
             };
-            coalesce(tokens[6], "").split("/").forEach(function(segment) {
+            coalesce(tokens[9], "").split("/").forEach(function(segment) {
                 if ((option = /^(\w+)(=([\d\-.,]*))?$/.exec(segment))) {
                     if (projectionNames.has(option[1])) {
                         result.projection = option[1];                 // non-empty alphanumeric _
