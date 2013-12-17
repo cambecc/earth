@@ -186,6 +186,10 @@ body {
     padding-bottom: 2rem;
 }
 
+#about .blurb img {
+    padding-top: 2rem;
+}
+
 #about img {
     display: block;
     margin: auto;

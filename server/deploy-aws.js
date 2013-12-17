@@ -18,6 +18,7 @@ console.log(new Date().toISOString() + " - Starting");
 [
 
     "about.html",
+    "cf-gray.jpg",
     "cover.jpg",
     "favicon.ico",
     "ipad-icon.png",
