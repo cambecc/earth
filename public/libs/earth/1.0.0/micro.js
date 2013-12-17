@@ -205,11 +205,17 @@ var µ = function() {
     /**
      * Returns a human readable string for the provided rectangular wind vector.
      * See http://mst.nerc.ac.uk/wind_vect_convs.html.
+     * Units supported: "kn", "km/h", "m/s"
      */
     function formatVector(wind, units) {
         var d = Math.atan2(-wind[0], -wind[1]) / τ * 360;  // calculate into-the-wind cardinal degrees
         var wd = Math.round((d + 360) % 360 / 5) * 5;  // shift [-180, 180] to [0, 360], and round to nearest 5.
-        var mag = units === "kn" ? (wind[2] * 1.943844).toFixed(0) : wind[2].toFixed(1);  // either knots or m/s
+        var mag;  // wind magnitude is specified in m/s, so convert as appropriate.
+        switch (units) {
+            case "m/s": mag = wind[2].toFixed(1); break;
+            case "km/h": mag = (wind[2] * 3.6).toFixed(0); break;
+            case "kn": mag = (wind[2] * 1.943844).toFixed(0); break;
+        }
         return wd.toFixed(0) + "º @ " + mag + " " + units;
     }
 

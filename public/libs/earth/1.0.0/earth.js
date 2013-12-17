@@ -641,14 +641,19 @@
         d3.select("#data-layer").text(recipe.description);
     }
 
+    var unitToggles = {
+        "ja": ["m/s", "kn"],
+        "en": ["km/h", "kn"]
+    }
+
     function showLocationValue(wind) {
-        var units = d3.select("#location-value").classed("kn") ? "kn" : "m/s";
+        var toggle = unitToggles[d3.select("body").attr("data-lang") || "en"];
+        var flag = d3.select("#toggle-units").classed("on");
+        var units = toggle[+flag];
         d3.select("#location-value").text(µ.formatVector(wind, units));
-        d3.select("#toggle-units")
-            .text("⇄ " + (units === "kn" ? "m/s" : "kn"))
-            .classed("invisible", false);
+        d3.select("#toggle-units").classed("invisible", false).text("⇄ " + (toggle[+!flag]));
         d3.select("#toggle-units").on("click", function() {
-            d3.select("#location-value").classed("kn", !d3.select("#location-value").classed("kn"));
+            d3.select("#toggle-units").classed("on", !flag);
             showLocationValue(wind);
         });
     }
