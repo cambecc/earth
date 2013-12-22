@@ -602,17 +602,18 @@
         if (!field) return;
 
         µ.clearCanvas(d3.select("#overlay").node());
+        µ.clearCanvas(d3.select("#scale").node());
         if (flag !== "off") {
             d3.select("#overlay").node().getContext("2d").putImageData(field.overlay, 0, 0);
+        }
 
-//            // Draw color scale for reference.
-//            var g = d3.select("#overlay").node().getContext("2d");
-//            var n = view.width / 2;
-//            for (var i = n; i >= 0; i--) {
-//                var c = µ.extendedSinebowColor((1 - (i / n)), 0.9);
-//                g.fillStyle = "rgba(" + c[0] + "," + c[1] + "," + c[2] + ",0.9)";
-//                g.fillRect(view.width - 50 - i, view.height - 170, 1, 30);
-//            }
+        // Draw color scale for reference.
+        var c = d3.select("#scale").node(), g = c.getContext("2d");
+        var n = c.width;
+        for (var i = n; i >= 0; i--) {
+            var rgb = µ.extendedSinebowColor((1 - (i / n)), 0.9);
+            g.fillStyle = "rgba(" + rgb[0] + "," + rgb[1] + "," + rgb[2] + ",0.9)";
+            g.fillRect(c.width - i, 0, 1, c.height - 1);
         }
     }
 
@@ -687,7 +688,13 @@
      */
     function init() {
         report.status("Initializing...");
+
         d3.selectAll(".fill-screen").attr("width", view.width).attr("height", view.height);
+        var label = d3.select("#scale-label").node();
+        d3.select("#scale")
+            .attr("width", d3.select("#menu").node().clientWidth - label.offsetWidth)
+            .attr("height", label.offsetHeight / 2);
+
         d3.select("#show-menu").on("click", function() {
             d3.select("#menu").classed("invisible", !d3.select("#menu").classed("invisible"));
         });
