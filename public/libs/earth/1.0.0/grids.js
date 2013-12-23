@@ -11,47 +11,98 @@ var layers = function() {
 
     var LAYER_RECIPES = {
         wi10: {
-            name: "wind-isobaric-10hPa",
-            description: "Wind Velocity @ 10 hPa"
+            name: "wind-1000",
+            description: "Wind Velocity @ 10 hPa",
+            scale: {bounds: [0, 100], gradient: µ.extendedSinebowColor}
         },
         wi70: {
-            name: "wind-isobaric-70hPa",
-            description: "Wind Velocity @ 70 hPa"
+            name: "wind-7000",
+            description: "Wind Velocity @ 70 hPa",
+            scale: {bounds: [0, 100], gradient: µ.extendedSinebowColor}
         },
         wi250: {
-            name: "wind-isobaric-250hPa",
-            description: "Wind Velocity @ 250 hPa"
+            name: "wind-25000",
+            description: "Wind Velocity @ 250 hPa",
+            scale: {bounds: [0, 100], gradient: µ.extendedSinebowColor}
         },
         wi500: {
-            name: "wind-isobaric-500hPa",
-            description: "Wind Velocity @ 500 hPa"
+            name: "wind-50000",
+            description: "Wind Velocity @ 500 hPa",
+            scale: {bounds: [0, 100], gradient: µ.extendedSinebowColor}
         },
         wi700: {
-            name: "wind-isobaric-700hPa",
-            description: "Wind Velocity @ 700 hPa"
+            name: "wind-70000",
+            description: "Wind Velocity @ 700 hPa",
+            scale: {bounds: [0, 100], gradient: µ.extendedSinebowColor}
         },
         wi850: {
-            name: "wind-isobaric-850hPa",
-            description: "Wind Velocity @ 850 hPa"
+            name: "wind-85000",
+            description: "Wind Velocity @ 850 hPa",
+            scale: {bounds: [0, 100], gradient: µ.extendedSinebowColor}
         },
         wi1000: {
-            name: "wind-isobaric-1000hPa",
-            description: "Wind Velocity @ 1000 hPa"
+            name: "wind-100000",
+            description: "Wind Velocity @ 1000 hPa",
+            scale: {bounds: [0, 100], gradient: µ.extendedSinebowColor}
         }
     };
 
-    function recipeFor(type) {
-        return _.findWhere(_.values(LAYER_RECIPES), {name: [type.param, type.surface, type.level].join("-")});
+    function recipeFor(name) {
+        return _.findWhere(_.values(LAYER_RECIPES), {name: name});
     }
 
-    function bilinear(x, y, g00, g10, g01, g11) {
-        var a = (1 - x) * (1 - y);
-        var b = x * (1 - y);
-        var c = (1 - x) * y;
-        var d = x * y;
+    function bilinearInterpolateScalar(x, y, g00, g10, g01, g11) {
+        var rx = (1 - x);
+        var ry = (1 - y);
+        return g00 * rx * ry + g10 * x * ry + g01 * rx * y + g11 * x * y;
+    }
+
+    function bilinearInterpolateVector(x, y, g00, g10, g01, g11) {
+        var rx = (1 - x);
+        var ry = (1 - y);
+        var a = rx * ry,  b = x * ry,  c = rx * y,  d = x * y;
         var u = g00[0] * a + g10[0] * b + g01[0] * c + g11[0] * d;
         var v = g00[1] * a + g10[1] * b + g01[1] * c + g11[1] * d;
         return [u, v, Math.sqrt(u * u + v * v)];
+    }
+
+    function createScalarBuilder(record) {
+        var data = record.data;
+        return {
+            header: record.header,
+            recipe: recipeFor(""),
+            data: function(i) {
+                return data[i];
+            },
+            interpolate: bilinearInterpolateScalar
+        }
+    }
+
+    function createWindBuilder(uComp, vComp) {
+        var uData = uComp.data, vData = vComp.data;
+        return {
+            header: uComp.header,
+            recipe: recipeFor("wind-" + uComp.header.surface1Value),
+            data: function(i) {
+                return [uData[i], vData[i]];
+            },
+            interpolate: bilinearInterpolateVector
+        }
+    }
+
+    function createBuilder(data) {
+        var uComp = null, vComp = null, scalar = null;
+
+        data.forEach(function(record) {
+            switch (record.header.parameterCategory + "," + record.header.parameterNumber) {
+                case "2,2": uComp = record; break;
+                case "2,3": vComp = record; break;
+                default:
+                    scalar = record;
+            }
+        });
+
+        return uComp ? createWindBuilder(uComp, vComp) : createScalarBuilder(scalar);
     }
 
     /**
@@ -61,7 +112,10 @@ var layers = function() {
      *       {
      *         "header": {
      *           "refTime": "2013-11-30T18:00:00.000Z",
+     *           "parameterCategory": 2,
      *           "parameterNumber": 2,
+     *           "surface1Type": 100,
+     *           "surface1Value": 100000.0,
      *           "forecastTime": 6,
      *           "scanMode": 0,
      *           "nx": 360,
@@ -79,27 +133,12 @@ var layers = function() {
      *
      */
     function buildGrid(data) {
+        var builder = createBuilder(data);
 
-        var uRecord = null, vRecord = null;
-        for (var r = 0; r < data.length; r++) {
-            var record = data[r];
-            switch (record.header.parameterNumber) {
-                case 2: uRecord = record; break; // U-component_of_wind
-                case 3: vRecord = record; break; // V-component_of_wind
-            }
-        }
-        if (!uRecord || !vRecord) {
-            return when.reject("Failed to find both u,v component records");
-        }
-
-        var header = uRecord.header;
+        var header = builder.header;
         var λ0 = header.lo1, φ0 = header.la1;  // the grid's origin (e.g., 0.0E, 90.0N)
         var Δλ = header.dx, Δφ = header.dy;    // distance between grid points (e.g., 2.5 deg lon, 2.5 deg lat)
         var ni = header.nx, nj = header.ny;    // number of grid points W-E and N-S (e.g., 144 x 73)
-        var uData = uRecord.data, vData = vRecord.data;
-        if (uData.length != vData.length) {
-            return when.reject("Mismatched data point lengths");
-        }
         var date = new Date(header.refTime);
         date.setHours(date.getHours() + header.forecastTime);
 
@@ -110,7 +149,7 @@ var layers = function() {
         for (var j = 0; j < nj; j++) {
             var row = [];
             for (var i = 0; i < ni; i++, p++) {
-                row[i] = [uData[p], vData[p]];
+                row[i] = builder.data(p);
             }
             if (isContinuous) {
                 // For wrapped grids, duplicate first column as last column to simplify interpolation logic
@@ -139,12 +178,12 @@ var layers = function() {
             if ((row = grid[fj])) {
                 var g00 = row[fi];
                 var g10 = row[ci];
-                if (g00 && g10 && (row = grid[cj])) {
+                if (µ.isValue(g00) && µ.isValue(g10) && (row = grid[cj])) {
                     var g01 = row[fi];
                     var g11 = row[ci];
-                    if (g01 && g11) {
-                        // All four points found, so use bilinear interpolation to calculate the wind vector.
-                        return bilinear(i - fi, j - fj, g00, g10, g01, g11);
+                    if (µ.isValue(g01) && µ.isValue(g11)) {
+                        // All four points found, so interpolate the value.
+                        return builder.interpolate(i - fi, j - fj, g00, g10, g01, g11);
                     }
                 }
             }
@@ -154,13 +193,13 @@ var layers = function() {
 
         return {
             date: date,
+            recipe: builder.recipe,
             interpolate: interpolate
         };
     }
 
     return {
-        buildGrid: buildGrid,
-        recipeFor: recipeFor
+        buildGrid: buildGrid
     };
 
 }();

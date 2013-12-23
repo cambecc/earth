@@ -91,7 +91,7 @@ body {
     margin-top: 1rem;
     padding: 0.5rem 1rem 0.5rem 1rem;
     opacity: 1;
-    max-height: 25rem;
+    max-height: 30rem;
     transition: opacity 250ms ease, max-height 250ms ease, margin-top 250ms ease;
     -webkit-transition: opacity 250ms ease, max-height 250ms ease, margin-top 250ms ease;
 }

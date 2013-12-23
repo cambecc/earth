@@ -211,6 +211,16 @@ var µ = function() {
             Math.abs(λ).toFixed(2) + "º " + (λ >= 0 ? "E" : "W");
     }
 
+    function formatScalar(mag, units) {
+        // wind magnitude is specified in m/s, so convert as appropriate.
+        switch (units) {
+            case "m/s": mag = mag.toFixed(1); break;
+            case "km/h": mag = (mag * 3.6).toFixed(0); break;
+            case "kn": mag = (mag * 1.943844).toFixed(0); break;
+        }
+        return mag + " " + units;
+    }
+
     /**
      * Returns a human readable string for the provided rectangular wind vector.
      * See http://mst.nerc.ac.uk/wind_vect_convs.html.
@@ -219,13 +229,7 @@ var µ = function() {
     function formatVector(wind, units) {
         var d = Math.atan2(-wind[0], -wind[1]) / τ * 360;  // calculate into-the-wind cardinal degrees
         var wd = Math.round((d + 360) % 360 / 5) * 5;  // shift [-180, 180] to [0, 360], and round to nearest 5.
-        var mag;  // wind magnitude is specified in m/s, so convert as appropriate.
-        switch (units) {
-            case "m/s": mag = wind[2].toFixed(1); break;
-            case "km/h": mag = (wind[2] * 3.6).toFixed(0); break;
-            case "kn": mag = (wind[2] * 1.943844).toFixed(0); break;
-        }
-        return wd.toFixed(0) + "º @ " + mag + " " + units;
+        return wd.toFixed(0) + "º @ " + formatScalar(wind[2], units);
     }
 
     /**
@@ -538,6 +542,7 @@ var µ = function() {
         extendedSinebowColor: extendedSinebowColor,
         windIntensityColorScale: windIntensityColorScale,
         formatCoordinates: formatCoordinates,
+        formatScalar: formatScalar,
         formatVector: formatVector,
         loadJson: loadJson,
         distortion: distortion,

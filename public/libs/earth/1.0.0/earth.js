@@ -19,7 +19,6 @@
 
     var VELOCITY_SCALE = 1/60000;             // scale for wind velocity (completely arbitrary--this value looks nice)
     var OVERLAY_ALPHA = Math.floor(0.4*255);  // overlay transparency (on scale [0, 255])
-    var MAX_WIND = 100;                       // max wind velocity shown by the overlay (m/s)
     var INTENSITY_SCALE_STEP = 10;            // step size of particle intensity color scale
     var MAX_WIND_INTENSITY = 17;              // wind velocity at which particle intensity is maximum (m/s)
     var MAX_PARTICLE_AGE = 100;               // max number of frames a particle is drawn before regeneration
@@ -435,6 +434,10 @@
         return wind;
     }
 
+    function proportion(i, bounds) {
+        return (µ.clamp(i, bounds) - bounds[0]) / (bounds[1] - bounds[0]);
+    }
+
     function interpolateField(globe, grid) {
         if (!globe || !grid) return null;
 
@@ -451,6 +454,7 @@
         var point = [];
         var x = bounds.x;
         var interpolate = grid.interpolate;
+        var scale = grid.recipe.scale, gradient = scale.gradient;
         function interpolateColumn(x) {
             var column = [];
             for (var y = bounds.y; y <= bounds.yMax; y += 2) {
@@ -465,7 +469,7 @@
                             if (wind) {
                                 wind = distort(projection, λ, φ, x, y, velocityScale, wind);
                                 column[y+1] = column[y] = wind;
-                                color = µ.extendedSinebowColor(Math.min(wind[2], MAX_WIND) / MAX_WIND, OVERLAY_ALPHA);
+                                color = gradient(proportion(wind[2], scale.bounds), OVERLAY_ALPHA);
                             }
                         }
                     }
@@ -607,13 +611,24 @@
             d3.select("#overlay").node().getContext("2d").putImageData(field.overlay, 0, 0);
         }
 
-        // Draw color scale for reference.
-        var c = d3.select("#scale").node(), g = c.getContext("2d");
-        var n = c.width;
-        for (var i = n; i >= 0; i--) {
-            var rgb = µ.extendedSinebowColor((1 - (i / n)), 0.9);
-            g.fillStyle = "rgba(" + rgb[0] + "," + rgb[1] + "," + rgb[2] + ",0.9)";
-            g.fillRect(c.width - i, 0, 1, c.height - 1);
+        var grid = gridAgent.value();
+        if (grid) {
+            // Draw color scale for reference.
+            var scale = d3.select("#scale");
+            var c = scale.node(), g = c.getContext("2d"), n = c.width - 1;
+            for (var i = 0; i <= n; i++) {
+                var rgb = grid.recipe.scale.gradient(i / n, 1);
+                g.fillStyle = "rgb(" + rgb[0] + "," + rgb[1] + "," + rgb[2] + ")";
+                g.fillRect(i, 0, 1, c.height);
+            }
+
+            // Show tooltip on hover.
+            scale.on("mousemove", function() {
+                var bounds = grid.recipe.scale.bounds, x = d3.mouse(this)[0];
+                var pct = µ.clamp((Math.round(x) - 2) / (n - 2), [0, 1]);
+                var value = (bounds[1] - bounds[0]) * pct + bounds[0];
+                scale.attr("title", µ.formatScalar(value, createUnitToggle().value()));
+            });
         }
     }
 
@@ -638,23 +653,29 @@
 
     function showGridDetails(grid) {
         showDate(grid);
-        var recipe = layers.recipeFor(configuration.pick("param", "surface", "level"));
-        d3.select("#data-layer").text(recipe.description);
+        d3.select("#data-layer").text(grid ? grid.recipe.description : "");
     }
 
-    var unitToggles = {
-        "ja": ["m/s", "kn"],
-        "en": ["km/h", "kn"]
-    };
+    function createUnitToggle() {
+        var langUnits = {
+            "ja": ["m/s", "kn"],
+            "en": ["km/h", "kn"]
+        };
+        var units = langUnits[d3.select("body").attr("data-lang") || "en"];
+        var flag = d3.select("#toggle-units").classed("on");
+        return {
+            value: function() { return units[+flag]; },
+            other: function() { return units[+!flag]; },
+            next: function() { d3.select("#toggle-units").classed("on", flag = !flag); }
+        };
+    }
 
     function showLocationValue(wind) {
-        var toggle = unitToggles[d3.select("body").attr("data-lang") || "en"];
-        var flag = d3.select("#toggle-units").classed("on");
-        var units = toggle[+flag];
-        d3.select("#location-value").text(µ.formatVector(wind, units));
-        d3.select("#toggle-units").classed("invisible", false).text("⇄ " + (toggle[+!flag]));
+        var unitToggle = createUnitToggle();
+        d3.select("#location-value").text(µ.formatVector(wind, unitToggle.value()));
+        d3.select("#toggle-units").classed("invisible", false).text("⇄ " + (unitToggle.other()));
         d3.select("#toggle-units").on("click", function() {
-            d3.select("#toggle-units").classed("on", !flag);
+            unitToggle.next();
             showLocationValue(wind);
         });
     }
@@ -690,9 +711,10 @@
         report.status("Initializing...");
 
         d3.selectAll(".fill-screen").attr("width", view.width).attr("height", view.height);
+        // Adjust size of the scale canvas to fill the width of the menu to the right of the label.
         var label = d3.select("#scale-label").node();
         d3.select("#scale")
-            .attr("width", d3.select("#menu").node().clientWidth - label.offsetWidth)
+            .attr("width", (d3.select("#menu").node().clientWidth - label.offsetWidth) * 0.95)
             .attr("height", label.offsetHeight / 2);
 
         d3.select("#show-menu").on("click", function() {
