@@ -714,7 +714,7 @@
         // Adjust size of the scale canvas to fill the width of the menu to the right of the label.
         var label = d3.select("#scale-label").node();
         d3.select("#scale")
-            .attr("width", (d3.select("#menu").node().clientWidth - label.offsetWidth) * 0.95)
+            .attr("width", (d3.select("#menu").node().offsetWidth - label.offsetWidth) * 0.95)
             .attr("height", label.offsetHeight / 2);
 
         d3.select("#show-menu").on("click", function() {
