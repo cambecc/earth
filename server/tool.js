@@ -159,7 +159,7 @@ exports.download = function(resource, output) {
 
 exports.grib2json = function(args, out, err) {
     var d = when.defer();
-    var command = process.platform.indexOf("win") >= 0 ? "grib2json.bat" : "grib2json";
+    var command = process.platform.indexOf("win") === 0 ? "grib2json.bat" : "grib2json";
     log.info(command + " " + args);
     var child = spawn(command, args instanceof Array ? args : args.split(" "));
 

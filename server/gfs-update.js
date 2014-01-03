@@ -212,10 +212,10 @@ function download(product) {
 
 var download_throttled = guard(guard.n(servers.length), download);
 
-function createTemp(options) {
-    var tempStream = temp.createWriteStream(options), tempPath = tempStream.path;
-    tempStream.end();
-    return tempPath;
+function createTempSync(options) {
+    var tempFile = temp.openSync(options);
+    fs.closeSync(tempFile.fd);
+    return tempFile.path;
 }
 
 function processLayer(layer, path) {
@@ -240,55 +240,73 @@ function processLayer(layer, path) {
     return data;
 }
 
-function extractLayer(layer) {
-    var productPath = layer.product.path(opt.gribHome);
-    var layerPath = layer.path(opt.layerHome);
-
-    if (!fs.existsSync(productPath)) {
-        log.info("product file not found, skipping: " + productPath);
-        return null;
-    }
-
-    if (fs.existsSync(layerPath)) {
-        var refTime = tool.readJSONSync("./" + layerPath)[0].header.refTime;  // HACK
-        if (new Date(refTime) >= layer.product.cycle.date()) {
-            log.info("newer layer already exists for: " + layerPath);
-            return when.resolve(layer);
+function extractLayers(product) {
+    var productPath = product.path(opt.gribHome), productExists = fs.existsSync(productPath);
+    var layers = Object.keys(LAYER_RECIPES).map(function(recipeId) {
+        return gfs.layer(LAYER_RECIPES[recipeId], product);
+    });
+    var work = layers.map(function(layer) {
+        if (!productExists) {
+            log.info("product file not found, skipping: " + productPath);
+            return {layer: null, temp: null};
         }
-        log.info("replacing obsolete layer: " + layerPath);
+        var layerPath = layer.path(opt.layerHome);
+        if (fs.existsSync(layerPath)) {
+            var refTime = tool.readJSONSync("./" + layerPath)[0].header.refTime;  // HACK
+            if (new Date(refTime) >= layer.product.cycle.date()) {
+                log.info("newer layer already exists for: " + layerPath);
+                return {layer: layer, temp: null};
+            }
+            log.info("replacing obsolete layer: " + layerPath);
+        }
+        return {layer: layer, temp: createTempSync({suffix: ".json"})};
+    });
+
+    var recipeLines = [];
+    work.forEach(function(item) {
+        if (item.temp) {
+            recipeLines.push(util.format("%s -o %s\n", item.layer.recipe.filter, item.temp));
+        }
+    });
+
+    if (recipeLines.length === 0) {
+        // no layers need extracting
+        return when.resolve(_.pluck(work, "layer"));
     }
 
-    var tempPath = createTemp({suffix: ".json"});
-    var args = util.format("%s %s -o %s %s", layer.recipe.filter, GRIB2JSON_FLAGS, tempPath, productPath);
+    var recipeFile = createTempSync({suffix: ".txt"});
+    log.info(recipeFile);
+    fs.writeFileSync(recipeFile, recipeLines.join(""), {encoding: "utf8"});
 
+    var args = util.format("%s -r %s %s", GRIB2JSON_FLAGS, recipeFile, productPath);
     return tool.grib2json(args, process.stdout, process.stderr).then(function(returnCode) {
         if (returnCode !== 0) {
             log.info(util.format("grib2json failed (%s): %s", returnCode, productPath));
             return when.reject(returnCode);  // ?
         }
-        log.info("processing: " + layerPath);
 
-        var data = processLayer(layer, tempPath);
-        if (!data) {
-            log.info("no layer data, skipping: " + layerPath);
-            return null;
-        }
+        work.forEach(function(item) {
+            if (!item.temp) {
+                return;
+            }
+            var layerPath = item.layer.path(opt.layerHome);
+            log.info("processing: " + layerPath);
+            var data = processLayer(item.layer, item.temp);
+            if (!data) {
+                log.info("no layer data, skipping: " + layerPath);
+                item.layer = null;
+                return;
+            }
+            mkdirp.sync(item.layer.dir(opt.layerHome));
+            fs.writeFileSync(layerPath, JSON.stringify(data, null, INDENT), {encoding: "utf8"});
+            log.info("successfully built: " + layerPath);
+        });
 
-        mkdirp.sync(layer.dir(opt.layerHome));
-        fs.writeFileSync(layerPath, JSON.stringify(data, null, INDENT));
-        log.info("successfully built: " + layerPath);
-        return layer;
+        return _.pluck(work, "layer");
     });
 }
 
-var extractLayer_throttled = guard(guard.n(2), extractLayer);
-
-function extractLayers(product) {
-    var layers = Object.keys(LAYER_RECIPES).map(function(recipeId) {
-        return gfs.layer(LAYER_RECIPES[recipeId], product);
-    });
-    return when.map(layers, extractLayer_throttled);
-}
+var extractLayers_throttled = guard(guard.n(2), extractLayers);
 
 function pushLayer(layer) {
     if (!layer) {
@@ -327,7 +345,7 @@ function processCycle(cycle, forecasts) {
         return gfs.product(opt.productType, cycle, forecastHour);
     });
     var downloads = when.map(products, download_throttled);
-    var extracted = when.map(downloads, extractLayers);
+    var extracted = when.map(downloads, extractLayers_throttled);
     var pushed = when.map(extracted, pushLayers);
 
     return pushed.then(function() {
