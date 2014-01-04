@@ -144,6 +144,12 @@ body {
     fill: none;
 }
 
+.hemisphere {
+    stroke: #707070;
+    stroke-width: 1.25;
+    fill: none;
+}
+
 .background-sphere {
     stroke: none;
     fill: #303030;
