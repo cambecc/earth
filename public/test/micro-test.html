@@ -12,6 +12,7 @@
     <script src="../libs/d3/3.3.10/d3.js"></script>
     <script src="../libs/when/2.6.0/when.js"></script>
     <script src="../libs/earth/1.0.0/micro.js"></script>
+    <script src="../libs/earth/1.0.0/grids.js"></script>
 
     <script>
         test("isTruthy", function() {
@@ -50,6 +51,23 @@
             equal(µ.coalesce(), undefined);
         });
 
+        test("floorMod", function() {
+            equal(µ.floorMod(11, 10), 1);
+            equal(µ.floorMod(10, 10), 0);
+            equal(µ.floorMod(9, 10), 9);
+            equal(µ.floorMod(1, 10), 1);
+            equal(µ.floorMod(0, 10), 0);
+            equal(µ.floorMod(-1, 10), 9);
+            equal(µ.floorMod(-9, 10), 1);
+            equal(µ.floorMod(-10, 10), 0);
+            equal(µ.floorMod(-11, 10), 9);
+
+            equal(µ.floorMod(1e-15, 10), 1e-15);
+            equal(µ.floorMod(1e-16, 10), 1e-16);
+            equal(µ.floorMod(-1e-15, 10), 10 - 1e-15);
+            equal(µ.floorMod(-1e-16, 10), 0);
+        });
+
         test("view", function() {
             var view = µ.view();
             ok(view.width > 0);
@@ -57,11 +75,13 @@
             // what else to do here without replicating the function itself?
         });
 
-        var builders = d3.map({
+        var projections = d3.map({
             a: function() {},
             b: function() {},
             orthographic: function() {}
         });
+
+        var overlays = d3.set(["none", "wind", "temp", "foo"]);
 
         var TOPOLOGY = "/data/earth-topo.json?v2";
         function args(x) {
@@ -69,65 +89,83 @@
             x.topology = x.topology || TOPOLOGY;
             x.projection = x.projection || "orthographic";
             x.orientation = x.orientation || "";
-            x.overlay = x.overlay || "wv";
+            x.overlayType = x.overlayType || "wind";
             return x;
         }
 
         test("parse", function() {
 
             deepEqual(
-                µ.parse("current/wind/isobaric/1000hPa", builders),
+                µ.parse("current/wind/isobaric/1000hPa", projections, overlays),
                 args({date: "current", param: "wind", surface: "isobaric", level: "1000hPa"}));
             deepEqual(
-                µ.parse("current/wind/isobaric/1000hPa/", builders),
+                µ.parse("current/wind/isobaric/1000hPa/", projections, overlays),
                 args({date: "current", param: "wind", surface: "isobaric", level: "1000hPa"}));
             deepEqual(
-                µ.parse("2013/11/20/0900Z/wind/isobaric/1000hPa", builders),
+                µ.parse("2013/11/20/0900Z/wind/isobaric/1000hPa", projections, overlays),
                 args({date: "2013/11/20", hour: "0900", param: "wind", surface: "isobaric", level: "1000hPa"}));
             deepEqual(
-                µ.parse("2013/1/1/900Z/wind/isobaric/1000hPa", builders),
+                µ.parse("2013/1/1/900Z/wind/isobaric/1000hPa", projections, overlays),
                 args({date: "2013/01/01", hour: "0900", param: "wind", surface: "isobaric", level: "1000hPa"}));
             deepEqual(
-                µ.parse("9999/99/99/9999Z/temp/something/1hPa", builders),
+                µ.parse("9999/99/99/9999Z/temp/something/1hPa", projections, overlays),
                 args({date: "9999/99/99", hour: "9999", param: "temp", surface: "something", level: "1hPa"}));
             deepEqual(
-                µ.parse("current/x/y/z/a", builders),
+                µ.parse("current/x/y/z/a", projections, overlays),
                 args({date: "current", param: "x", surface: "y", level: "z", projection: "a", orientation: ""}));
             deepEqual(
-                µ.parse("current/x/y/z/b=", builders),
+                µ.parse("current/x/y/z/b=", projections, overlays),
                 args({date: "current", param: "x", surface: "y", level: "z", projection: "b", orientation: ""}));
             deepEqual(
-                µ.parse("current/x/y/z/a=-,.", builders),
+                µ.parse("current/x/y/z/a=-,.", projections, overlays),
                 args({date: "current", param: "x", surface: "y", level: "z", projection: "a", orientation: "-,."}));
             deepEqual(
-                µ.parse("current/x/y/z/b=1///abc/blah=barney/?..%21%30#", builders),
+                µ.parse("current/x/y/z/b=1///abc/blah=barney/?..%21%30#", projections, overlays),
                 args({date: "current", param: "x", surface: "y", level: "z", projection: "b", orientation: "1"}));
             deepEqual(
-                µ.parse("current/x/y/z/a=1", builders),
+                µ.parse("current/x/y/z/a=1", projections, overlays),
                 args({date: "current", param: "x", surface: "y", level: "z", projection: "a", orientation: "1"}));
             deepEqual(
-                µ.parse("current/x/y/z/a=1/b", builders),
+                µ.parse("current/x/y/z/a=1/b", projections, overlays),
                 args({date: "current", param: "x", surface: "y", level: "z", projection: "b", orientation: ""}));
             deepEqual(
-                µ.parse("current/x/y/z/a=1/b=2", builders),
+                µ.parse("current/x/y/z/a=1/b=2", projections, overlays),
                 args({date: "current", param: "x", surface: "y", level: "z", projection: "b", orientation: "2"}));
             deepEqual(
-                µ.parse("current/x/y/z/a=abc", builders),
+                µ.parse("current/x/y/z/a=abc", projections, overlays),
                 args({date: "current", param: "x", surface: "y", level: "z"}));
 
-            deepEqual(µ.parse(null, builders), {});
-            deepEqual(µ.parse("", builders), {});
-            deepEqual(µ.parse("/", builders), {});
-            deepEqual(µ.parse("current/", builders), {});
-            deepEqual(µ.parse("current/wind", builders), {});
-            deepEqual(µ.parse("current/wind/isobaric", builders), {});
-            deepEqual(µ.parse("current/wind/isobaric/", builders), {});
-            deepEqual(µ.parse("current/w ind/isobaric/", builders), {});
-            deepEqual(µ.parse("current/wind/isobar ic/", builders), {});
+            deepEqual(µ.parse(null, projections, overlays), {});
+            deepEqual(µ.parse("", projections, overlays), {});
+            deepEqual(µ.parse("/", projections, overlays), {});
+            deepEqual(µ.parse("current/", projections, overlays), {});
+            deepEqual(µ.parse("current/wind", projections, overlays), {});
+            deepEqual(µ.parse("current/wind/isobaric", projections, overlays), {});
+            deepEqual(µ.parse("current/wind/isobaric/", projections, overlays), {});
+            deepEqual(µ.parse("current/w ind/isobaric/", projections, overlays), {});
+            deepEqual(µ.parse("current/wind/isobar ic/", projections, overlays), {});
+        });
+
+        test("parse-overlays", function() {
+            deepEqual(
+                µ.parse("current/wind/isobaric/1000hPa/overlay=none", projections, overlays),
+                args({date: "current", param: "wind", surface: "isobaric", level: "1000hPa", overlayType: "none"}));
+            deepEqual(
+                µ.parse("current/wind/isobaric/1000hPa/overlay=temp", projections, overlays),
+                args({date: "current", param: "wind", surface: "isobaric", level: "1000hPa", overlayType: "temp"}));
+            deepEqual(
+                µ.parse("current/wind/isobaric/1000hPa/overlay=foo", projections, overlays),
+                args({date: "current", param: "wind", surface: "isobaric", level: "1000hPa", overlayType: "foo"}));
+            deepEqual(
+                µ.parse("current/wind/isobaric/1000hPa/overlay=wind", projections, overlays),
+                args({date: "current", param: "wind", surface: "isobaric", level: "1000hPa", overlayType: "wind"}));
+            deepEqual(
+                µ.parse("current/wind/isobaric/1000hPa/overlay=bad", projections, overlays),
+                args({date: "current", param: "wind", surface: "isobaric", level: "1000hPa", overlayType: "wind"}));
         });
 
         test("configuration-defaults", function() {
-            var config = µ.buildConfiguration(builders);
+            var config = µ.buildConfiguration(projections, overlays);
             config.fetch();
             deepEqual(
                 config.attributes,
@@ -136,19 +174,37 @@
         });
 
         test("configuration-properties", function() {
-            var config = µ.buildConfiguration(builders);
+            var config = µ.buildConfiguration(projections, overlays);
 
             config.set({
                 date: "current", hour: "", param: "a", surface: "b", level: "c", projection: "x", orientation: "1"
             });
             equal(config.toHash(), "current/a/b/c/x=1");
-            equal(config.toPath(), "/data/weather/current/current-a-b-c-gfs-1.0.json");
+            equal(grids.toPath(config), "/data/weather/current/current-a-b-c-gfs-1.0.json");
 
             config.set({
                 date: "2013/11/20", hour: "0800", param: "a", surface: "b", level: "c", projection: "x", orientation: ""
             });
             equal(config.toHash(), "2013/11/20/0800Z/a/b/c/x");
-            equal(config.toPath(), "/data/weather/2013/11/20/0800-a-b-c-gfs-1.0.json");
+            equal(grids.toPath(config), "/data/weather/2013/11/20/0800-a-b-c-gfs-1.0.json");
+
+            config.set({
+                date: "current", hour: "", param: "a", surface: "b", level: "c", projection: "x", overlayType: "none"
+            });
+            equal(config.toHash(), "current/a/b/c/overlay=none/x");
+            equal(grids.toPath(config), "/data/weather/current/current-a-b-c-gfs-1.0.json");
+
+            config.set({
+                date: "current", hour: "", param: "a", surface: "b", level: "c", projection: "x", overlayType: "temp"
+            });
+            equal(config.toHash(), "current/a/b/c/overlay=temp/x");
+            equal(grids.toPath(config), "/data/weather/current/current-a-b-c-gfs-1.0.json");
+
+            config.set({
+                date: "current", hour: "", param: "a", surface: "b", level: "c", projection: "x", overlayType: "wind"
+            });
+            equal(config.toHash(), "current/a/b/c/x");
+            equal(grids.toPath(config), "/data/weather/current/current-a-b-c-gfs-1.0.json");
         });
 
         asyncTest("agent-submit-simple", 4, function() {

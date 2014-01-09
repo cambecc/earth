@@ -48,8 +48,12 @@
                 <span id="location-close" class="invisible text-button"> ✕ </span>
             </p>
             <p>
+                <span id="location-wind"></span>
+                <span id="location-wind-units" class="text-button"></span>
+            </p>
+            <p>
                 <span id="location-value"></span>
-                <span id="toggle-units" class="invisible text-button"></span>
+                <span id="location-value-units" class="text-button"></span>
             </p>
         </div>
         <p id="start">
@@ -58,13 +62,14 @@
         </p>
 
         <div id="menu" class="invisible">
-            <p>{{__('Date')}} |
-                <span id="data-date" class="local"></span>
-                <span id="toggle-zone" class="text-button"></span>
+            <p>{{__('Date')}} | <span
+                id="data-date" class="local"></span> <span
+                id="toggle-zone" class="text-button"></span>
             </p>
-            <p>{{__('Layer')}} | <span id="data-layer"></span></p>
+            <p>{{__('Data')}} | <span id="data-layer"></span></p>
             <p><span id="scale-label">{{__('Scale')}} | </span><canvas id="scale"></canvas></p>
-            <p>{{__('Data')}} | <span id="data-center">{{__('NCEP / US National Weather Service / NOAA')}}</span></p>
+            <p>{{__('DataSource')}} | <span
+                id="data-center">{{__('NCEP / US National Weather Service / NOAA')}}</span></p>
             <p>{{__('Control')}} | <span
                 class="text-button" id="nav-now" title="{{__('Current Conditions')}}">{{__('Now')}}</span><span
                 class="text-button" id="nav-prev-day" title="{{__('-1 Day')}}"> « </span> – <span
@@ -83,8 +88,12 @@
                 class="text-button" id="iso-10">10</span> hPa
             </p>
             <p>{{__('Overlay')}} | <span
-                class="text-button" id="none">{{__('None')}}</span> – <span
-                class="text-button" id="wind">{{__('Wind')}}</span>
+                class="text-button" id="off">{{__('None')}}</span> – <span
+                class="text-button" id="wind" title="{{__('Wind Speed')}}">{{__('Wind')}}</span> – <span
+                class="text-button" id="temp" title="{{__('Temperature')}}">{{__('Temp')}}</span> – <span
+                class="text-button" id="total_cloud_water" title="{{__('Total Cloud Water')}}">{{__('TCW')}}</span> – <span
+                class="text-button" id="total_precipitable_water" title="{{__('Total Precipitable Water')}}">{{__('TPW')}}</span> – <span
+                class="text-button" id="mean_sea_level_pressure" title="{{__('Mean Sea Level Pressure')}}">{{__('MSLP')}}</span>
             </p>
             <p>{{__('Projection')}} | <span
                 class="proj text-button" id="atlantis" title="{{__('Atlantis')}}">A</span> – <span

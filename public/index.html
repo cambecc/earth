@@ -44,8 +44,12 @@
                 <span id="location-close" class="invisible text-button"> ✕ </span>
             </p>
             <p>
+                <span id="location-wind"></span>
+                <span id="location-wind-units" class="text-button"></span>
+            </p>
+            <p>
                 <span id="location-value"></span>
-                <span id="toggle-units" class="invisible text-button"></span>
+                <span id="location-value-units" class="text-button"></span>
             </p>
         </div>
         <p id="start">
@@ -54,13 +58,14 @@
         </p>
 
         <div id="menu" class="invisible">
-            <p>Date |
-                <span id="data-date" class="local"></span>
-                <span id="toggle-zone" class="text-button"></span>
+            <p>Date | <span
+                id="data-date" class="local"></span> <span
+                id="toggle-zone" class="text-button"></span>
             </p>
-            <p>Layer | <span id="data-layer"></span></p>
+            <p>Data | <span id="data-layer"></span></p>
             <p><span id="scale-label">Scale | </span><canvas id="scale"></canvas></p>
-            <p>Data | <span id="data-center">NCEP / US National Weather Service / NOAA</span></p>
+            <p>Source | <span
+                id="data-center">NCEP / US National Weather Service / NOAA</span></p>
             <p>Control | <span
                 class="text-button" id="nav-now" title="Current Conditions">Now</span><span
                 class="text-button" id="nav-prev-day" title="-1 Day"> « </span> – <span
@@ -79,8 +84,12 @@
                 class="text-button" id="iso-10">10</span> hPa
             </p>
             <p>Overlay | <span
-                class="text-button" id="none">None</span> – <span
-                class="text-button" id="wind">Wind</span>
+                class="text-button" id="off">None</span> – <span
+                class="text-button" id="wind" title="Wind Speed">Wind</span> – <span
+                class="text-button" id="temp" title="Temperature">Temp</span> – <span
+                class="text-button" id="total_cloud_water" title="Total Cloud Water">TCW</span> – <span
+                class="text-button" id="total_precipitable_water" title="Total Precipitable Water">TPW</span> – <span
+                class="text-button" id="mean_sea_level_pressure" title="Mean Sea Level Pressure">MSLP</span>
             </p>
             <p>Projection | <span
                 class="proj text-button" id="atlantis" title="Atlantis">A</span> – <span

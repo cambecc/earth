@@ -33,6 +33,9 @@ var argv = require("optimist")
     .alias("d", "depth")
         .default("d", 1)
         .describe("d", "forecast depth to fetch for first cycle (default depth of '1')")
+    .alias("p", "push")
+        .boolean("p")
+        .describe("p", "push updated layers to S3")
     .argv;
 
 console.log("============================================================");
@@ -56,50 +59,25 @@ temp.track(true);
 
 var INDENT;  // = 2;
 var GRIB2JSON_FLAGS = "-c -d -n";
-var LAYER_RECIPES = {
-    wi10: {
-        name: "wind-isobaric-10hPa",
-        filter: "--fc 2 --fp wind --fs 100 --fv 1000",
-        description: "Wind Velocity @ 10 hPa"
-    },
-    wi70: {
-        name: "wind-isobaric-70hPa",
-        filter: "--fc 2 --fp wind --fs 100 --fv 7000",
-        description: "Wind Velocity @ 70 hPa"
-    },
-    wi250: {
-        name: "wind-isobaric-250hPa",
-        filter: "--fc 2 --fp wind --fs 100 --fv 25000",
-        description: "Wind Velocity @ 250 hPa"
-    },
-    wi500: {
-        name: "wind-isobaric-500hPa",
-        filter: "--fc 2 --fp wind --fs 100 --fv 50000",
-        description: "Wind Velocity @ 500 hPa"
-    },
-    wi700: {
-        name: "wind-isobaric-700hPa",
-        filter: "--fc 2 --fp wind --fs 100 --fv 70000",
-        description: "Wind Velocity @ 700 hPa"
-    },
-    wi850: {
-        name: "wind-isobaric-850hPa",
-        filter: "--fc 2 --fp wind --fs 100 --fv 85000",
-        description: "Wind Velocity @ 850 hPa"
-    },
-    wi1000: {
-        name: "wind-isobaric-1000hPa",
-        filter: "--fc 2 --fp wind --fs 100 --fv 100000",
-        description: "Wind Velocity @ 1000 hPa"
-    }
-//    ti1000: {
-//        name: "temp-isobaric-1000hPa",
-//        filter: "--fc 0 --fp 0 --fs 100 --fv 100000",
-//        description: "Temperature @ 1000 hPa",
-//        stack: [],
-//        cross: ["wi1000", "ti1000"]
-//    }
-};
+var LAYER_RECIPES = [
+    { name: "wind-isobaric-10hPa", filter: "--fc 2 --fp wind --fs 100 --fv 1000" },
+    { name: "wind-isobaric-70hPa", filter: "--fc 2 --fp wind --fs 100 --fv 7000" },
+    { name: "wind-isobaric-250hPa", filter: "--fc 2 --fp wind --fs 100 --fv 25000" },
+    { name: "wind-isobaric-500hPa", filter: "--fc 2 --fp wind --fs 100 --fv 50000" },
+    { name: "wind-isobaric-700hPa", filter: "--fc 2 --fp wind --fs 100 --fv 70000" },
+    { name: "wind-isobaric-850hPa", filter: "--fc 2 --fp wind --fs 100 --fv 85000" },
+    { name: "wind-isobaric-1000hPa", filter: "--fc 2 --fp wind --fs 100 --fv 100000" },
+    { name: "temp-isobaric-10hPa", filter: "--fc 0 --fp 0 --fs 100 --fv 1000" },
+    { name: "temp-isobaric-70hPa", filter: "--fc 0 --fp 0 --fs 100 --fv 7000" },
+    { name: "temp-isobaric-250hPa", filter: "--fc 0 --fp 0 --fs 100 --fv 25000" },
+    { name: "temp-isobaric-500hPa", filter: "--fc 0 --fp 0 --fs 100 --fv 50000" },
+    { name: "temp-isobaric-700hPa", filter: "--fc 0 --fp 0 --fs 100 --fv 70000" },
+    { name: "temp-isobaric-850hPa", filter: "--fc 0 --fp 0 --fs 100 --fv 85000" },
+    { name: "temp-isobaric-1000hPa", filter: "--fc 0 --fp 0 --fs 100 --fv 100000" },
+    { name: "total_cloud_water", filter: "--fc 6 --fp 6 --fs 200" },
+    { name: "total_precipitable_water", filter: "--fc 1 --fp 3 --fs 200" },
+    { name: "mean_sea_level_pressure", filter: "--fc 3 --fp 1 --fs 101" }
+];
 
 var servers = [
     gfs.servers.NOMADS,
@@ -225,25 +203,22 @@ function processLayer(layer, path) {
     }
     data.forEach(function(record) {
         record.meta = {
-//            id: layer.id(),
             date: layer.product.date().toISOString()
-//            description: layer.recipe.description + " - GFS " + layer.product.resolution() + "º",
-//            center: "US National Weather Service",
-//            nav: {
-//                previousDay: null, // gfs.layer(),
-//                previous: gfs.layer(layer.recipe, layer.product.previous()).id(),
-//                next: gfs.layer(layer.recipe, layer.product.next()).id(),
-//                nextDay: null // gfs.layer(),
-//            }
         };
+        if (layer.recipe.name === "mean_sea_level_pressure" && record.data) {
+            // For Mean Sea Level Pressure, remove some unneeded precision to reduce size when compressed.
+            record.data.forEach(function(value, i) {
+                record.data[i] = Math.round(value / 10) * 10;
+            });
+        }
     });
     return data;
 }
 
 function extractLayers(product) {
     var productPath = product.path(opt.gribHome), productExists = fs.existsSync(productPath);
-    var layers = Object.keys(LAYER_RECIPES).map(function(recipeId) {
-        return gfs.layer(LAYER_RECIPES[recipeId], product);
+    var layers = LAYER_RECIPES.map(function(recipe) {
+        return gfs.layer(recipe, product);
     });
     var work = layers.map(function(layer) {
         if (!productExists) {
@@ -312,6 +287,12 @@ function pushLayer(layer) {
     if (!layer) {
         return null;  // no layer, so nothing to do
     }
+    if (!argv.push) {
+        // Push to S3 not enabled, so nothing to do.
+        log.info("push flag not specified. Not updating S3.");
+        return null;
+    }
+
     var layerPath = layer.path(opt.layerHome);
     if (!fs.existsSync(layerPath)) {
         log.info("Layer file not found, skipping: " + layerPath);
@@ -435,7 +416,7 @@ function copyCurrent() {
     var now = Date.now(), threeDaysAgo = now - 3*24*60*60*1000;
 
     // Start from the next cycle in the future and search backwards until we find the most recent layer.
-    var mostRecentLayer = gfs.layer(LAYER_RECIPES.wi1000, gfs.product(opt.productType, gfs.cycle(now).next(), 0));
+    var mostRecentLayer = gfs.layer(LAYER_RECIPES[0], gfs.product(opt.productType, gfs.cycle(now).next(), 0));
     while (mostRecentLayer.product.date() > now) {
         mostRecentLayer = mostRecentLayer.previous();
     }
@@ -454,11 +435,11 @@ function copyCurrent() {
     var product = gfs.product(opt.productType, gfs.cycle(header.refTime), header.forecastTime);
 
     // Symlink the layers from the "data/weather/current" directory:
-    var layers = Object.keys(LAYER_RECIPES).map(function(recipeId) {
+    var layers = LAYER_RECIPES.map(function(recipe) {
         // create symlink:  current/current-foo-bar.json -> ../2013/11/26/0300-foo-bar.json
 
-        var src = gfs.layer(LAYER_RECIPES[recipeId], product, false);
-        var dest = gfs.layer(LAYER_RECIPES[recipeId], product, true);
+        var src = gfs.layer(recipe, product, false);
+        var dest = gfs.layer(recipe, product, true);
 
         mkdirp.sync(dest.dir(opt.layerHome));
         var destPath = dest.path(opt.layerHome);

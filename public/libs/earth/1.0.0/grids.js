@@ -6,49 +6,92 @@
  *
  * https://github.com/cambecc/earth
  */
-var layers = function() {
+var grids = function() {
     "use strict";
 
-    var LAYER_RECIPES = {
-        wi10: {
-            name: "wind-1000",
-            description: "Wind Velocity @ 10 hPa",
+    function isobaricWind(pressure) {
+        return {
+            id: "wind," + pressure * 100,
+            type: "wind",
+            description: "Wind @ " + pressure + " hPa",
+            units: [
+                {label: "km/h", conversion: function(x) { return x * 3.6; },      precision: 0},
+                {label: "m/s",  conversion: function(x) { return x; },            precision: 1},
+                {label: "kn",   conversion: function(x) { return x * 1.943844; }, precision: 0},
+                {label: "mph",  conversion: function(x) { return x * 2.236936; }, precision: 0}
+            ],
             scale: {bounds: [0, 100], gradient: µ.extendedSinebowColor}
-        },
-        wi70: {
-            name: "wind-7000",
-            description: "Wind Velocity @ 70 hPa",
-            scale: {bounds: [0, 100], gradient: µ.extendedSinebowColor}
-        },
-        wi250: {
-            name: "wind-25000",
-            description: "Wind Velocity @ 250 hPa",
-            scale: {bounds: [0, 100], gradient: µ.extendedSinebowColor}
-        },
-        wi500: {
-            name: "wind-50000",
-            description: "Wind Velocity @ 500 hPa",
-            scale: {bounds: [0, 100], gradient: µ.extendedSinebowColor}
-        },
-        wi700: {
-            name: "wind-70000",
-            description: "Wind Velocity @ 700 hPa",
-            scale: {bounds: [0, 100], gradient: µ.extendedSinebowColor}
-        },
-        wi850: {
-            name: "wind-85000",
-            description: "Wind Velocity @ 850 hPa",
-            scale: {bounds: [0, 100], gradient: µ.extendedSinebowColor}
-        },
-        wi1000: {
-            name: "wind-100000",
-            description: "Wind Velocity @ 1000 hPa",
-            scale: {bounds: [0, 100], gradient: µ.extendedSinebowColor}
-        }
-    };
+        };
+    }
 
-    function recipeFor(name) {
-        return _.findWhere(_.values(LAYER_RECIPES), {name: name});
+    function isobaricTemp(pressure) {
+        return {
+            id: "0,0,100," + pressure * 100,
+            type: "temp",
+            description: "Temp @ " + pressure + " hPa",
+            units: [
+                {label: "ºC", conversion: function(x) { return x - 273.15; },     precision: 1},
+                {label: "ºF", conversion: function(x) { return x * 9/5 - 459.67}, precision: 1},
+                {label: "K",  conversion: function(x) { return x; },              precision: 1}
+            ],
+            scale: {bounds: [233.15, 310.15], gradient: µ.sinebowColor}
+        }
+    }
+
+    function totalCloudWater() {
+        return {
+            id: "6,6,200,0",
+            type: "total_cloud_water",
+            description: "Total Cloud Water",
+            units: [
+                {label: "kg/m²", conversion: function(x) { return x; }, precision: 3}
+            ],
+            scale: {bounds: [0, 1], gradient: µ.grayScale}
+        };
+    }
+
+    function totalPrecipitableWater() {
+        return {
+            id: "1,3,200,0",
+            type: "total_precipitable_water",
+            description: "Total Precipitable Water",
+            units: [
+                {label: "kg/m²", conversion: function(x) { return x; }, precision: 3}
+            ],
+            scale: {bounds: [0, 70], gradient: µ.extendedSinebowColor}
+        };
+    }
+
+    function meanSeaLevelPressure() {
+        return {
+            id: "3,1,101,0",
+            type: "mean_sea_level_pressure",
+            description: "Mean Sea Level Pressure",
+            units: [
+                {label: "hPa", conversion: function(x) { return x / 100; }, precision: 0}
+            ],
+            scale: {bounds: [98000, 103000], gradient: µ.sinebowColor}
+        }
+    }
+
+    var PRESSURE_LEVELS = [10, 70, 250, 500, 700, 850, 1000];
+
+    var LAYER_RECIPES = function() {
+        var recipes = [];
+        PRESSURE_LEVELS.forEach(function(pressure) {
+            recipes.push(isobaricWind(pressure));
+            recipes.push(isobaricTemp(pressure));
+        });
+        recipes.push(totalCloudWater());
+        recipes.push(totalPrecipitableWater());
+        recipes.push(meanSeaLevelPressure());
+        return recipes;
+    }();
+
+    var OVERLAY_TYPES = d3.set(_.union(_.pluck(LAYER_RECIPES, "type"), "off"));
+
+    function recipeFor(id) {
+        return _.findWhere(_.values(LAYER_RECIPES), {id: id});
     }
 
     function bilinearInterpolateScalar(x, y, g00, g10, g01, g11) {
@@ -67,10 +110,14 @@ var layers = function() {
     }
 
     function createScalarBuilder(record) {
-        var data = record.data;
+        var data = record.data, header = record.header;
         return {
-            header: record.header,
-            recipe: recipeFor(""),
+            header: header,
+            recipe: recipeFor([
+                header.parameterCategory,
+                header.parameterNumber,
+                header.surface1Type,
+                header.surface1Value].join(",")),
             data: function(i) {
                 return data[i];
             },
@@ -82,7 +129,7 @@ var layers = function() {
         var uData = uComp.data, vData = vComp.data;
         return {
             header: uComp.header,
-            recipe: recipeFor("wind-" + uComp.header.surface1Value),
+            recipe: recipeFor("wind," + uComp.header.surface1Value),
             data: function(i) {
                 return [uData[i], vData[i]];
             },
@@ -198,8 +245,41 @@ var layers = function() {
         };
     }
 
+    /**
+     * @returns {String} the path to the weather data JSON file implied by the specified configuration.
+     */
+    function toPath(configuration) {
+        var attr = configuration.attributes;
+        var dir = attr.date;
+        var stamp = dir === "current" ? "current" : attr.hour;
+        var file = [stamp, attr.param, attr.surface, attr.level, "gfs", "1.0"].join("-") + ".json";
+        return ["/data/weather", dir, file].join("/");
+    }
+
+    function toOverlayPath(configuration) {
+        var attr = configuration.attributes;
+        var dir = attr.date;
+        var stamp = dir === "current" ? "current" : attr.hour;
+        var file;
+        switch (attr.overlayType) {
+            case "off":
+                return null;
+            case "wind":
+            case "temp":
+                file = [stamp, attr.overlayType, attr.surface, attr.level, "gfs", "1.0"].join("-") + ".json";
+                break;
+            default:
+                file = [stamp, attr.overlayType, "gfs", "1.0"].join("-") + ".json";
+        }
+        return ["/data/weather", dir, file].join("/");
+    }
+
     return {
-        buildGrid: buildGrid
+        pressureLevels: PRESSURE_LEVELS,
+        overlayTypes: OVERLAY_TYPES,
+        buildGrid: buildGrid,
+        toPath: toPath,
+        toOverlayPath: toOverlayPath
     };
 
 }();

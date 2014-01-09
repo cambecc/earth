@@ -73,8 +73,9 @@
 
     // Construct the page's main internal components:
 
-    var configuration = µ.buildConfiguration(globes);  // holds the page's current configuration settings
-    var inputController = buildInputController();      // interprets drag/zoom operations
+    var configuration =
+        µ.buildConfiguration(globes, grids.overlayTypes);  // holds the page's current configuration settings
+    var inputController = buildInputController();          // interprets drag/zoom operations
     var meshAgent = newAgent();      // map data for the earth
     var globeAgent = newAgent();     // the model of the globe
     var gridAgent = newAgent();      // the grid of weather data
@@ -245,13 +246,12 @@
     var nextId = 0;
     var downloadsInProgress = {};
 
-    function buildGrid(layer) {
-        report.status("Downloading...");
-        var cancel = this.cancel, id = nextId++;
+    function buildGrid(layer, cancel) {
+        var id = nextId++;
         var task = µ.loadJson(layer).then(function(data) {
             if (cancel.requested) return null;
             log.time("build grid");
-            var result = layers.buildGrid(data);
+            var result = grids.buildGrid(data);
             log.timeEnd("build grid");
             return result;
         }).ensure(function() { delete downloadsInProgress[id]; });
@@ -260,13 +260,23 @@
         return task;
     }
 
+    function buildGrids(primaryLayer, overlayLayer) {
+        report.status("Downloading...");
+        var tasks = [], cancel = this.cancel;
+        tasks.push(buildGrid(primaryLayer, cancel));
+        tasks.push(overlayLayer !== primaryLayer ? buildGrid(overlayLayer, cancel) : tasks[0]);
+        return when.all(tasks).spread(function(primaryGrid, overlayGrid) {
+            return {primaryGrid: primaryGrid, overlayGrid: overlayGrid};
+        });
+    }
+
     function navToHours(offset) {
         if (_.size(downloadsInProgress) > 0) {
             log.debug("Download in progress--ignoring nav request.");
             return;
         }
 
-        var timestamp = activeDate(gridAgent.value());
+        var timestamp = validityDate(gridAgent.value());
         if (isFinite(timestamp)) {
             timestamp += offset * HOUR;
             var parts = new Date(timestamp).toISOString().split(/[- T:]/);
@@ -438,10 +448,12 @@
         return (µ.clamp(i, bounds) - bounds[0]) / (bounds[1] - bounds[0]);
     }
 
-    function interpolateField(globe, grid) {
-        if (!globe || !grid) return null;
+    function interpolateField(globe, grids) {
+        if (!globe || !grids) return null;
 
         var mask = createMask(globe);
+        var primaryGrid = grids.primaryGrid;
+        var overlayGrid = grids.overlayGrid;
 
         log.time("interpolating field");
         var d = when.defer(), cancel = this.cancel;
@@ -453,8 +465,11 @@
         var columns = [];
         var point = [];
         var x = bounds.x;
-        var interpolate = grid.interpolate;
-        var scale = grid.recipe.scale, gradient = scale.gradient;
+        var interpolate = primaryGrid.interpolate;
+        var overlayInterpolate = overlayGrid.interpolate;
+        var hasDistinctOverlay = primaryGrid !== overlayGrid;
+        var scale = overlayGrid.recipe.scale;
+
         function interpolateColumn(x) {
             var column = [];
             for (var y = bounds.y; y <= bounds.yMax; y += 2) {
@@ -466,10 +481,17 @@
                         var λ = coord[0], φ = coord[1];
                         if (isFinite(λ)) {
                             var wind = interpolate(λ, φ);
+                            var scalar;
                             if (wind) {
                                 wind = distort(projection, λ, φ, x, y, velocityScale, wind);
                                 column[y+1] = column[y] = wind;
-                                color = gradient(proportion(wind[2], scale.bounds), OVERLAY_ALPHA);
+                                scalar = wind[2];
+                            }
+                            if (hasDistinctOverlay) {
+                                scalar = overlayInterpolate(λ, φ);
+                            }
+                            if (µ.isValue(scalar)) {
+                                color = scale.gradient(proportion(scalar, scale.bounds), OVERLAY_ALPHA);
                             }
                         }
                     }
@@ -602,16 +624,16 @@
         })();
     }
 
-    function drawOverlay(field, flag) {
+    function drawOverlay(field, overlayType) {
         if (!field) return;
 
         µ.clearCanvas(d3.select("#overlay").node());
         µ.clearCanvas(d3.select("#scale").node());
-        if (flag !== "off") {
+        if (overlayType !== "off") {
             d3.select("#overlay").node().getContext("2d").putImageData(field.overlay, 0, 0);
         }
 
-        var grid = gridAgent.value();
+        var grid = (gridAgent.value() || {}).overlayGrid;
         if (grid) {
             // Draw color scale for reference.
             var scale = d3.select("#scale");
@@ -627,16 +649,21 @@
                 var bounds = grid.recipe.scale.bounds, x = d3.mouse(this)[0];
                 var pct = µ.clamp((Math.round(x) - 2) / (n - 2), [0, 1]);
                 var value = (bounds[1] - bounds[0]) * pct + bounds[0];
-                scale.attr("title", µ.formatScalar(value, createUnitToggle().value()));
+                var elementId = grid.recipe.type === "wind" ? "#location-wind-units" : "#location-value-units";
+                var units = createUnitToggle(elementId, grid.recipe).value();
+                scale.attr("title", µ.formatScalar(value, units) + " " + units.label);
             });
         }
     }
 
-    function activeDate(grid) {
+    /**
+     * Extract the date the grids are valid, or the current date if no grid is available.
+     */
+    function validityDate(grids) {
         // When the active layer is considered "current", use its time as now, otherwise use current time as
         // now (but rounded down to the nearest three-hour block).
         var THREE_HOURS = 3 * HOUR;
-        var now = grid ? grid.date.getTime() : Math.floor(Date.now() / THREE_HOURS) * THREE_HOURS;
+        var now = grids ? grids.primaryGrid.date.getTime() : Math.floor(Date.now() / THREE_HOURS) * THREE_HOURS;
         var parts = configuration.get("date").split("/");  // yyyy/mm/dd or "current"
         var hhmm = configuration.get("hour");
         return parts.length > 1 ?
@@ -644,58 +671,109 @@
             parts[0] === "current" ? now : null;
     }
 
-    function showDate(grid) {
-        var date = new Date(activeDate(grid)), isLocal = d3.select("#data-date").classed("local");
+    /**
+     * Display the grid's validity date in the menu. Allow toggling between local and UTC time.
+     */
+    function showDate(grids) {
+        var date = new Date(validityDate(grids)), isLocal = d3.select("#data-date").classed("local");
         var formatted = isLocal ? µ.toLocalISO(date) : µ.toUTCISO(date);
         d3.select("#data-date").text(formatted + " " + (isLocal ? "Local" : "UTC"));
         d3.select("#toggle-zone").text("⇄ " + (isLocal ? "UTC" : "Local"));
     }
 
-    function showGridDetails(grid) {
-        showDate(grid);
-        d3.select("#data-layer").text(grid ? grid.recipe.description : "");
+    /**
+     * Display the grids' types in the menu.
+     */
+    function showGridDetails(grids) {
+        showDate(grids);
+        var description = "";
+        if (grids) {
+            description = grids.primaryGrid.recipe.description;
+            if (grids.overlayGrid !== grids.primaryGrid) {
+                description += " + " + grids.overlayGrid.recipe.description;
+            }
+        }
+        d3.select("#data-layer").text(description);
     }
 
-    function createUnitToggle() {
-        var langUnits = {
-            "ja": ["m/s", "kn"],
-            "en": ["km/h", "kn"]
-        };
-        var units = langUnits[d3.select("body").attr("data-lang") || "en"];
-        var flag = d3.select("#toggle-units").classed("on");
+    /**
+     * Constructs a toggler for the specified recipe's units, storing the toggle state on the element having
+     * the specified id. For example, given a recipe having units ["m/s", "mph"], the object returned by this
+     * method sets the element's "data-index" attribute to 0 for m/s and 1 for mph. Calling value() returns the
+     * currently active units object. Calling next() increments the index.
+     */
+    function createUnitToggle(id, recipe) {
+        var units = recipe.units, size = units.length;
+        var index = +(d3.select(id).attr("data-index") || 0) % size;
         return {
-            value: function() { return units[+flag]; },
-            other: function() { return units[+!flag]; },
-            next: function() { d3.select("#toggle-units").classed("on", flag = !flag); }
+            value: function() {
+                return units[index];
+            },
+            next: function() {
+                d3.select(id).attr("data-index", index = ((index + 1) % size));
+            }
         };
     }
 
-    function showLocationValue(wind) {
-        var unitToggle = createUnitToggle();
-        d3.select("#location-value").text(µ.formatVector(wind, unitToggle.value()));
-        d3.select("#toggle-units").classed("invisible", false).text("⇄ " + (unitToggle.other()));
-        d3.select("#toggle-units").on("click", function() {
+    /**
+     * Display the specified wind value. Allow toggling between the different types of wind units.
+     */
+    function showWindAtLocation(wind, recipe) {
+        var unitToggle = createUnitToggle("#location-wind-units", recipe), units = unitToggle.value();
+        d3.select("#location-wind").text(µ.formatVector(wind, units));
+        d3.select("#location-wind-units").text(units.label).on("click", function() {
             unitToggle.next();
-            showLocationValue(wind);
+            showWindAtLocation(wind, recipe);
         });
     }
 
+    /**
+     * Display the specified overlay value. Allow toggling between the different types of supported units.
+     */
+    function showOverlayValueAtLocation(value, recipe) {
+        var unitToggle = createUnitToggle("#location-value-units", recipe), units = unitToggle.value();
+        d3.select("#location-value").text(µ.formatScalar(value, units));
+        d3.select("#location-value-units").text(units.label).on("click", function() {
+            unitToggle.next();
+            showOverlayValueAtLocation(value, recipe);
+        });
+    }
+
+    /**
+     * Display a local data callout at the given [x, y] point and its corresponding [lon, lat] coordinates.
+     * The location may not be valid, in which case no callout is displayed. Display location data for both
+     * the primary grid and overlay grid, performing interpolation when necessary.
+     */
     function showLocationDetails(point, coord) {
-        var grid = gridAgent.value(), field = fieldAgent.value();
-        if (!grid || !field) return;
-        var λ = coord[0], φ = coord[1], wind = grid.interpolate(λ, φ);
-        if (µ.isValue(wind) && field(point[0], point[1])[2] !== null) {
-            d3.select("#location-coord").text(µ.formatCoordinates(λ, φ));
-            d3.select("#location-close").classed("invisible", false);
-            showLocationValue(wind);
+        var grids = gridAgent.value(), field = fieldAgent.value();
+        if (!grids || !field) return;
+        if (field(point[0], point[1])[2] === null) {
+            return;
+        }
+
+        var λ = coord[0], φ = coord[1];
+        d3.select("#location-coord").text(µ.formatCoordinates(λ, φ));
+        d3.select("#location-close").classed("invisible", false);
+
+        var wind = grids.primaryGrid.interpolate(λ, φ);
+        if (µ.isValue(wind)) {
+            showWindAtLocation(wind, grids.primaryGrid.recipe);
+        }
+        if (grids.overlayGrid !== grids.primaryGrid) {
+            var value = grids.overlayGrid.interpolate(λ, φ);
+            if (µ.isValue(value)) {
+                showOverlayValueAtLocation(value, grids.overlayGrid.recipe);
+            }
         }
     }
 
     function clearLocationDetails() {
         d3.select("#location-coord").text("");
         d3.select("#location-close").classed("invisible", true);
+        d3.select("#location-wind").text("");
+        d3.select("#location-wind-units").text("");
         d3.select("#location-value").text("");
-        d3.select("#toggle-units").classed("invisible", true);
+        d3.select("#location-value-units").text("");
         d3.select(".location-mark").remove();
     }
 
@@ -746,17 +824,30 @@
         });
 
         gridAgent.listenTo(configuration, "change", function() {
+            var changed = _.keys(configuration.changedAttributes()), rebuildRequired = false;
+
             // Build a new grid if any layer-related attributes have changed.
-            var changed = _.keys(configuration.changedAttributes());
             if (_.intersection(changed, ["date", "hour", "param", "surface", "level"]).length > 0) {
-                gridAgent.submit(buildGrid, configuration.toPath());
+                rebuildRequired = true;
+            }
+            // Build a new grid if the new overlay type is different from the current one.
+            if (_.indexOf(changed, "overlayType") >= 0) {
+                var overlayType = configuration.get("overlayType") || "wind";
+                var grid = (gridAgent.value() || {}).overlayGrid;
+                if (overlayType !== "off" && (!grid || grid.recipe.type !== overlayType)) {
+                    rebuildRequired = true;
+                }
+            }
+
+            if (rebuildRequired) {
+                gridAgent.submit(buildGrids, grids.toPath(configuration), grids.toOverlayPath(configuration));
             }
         });
         gridAgent.on("submit", function() {
             showGridDetails(null);
         });
-        gridAgent.on("update", function(grid) {
-            showGridDetails(grid);
+        gridAgent.on("update", function(grids) {
+            showGridDetails(grids);
         });
         d3.select("#toggle-zone").on("click", function() {
             d3.select("#data-date").classed("local", !d3.select("#data-date").classed("local"));
@@ -791,15 +882,15 @@
         animatorAgent.listenTo(fieldAgent, "submit", stopCurrentAnimation);
 
         overlayAgent.listenTo(fieldAgent, "update", function() {
-            overlayAgent.submit(drawOverlay, fieldAgent.value(), configuration.get("overlay"));
+            overlayAgent.submit(drawOverlay, fieldAgent.value(), configuration.get("overlayType"));
         });
         overlayAgent.listenTo(rendererAgent, "start", function() {
             overlayAgent.submit(drawOverlay, fieldAgent.value(), "off");
         });
-        overlayAgent.listenTo(configuration, "change:overlay", function(source, overlayFlag) {
-            // if only the overlay flag has changed...
+        overlayAgent.listenTo(configuration, "change:overlayType", function(source, overlayTypeFlag) {
+            // if only the overlayType flag has changed...
             if (_.keys(configuration.changedAttributes()).length === 1) {
-                overlayAgent.submit(drawOverlay, fieldAgent.value(), overlayFlag);
+                overlayAgent.submit(drawOverlay, fieldAgent.value(), overlayTypeFlag);
             }
         });
 
@@ -816,23 +907,19 @@
         d3.select("#nav-next-forecast").on("click", navToHours.bind(null, +3));
         d3.select("#nav-now").on("click", function() { configuration.save({date: "current", hour: ""}); });
 
-        d3.select("#none").on("click", function() { configuration.save({overlay: "off"}); });
-        d3.select("#wind").on("click", function() { configuration.save({overlay: "wv"}); });
+        // Add handlers for all pressure level buttons.
+        grids.pressureLevels.forEach(function(pressure) {
+            d3.select("#iso-" + pressure).on("click", function() { configuration.save({level: pressure + "hPa"}); });
+        });
 
-        d3.select("#iso-1000").on("click", function() { configuration.save({level: "1000hPa"}); });
-        d3.select("#iso-850" ).on("click", function() { configuration.save({level: "850hPa"}); });
-        d3.select("#iso-700" ).on("click", function() { configuration.save({level: "700hPa"}); });
-        d3.select("#iso-500" ).on("click", function() { configuration.save({level: "500hPa"}); });
-        d3.select("#iso-250" ).on("click", function() { configuration.save({level: "250hPa"}); });
-        d3.select("#iso-70"  ).on("click", function() { configuration.save({level: "70hPa"}); });
-        d3.select("#iso-10"  ).on("click", function() { configuration.save({level: "10hPa"}); });
+        // Add handlers for all overlay buttons.
+        grids.overlayTypes.forEach(function(type) {
+            d3.select("#" + type).on("click", function() { configuration.save({overlayType: type}); });
+        });
 
         // Add handlers for all projection buttons.
-        function navToProjection(projection) {
-            configuration.save({projection: projection, orientation: ""});
-        }
-        globes.keys().forEach(function(key) {
-            d3.select("#" + key).on("click", navToProjection.bind(null, key));
+        globes.keys().forEach(function(p) {
+            d3.select("#" + p).on("click", function() { configuration.save({projection: p, orientation: ""}); });
         });
 
         // When touch device changes between portrait and landscape, rebuild globe using the new view size.

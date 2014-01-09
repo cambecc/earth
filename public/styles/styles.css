@@ -4,7 +4,7 @@
 
 @font-face {
     font-family: mplus-2p-light-sub-1;
-    src: url("/styles/mplus-2p-light-sub.ttf?v2");
+    src: url("/styles/mplus-2p-light-sub.ttf?v3");
 }
 
 /**************************************************************************************************
@@ -71,8 +71,15 @@ body {
     pointer-events: none;  /* This div is just a container--do not let it interfere with operation of the map. */
 }
 
-#status, #location, #start {
+#start {
     font-size: 2.4rem;
+}
+
+#status, #location, #menu {
+    font-size: 1.75rem;
+}
+
+#status, #location, #start {
     background-color: rgba(0, 0, 5, 0.6);
     border-radius: 0.5rem/0.5rem;
     display: table;
@@ -82,7 +89,6 @@ body {
 }
 
 #menu {
-    font-size: 1.75rem;
     background-color: rgba(5, 10, 30, 0.85);
     border-radius: 0.5rem/0.5rem;
     overflow: hidden;
@@ -128,13 +134,25 @@ body {
     padding-top: 0.5rem;
 }
 
+.sup {
+    position: relative;
+   	bottom: 0.3em;
+   	font-size: 0.6em;
+}
+
+.sub {
+    position: relative;
+   	top: 0.3em;
+   	font-size: 0.6em;
+}
+
 /**************************************************************************************************
  * SVG Element Styling
  **************************************************************************************************/
 
 .coastline, .lakes {
     stroke: #ffffff;
-    stroke-width: 1.0;
+    stroke-width: 1.25;
     fill: none;
 }
 

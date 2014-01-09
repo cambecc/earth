@@ -44,8 +44,12 @@
                 <span id="location-close" class="invisible text-button"> ✕ </span>
             </p>
             <p>
+                <span id="location-wind"></span>
+                <span id="location-wind-units" class="text-button"></span>
+            </p>
+            <p>
                 <span id="location-value"></span>
-                <span id="toggle-units" class="invisible text-button"></span>
+                <span id="location-value-units" class="text-button"></span>
             </p>
         </div>
         <p id="start">
@@ -54,13 +58,14 @@
         </p>
 
         <div id="menu" class="invisible">
-            <p>日付 |
-                <span id="data-date" class="local"></span>
-                <span id="toggle-zone" class="text-button"></span>
+            <p>日付 | <span
+                id="data-date" class="local"></span> <span
+                id="toggle-zone" class="text-button"></span>
             </p>
-            <p>曲面 | <span id="data-layer"></span></p>
+            <p>データ | <span id="data-layer"></span></p>
             <p><span id="scale-label">スケール | </span><canvas id="scale"></canvas></p>
-            <p>データ | <span id="data-center">NCEP / アメリカ国立気象局 / NOAA</span></p>
+            <p>発信源 | <span
+                id="data-center">NCEP / アメリカ国立気象局 / NOAA</span></p>
             <p>操作 | <span
                 class="text-button" id="nav-now" title="現在状況">最新</span><span
                 class="text-button" id="nav-prev-day" title="前日"> « </span> – <span
@@ -79,8 +84,12 @@
                 class="text-button" id="iso-10">10</span> hPa
             </p>
             <p>レイヤー | <span
-                class="text-button" id="none">無</span> – <span
-                class="text-button" id="wind">風速</span>
+                class="text-button" id="off">無</span> – <span
+                class="text-button" id="wind" title="Wind Speed">風速</span> – <span
+                class="text-button" id="temp" title="Temperature">Temp</span> – <span
+                class="text-button" id="total_cloud_water" title="Total Cloud Water">TCW</span> – <span
+                class="text-button" id="total_precipitable_water" title="Total Precipitable Water">TPW</span> – <span
+                class="text-button" id="mean_sea_level_pressure" title="Mean Sea Level Pressure">MSLP</span>
             </p>
             <p>投影法 | <span
                 class="proj text-button" id="atlantis" title="アトランティス">A</span> – <span

@@ -197,5 +197,9 @@
     },
     "Scale": {
         "ja": "スケール"
+    },
+    "DataSource": {
+        "en": "Source",
+        "ja": "発信源"
     }
 }

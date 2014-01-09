@@ -40,7 +40,10 @@ var µ = function() {
      *          of negative numbers. See http://en.wikipedia.org/wiki/Modulo_operation.
      */
     function floorMod(a, n) {
-        return a - n * Math.floor(a / n);
+        var f = a - n * Math.floor(a / n);
+        // HACK: when a is extremely close to an n transition, f can be equal to n. This is bad because f must be
+        //       within range [0, n). Check for this corner case. Example: a:=-1e-16, n:=10. What is the proper fix?
+        return f === n ? 0 : f;
     }
 
     /**
@@ -185,6 +188,11 @@ var µ = function() {
             fadeToWhite((i - BOUNDARY) / (1 - BOUNDARY), a);
     }
 
+    function grayScale(i, a) {
+        var g = Math.round(i * (255));
+        return [g/1.5, g/1.5, g, a];
+    }
+
     function asColorStyle(r, g, b, a) {
         return "rgba(" + r + ", " + g + ", " + b + ", " + a + ")";
     }
@@ -211,20 +219,16 @@ var µ = function() {
             Math.abs(λ).toFixed(2) + "º " + (λ >= 0 ? "E" : "W");
     }
 
-    function formatScalar(mag, units) {
-        // wind magnitude is specified in m/s, so convert as appropriate.
-        switch (units) {
-            case "m/s": mag = mag.toFixed(1); break;
-            case "km/h": mag = (mag * 3.6).toFixed(0); break;
-            case "kn": mag = (mag * 1.943844).toFixed(0); break;
-        }
-        return mag + " " + units;
+    /**
+     * Returns a human readable string for the provided scalar in the given units.
+     */
+    function formatScalar(value, units) {
+        return units.conversion(value).toFixed(units.precision);
     }
 
     /**
-     * Returns a human readable string for the provided rectangular wind vector.
+     * Returns a human readable string for the provided rectangular wind vector in the given units.
      * See http://mst.nerc.ac.uk/wind_vect_convs.html.
-     * Units supported: "kn", "km/h", "m/s"
      */
     function formatVector(wind, units) {
         var d = Math.atan2(-wind[0], -wind[1]) / τ * 360;  // calculate into-the-wind cardinal degrees
@@ -408,7 +412,7 @@ var µ = function() {
      *
      * example: "2013/11/14/0900Z/wind/isobaric/1000hPa/orthographic=26.50,-153.00,1430/overlay=off"
      * output: {date: "2013/11/14", hour: "0900", param: "wind", surface: "isobaric", level: "1000hPa",
-     *          projection: "orthographic", orientation: "26.50,-153.00,1430", overlay: "off"}
+     *          projection: "orthographic", orientation: "26.50,-153.00,1430", overlayType: "off"}
      *
      * grammar:
      *     hash   := ( "current" | yyyy / mm / dd / hhhh "Z" ) / param / surface / level [ / option [ / option ... ] ]
@@ -416,9 +420,10 @@ var µ = function() {
      *
      * @param hash the hash fragment.
      * @param projectionNames the set of allowed projections.
+     * @param overlayTypes the set of allowed overlays.
      * @returns {Object} the result of the parse.
      */
-    function parse(hash, projectionNames) {
+    function parse(hash, projectionNames, overlayTypes) {
         var option, result = {};
         //             1        2        3          4          5            6      7      8    9
         var tokens = /^(current|(\d{4})\/(\d{1,2})\/(\d{1,2})\/(\d{3,4})Z)\/(\w+)\/(\w+)\/(\w+)([\/].+)?/.exec(hash);
@@ -436,7 +441,7 @@ var µ = function() {
                 projection: "orthographic",
                 orientation: "",
                 topology: TOPOLOGY,
-                overlay: "wv"
+                overlayType: "wind"
             };
             coalesce(tokens[9], "").split("/").forEach(function(segment) {
                 if ((option = /^(\w+)(=([\d\-.,]*))?$/.exec(segment))) {
@@ -445,8 +450,10 @@ var µ = function() {
                         result.orientation = coalesce(option[3], "");  // comma delimited string of numbers, or ""
                     }
                 }
-                else if ((option = /^overlay=off$/.exec(segment))) {
-                    result.overlay = "off";
+                else if ((option = /^overlay=(\w+)$/.exec(segment))) {
+                    if (overlayTypes.has(option[1])) {
+                        result.overlayType = option[1];
+                    }
                 }
             });
         }
@@ -461,6 +468,7 @@ var µ = function() {
         id: 0,
         _ignoreNextHashChangeEvent: false,
         _projectionNames: null,
+        _overlayTypes: null,
 
         /**
          * @returns {String} this configuration converted to a hash fragment.
@@ -469,19 +477,8 @@ var µ = function() {
             var attr = this.attributes;
             var dir = attr.date === "current" ? "current" : attr.date + "/" + attr.hour + "Z";
             var proj = [attr.projection, attr.orientation].filter(isTruthy).join("=");
-            var ol = attr.overlay === "off" ? "overlay=off" : "";
-            return [dir, attr.param, attr.surface, attr.level, proj, ol].filter(isTruthy).join("/");
-        },
-
-        /**
-         * @returns {String} the path to the weather data JSON file implied by this configuration.
-         */
-        toPath: function() {
-            var attr = this.attributes;
-            var dir = attr.date;
-            var stamp = dir === "current" ? "current" : attr.hour;
-            var file = [stamp, attr.param, attr.surface, attr.level, "gfs", "1.0"].join("-") + ".json";
-            return ["/data/weather", dir, file].join("/");
+            var ol = !isValue(attr.overlayType) || attr.overlayType === "wind" ? "" : "overlay=" + attr.overlayType;
+            return [dir, attr.param, attr.surface, attr.level, ol, proj].filter(isTruthy).join("/");
         },
 
         /**
@@ -495,7 +492,10 @@ var µ = function() {
                         model._ignoreNextHashChangeEvent = false;
                         return;
                     }
-                    model.set(parse(window.location.hash.substr(1) || DEFAULT_CONFIG, model._projectionNames));
+                    model.set(parse(
+                        window.location.hash.substr(1) || DEFAULT_CONFIG,
+                        model._projectionNames,
+                        model._overlayTypes));
                     break;
                 case "update":
                     // Ugh. Setting the hash fires a hashchange event during the next event loop turn. Ignore it.
@@ -517,9 +517,10 @@ var µ = function() {
      *
      * @returns {Configuration} Model to represent the hash fragment, using the specified set of allowed projections.
      */
-    function buildConfiguration(projectionNames) {
+    function buildConfiguration(projectionNames, overlayTypes) {
         var result = new Configuration();
         result._projectionNames = projectionNames;
+        result._overlayTypes = overlayTypes;
         return result;
     }
 
@@ -540,6 +541,7 @@ var µ = function() {
         clearCanvas: clearCanvas,
         sinebowColor: sinebowColor,
         extendedSinebowColor: extendedSinebowColor,
+        grayScale: grayScale,
         windIntensityColorScale: windIntensityColorScale,
         formatCoordinates: formatCoordinates,
         formatScalar: formatScalar,
