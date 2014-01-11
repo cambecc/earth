@@ -21,8 +21,11 @@
     "Data": {
         "ja": "データ"
     },
-    "NCEP / US National Weather Service / NOAA": {
+    "NCEP / National Weather Service / NOAA": {
         "ja": "NCEP / アメリカ国立気象局 / NOAA"
+    },
+    "GFS / NCEP / US National Weather Service": {
+        "ja": "GFS / NCEP / アメリカ国立気象局"
     },
     "Control": {
         "ja": "操作"
@@ -201,5 +204,89 @@
     "DataSource": {
         "en": "Source",
         "ja": "発信源"
+    },
+    "Sfc": {
+        "ja": "地上"
+    },
+    "Surface": {
+        "ja": "地上"
+    },
+    "Wind Speed": {
+        "ja": "風速"
+    },
+    "Temp": {
+        "ja": "気温"
+    },
+    "Temperature": {
+        "ja": "気温"
+    },
+    "Total Cloud Water": {
+        "ja": "雲水量"
+    },
+    "TCW": {
+        "ja": "雲水量"
+    },
+    "Total Precipitable Water": {
+        "ja": "可降水量"
+    },
+    "TPW": {
+        "ja": "可降水量"
+    },
+    "http://en.wikipedia.org/wiki/Precipitable_water": {
+        "ja": "http://ja.wikipedia.org/wiki/可降水量"
+    },
+    "Mean Sea Level Pressure": {
+        "ja": "海面更正気圧"
+    },
+    "MSLP": {
+        "ja": "海面更正"
+    },
+    "http://en.wikipedia.org/wiki/Atmospheric_pressure#Mean_sea_level_pressure": {
+        "ja": "http://ja.wikipedia.org/wiki/海面更正"
+    },
+    "several pressure layers are meteorologically interesting": {
+        "ja": ""
+    },
+    "they show data assuming the earth is completely smooth": {
+        "ja": ""
+    },
+    "near sea level conditions": {
+        "ja": ""
+    },
+    "the \"Surface\" layer represents conditions at ground or water level": {
+        "ja": ""
+    },
+    "this layer follows the contours of mountains, valleys, etc.": {
+        "ja": ""
+    },
+    "overlays show another dimension of data using color": {
+        "ja": ""
+    },
+    "some overlays are valid at a specific height": {
+        "ja": ""
+    },
+    "while others are valid for the entire thickness of the atmosphere": {
+        "ja": ""
+    },
+    "wind speed at specified height": {
+        "ja": ""
+    },
+    "temperature at specified height": {
+        "ja": ""
+    },
+    "total amount of water in a column of air": {
+        "ja": ""
+    },
+    "stretching from ground to space": {
+        "ja": ""
+    },
+    "total amount of water in clouds": {
+        "ja": ""
+    },
+    "in a column of air from ground to space": {
+        "ja": ""
+    },
+    "air pressure reduced to sea level": {
+        "ja": ""
     }
 }

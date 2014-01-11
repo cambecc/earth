@@ -67,10 +67,13 @@ var grids = function() {
                 {label: "kg/m²", conversion: function(x) { return x; }, precision: 3}
             ],
             scale: {
-                bounds: [0, 1],
-                gradient: function(v, a) {
-                    return µ.grayScale(µ.proportion(v, 0, 1), a);
-                }
+                bounds: [0, 3],
+                gradient: µ.segmentedColorScale([
+                    [0.0, [5, 5, 120]],
+                    [0.2, [170, 170, 230]],
+                    [1.0, [255, 255, 255]],
+                    [3.0, [255, 255, 0]]
+                ])
             }
         };
     }

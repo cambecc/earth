@@ -65,7 +65,7 @@
             <p>データ | <span id="data-layer"></span></p>
             <p><span id="scale-label">スケール | </span><canvas id="scale"></canvas></p>
             <p>発信源 | <span
-                id="data-center">NCEP / アメリカ国立気象局 / NOAA</span></p>
+                id="data-center">GFS / NCEP / アメリカ国立気象局</span></p>
             <p>操作 | <span
                 class="text-button" id="nav-now" title="現在状況">最新</span><span
                 class="text-button" id="nav-prev-day" title="前日"> « </span> – <span
@@ -75,7 +75,7 @@
                 class="text-button" id="show-location" title="現在地">〖◯〗</span>
             </p>
             <p>高度 | <span
-                class="text-button" id="surface">Sfc</span> – <span
+                class="text-button" id="surface" title="地上">地上</span> – <span
                 class="text-button" id="iso-1000">1000</span> – <span
                 class="text-button" id="iso-850">850</span> – <span
                 class="text-button" id="iso-700">700</span> – <span
@@ -86,11 +86,11 @@
             </p>
             <p>レイヤー | <span
                 class="text-button" id="off">無</span> – <span
-                class="text-button" id="wind" title="Wind Speed">風速</span> – <span
-                class="text-button" id="temp" title="Temperature">Temp</span> – <span
-                class="text-button" id="total_cloud_water" title="Total Cloud Water">TCW</span> – <span
-                class="text-button" id="total_precipitable_water" title="Total Precipitable Water">TPW</span> – <span
-                class="text-button" id="mean_sea_level_pressure" title="Mean Sea Level Pressure">MSLP</span>
+                class="text-button" id="wind" title="風速">風速</span> – <span
+                class="text-button" id="temp" title="気温">気温</span> – <span
+                class="text-button" id="total_precipitable_water" title="可降水量">可降水量</span> – <span
+                class="text-button" id="total_cloud_water" title="雲水量">雲水量</span> – <span
+                class="text-button" id="mean_sea_level_pressure" title="海面更正気圧">海面更正</span>
             </p>
             <p>投影法 | <span
                 class="proj text-button" id="atlantis" title="アトランティス">A</span> – <span
@@ -102,7 +102,7 @@
                 class="proj text-button" id="waterman" title="ウォーターマン蝶型">WB</span> – <span
                 class="proj text-button" id="winkel3" title="ヴィンケル第3">W3</span>
             </p>
-            <p>免責事項 | 正確な情報を提供するためのものではありません</p>
+            <!--<p>免責事項 | 正確な情報を提供するためのものではありません</p>-->
             <p id="lang"><a href="/">English</a></p>
             <p><a href="about.html">サイトについて</a></p>
         </div>

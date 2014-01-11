@@ -204,11 +204,6 @@ var µ = function() {
             fadeToWhite((i - BOUNDARY) / (1 - BOUNDARY), a);
     }
 
-    function grayScale(i, a) {
-        var g = Math.round(i * (255));
-        return [g/1.5, g/1.5, g, a];
-    }
-
     function asColorStyle(r, g, b, a) {
         return "rgba(" + r + ", " + g + ", " + b + ", " + a + ")";
     }
@@ -592,7 +587,6 @@ var µ = function() {
         clearCanvas: clearCanvas,
         sinebowColor: sinebowColor,
         extendedSinebowColor: extendedSinebowColor,
-        grayScale: grayScale,
         windIntensityColorScale: windIntensityColorScale,
         segmentedColorScale: segmentedColorScale,
         formatCoordinates: formatCoordinates,

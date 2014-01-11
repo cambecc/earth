@@ -69,7 +69,7 @@
             <p>{{__('Data')}} | <span id="data-layer"></span></p>
             <p><span id="scale-label">{{__('Scale')}} | </span><canvas id="scale"></canvas></p>
             <p>{{__('DataSource')}} | <span
-                id="data-center">{{__('NCEP / US National Weather Service / NOAA')}}</span></p>
+                id="data-center">{{__('GFS / NCEP / US National Weather Service')}}</span></p>
             <p>{{__('Control')}} | <span
                 class="text-button" id="nav-now" title="{{__('Current Conditions')}}">{{__('Now')}}</span><span
                 class="text-button" id="nav-prev-day" title="{{__('-1 Day')}}"> « </span> – <span
@@ -79,7 +79,7 @@
                 class="text-button" id="show-location" title="{{__('Current Position')}}">〖◯〗</span>
             </p>
             <p>{{__('Height')}} | <span
-                class="text-button" id="surface">{{__('Sfc')}}</span> – <span
+                class="text-button" id="surface" title="{{__('Surface')}}">{{__('Sfc')}}</span> – <span
                 class="text-button" id="iso-1000">1000</span> – <span
                 class="text-button" id="iso-850">850</span> – <span
                 class="text-button" id="iso-700">700</span> – <span
@@ -92,8 +92,8 @@
                 class="text-button" id="off">{{__('None')}}</span> – <span
                 class="text-button" id="wind" title="{{__('Wind Speed')}}">{{__('Wind')}}</span> – <span
                 class="text-button" id="temp" title="{{__('Temperature')}}">{{__('Temp')}}</span> – <span
-                class="text-button" id="total_cloud_water" title="{{__('Total Cloud Water')}}">{{__('TCW')}}</span> – <span
                 class="text-button" id="total_precipitable_water" title="{{__('Total Precipitable Water')}}">{{__('TPW')}}</span> – <span
+                class="text-button" id="total_cloud_water" title="{{__('Total Cloud Water')}}">{{__('TCW')}}</span> – <span
                 class="text-button" id="mean_sea_level_pressure" title="{{__('Mean Sea Level Pressure')}}">{{__('MSLP')}}</span>
             </p>
             <p>{{__('Projection')}} | <span
