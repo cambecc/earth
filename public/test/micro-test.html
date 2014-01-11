@@ -75,6 +75,20 @@
             // what else to do here without replicating the function itself?
         });
 
+        test("segmentedColorScale", function() {
+            var f = µ.segmentedColorScale([
+                [0, [0, 0, 0]],
+                [1, [100, 100, 100]],
+                [2, [0, 0, 0]]
+            ]);
+
+            deepEqual(f(0, 0), [0, 0, 0, 0]);
+            deepEqual(f(0.5, 1), [50, 50, 50, 1]);
+            deepEqual(f(1, 2), [100, 100, 100, 2]);
+            deepEqual(f(1.5, 3), [50, 50, 50, 3]);
+            deepEqual(f(2, 4), [0, 0, 0, 4]);
+        });
+
         var projections = d3.map({
             a: function() {},
             b: function() {},
@@ -169,7 +183,7 @@
             config.fetch();
             deepEqual(
                 config.attributes,
-                args({date: "current", param: "wind", surface: "isobaric", level: "1000hPa",
+                args({date: "current", param: "wind", surface: "surface", level: "level",
                     projection: "orthographic", orientation: ""}));
         });
 

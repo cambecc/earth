@@ -60,23 +60,25 @@ temp.track(true);
 var INDENT;  // = 2;
 var GRIB2JSON_FLAGS = "-c -d -n";
 var LAYER_RECIPES = [
-    { name: "wind-isobaric-10hPa", filter: "--fc 2 --fp wind --fs 100 --fv 1000" },
-    { name: "wind-isobaric-70hPa", filter: "--fc 2 --fp wind --fs 100 --fv 7000" },
-    { name: "wind-isobaric-250hPa", filter: "--fc 2 --fp wind --fs 100 --fv 25000" },
-    { name: "wind-isobaric-500hPa", filter: "--fc 2 --fp wind --fs 100 --fv 50000" },
-    { name: "wind-isobaric-700hPa", filter: "--fc 2 --fp wind --fs 100 --fv 70000" },
-    { name: "wind-isobaric-850hPa", filter: "--fc 2 --fp wind --fs 100 --fv 85000" },
-    { name: "wind-isobaric-1000hPa", filter: "--fc 2 --fp wind --fs 100 --fv 100000" },
-    { name: "temp-isobaric-10hPa", filter: "--fc 0 --fp 0 --fs 100 --fv 1000" },
-    { name: "temp-isobaric-70hPa", filter: "--fc 0 --fp 0 --fs 100 --fv 7000" },
-    { name: "temp-isobaric-250hPa", filter: "--fc 0 --fp 0 --fs 100 --fv 25000" },
-    { name: "temp-isobaric-500hPa", filter: "--fc 0 --fp 0 --fs 100 --fv 50000" },
-    { name: "temp-isobaric-700hPa", filter: "--fc 0 --fp 0 --fs 100 --fv 70000" },
-    { name: "temp-isobaric-850hPa", filter: "--fc 0 --fp 0 --fs 100 --fv 85000" },
-    { name: "temp-isobaric-1000hPa", filter: "--fc 0 --fp 0 --fs 100 --fv 100000" },
-    { name: "total_cloud_water", filter: "--fc 6 --fp 6 --fs 200" },
-    { name: "total_precipitable_water", filter: "--fc 1 --fp 3 --fs 200" },
-    { name: "mean_sea_level_pressure", filter: "--fc 3 --fp 1 --fs 101" }
+    { name: "wind-isobaric-10hPa",      filter: "--fd 0 --fc 2 --fp wind --fs 100 --fv 1000" },
+    { name: "wind-isobaric-70hPa",      filter: "--fd 0 --fc 2 --fp wind --fs 100 --fv 7000" },
+    { name: "wind-isobaric-250hPa",     filter: "--fd 0 --fc 2 --fp wind --fs 100 --fv 25000" },
+    { name: "wind-isobaric-500hPa",     filter: "--fd 0 --fc 2 --fp wind --fs 100 --fv 50000" },
+    { name: "wind-isobaric-700hPa",     filter: "--fd 0 --fc 2 --fp wind --fs 100 --fv 70000" },
+    { name: "wind-isobaric-850hPa",     filter: "--fd 0 --fc 2 --fp wind --fs 100 --fv 85000" },
+    { name: "wind-isobaric-1000hPa",    filter: "--fd 0 --fc 2 --fp wind --fs 100 --fv 100000" },
+    { name: "wind-surface-level",       filter: "--fd 0 --fc 2 --fp wind --fs 103 --fv 10" },
+    { name: "temp-isobaric-10hPa",      filter: "--fd 0 --fc 0 --fp 0 --fs 100 --fv 1000" },
+    { name: "temp-isobaric-70hPa",      filter: "--fd 0 --fc 0 --fp 0 --fs 100 --fv 7000" },
+    { name: "temp-isobaric-250hPa",     filter: "--fd 0 --fc 0 --fp 0 --fs 100 --fv 25000" },
+    { name: "temp-isobaric-500hPa",     filter: "--fd 0 --fc 0 --fp 0 --fs 100 --fv 50000" },
+    { name: "temp-isobaric-700hPa",     filter: "--fd 0 --fc 0 --fp 0 --fs 100 --fv 70000" },
+    { name: "temp-isobaric-850hPa",     filter: "--fd 0 --fc 0 --fp 0 --fs 100 --fv 85000" },
+    { name: "temp-isobaric-1000hPa",    filter: "--fd 0 --fc 0 --fp 0 --fs 100 --fv 100000" },
+    { name: "temp-surface-level",       filter: "--fd 0 --fc 0 --fp 0 --fs 1" },
+    { name: "total_cloud_water",        filter: "--fd 0 --fc 6 --fp 6 --fs 200" },
+    { name: "total_precipitable_water", filter: "--fd 0 --fc 1 --fp 3 --fs 200" },
+    { name: "mean_sea_level_pressure",  filter: "--fd 0 --fc 3 --fp 1 --fs 101" }
 ];
 
 var servers = [

@@ -11,7 +11,7 @@ var µ = function() {
 
     var τ = 2 * Math.PI;
     var H = Math.pow(10, -5.2);
-    var DEFAULT_CONFIG = "current/wind/isobaric/1000hPa/orthographic";
+    var DEFAULT_CONFIG = "current/wind/surface/level/orthographic";
     var TOPOLOGY = isMobile() ? "/data/earth-topo-mobile.json?v2" : "/data/earth-topo.json?v2";
 
     /**
@@ -58,8 +58,24 @@ var µ = function() {
     /**
      * @returns {Number} the value x clamped to the range [low, high].
      */
-    function clamp(x, range) {
-        return Math.max(range[0], Math.min(x, range[1]));
+    function clamp(x, low, high) {
+        return Math.max(low, Math.min(x, high));
+    }
+
+    /**
+     * @returns {number} the fraction of the bounds [low, high] covered by the value x, after clamping x to the
+     *          bounds. For example, given bounds=[10, 20], this method returns 1 for x>=20, 0.5 for x=15 and 0
+     *          for x<=10.
+     */
+    function proportion(x, low, high) {
+        return (µ.clamp(x, low, high) - low) / (high - low);
+    }
+
+    /**
+     * @returns {number} the value p within the range [0, 1], scaled to the range [low, high].
+     */
+    function spread(p, low, high) {
+        return p * (high - low) + low;
     }
 
     /**
@@ -209,6 +225,39 @@ var µ = function() {
             return Math.floor(Math.min(m, maxWind) / maxWind * (result.length - 1));
         };
         return result;
+    }
+
+    /**
+     * Creates a color scale composed of the specified segments. Segments is an array of two-element arrays of the
+     * form [value, color], where value is the point along the scale and color is the [r, g, b] color at that point.
+     * For example, the following creates a scale that smoothly transitions from red to green to blue along the
+     * points 0.5, 1.0, and 3.5:
+     *
+     *     [ [ 0.5, [255, 0, 0] ],
+     *       [ 1.0, [0, 255, 0] ],
+     *       [ 3.5, [0, 0, 255] ] ]
+     *
+     * @param segments array of color segments
+     * @returns {Function} a function(point, alpha) that returns the color [r, g, b, alpha] for the given point.
+     */
+    function segmentedColorScale(segments) {
+        var points = [], interpolators = [], ranges = [];
+        for (var i = 0; i < segments.length - 1; i++) {
+            points.push(segments[i+1][0]);
+            interpolators.push(colorInterpolator(segments[i][1], segments[i+1][1]));
+            ranges.push([segments[i][0], segments[i+1][0]]);
+        }
+
+        return function(point, alpha) {
+            var i;
+            for (i = 0; i < points.length - 1; i++) {
+                if (point <= points[i]) {
+                    break;
+                }
+            }
+            var range = ranges[i];
+            return interpolators[i](µ.proportion(point, range[0], range[1]), alpha);
+        };
     }
 
     /**
@@ -531,6 +580,8 @@ var µ = function() {
         floorMod: floorMod,
         distance: distance,
         clamp: clamp,
+        proportion: proportion,
+        spread: spread,
         isFF: isFF,
         isMobile: isMobile,
         toUTCISO: toUTCISO,
@@ -543,6 +594,7 @@ var µ = function() {
         extendedSinebowColor: extendedSinebowColor,
         grayScale: grayScale,
         windIntensityColorScale: windIntensityColorScale,
+        segmentedColorScale: segmentedColorScale,
         formatCoordinates: formatCoordinates,
         formatScalar: formatScalar,
         formatVector: formatVector,

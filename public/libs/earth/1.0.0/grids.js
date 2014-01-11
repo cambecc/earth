@@ -1,5 +1,5 @@
 /**
- * grids - interpolates grids of weather data
+ * grids - defines the behavior of weather data grids, including grid construction, interpolation, and color scales.
  *
  * Copyright (c) 2014 Cameron Beccario
  * The MIT License - http://opensource.org/licenses/MIT
@@ -9,89 +9,132 @@
 var grids = function() {
     "use strict";
 
-    function isobaricWind(pressure) {
+    function windRecipe(key, description) {
         return {
-            id: "wind," + pressure * 100,
             type: "wind",
-            description: "Wind @ " + pressure + " hPa",
+            key: key,
+            description: description,
             units: [
                 {label: "km/h", conversion: function(x) { return x * 3.6; },      precision: 0},
                 {label: "m/s",  conversion: function(x) { return x; },            precision: 1},
                 {label: "kn",   conversion: function(x) { return x * 1.943844; }, precision: 0},
                 {label: "mph",  conversion: function(x) { return x * 2.236936; }, precision: 0}
             ],
-            scale: {bounds: [0, 100], gradient: µ.extendedSinebowColor}
+            scale: {
+                bounds: [0, 100],
+                gradient: function(v, a) {
+                    return µ.extendedSinebowColor(Math.min(v, 100) / 100, a);
+                }
+            }
         };
     }
 
-    function isobaricTemp(pressure) {
+    function tempRecipe(key, description) {
         return {
-            id: "0,0,100," + pressure * 100,
             type: "temp",
-            description: "Temp @ " + pressure + " hPa",
+            key: key,
+            description: description,
             units: [
-                {label: "ºC", conversion: function(x) { return x - 273.15; },     precision: 1},
-                {label: "ºF", conversion: function(x) { return x * 9/5 - 459.67}, precision: 1},
-                {label: "K",  conversion: function(x) { return x; },              precision: 1}
+                {label: "ºC", conversion: function(x) { return x - 273.15; },       precision: 1},
+                {label: "ºF", conversion: function(x) { return x * 9/5 - 459.67; }, precision: 1},
+                {label: "K",  conversion: function(x) { return x; },                precision: 1}
             ],
-            scale: {bounds: [233.15, 310.15], gradient: µ.sinebowColor}
-        }
+            scale: {
+                bounds: [193, 328],
+                gradient: µ.segmentedColorScale([
+                    // 193
+                    // 206
+                    // 219
+                    [233.15,  [180, 40, 130]],  // -40 C/F
+                    [255.372, [30, 30, 215]],   // 0 F
+                    [271.15,  [70, 255, 255]],  // just below 0 C
+                    [273.15,  [255, 255, 255]], // 0 C
+                    [275.15,  [0, 255, 0]],     // just above 0 C
+                    [294,     [255, 168, 0]],   // room temp
+                    [311,     [255, 0, 0]]      // 100 F
+                    // 328
+                ])
+            }
+        };
     }
 
-    function totalCloudWater() {
+    function totalCloudWaterRecipe() {
         return {
-            id: "6,6,200,0",
             type: "total_cloud_water",
+            key: "6,6,200,0",
             description: "Total Cloud Water",
             units: [
                 {label: "kg/m²", conversion: function(x) { return x; }, precision: 3}
             ],
-            scale: {bounds: [0, 1], gradient: µ.grayScale}
+            scale: {
+                bounds: [0, 1],
+                gradient: function(v, a) {
+                    return µ.grayScale(µ.proportion(v, 0, 1), a);
+                }
+            }
         };
     }
 
-    function totalPrecipitableWater() {
+    function totalPrecipitableWaterRecipe() {
         return {
-            id: "1,3,200,0",
             type: "total_precipitable_water",
+            key: "1,3,200,0",
             description: "Total Precipitable Water",
             units: [
                 {label: "kg/m²", conversion: function(x) { return x; }, precision: 3}
             ],
-            scale: {bounds: [0, 70], gradient: µ.extendedSinebowColor}
+            scale: {
+                bounds: [0, 70],
+                gradient: function(v, a) {
+                    return µ.extendedSinebowColor(µ.proportion(v, 0, 70), a);
+                }
+            }
         };
     }
 
-    function meanSeaLevelPressure() {
+    function meanSeaLevelPressureRecipe() {
         return {
-            id: "3,1,101,0",
             type: "mean_sea_level_pressure",
+            key: "3,1,101,0",
             description: "Mean Sea Level Pressure",
             units: [
                 {label: "hPa", conversion: function(x) { return x / 100; }, precision: 0}
             ],
-            scale: {bounds: [98000, 103000], gradient: µ.sinebowColor}
-        }
+            scale: {
+                bounds: [92000, 105000],
+                gradient: µ.segmentedColorScale([
+                    [92000, [40, 0, 0]],
+                    [95000, [120, 60, 201]],
+                    [98000, [90, 32, 237]],
+                    [100000, [36, 1, 93]],
+                    [101300, [241, 254, 18]],
+                    [103000, [228, 246, 223]],
+                    [105000, [255, 255, 255]]
+                ])
+            }
+        };
     }
 
     var PRESSURE_LEVELS = [10, 70, 250, 500, 700, 850, 1000];
 
     var LAYER_RECIPES = function() {
         var recipes = [];
+        recipes.push(windRecipe("wind,103,10", "Wind @ Surface"));
+        recipes.push(tempRecipe("0,0,1,0", "Temp @ Surface"));
         PRESSURE_LEVELS.forEach(function(pressure) {
-            recipes.push(isobaricWind(pressure));
-            recipes.push(isobaricTemp(pressure));
+            recipes.push(windRecipe("wind,100," + pressure * 100, "Wind @ " + pressure + " hPa"));
+            recipes.push(tempRecipe("0,0,100," + pressure * 100, "Temp @ " + pressure + " hPa"));
         });
-        recipes.push(totalCloudWater());
-        recipes.push(totalPrecipitableWater());
-        recipes.push(meanSeaLevelPressure());
+        recipes.push(totalCloudWaterRecipe());
+        recipes.push(totalPrecipitableWaterRecipe());
+        recipes.push(meanSeaLevelPressureRecipe());
         return recipes;
     }();
 
     var OVERLAY_TYPES = d3.set(_.union(_.pluck(LAYER_RECIPES, "type"), "off"));
 
-    function recipeFor(id) {
-        return _.findWhere(_.values(LAYER_RECIPES), {id: id});
+    function recipeFor(key) {
+        return _.findWhere(_.values(LAYER_RECIPES), {key: key});
     }
 
     function bilinearInterpolateScalar(x, y, g00, g10, g01, g11) {
@@ -122,19 +165,19 @@ var grids = function() {
                 return data[i];
             },
             interpolate: bilinearInterpolateScalar
-        }
+        };
     }
 
     function createWindBuilder(uComp, vComp) {
         var uData = uComp.data, vData = vComp.data;
         return {
             header: uComp.header,
-            recipe: recipeFor("wind," + uComp.header.surface1Value),
+            recipe: recipeFor("wind," + uComp.header.surface1Type + "," + uComp.header.surface1Value),
             data: function(i) {
                 return [uData[i], vData[i]];
             },
             interpolate: bilinearInterpolateVector
-        }
+        };
     }
 
     function createBuilder(data) {

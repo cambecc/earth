@@ -103,10 +103,11 @@ var globes = function() {
                 var projection = this.projection, rotate = projection.rotate();
                 if (µ.isValue(o)) {
                     var parts = o.split(","), λ = +parts[0], φ = +parts[1], scale = +parts[2];
+                    var extent = this.scaleExtent();
                     projection.rotate(_.isFinite(λ) && _.isFinite(φ) ?
                         [-λ, -φ, rotate[2]] :
                         this.newProjection(view).rotate());
-                    projection.scale(_.isFinite(scale) ? µ.clamp(scale, this.scaleExtent()) : this.fit(view));
+                    projection.scale(_.isFinite(scale) ? µ.clamp(scale, extent[0], extent[1]) : this.fit(view));
                     projection.translate(this.center(view));
                     return this;
                 }

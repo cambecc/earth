@@ -129,9 +129,10 @@
                 var currentMouse = d3.mouse(this), currentScale = d3.event.scale;
                 op = op || newOp(currentMouse, 1);  // Fix bug on some browsers where zoomstart fires out of order.
                 if (op.type === "click" || op.type === "spurious") {
-                    if (currentScale === op.startScale && µ.distance(currentMouse, op.startMouse) < MIN_MOVE) {
+                    var distanceMoved = µ.distance(currentMouse, op.startMouse);
+                    if (currentScale === op.startScale && distanceMoved < MIN_MOVE) {
                         // to reduce annoyance, ignore op if mouse has barely moved and no zoom is occurring
-                        op.type = "spurious";
+                        op.type = distanceMoved > 0 ? "click" : "spurious";
                         return;
                     }
                     dispatch.trigger("moveStart");
@@ -264,7 +265,7 @@
         report.status("Downloading...");
         var tasks = [], cancel = this.cancel;
         tasks.push(buildGrid(primaryLayer, cancel));
-        tasks.push(overlayLayer !== primaryLayer ? buildGrid(overlayLayer, cancel) : tasks[0]);
+        tasks.push(overlayLayer && overlayLayer !== primaryLayer ? buildGrid(overlayLayer, cancel) : tasks[0]);
         return when.all(tasks).spread(function(primaryGrid, overlayGrid) {
             return {primaryGrid: primaryGrid, overlayGrid: overlayGrid};
         });
@@ -444,10 +445,6 @@
         return wind;
     }
 
-    function proportion(i, bounds) {
-        return (µ.clamp(i, bounds) - bounds[0]) / (bounds[1] - bounds[0]);
-    }
-
     function interpolateField(globe, grids) {
         if (!globe || !grids) return null;
 
@@ -491,7 +488,7 @@
                                 scalar = overlayInterpolate(λ, φ);
                             }
                             if (µ.isValue(scalar)) {
-                                color = scale.gradient(proportion(scalar, scale.bounds), OVERLAY_ALPHA);
+                                color = scale.gradient(scalar, OVERLAY_ALPHA);
                             }
                         }
                     }
@@ -635,23 +632,23 @@
 
         var grid = (gridAgent.value() || {}).overlayGrid;
         if (grid) {
-            // Draw color scale for reference.
-            var scale = d3.select("#scale");
-            var c = scale.node(), g = c.getContext("2d"), n = c.width - 1;
+            // Draw color bar for reference.
+            var colorBar = d3.select("#scale"), recipe = grid.recipe, scale = recipe.scale, bounds = scale.bounds;
+            var c = colorBar.node(), g = c.getContext("2d"), n = c.width - 1;
             for (var i = 0; i <= n; i++) {
-                var rgb = grid.recipe.scale.gradient(i / n, 1);
+                var rgb = scale.gradient(µ.spread(i / n, bounds[0], bounds[1]), 1);
                 g.fillStyle = "rgb(" + rgb[0] + "," + rgb[1] + "," + rgb[2] + ")";
                 g.fillRect(i, 0, 1, c.height);
             }
 
             // Show tooltip on hover.
-            scale.on("mousemove", function() {
-                var bounds = grid.recipe.scale.bounds, x = d3.mouse(this)[0];
-                var pct = µ.clamp((Math.round(x) - 2) / (n - 2), [0, 1]);
-                var value = (bounds[1] - bounds[0]) * pct + bounds[0];
-                var elementId = grid.recipe.type === "wind" ? "#location-wind-units" : "#location-value-units";
-                var units = createUnitToggle(elementId, grid.recipe).value();
-                scale.attr("title", µ.formatScalar(value, units) + " " + units.label);
+            colorBar.on("mousemove", function() {
+                var x = d3.mouse(this)[0];
+                var pct = µ.clamp((Math.round(x) - 2) / (n - 2), 0, 1);
+                var value = µ.spread(pct, bounds[0], bounds[1]);
+                var elementId = recipe.type === "wind" ? "#location-wind-units" : "#location-value-units";
+                var units = createUnitToggle(elementId, recipe).value();
+                colorBar.attr("title", µ.formatScalar(value, units) + " " + units.label);
             });
         }
     }
@@ -907,9 +904,14 @@
         d3.select("#nav-next-forecast").on("click", navToHours.bind(null, +3));
         d3.select("#nav-now").on("click", function() { configuration.save({date: "current", hour: ""}); });
 
-        // Add handlers for all pressure level buttons.
+        // Add handlers for all wind level buttons.
+        d3.select("#surface").on("click", function() {
+            configuration.save({surface: "surface", level: "level"});
+        });
         grids.pressureLevels.forEach(function(pressure) {
-            d3.select("#iso-" + pressure).on("click", function() { configuration.save({level: pressure + "hPa"}); });
+            d3.select("#iso-" + pressure).on("click", function() {
+                configuration.save({surface: "isobaric", level: pressure + "hPa"});
+            });
         });
 
         // Add handlers for all overlay buttons.
