@@ -75,7 +75,7 @@ var LAYER_RECIPES = [
     { name: "temp-isobaric-700hPa",     filter: "--fd 0 --fc 0 --fp 0 --fs 100 --fv 70000" },
     { name: "temp-isobaric-850hPa",     filter: "--fd 0 --fc 0 --fp 0 --fs 100 --fv 85000" },
     { name: "temp-isobaric-1000hPa",    filter: "--fd 0 --fc 0 --fp 0 --fs 100 --fv 100000" },
-    { name: "temp-surface-level",       filter: "--fd 0 --fc 0 --fp 0 --fs 1" },
+    { name: "temp-surface-level",       filter: "--fd 0 --fc 0 --fp 0 --fs 103 --fv 2" },
     { name: "total_cloud_water",        filter: "--fd 0 --fc 6 --fp 6 --fs 200" },
     { name: "total_precipitable_water", filter: "--fd 0 --fc 1 --fp 3 --fs 200" },
     { name: "mean_sea_level_pressure",  filter: "--fd 0 --fc 3 --fp 1 --fs 101" }

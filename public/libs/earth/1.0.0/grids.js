@@ -42,17 +42,17 @@ var grids = function() {
             scale: {
                 bounds: [193, 328],
                 gradient: µ.segmentedColorScale([
-                    // 193
-                    // 206
-                    // 219
-                    [233.15,  [180, 40, 130]],  // -40 C/F
-                    [255.372, [30, 30, 215]],   // 0 F
-                    [271.15,  [70, 255, 255]],  // just below 0 C
-                    [273.15,  [255, 255, 255]], // 0 C
-                    [275.15,  [0, 255, 0]],     // just above 0 C
-                    [294,     [255, 168, 0]],   // room temp
-                    [311,     [255, 0, 0]]      // 100 F
-                    // 328
+                    [193,     [37, 4, 42]],
+                    [206,     [41, 10, 130]],
+                    [219,     [81, 40, 40]],
+                    [233.15,  [192, 37, 149]],  // -40 C/F
+                    [255.372, [70, 215, 215]],  // 0 F
+                    [273.15,  [21, 84, 187]],   // 0 C
+                    [275.15,  [24, 132, 14]],   // just above 0 C
+                    [291,     [247, 251, 59]],
+                    [298,     [235, 167, 21]],
+                    [311,     [230, 71, 39]],
+                    [328,     [88, 27, 67]]
                 ])
             }
         };
@@ -67,12 +67,11 @@ var grids = function() {
                 {label: "kg/m²", conversion: function(x) { return x; }, precision: 3}
             ],
             scale: {
-                bounds: [0, 3],
+                bounds: [0, 1],
                 gradient: µ.segmentedColorScale([
-                    [0.0, [5, 5, 120]],
+                    [0.0, [5, 5, 89]],
                     [0.2, [170, 170, 230]],
-                    [1.0, [255, 255, 255]],
-                    [3.0, [255, 255, 0]]
+                    [1.0, [255, 255, 255]]
                 ])
             }
         };
@@ -88,9 +87,16 @@ var grids = function() {
             ],
             scale: {
                 bounds: [0, 70],
-                gradient: function(v, a) {
-                    return µ.extendedSinebowColor(µ.proportion(v, 0, 70), a);
-                }
+                gradient:
+                    µ.segmentedColorScale([
+                        [0, [230, 165, 30]],
+                        [10, [120, 100, 95]],
+                        [20, [40, 44, 92]],
+                        [30, [31, 13, 193]],
+                        [40, [89, 63, 235]],
+                        [60, [25, 255, 255]],
+                        [70, [150, 255, 255]]
+                    ])
             }
         };
     }
@@ -107,9 +113,10 @@ var grids = function() {
                 bounds: [92000, 105000],
                 gradient: µ.segmentedColorScale([
                     [92000, [40, 0, 0]],
-                    [95000, [120, 60, 201]],
-                    [98000, [90, 32, 237]],
-                    [100000, [36, 1, 93]],
+                    [95000, [187, 60, 31]],
+                    [96500, [137, 32, 30]],
+                    [98000, [16, 1, 43]],
+                    [100500, [36, 1, 93]],
                     [101300, [241, 254, 18]],
                     [103000, [228, 246, 223]],
                     [105000, [255, 255, 255]]
@@ -123,7 +130,7 @@ var grids = function() {
     var LAYER_RECIPES = function() {
         var recipes = [];
         recipes.push(windRecipe("wind,103,10", "Wind @ Surface"));
-        recipes.push(tempRecipe("0,0,1,0", "Temp @ Surface"));
+        recipes.push(tempRecipe("0,0,103,2", "Temp @ Surface"));
         PRESSURE_LEVELS.forEach(function(pressure) {
             recipes.push(windRecipe("wind,100," + pressure * 100, "Wind @ " + pressure + " hPa"));
             recipes.push(tempRecipe("0,0,100," + pressure * 100, "Temp @ " + pressure + " hPa"));
