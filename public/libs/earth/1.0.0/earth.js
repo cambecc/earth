@@ -796,6 +796,11 @@
             d3.select("#menu").classed("invisible", !d3.select("#menu").classed("invisible"));
         });
 
+        if (µ.isFF()) {
+            // Workaround FF performance issue of slow click behavior on map having thick coastlines.
+            d3.select("#display").classed("firefox", true);
+        }
+
         // Tweak document to distinguish CSS styling between touch and non-touch environments. Hacky hack.
         if ("ontouchstart" in document.documentElement) {
             d3.select(document).on("touchstart", function() {});  // this hack enables :active pseudoclass

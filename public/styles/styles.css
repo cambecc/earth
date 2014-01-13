@@ -156,6 +156,10 @@ body {
     fill: none;
 }
 
+.firefox .coastline, .firefox .lakes {
+    stroke-width: 1.0;
+}
+
 .graticule {
     stroke: #505050;
     stroke-width: 1.0;
