@@ -169,13 +169,13 @@
             if (navigator.geolocation) {
                 report.status("Finding current position...");
                 navigator.geolocation.getCurrentPosition(function(pos) {
-                        report.status("");
-                        var coord = [pos.coords.longitude, pos.coords.latitude], rotate = globe.locate(coord);
-                        if (rotate) {
-                            globe.projection.rotate(rotate);
-                            configuration.save({orientation: globe.orientation()});  // triggers reorientation
-                        }
-                        dispatch.trigger("click", globe.projection(coord), coord);
+                    report.status("");
+                    var coord = [pos.coords.longitude, pos.coords.latitude], rotate = globe.locate(coord);
+                    if (rotate) {
+                        globe.projection.rotate(rotate);
+                        configuration.save({orientation: globe.orientation()});  // triggers reorientation
+                    }
+                    dispatch.trigger("click", globe.projection(coord), coord);
                 }, log.error);
             }
         });
