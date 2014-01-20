@@ -101,6 +101,10 @@ var µ = function() {
         return (/android|blackberry|iemobile|ipad|iphone|ipod|opera mini|webos/i).test(navigator.userAgent);
     }
 
+    function isEmbeddedInIFrame() {
+        return window != window.top;
+    }
+
     function toUTCISO(date) {
         return date.getUTCFullYear() + "-" +
             zeroPad(date.getUTCMonth() + 1, 2) + "-" +
@@ -363,13 +367,13 @@ var µ = function() {
      *         console.log("task completed: " + value);  // same as agent.value()
      *     });
      *
-     *     function someLongAsynchronousProcess(x) {  // x === 10
+     *     function someLongAsynchronousProcess(x) {  // x === "abc"
      *         var d = when.defer();
      *         // some long process that eventually calls: d.resolve(result)
      *         return d.promise;
      *     }
      *
-     *     agent.submit(someLongAsynchronousProcess, 10);
+     *     agent.submit(someLongAsynchronousProcess, "abc");
      * </pre>
      *
      * @returns {Object}
@@ -579,6 +583,7 @@ var µ = function() {
         spread: spread,
         isFF: isFF,
         isMobile: isMobile,
+        isEmbeddedInIFrame: isEmbeddedInIFrame,
         toUTCISO: toUTCISO,
         toLocalISO: toLocalISO,
         log: log,

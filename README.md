@@ -90,6 +90,9 @@ constructed out of the unique characters utilized by the site. See the `earth/se
 for details. Font subsetting is performed by the [M+Web FONTS Subsetter](http://mplus.font-face.jp/), and
 the resulting font is placed in `earth/public/styles`.
 
+[Mono Social Icons Font](http://drinchev.github.io/monosocialiconsfont/) is used for scalable, social networking
+icons. This can be subsetted using [Font Squirrel's WebFont Generator](http://www.fontsquirrel.com/tools/webfont-generator).
+
 implementation notes
 --------------------
 

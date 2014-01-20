@@ -3,8 +3,13 @@
  **************************************************************************************************/
 
 @font-face {
-    font-family: mplus-2p-light-sub-1;
+    font-family: mplus-2p-light-sub;
     src: url("/styles/mplus-2p-light-sub.ttf?v3");
+}
+
+@font-face {
+    font-family: monosocialiconsfont-sub;
+    src: url("/styles/monosocialiconsfont-sub.ttf?v1");
 }
 
 /**************************************************************************************************
@@ -15,8 +20,14 @@ html, body, div, span, h1, h2, h3, h4, h5, h6, p, a, svg, canvas {
     margin: 0;
     padding: 0;
     border: 0;
-    font: 1em mplus-2p-light-sub-1,Helvetica,arial,freesans,clean,sans-serif;
+    font: 1em mplus-2p-light-sub,Helvetica,arial,freesans,clean,sans-serif;
     -webkit-font-smoothing: subpixel-antialiased; /* safari disables subpixel antialiasing for some reason */
+}
+
+@media (max-width: 825px) {
+    html, body, div, span, h1, h2, h3, h4, h5, h6, p, a, svg, canvas {
+        font-size: 0.8em;
+    }
 }
 
 /**************************************************************************************************
@@ -132,6 +143,13 @@ body {
     font-size: 1.25rem;
     float: right;
     padding-top: 0.5rem;
+}
+
+.social-icon {
+    font-size: 2.25rem;
+    font-family: monosocialiconsfont-sub,sans-serif;
+    padding-left: 0.25rem;
+    text-decoration: none;
 }
 
 .sup {

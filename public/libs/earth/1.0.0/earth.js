@@ -487,7 +487,7 @@
                             if (hasDistinctOverlay) {
                                 scalar = overlayInterpolate(λ, φ);
                             }
-                            if (µ.isValue(scalar)) {
+                            if (µ.isValue(scalar) && !_.isNaN(scalar)) {
                                 color = scale.gradient(scalar, OVERLAY_ALPHA);
                             }
                         }
@@ -793,7 +793,12 @@
             .attr("height", label.offsetHeight / 2);
 
         d3.select("#show-menu").on("click", function() {
-            d3.select("#menu").classed("invisible", !d3.select("#menu").classed("invisible"));
+            if (µ.isEmbeddedInIFrame()) {
+                window.open("http://earth.nullschool.net/" + window.location.hash, "_blank");
+            }
+            else {
+                d3.select("#menu").classed("invisible", !d3.select("#menu").classed("invisible"));
+            }
         });
 
         if (µ.isFF()) {

@@ -27,6 +27,7 @@ console.log(new Date().toISOString() + " - Starting");
     "natural-earth.jpg",
     "preview.jpg",
     "styles/styles.css",
+    "styles/monosocialiconsfont-sub.ttf",
     "styles/mplus-2p-light-sub.ttf",
     "data/earth-topo.json",
     "data/earth-topo-mobile.json",
