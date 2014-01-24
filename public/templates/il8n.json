@@ -120,8 +120,8 @@
     "Weather Data": {
         "ja": "天気予報データ"
     },
-    "GRIB Decoder": {
-        "ja": "GRIB デコーダ"
+    "GRIB/NetCDF Decoder": {
+        "ja": "GRIB/NetCDF デコーダ"
     },
     "Geographic Data": {
         "ja": "地理データ"

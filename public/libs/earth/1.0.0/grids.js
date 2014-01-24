@@ -25,7 +25,33 @@ var grids = function() {
                 gradient: function(v, a) {
                     return µ.extendedSinebowColor(Math.min(v, 100) / 100, a);
                 }
-            }
+            },
+            particles: { velocityScale: 1/60000, maxIntensity: 17 }
+        };
+    }
+
+    function oceanCurrentRecipe() {
+        return {
+            type: "ocean",
+            key: "ocean,160,15",
+            description: "Ocean Currents",
+            units: [
+                {label: "m/s",  conversion: function(x) { return x; },            precision: 2},
+                {label: "km/h", conversion: function(x) { return x * 3.6; },      precision: 1},
+                {label: "kn",   conversion: function(x) { return x * 1.943844; }, precision: 1},
+                {label: "mph",  conversion: function(x) { return x * 2.236936; }, precision: 1}
+            ],
+            scale: {
+                bounds: [0, 2.5],
+                gradient: µ.segmentedColorScale([
+                    [0, [10, 25, 68]],
+                    [0.15, [10, 25, 250]],
+                    [0.7, [24, 255, 255]],
+                    [1.4, [255, 233, 45]],
+                    [2.5, [255, 45, 45]]
+                ])
+            },
+            particles: { velocityScale: 1/4400, maxIntensity: 1 }
         };
     }
 
@@ -138,6 +164,7 @@ var grids = function() {
         recipes.push(totalCloudWaterRecipe());
         recipes.push(totalPrecipitableWaterRecipe());
         recipes.push(meanSeaLevelPressureRecipe());
+        recipes.push(oceanCurrentRecipe());
         return recipes;
     }();
 
@@ -190,19 +217,50 @@ var grids = function() {
         };
     }
 
+    function createOceanBuilder(uComp, vComp) {
+        var uData = uComp.data, vData = vComp.data;
+        return {
+            header: uComp.header,
+            recipe: recipeFor("ocean," + uComp.header.surface1Type + "," + uComp.header.surface1Value),
+            data: function(i) {
+                var u = uData[i], v = vData[i];
+                return µ.isValue(u) && µ.isValue(v) ? [u, v] : null;
+            },
+            interpolate: bilinearInterpolateVector
+        };
+    }
+
     function createBuilder(data) {
-        var uComp = null, vComp = null, scalar = null;
+        var uComp = null, vComp = null, scalar = null, discipline = null;
 
         data.forEach(function(record) {
-            switch (record.header.parameterCategory + "," + record.header.parameterNumber) {
-                case "2,2": uComp = record; break;
-                case "2,3": vComp = record; break;
+            discipline = record.header.discipline;
+            switch ([discipline, record.header.parameterCategory, record.header.parameterNumber].join(",")) {
+                case "10,1,2":
+                case "0,2,2":
+                    uComp = record; break;
+                case "10,1,3":
+                case "0,2,3":
+                    vComp = record; break;
                 default:
                     scalar = record;
             }
         });
 
-        return uComp ? createWindBuilder(uComp, vComp) : createScalarBuilder(scalar);
+        return uComp ?
+            discipline === 10 ? createOceanBuilder(uComp, vComp) : createWindBuilder(uComp, vComp) :
+            createScalarBuilder(scalar);
+    }
+
+    function dataSource(header) {
+        switch (header.center) {
+            case -3:
+                return "OSCAR / Earth & Space Research";
+            case 7:
+                return "GFS / NCEP / US National Weather Service";
+            default:
+                return header.centerName;
+        }
     }
 
     /**
@@ -292,9 +350,18 @@ var grids = function() {
         }
 
         return {
+            source: dataSource(header),
             date: date,
             recipe: builder.recipe,
-            interpolate: interpolate
+            interpolate: interpolate,
+            forEachPoint: function(cb) {
+                for (var j = 0; j < nj; j++) {
+                    var row = grid[j] || [];
+                    for (var i = 0; i < ni; i++) {
+                        cb(µ.floorMod(180 + λ0 + i * Δλ, 360) - 180, φ0 - j * Δφ, row[i]);
+                    }
+                }
+            }
         };
     }
 

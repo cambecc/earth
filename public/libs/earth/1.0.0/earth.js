@@ -17,10 +17,8 @@
     var MIN_MOVE = 4;                         // slack before a drag operation beings (pixels)
     var MOVE_END_WAIT = 1000;                 // time to wait for a move operation to be considered done (millis)
 
-    var VELOCITY_SCALE = 1/60000;             // scale for wind velocity (completely arbitrary--this value looks nice)
     var OVERLAY_ALPHA = Math.floor(0.4*255);  // overlay transparency (on scale [0, 255])
     var INTENSITY_SCALE_STEP = 10;            // step size of particle intensity color scale
-    var MAX_WIND_INTENSITY = 17;              // wind velocity at which particle intensity is maximum (m/s)
     var MAX_PARTICLE_AGE = 100;               // max number of frames a particle is drawn before regeneration
     var PARTICLE_LINE_WIDTH = 1.0;            // line width of a drawn particle
     var PARTICLE_MULTIPLIER = 7;              // particle count scalar (completely arbitrary--this values looks nice)
@@ -457,7 +455,8 @@
 
         var projection = globe.projection;
         var bounds = globe.bounds(view);
-        var velocityScale = bounds.height * VELOCITY_SCALE;
+        // How fast particles move on the screen (arbitrary value chosen for aesthetics).
+        var velocityScale = bounds.height * primaryGrid.recipe.particles.velocityScale;
 
         var columns = [];
         var point = [];
@@ -478,7 +477,7 @@
                         var λ = coord[0], φ = coord[1];
                         if (isFinite(λ)) {
                             var wind = interpolate(λ, φ);
-                            var scalar;
+                            var scalar = null;
                             if (wind) {
                                 wind = distort(projection, λ, φ, x, y, velocityScale, wind);
                                 column[y+1] = column[y] = wind;
@@ -487,7 +486,7 @@
                             if (hasDistinctOverlay) {
                                 scalar = overlayInterpolate(λ, φ);
                             }
-                            if (µ.isValue(scalar) && !_.isNaN(scalar)) {
+                            if (µ.isValue(scalar)) {
                                 color = scale.gradient(scalar, OVERLAY_ALPHA);
                             }
                         }
@@ -527,12 +526,14 @@
         return d.promise;
     }
 
-    function animate(globe, field) {
-        if (!globe || !field) return;
+    function animate(globe, field, grids) {
+        if (!globe || !field || !grids) return;
 
         var cancel = this.cancel;
         var bounds = globe.bounds(view);
-        var colorStyles = µ.windIntensityColorScale(INTENSITY_SCALE_STEP, MAX_WIND_INTENSITY);
+        var recipe = grids.primaryGrid.recipe;
+        // maxIntensity is the velocity at which particle color intensity is maximum
+        var colorStyles = µ.windIntensityColorScale(INTENSITY_SCALE_STEP, recipe.particles.maxIntensity);
         var buckets = colorStyles.map(function() { return []; });
         var particleCount = Math.round(bounds.width * PARTICLE_MULTIPLIER);
         if (µ.isMobile()) {
@@ -621,16 +622,35 @@
         })();
     }
 
+    function drawGridPoints(ctx, grid, globe) {
+        if (!grid || !globe) return;
+
+        ctx.fillStyle = "rgba(255, 255, 255, 1)";
+        // Use the clipping behavior of a projection stream to quickly draw visible points.
+        var stream = globe.projection.stream({
+            point: function(x, y) {
+                ctx.fillRect(Math.round(x), Math.round(y), 1, 1);
+            }
+        });
+        grid.forEachPoint(function(λ, φ, d) {
+            if (µ.isValue(d)) {
+                stream.point(λ, φ);
+            }
+        });
+    }
+
     function drawOverlay(field, overlayType) {
         if (!field) return;
+
+        var ctx = d3.select("#overlay").node().getContext("2d"), grid = (gridAgent.value() || {}).overlayGrid;
 
         µ.clearCanvas(d3.select("#overlay").node());
         µ.clearCanvas(d3.select("#scale").node());
         if (overlayType !== "off") {
-            d3.select("#overlay").node().getContext("2d").putImageData(field.overlay, 0, 0);
+            ctx.putImageData(field.overlay, 0, 0);
+            // drawGridPoints(ctx, grid, globeAgent.value());
         }
 
-        var grid = (gridAgent.value() || {}).overlayGrid;
         if (grid) {
             // Draw color bar for reference.
             var colorBar = d3.select("#scale"), recipe = grid.recipe, scale = recipe.scale, bounds = scale.bounds;
@@ -683,14 +703,16 @@
      */
     function showGridDetails(grids) {
         showDate(grids);
-        var description = "";
+        var description = "", center = "";
         if (grids) {
             description = grids.primaryGrid.recipe.description;
             if (grids.overlayGrid !== grids.primaryGrid) {
                 description += " + " + grids.overlayGrid.recipe.description;
             }
+            center = grids.overlayGrid.source;
         }
         d3.select("#data-layer").text(description);
+        d3.select("#data-center").text(center);
     }
 
     /**
@@ -879,7 +901,7 @@
         fieldAgent.listenTo(rendererAgent, "redraw", cancelInterpolation);
 
         animatorAgent.listenTo(fieldAgent, "update", function(field) {
-            animatorAgent.submit(animate, globeAgent.value(), field);
+            animatorAgent.submit(animate, globeAgent.value(), field, gridAgent.value());
         });
         animatorAgent.listenTo(rendererAgent, "start", function() {
             stopCurrentAnimation();
