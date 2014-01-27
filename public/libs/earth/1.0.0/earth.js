@@ -623,7 +623,7 @@
     }
 
     function drawGridPoints(ctx, grid, globe) {
-        if (!grid || !globe) return;
+        if (!grid || !globe || !configuration.get("showGridPoints")) return;
 
         ctx.fillStyle = "rgba(255, 255, 255, 1)";
         // Use the clipping behavior of a projection stream to quickly draw visible points.
@@ -648,7 +648,7 @@
         µ.clearCanvas(d3.select("#scale").node());
         if (overlayType !== "off") {
             ctx.putImageData(field.overlay, 0, 0);
-            // drawGridPoints(ctx, grid, globeAgent.value());
+            drawGridPoints(ctx, grid, globeAgent.value());
         }
 
         if (grid) {
@@ -916,10 +916,11 @@
         overlayAgent.listenTo(rendererAgent, "start", function() {
             overlayAgent.submit(drawOverlay, fieldAgent.value(), "off");
         });
-        overlayAgent.listenTo(configuration, "change:overlayType", function(source, overlayTypeFlag) {
-            // if only the overlayType flag has changed...
-            if (_.keys(configuration.changedAttributes()).length === 1) {
-                overlayAgent.submit(drawOverlay, fieldAgent.value(), overlayTypeFlag);
+        overlayAgent.listenTo(configuration, "change", function() {
+            var changed = _.keys(configuration.changedAttributes())
+            // if only overlay relevant flags have changed...
+            if (_.intersection(changed, ["overlayType", "showGridPoints"]).length > 0) {
+                overlayAgent.submit(drawOverlay, fieldAgent.value(), configuration.get("overlayType"));
             }
         });
 
@@ -935,6 +936,10 @@
         d3.select("#nav-prev-forecast").on("click", navToHours.bind(null, -3));
         d3.select("#nav-next-forecast").on("click", navToHours.bind(null, +3));
         d3.select("#nav-now").on("click", function() { configuration.save({date: "current", hour: ""}); });
+
+        d3.select("#option-show-grid").on("click", function() {
+            configuration.save({showGridPoints: !configuration.get("showGridPoints")});
+        });
 
         // Add handlers for all wind level buttons.
         d3.select("#surface").on("click", function() {

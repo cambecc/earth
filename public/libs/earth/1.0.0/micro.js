@@ -489,7 +489,8 @@ var µ = function() {
                 projection: "orthographic",
                 orientation: "",
                 topology: TOPOLOGY,
-                overlayType: "wind"
+                overlayType: "wind",
+                showGridPoints: false
             };
             coalesce(tokens[9], "").split("/").forEach(function(segment) {
                 if ((option = /^(\w+)(=([\d\-.,]*))?$/.exec(segment))) {
@@ -501,6 +502,11 @@ var µ = function() {
                 else if ((option = /^overlay=(\w+)$/.exec(segment))) {
                     if (overlayTypes.has(option[1])) {
                         result.overlayType = option[1];
+                    }
+                }
+                else if ((option = /^grid=(\w+)$/.exec(segment))) {
+                    if (option[1] === "on") {
+                        result.showGridPoints = true;
                     }
                 }
             });
@@ -526,7 +532,8 @@ var µ = function() {
             var dir = attr.date === "current" ? "current" : attr.date + "/" + attr.hour + "Z";
             var proj = [attr.projection, attr.orientation].filter(isTruthy).join("=");
             var ol = !isValue(attr.overlayType) || attr.overlayType === "wind" ? "" : "overlay=" + attr.overlayType;
-            return [dir, attr.param, attr.surface, attr.level, ol, proj].filter(isTruthy).join("/");
+            var grid = attr.showGridPoints ? "grid=on" : "";
+            return [dir, attr.param, attr.surface, attr.level, ol, proj, grid].filter(isTruthy).join("/");
         },
 
         /**
