@@ -99,6 +99,14 @@ exports.compress = function(input, options) {
     return d.promise;
 };
 
+exports.decompress = function(input, options) {
+    var d = when.defer(), gunzip = zlib.createGunzip(options), output = temp.createWriteStream();
+    input.pipe(gunzip).pipe(output).on("finish", function() {
+        d.resolve(output.path);
+    });
+    return d.promise;
+}
+
 exports.hash = function(input, algorithm, encoding) {
     var d = when.defer(), hash = crypto.createHash(algorithm || "md5");
     hash.setEncoding(encoding = encoding || "binary");
@@ -129,7 +137,9 @@ exports.head = function(resource) {
 exports.download = function(resource, output) {
     var d = when.defer();
     var start = Date.now();
-    http.get(resource, function(res) {
+    var options = typeof resource === "string" ? url.parse(resource) : resource;
+    options.headers = {"Accept-Encoding": "gzip"};
+    var req = http.get(options, function(res) {
         var total = +res.headers["content-length"];
         var received = 0;
 
@@ -154,6 +164,7 @@ exports.download = function(resource, output) {
             });
         }
     });
+    log.info(req._header);
     return d.promise;
 };
 

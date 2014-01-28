@@ -18,7 +18,7 @@
 "use strict";
 
 var argv = require("optimist")
-    .usage("Usage: $0 -g {path} -l {path} -f now|recent|{date} [-u now|{date}] [-b {hours}] [-d {num}]")
+    .usage("Usage: $0 -g {path} -l {path} -f now|recent|{date} [-u now|{date}] [-b {hours}] [-d {num}] [-p]")
     .demand(["g", "l"])
     .alias("g", "gribhome")
         .describe("g", "path where to save downloaded GRIB files")
@@ -165,7 +165,6 @@ function download(product) {
     var remotePath = product.path("http://" + server);
     var tempStream = temp.createWriteStream();
     var progress = 0;
-    log.info("GET: " + remotePath);
     return delay(10 * 1000).then(function() {
         return tool.download(remotePath, tempStream).then(
             function(result) {

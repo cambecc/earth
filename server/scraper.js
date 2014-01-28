@@ -78,8 +78,22 @@ exports.matchText = function(regex, dom) {
  * @returns {Array} an array of matching attribute values
  */
 exports.extractAttributes = function(tag, attribute, dom) {
-    var results = [];
+    var results = [], selector = {};
     var elements = htmlparser.DomUtils.getElementsByTagName(tag, dom);
-    htmlparser.DomUtils.getElements({href: function(x) { results.push(x); return true; }}, elements);
+    selector[attribute] = function(x) {
+        results.push(x);
+        return true;
+    };
+    htmlparser.DomUtils.getElements(selector, elements, false);
     return results;
 };
+
+exports.getElementsByTagName = function(tag, dom, recurse, limit) {
+    return htmlparser.DomUtils.getElementsByTagName(tag, dom, recurse, limit);
+}
+
+exports.getElementsByAttribute = function(attribute, value, dom) {
+    var selector = {};
+    selector[attribute] = value;
+    return htmlparser.DomUtils.getElements(selector, dom);
+}
