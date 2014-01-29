@@ -200,10 +200,10 @@ function pushLayers(layers) {
     return when.map(layers, pushLayer);
 }
 
-function updateIndex() {
-    // First update the local index.
+function updateCatalog() {
+    // First update the local catalog.
     var names = fs.readdirSync(opt.layerHome).filter(function(e) { return /oscar.*\.json/.test(e); }).sort();
-    fs.writeFileSync(path.join(opt.layerHome, "index.json"), JSON.stringify(names, null, INDENT), {encoding: "utf8"});
+    fs.writeFileSync(path.join(opt.layerHome, "catalog.json"), JSON.stringify(names, null, INDENT), {encoding: "utf8"});
 
     if (!opt.push) {
         // Push to S3 not enabled, so nothing to do.
@@ -211,14 +211,14 @@ function updateIndex() {
         return null;
     }
 
-    // Now update the S3 index.
+    // Now update the S3 catalog.
     return aws.listObjects({Bucket: aws.S3_BUCKET, Prefix: aws.S3_OSCAR_HOME}).then(function(data) {
         var names = _.pluck(data.Contents, "Key")
             .map(function(e) { return e.substr(aws.S3_OSCAR_HOME.length); })
             .filter(function(e) { return /oscar.*\.json/.test(e); })
             .sort();
         var tempFile = createTempSync({suffix: ".json"});
-        var key = aws.S3_OSCAR_HOME + "index.json";
+        var key = aws.S3_OSCAR_HOME + "catalog.json";
         fs.writeFileSync(tempFile, JSON.stringify(names, null, INDENT), {encoding: "utf-8"});
         return aws.uploadFile(tempFile, aws.S3_BUCKET, key).then(function(result) {
             log.info(key + ": " + util.inspect(result));
@@ -240,7 +240,7 @@ fetchCatalog()
     .then(downloadLatestProduct)
     .then(extractLayers)
     .then(pushLayers)
-    .then(updateIndex)
+    .then(updateCatalog)
     .otherwise(tool.report)
     .done();
 
@@ -253,5 +253,5 @@ fetchCatalog()
 //}
 //fetchCatalog()
 //    .then(processAll)
-//    .then(updateIndex)
+//    .then(updateCatalog)
 //    .otherwise(tool.report).done();
