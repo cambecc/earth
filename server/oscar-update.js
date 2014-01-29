@@ -4,7 +4,7 @@
 
 "use strict";
 
-var INDENT = 2;
+var INDENT; // = 2;
 var GRIB2JSON_FLAGS = "-c -d -n";
 var LAYER_RECIPES = [
     { name: "ocean_currents-surface-level", filter: "--fd 10 --fc 10 --fp currents --fs 160 --fv 15" }
@@ -17,6 +17,7 @@ var fs = require("fs");
 var path = require("path");
 var _ = require("underscore"); _.str = require('underscore.string'); _.mixin(_.str.exports());
 var when = require("when");
+var guard = require("when/guard");
 var mkdirp = require("mkdirp");
 var temp = require("temp"); temp.track(true);
 var tool = require("./tool");
@@ -52,8 +53,8 @@ function fetchCatalog() {
         { type: 'tag',
           name: 'thredds:dataset',
           attribs:
-           { name: 'oscar_vel2001.nc.gz',
-             ID: '/opendap/hyrax/allData/oscar/preview/L4/oscar_third_deg/oscar_vel2001.nc.gz' },
+           { name: 'oscar_vel7783.nc.gz',
+             ID: '/opendap/hyrax/allData/oscar/preview/L4/oscar_third_deg/oscar_vel7783.nc.gz' },
           children:
            [ { type: 'tag',
                name: 'thredds:dataSize',
@@ -67,12 +68,12 @@ function fetchCatalog() {
                name: 'thredds:access',
                attribs:
                 { serviceName: 'dap',
-                  urlPath: '/allData/oscar/preview/L4/oscar_third_deg/oscar_vel2001.nc.gz' } },
+                  urlPath: '/allData/oscar/preview/L4/oscar_third_deg/oscar_vel7783.nc.gz' } },
              { type: 'tag',
                name: 'thredds:access',
                attribs:
                 { serviceName: 'file',
-                  urlPath: '/allData/oscar/preview/L4/oscar_third_deg/oscar_vel2001.nc.gz' } } ] }, */
+                  urlPath: '/allData/oscar/preview/L4/oscar_third_deg/oscar_vel7783.nc.gz' } } ] }, */
 
     return scraper.fetch(CATALOG).then(function(dom) {
         var catalog = scraper.getElementsByTagName("thredds:dataset", dom, true, 1)[0];
@@ -139,7 +140,7 @@ function createTempSync(options) {
 
 function processLayer(recipe, path) {
     var data = tool.readJSONSync(path);
-    return {data: data, layer: oscar.layer(recipe, data[0].header, false)};
+    return {data: data, layer: oscar.layer(recipe, data[0].header)};
 }
 
 function extractLayers(product) {
@@ -148,7 +149,7 @@ function extractLayers(product) {
         log.info("product file not found, skipping: " + productPath);
         return when.resolve([]);
     }
-    return LAYER_RECIPES.map(function(recipe) {
+    var layers = LAYER_RECIPES.map(function(recipe) {
         var tempPath = createTempSync({suffix: ".json"});
         var args = util.format("%s %s -o %s %s", GRIB2JSON_FLAGS, recipe.filter, tempPath, productPath);
         return tool.grib2json(args, process.stdout, process.stderr).then(function(returnCode) {
@@ -165,6 +166,7 @@ function extractLayers(product) {
             return layer;
         });
     });
+    return when.all(layers);
 }
 
 function pushLayer(layer) {
@@ -179,7 +181,7 @@ function pushLayer(layer) {
         log.info("Layer file not found, skipping: " + layerPath);
         return null;
     }
-    var key = layer.path(aws.S3_LAYER_HOME);
+    var key = layer.path(aws.S3_OSCAR_HOME);
     var metadata = {
         "reference-time": layer.date.toISOString()
     };
@@ -198,6 +200,33 @@ function pushLayers(layers) {
     return when.map(layers, pushLayer);
 }
 
+function updateIndex() {
+    // First update the local index.
+    var names = fs.readdirSync(opt.layerHome).filter(function(e) { return /oscar.*\.json/.test(e); }).sort();
+    fs.writeFileSync(path.join(opt.layerHome, "index.json"), JSON.stringify(names, null, INDENT), {encoding: "utf8"});
+
+    if (!opt.push) {
+        // Push to S3 not enabled, so nothing to do.
+        log.info("push flag not specified. Not updating S3.");
+        return null;
+    }
+
+    // Now update the S3 index.
+    return aws.listObjects({Bucket: aws.S3_BUCKET, Prefix: aws.S3_OSCAR_HOME}).then(function(data) {
+        var names = _.pluck(data.Contents, "Key")
+            .map(function(e) { return e.substr(aws.S3_OSCAR_HOME.length); })
+            .filter(function(e) { return /oscar.*\.json/.test(e); })
+            .sort();
+        var tempFile = createTempSync({suffix: ".json"});
+        var key = aws.S3_OSCAR_HOME + "index.json";
+        fs.writeFileSync(tempFile, JSON.stringify(names, null, INDENT), {encoding: "utf-8"});
+        return aws.uploadFile(tempFile, aws.S3_BUCKET, key).then(function(result) {
+            log.info(key + ": " + util.inspect(result));
+            return true;
+        });
+    });
+}
+
 function downloadLatestProduct(catalog) {
     var latest = _.last(catalog);
     return download(latest);
@@ -211,5 +240,18 @@ fetchCatalog()
     .then(downloadLatestProduct)
     .then(extractLayers)
     .then(pushLayers)
+    .then(updateIndex)
     .otherwise(tool.report)
     .done();
+
+//var process_throttled = guard(guard.n(1), function(product) {
+//    return download(product).then(extractLayers).then(pushLayers);
+//});
+//function processAll(catalog) {
+//    return when.map(catalog.filter(function(product) { return /oscar_vel7[456]/.test(product.name); }), process_throttled)
+//        .otherwise(tool.report);
+//}
+//fetchCatalog()
+//    .then(processAll)
+//    .then(updateIndex)
+//    .otherwise(tool.report).done();

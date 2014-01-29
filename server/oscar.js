@@ -10,20 +10,17 @@ var util = require("util");
 var tool = require("./tool");
 var _ = require("underscore"); _.str = require('underscore.string'); _.mixin(_.str.exports());
 
-exports.layer = function(recipe, header, isCurrent) {
+exports.layer = function(recipe, header) {
     var date = new Date(header.refTime);
     return {
         recipe: recipe,
-        isCurrent: isCurrent,
         date: date,
         file: function() {
-            var parts = this.date.toISOString().split(/[- T:]/);  // extract hh and mm from date
-            var timestamp = isCurrent ? "current" : (parts[3] + parts[4]);
-            return util.format("%s-%s-oscar-0.33.json", timestamp, recipe.name);
+            var parts = this.date.toISOString().split(/[- T:]/);
+            return util.format("%s%s%s-surface-currents-oscar-0.33.json", parts[0], parts[1], parts[2]);
         },
         dir: function(parent) {
-            var timestamp = isCurrent ? "current" : tool.yyyymmddPath(this.date);
-            return tool.coalesce(parent, "") + timestamp + "/";
+            return parent;
         },
         path: function(parent) {
             return this.dir(parent) + this.file();

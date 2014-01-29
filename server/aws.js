@@ -16,6 +16,15 @@ var s3 = new AWS.S3();
 
 exports.S3_BUCKET = "earth.nullschool.net";
 exports.S3_LAYER_HOME = "data/weather/";
+exports.S3_OSCAR_HOME = "data/oscar/";
+
+exports.listObjects = function(params) {
+    var d = when.defer();
+    s3.client.listObjects(params, function(error, data) {
+        return error ? d.reject(error) : d.resolve(data);
+    });
+    return d.promise;
+}
 
 exports.headObject = function(params) {
     var d = when.defer();
