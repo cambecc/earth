@@ -893,8 +893,11 @@
         d3.select(".location-mark").remove();
     }
 
-    function stopCurrentAnimation() {
+    function stopCurrentAnimation(alsoClearCanvas) {
         animatorAgent.cancel();
+        if (alsoClearCanvas) {
+            µ.clearCanvas(d3.select("#animation").node());
+        }
     }
 
     /**
@@ -1021,12 +1024,9 @@
         animatorAgent.listenTo(fieldAgent, "update", function(field) {
             animatorAgent.submit(animate, globeAgent.value(), field, gridAgent.value());
         });
-        animatorAgent.listenTo(rendererAgent, "start", function() {
-            stopCurrentAnimation();
-            µ.clearCanvas(d3.select("#animation").node());
-        });
-        animatorAgent.listenTo(gridAgent, "submit", stopCurrentAnimation);
-        animatorAgent.listenTo(fieldAgent, "submit", stopCurrentAnimation);
+        animatorAgent.listenTo(rendererAgent, "start", stopCurrentAnimation.bind(null, true));
+        animatorAgent.listenTo(gridAgent, "submit", stopCurrentAnimation.bind(null, false));
+        animatorAgent.listenTo(fieldAgent, "submit", stopCurrentAnimation.bind(null, false));
 
         overlayAgent.listenTo(fieldAgent, "update", function() {
             overlayAgent.submit(drawOverlay, fieldAgent.value(), configuration.get("overlayType"));
@@ -1094,7 +1094,7 @@
                     surface: "surface",
                     level: "currents",
                     overlayType: "default"});
-                µ.clearCanvas(d3.select("#animation").node());  // cleanup particle artifacts over continents
+                stopCurrentAnimation(true);  // cleanup particle artifacts over continents
             }
         });
         configuration.on("change:param", function(x, param) {
