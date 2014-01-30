@@ -25,7 +25,8 @@
     var PARTICLE_REDUCTION = 0.75;            // reduce particle count to this much of normal for mobile devices
     var FRAME_RATE = 40;                      // desired milliseconds per frame
 
-    var NULL_WIND_VECTOR = [NaN, NaN, null];  // singleton for no wind in the form: [u, v, magnitude]
+    var NULL_WIND_VECTOR = [NaN, NaN, null];  // singleton for undefined location outside the vector field [u, v, mag]
+    var HOLE_VECTOR = [NaN, NaN, null];       // singleton that signifies a hole in the vector field
     var TRANSPARENT_BLACK = [0, 0, 0, 0];     // singleton 0 rgba
     var REMAINING = "▫▫▫▫▫▫▫▫▫▫▫▫▫▫▫▫▫▫▫▫▫▫";   // glyphs for remaining progress bar
     var COMPLETED = "▪▪▪▪▪▪▪▪▪▪▪▪▪▪▪▪▪▪▪▪▪▪";   // glyphs for completed progress bar
@@ -76,6 +77,7 @@
     var inputController = buildInputController();          // interprets drag/zoom operations
     var meshAgent = newAgent();      // map data for the earth
     var globeAgent = newAgent();     // the model of the globe
+    var catalogAgent = newAgent();   // holds catalogs of available weather data
     var gridAgent = newAgent();      // the grid of weather data
     var rendererAgent = newAgent();  // the globe SVG renderer
     var fieldAgent = newAgent();     // the interpolated wind vector field
@@ -147,7 +149,7 @@
             .on("zoomend", function() {
                 op.manipulator.end();
                 if (op.type === "click") {
-                    dispatch.trigger("click", op.startMouse, globe.projection.invert(op.startMouse));
+                    dispatch.trigger("click", op.startMouse, globe.projection.invert(op.startMouse) || []);
                 }
                 else if (op.type !== "spurious") {
                     signalEnd();
@@ -241,6 +243,35 @@
         return when(builder(view));
     }
 
+    /**
+     * @returns {Object} a promise for downloading catalogs of weather data available on the server.
+     */
+    function buildCatalogs() {
+        return µ.loadJson(grids.OSCAR_CATALOG).then(function(catalog) {
+            // The OSCAR catalog is an array of file names, sorted and prefixed with yyyyMMdd. Last item is the
+            // most recent. For example: [ 20140101-abc.json, 20140106-abc.json, 20140112-abc.json, ... ]
+            return { oscar: catalog };
+        });
+    }
+
+    /**
+     * @returns {Object} a promise for weather data catalogs, which are downloaded if not already available.
+     */
+    function getOrLoadCatalogs() {
+        // If we already have the catalogs, return them.
+        if (catalogAgent.value()) {
+            return when.resolve(catalogAgent.value());
+        }
+        // Begin downloading the catalogs and return a promise for their eventual availability.
+        // CONSIDER: here is a deficiency in the agent design. We want a promise for task completion,
+        //           but all we have is the update event. So need to translate manually.
+        var d = when.defer();
+        catalogAgent.submit(buildCatalogs).on("update", function handler(catalogs) {
+            d.resolve(catalogs);
+        });
+        return d.promise;
+    }
+
     // Some hacky stuff to ensure only one layer can be downloaded at a time.
     var nextId = 0;
     var downloadsInProgress = {};
@@ -259,29 +290,72 @@
         return task;
     }
 
-    function buildGrids(primaryLayer, overlayLayer) {
+    function buildGrids() {
         report.status("Downloading...");
-        var tasks = [], cancel = this.cancel;
-        tasks.push(buildGrid(primaryLayer, cancel));
-        tasks.push(overlayLayer && overlayLayer !== primaryLayer ? buildGrid(overlayLayer, cancel) : tasks[0]);
-        return when.all(tasks).spread(function(primaryGrid, overlayGrid) {
-            return {primaryGrid: primaryGrid, overlayGrid: overlayGrid};
+        var cancel = this.cancel;
+        return getOrLoadCatalogs().then(function(catalogs) {
+            var paths = grids.paths(configuration);
+            var primaryLayer = paths.primary(catalogs);  // get path to data on server for animation grid.
+            var overlayLayer = paths.overlay(catalogs);  // get path to data on server for overlay grid. might be same.
+            var tasks = [];
+            tasks.push(buildGrid(primaryLayer, cancel));
+            tasks.push(overlayLayer && overlayLayer !== primaryLayer ? buildGrid(overlayLayer, cancel) : tasks[0]);
+            return when.all(tasks).spread(function(primaryGrid, overlayGrid) {
+                return {primaryGrid: primaryGrid, overlayGrid: overlayGrid};
+            });
         });
     }
 
-    function navToHours(offset) {
+    /**
+     * Modifies the configuration to navigate to the chronologically next or previous GFS data layer. How far
+     * forward or backward in time to jump is determined by the step. Steps of ±1 move in 3-hour jumps, and steps
+     * of ±10 move in 24-hour jumps.
+     */
+    function navigateWind(step) {
+        var timestamp = validityDate(gridAgent.value());
+        if (isFinite(timestamp)) {
+            // GFS forecast files are three hours apart.
+            timestamp += (step > 1 ? 24 : step < -1 ? -24 : step) * 3 * HOUR;
+            var date = new Date(timestamp), parts = date.toISOString().split(/[- T:]/);
+            configuration.save({date: µ.dateToUTCymd(date, "/"), hour: [parts[3], "00"].join("")});
+        }
+    }
+
+    /**
+     * Modifies the configuration to navigate to the chronologically next or previous OSCAR data layer. How far
+     * forward or backward in time to jump is determined by the step and the catalog of available layers. A step
+     * of ±1 moves to the next/previous entry in the catalog (about 5 days), and a step of ±10 moves to the entry
+     * six positions away (about 30 days).
+     *
+     * The OSCAR catalog is an array of file names, sorted and prefixed with yyyyMMdd. Last item is the most
+     * recent. For example: [ 20140101-abc.json, 20140106-abc.json, 20140112-abc.json, ... ]
+     *
+     * UNDONE: the catalog object itself should encapsulate this logic. GFS can also be a "virtual" catalog, and
+     *         provide a mechanism for eliminating the need for /data/weather/current/* files.
+     */
+    function navigateOscar(step) {
+        var timestamp = validityDate(gridAgent.value()), catalog = (catalogAgent.value() || {}).oscar;
+        if (isFinite(timestamp) && catalog) {
+            step = step > 1 ? 6 : step < -1 ? -6 : step;
+            var i = _.sortedIndex(catalog, µ.dateToUTCymd(new Date(timestamp), "")) + step, target = catalog[i];
+            if (target) {
+                configuration.save({ date: µ.ymdRedelimit(target, "", "/"), hour: "0000" });
+            }
+        }
+    }
+
+    /**
+     * Modifies the configuration to navigate to the chronologically next or previous data layer.
+     */
+    function navigate(step) {
         if (_.size(downloadsInProgress) > 0) {
             log.debug("Download in progress--ignoring nav request.");
             return;
         }
-
-        var timestamp = validityDate(gridAgent.value());
-        if (isFinite(timestamp)) {
-            timestamp += offset * HOUR;
-            var parts = new Date(timestamp).toISOString().split(/[- T:]/);
-            configuration.save({
-                date: [parts[0], parts[1], parts[2]].join("/"),
-                hour: [parts[3], "00"].join("")});
+        // Behavior depends on the current mode.
+        switch (configuration.get("param")) {
+            case "wind": return navigateWind(step);
+            case "ocean": return navigateOscar(step);
         }
     }
 
@@ -338,8 +412,8 @@
                 },
                 click: function(point, coord) {
                     // show the point on the map if defined
-                    if (fieldAgent.value() && fieldAgent.value()(point[0], point[1])[2] === null) {
-                        return;  // no wind vector at this point, so ignore.
+                    if (fieldAgent.value() && !fieldAgent.value().isInsideBoundary(point[0], point[1])) {
+                        return;  // outside the field boundary, so ignore.
                     }
                     if (coord && _.isFinite(coord[0]) && _.isFinite(coord[1])) {
                         var mark = d3.select(".location-mark");
@@ -405,6 +479,22 @@
             return column && column[Math.round(y)] || NULL_WIND_VECTOR;
         }
 
+        /**
+         * @returns {boolean} true if the field is valid at the point (x, y)
+         */
+        field.isDefined = function(x, y) {
+            return field(x, y)[2] !== null;
+        }
+
+        /**
+         * @returns {boolean} true if the point (x, y) lies inside the outer boundary of the vector field, even if
+         *          the vector field has a hole (is undefined) at that point, such as at an island in a field of
+         *          ocean currents.
+         */
+        field.isInsideBoundary = function(x, y) {
+            return field(x, y) !== NULL_WIND_VECTOR;
+        }
+
         // Frees the massive "columns" array for GC. Without this, the array is leaked (in Chrome) each time a new
         // field is interpolated because the field closure's context is leaked, for reasons that defy explanation.
         field.release = function() {
@@ -417,7 +507,7 @@
             do {
                 x = Math.round(_.random(bounds.x, bounds.xMax));
                 y = Math.round(_.random(bounds.y, bounds.yMax));
-            } while (field(x, y)[2] === null && safetyNet++ < 30);
+            } while (!field.isDefined(x, y) && safetyNet++ < 30);
             o.x = x;
             o.y = y;
             return o;
@@ -473,14 +563,14 @@
                     point[0] = x; point[1] = y;
                     var coord = projection.invert(point);
                     var color = TRANSPARENT_BLACK;
+                    var wind = null;
                     if (coord) {
                         var λ = coord[0], φ = coord[1];
                         if (isFinite(λ)) {
-                            var wind = interpolate(λ, φ);
+                            wind = interpolate(λ, φ);
                             var scalar = null;
                             if (wind) {
                                 wind = distort(projection, λ, φ, x, y, velocityScale, wind);
-                                column[y+1] = column[y] = wind;
                                 scalar = wind[2];
                             }
                             if (hasDistinctOverlay) {
@@ -491,6 +581,7 @@
                             }
                         }
                     }
+                    column[y+1] = column[y] = wind || HOLE_VECTOR;
                     mask.set(x, y, color).set(x+1, y, color).set(x, y+1, color).set(x+1, y+1, color);
                 }
             }
@@ -563,7 +654,7 @@
                 else {
                     var xt = x + v[0];
                     var yt = y + v[1];
-                    if (field(xt, yt)[2] !== null) {
+                    if (field.isDefined(xt, yt)) {
                         // Path from (x,y) to (xt,yt) is visible, so add this particle to the appropriate draw bucket.
                         particle.xt = xt;
                         particle.yt = yt;
@@ -646,8 +737,10 @@
 
         µ.clearCanvas(d3.select("#overlay").node());
         µ.clearCanvas(d3.select("#scale").node());
-        if (overlayType !== "off") {
-            ctx.putImageData(field.overlay, 0, 0);
+        if (overlayType) {
+            if (overlayType !== "off") {
+                ctx.putImageData(field.overlay, 0, 0);
+            }
             drawGridPoints(ctx, grid, globeAgent.value());
         }
 
@@ -764,24 +857,28 @@
      * the primary grid and overlay grid, performing interpolation when necessary.
      */
     function showLocationDetails(point, coord) {
-        var grids = gridAgent.value(), field = fieldAgent.value();
-        if (!grids || !field) return;
-        if (field(point[0], point[1])[2] === null) {
+        var grids = gridAgent.value(), field = fieldAgent.value(), λ = coord[0], φ = coord[1];
+        if (!field || !field.isInsideBoundary(point[0], point[1])) {
             return;
         }
 
-        var λ = coord[0], φ = coord[1];
-        d3.select("#location-coord").text(µ.formatCoordinates(λ, φ));
-        d3.select("#location-close").classed("invisible", false);
+        clearLocationDetails();
 
-        var wind = grids.primaryGrid.interpolate(λ, φ);
-        if (µ.isValue(wind)) {
-            showWindAtLocation(wind, grids.primaryGrid.recipe);
+        if (_.isFinite(λ) && _.isFinite(φ)) {
+            d3.select("#location-coord").text(µ.formatCoordinates(λ, φ));
+            d3.select("#location-close").classed("invisible", false);
         }
-        if (grids.overlayGrid !== grids.primaryGrid) {
-            var value = grids.overlayGrid.interpolate(λ, φ);
-            if (µ.isValue(value)) {
-                showOverlayValueAtLocation(value, grids.overlayGrid.recipe);
+
+        if (field.isDefined(point[0], point[1]) && grids) {
+            var wind = grids.primaryGrid.interpolate(λ, φ);
+            if (µ.isValue(wind)) {
+                showWindAtLocation(wind, grids.primaryGrid.recipe);
+            }
+            if (grids.overlayGrid !== grids.primaryGrid) {
+                var value = grids.overlayGrid.interpolate(λ, φ);
+                if (µ.isValue(value)) {
+                    showOverlayValueAtLocation(value, grids.overlayGrid.recipe);
+                }
             }
         }
     }
@@ -801,6 +898,22 @@
     }
 
     /**
+     * Registers a click event handler for the specified DOM element which modifies the configuration to have
+     * the attributes represented by newAttr. An event listener is also registered for configuration change events,
+     * so when a change occurs the button becomes enabled (i.e., class ".enabled" is assigned or removed) if the
+     * configuration matches the attributes for this button. The set of attributes used for the matching is taken
+     * from newAttr, unless a custom set of keys is provided.
+     */
+    function bindButtonToConfiguration(elementId, newAttr, keys) {
+        keys = keys || _.keys(newAttr);
+        d3.select(elementId).on("click", function() { configuration.save(newAttr); });
+        configuration.on("change", function(model) {
+            var attr = model.attributes;
+            d3.select(elementId).classed("enabled", _.isEqual(_.pick(attr, keys), _.pick(newAttr, keys)));
+        });
+    }
+
+    /**
      * Registers all event handlers to bind components and page elements together. There must be a cleaner
      * way to accomplish this...
      */
@@ -811,7 +924,7 @@
         // Adjust size of the scale canvas to fill the width of the menu to the right of the label.
         var label = d3.select("#scale-label").node();
         d3.select("#scale")
-            .attr("width", (d3.select("#menu").node().offsetWidth - label.offsetWidth) * 0.95)
+            .attr("width", (d3.select("#menu").node().offsetWidth - label.offsetWidth) * 0.97)
             .attr("height", label.offsetHeight / 2);
 
         d3.select("#show-menu").on("click", function() {
@@ -860,16 +973,21 @@
                 rebuildRequired = true;
             }
             // Build a new grid if the new overlay type is different from the current one.
-            if (_.indexOf(changed, "overlayType") >= 0) {
-                var overlayType = configuration.get("overlayType") || "wind";
-                var grid = (gridAgent.value() || {}).overlayGrid;
-                if (overlayType !== "off" && (!grid || grid.recipe.type !== overlayType)) {
+            var overlayType = configuration.get("overlayType") || "default";
+            if (_.indexOf(changed, "overlayType") >= 0 && overlayType !== "off") {
+                var grids = (gridAgent.value() || {}), primary = grids.primaryGrid, overlay = grids.overlayGrid;
+                if (!overlay) {
+                    // Do a rebuild if we have no overlay grid.
+                    rebuildRequired = true;
+                }
+                else if (overlay.recipe.type !== overlayType && !(overlayType === "default" && primary === overlay)) {
+                    // Do a rebuild if the types are different.
                     rebuildRequired = true;
                 }
             }
 
             if (rebuildRequired) {
-                gridAgent.submit(buildGrids, grids.toPath(configuration), grids.toOverlayPath(configuration));
+                gridAgent.submit(buildGrids);
             }
         });
         gridAgent.on("submit", function() {
@@ -914,7 +1032,7 @@
             overlayAgent.submit(drawOverlay, fieldAgent.value(), configuration.get("overlayType"));
         });
         overlayAgent.listenTo(rendererAgent, "start", function() {
-            overlayAgent.submit(drawOverlay, fieldAgent.value(), "off");
+            overlayAgent.submit(drawOverlay, fieldAgent.value(), null);
         });
         overlayAgent.listenTo(configuration, "change", function() {
             var changed = _.keys(configuration.changedAttributes())
@@ -930,35 +1048,93 @@
         rendererAgent.on("update", clearLocationDetails);
         d3.select("#location-close").on("click", clearLocationDetails);
 
+        // Modify menu depending on what mode we're in.
+        configuration.on("change:param", function(context, mode) {
+            d3.selectAll(".ocean-mode").classed("invisible", mode !== "ocean");
+            d3.selectAll(".wind-mode").classed("invisible", mode !== "wind");
+            switch (mode) {
+                case "wind":
+                    d3.select("#nav-backward-more").attr("title", "-1 Day");
+                    d3.select("#nav-backward").attr("title", "-3 Hours");
+                    d3.select("#nav-forward").attr("title", "+3 Hours");
+                    d3.select("#nav-forward-more").attr("title", "+1 Day");
+                    break;
+                case "ocean":
+                    d3.select("#nav-backward-more").attr("title", "-1 Month");
+                    d3.select("#nav-backward").attr("title", "-5 Days");
+                    d3.select("#nav-forward").attr("title", "+5 Days");
+                    d3.select("#nav-forward-more").attr("title", "+1 Month");
+                    break;
+            }
+        });
+
+        // Add handlers for mode buttons.
+        d3.select("#enable-wind-mode").on("click", function() {
+            if (configuration.get("param") !== "wind") {
+                configuration.save({param: "wind", surface: "surface", level: "level", overlayType: "default"});
+            }
+        });
+        configuration.on("change:param", function(x, param) {
+            d3.select("#enable-wind-mode").classed("enabled", param === "wind");
+        });
+        d3.select("#enable-ocean-mode").on("click", function() {
+            if (configuration.get("param") !== "ocean") {
+                // When switching between modes, there may be no associated data for the current date. So we need
+                // find the closest available according to the catalog.
+                var date = configuration.get("date"), catalog = (catalogAgent.value() || {}).oscar;
+                if (date !== "current" && catalog) {
+                    var i = _.sortedIndex(catalog, µ.ymdRedelimit(date, "/", ""));
+                    var e = µ.coalesce(catalog[i], _.last(catalog));  // use best match, or latest avail if none found.
+                    date = µ.ymdRedelimit(e, "", "/");
+                }
+                configuration.save({
+                    date: date,
+                    hour: date === "current" ? "" : "0000",
+                    param: "ocean",
+                    surface: "surface",
+                    level: "currents",
+                    overlayType: "default"});
+                µ.clearCanvas(d3.select("#animation").node());  // cleanup particle artifacts over continents
+            }
+        });
+        configuration.on("change:param", function(x, param) {
+            d3.select("#enable-ocean-mode").classed("enabled", param === "ocean");
+        });
+
         // Add event handlers for the time navigation buttons.
-        d3.select("#nav-prev-day"     ).on("click", navToHours.bind(null, -24));
-        d3.select("#nav-next-day"     ).on("click", navToHours.bind(null, +24));
-        d3.select("#nav-prev-forecast").on("click", navToHours.bind(null, -3));
-        d3.select("#nav-next-forecast").on("click", navToHours.bind(null, +3));
+        d3.select("#nav-backward-more").on("click", navigate.bind(null, -10));
+        d3.select("#nav-forward-more" ).on("click", navigate.bind(null, +10));
+        d3.select("#nav-backward"     ).on("click", navigate.bind(null, -1));
+        d3.select("#nav-forward"      ).on("click", navigate.bind(null, +1));
         d3.select("#nav-now").on("click", function() { configuration.save({date: "current", hour: ""}); });
 
         d3.select("#option-show-grid").on("click", function() {
             configuration.save({showGridPoints: !configuration.get("showGridPoints")});
         });
+        configuration.on("change:showGridPoints", function(x, showGridPoints) {
+            d3.select("#option-show-grid").classed("enabled", showGridPoints);
+        });
 
         // Add handlers for all wind level buttons.
-        d3.select("#surface").on("click", function() {
-            configuration.save({surface: "surface", level: "level"});
-        });
+        bindButtonToConfiguration("#surface", {param: "wind", surface: "surface", level: "level"});
         grids.pressureLevels.forEach(function(pressure) {
-            d3.select("#iso-" + pressure).on("click", function() {
-                configuration.save({surface: "isobaric", level: pressure + "hPa"});
-            });
+            bindButtonToConfiguration("#iso-" + pressure, {param: "wind", surface: "isobaric", level: pressure + "hPa"});
         });
+
+        // Add handlers for ocean animation types.
+        bindButtonToConfiguration("#animate-currents", {param: "ocean", surface: "surface", level: "currents"});
 
         // Add handlers for all overlay buttons.
         grids.overlayTypes.forEach(function(type) {
-            d3.select("#" + type).on("click", function() { configuration.save({overlayType: type}); });
+            bindButtonToConfiguration("#" + type, {overlayType: type});
         });
+        bindButtonToConfiguration("#wind", {param: "wind", overlayType: "default"});
+        bindButtonToConfiguration("#ocean-off", {overlayType: "off"});
+        bindButtonToConfiguration("#currents", {overlayType: "default"});
 
         // Add handlers for all projection buttons.
         globes.keys().forEach(function(p) {
-            d3.select("#" + p).on("click", function() { configuration.save({projection: p, orientation: ""}); });
+            bindButtonToConfiguration("#" + p, {projection: p, orientation: ""}, ["projection"]);
         });
 
         // When touch device changes between portrait and landscape, rebuild globe using the new view size.

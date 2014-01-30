@@ -12,8 +12,11 @@
     "earth": {
         "ja": "地球"
     },
-    "an animated map of global wind conditions": {
-        "ja": "世界中の風速状況がビジュアライズ"
+    "an animated map of global weather conditions": {
+        "ja": "世界中の天気状況がビジュアライズ"
+    },
+    "An animated map of global weather conditions. Visit the community at https://www.facebook.com/EarthWindMap": {
+        "ja": "世界中の天気状況がビジュアライズ。コミュニティはこちらへ：https://www.facebook.com/EarthWindMap"
     },
     "This site requires IE9 or newer.": {
         "ja": "このサイトはIE9より以上が必要です。"
@@ -183,11 +186,11 @@
     "even more stratosphere": {
         "ja": "もっと成層圏"
     },
-    "weather data is generated from numerical models": {
+    "weather and ocean data are generated from numerical models": {
         "ja": ""
     },
-    "earth.nullschool.net implies no guarantee of accuracy": {
-        "ja": "正確な情報を提供するためのものではありません"
+    "implies no guarantee of accuracy": {
+        "ja": "は正確な情報を提供するためのものではありません"
     },
     "/jp": {
         "ja": "/"
@@ -287,6 +290,36 @@
         "ja": ""
     },
     "air pressure reduced to sea level": {
+        "ja": ""
+    },
+    "Grid": {
+        "ja": "グリッド"
+    },
+    "Toggle Grid": {
+        "ja": ""
+    },
+    "Mode": {
+        "ja": "モード"
+    },
+    "Ocean": {
+        "ja": "海"
+    },
+    "Animate": {
+        "ja": "動画"
+    },
+    "Currents": {
+        "ja": "海流"
+    },
+    "ocean surface current estimates": {
+        "ja": "海流"
+    },
+    "updated every five days": {
+        "ja": "５日ごとの更新"
+    },
+    "Ocean Currents Data": {
+        "ja": "海流データ"
+    },
+    "Earth & Space Research": {
         "ja": ""
     }
 }

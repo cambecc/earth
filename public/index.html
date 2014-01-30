@@ -64,14 +64,18 @@
             <p>Source | <span id="data-center"></span></p>
             <p>Control | <span
                 class="text-button" id="nav-now" title="Current Conditions">Now</span><span
-                class="text-button" id="nav-prev-day" title="-1 Day"> « </span> – <span
-                class="text-button" id="nav-prev-forecast" title="-3 Hours"> ‹ </span> – <span
-                class="text-button" id="nav-next-forecast" title="+3 Hours"> › </span> – <span
-                class="text-button" id="nav-next-day" title="+1 Day"> » </span><span
+                class="text-button" id="nav-backward-more"> « </span> – <span
+                class="text-button" id="nav-backward"> ‹ </span> – <span
+                class="text-button" id="nav-forward"> › </span> – <span
+                class="text-button" id="nav-forward-more"> » </span><span
                 class="text-button" id="show-location" title="Current Position">〖◯〗</span><span
-                class="text-button" id="option-show-grid" title="Grid">Grid</span>
+                class="text-button" id="option-show-grid" title="Toggle Grid">Grid</span>
             </p>
-            <p>Height | <span
+            <p>Mode | <span
+                class="text-button" id="enable-wind-mode">Wind</span> – <span
+                class="text-button" id="enable-ocean-mode">Ocean</span>
+            </p>
+            <p class="wind-mode">Height | <span
                 class="text-button" id="surface" title="Surface">Sfc</span> – <span
                 class="text-button" id="iso-1000">1000</span> – <span
                 class="text-button" id="iso-850">850</span> – <span
@@ -81,13 +85,20 @@
                 class="text-button" id="iso-70">70</span> – <span
                 class="text-button" id="iso-10">10</span> hPa
             </p>
-            <p>Overlay | <span
+            <p class="wind-mode">Overlay | <span
                 class="text-button" id="off">None</span> – <span
                 class="text-button" id="wind" title="Wind Speed">Wind</span> – <span
                 class="text-button" id="temp" title="Temperature">Temp</span> – <span
                 class="text-button" id="total_precipitable_water" title="Total Precipitable Water">TPW</span> – <span
                 class="text-button" id="total_cloud_water" title="Total Cloud Water">TCW</span> – <span
                 class="text-button" id="mean_sea_level_pressure" title="Mean Sea Level Pressure">MSLP</span>
+            </p>
+            <p class="ocean-mode invisible">Animate | <span
+                class="text-button" id="animate-currents" title="Currents">Currents</span>
+            </p>
+            <p class="ocean-mode invisible">Overlay | <span
+                class="text-button" id="ocean-off">None</span> – <span
+                class="text-button" id="currents" title="Currents">Currents</span>
             </p>
             <p>Projection | <span
                 class="proj text-button" id="atlantis" title="Atlantis">A</span> – <span
@@ -100,9 +111,9 @@
                 class="proj text-button" id="winkel3" title="Winkel Tripel">W3</span>
             </p>
             <!--<p>免責事項 | 正確な情報を提供するためのものではありません</p>-->
-            <p id="lang"><a href="/jp">日本語</a></p>
+            <p id="lang"><a href="/jp" class="internal-link">日本語</a></p>
             <p>
-                <a href="about.html">about</a>
+                <a href="about.html" class="internal-link">about</a>
                 <a href="https://www.facebook.com/EarthWindMap" class="social-icon" title="Facebook">&#xe027;</a>
                 <a href="https://twitter.com/cambecc" class="social-icon" title="Twitter">&#xe086;</a>
             </p>

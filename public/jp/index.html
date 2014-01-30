@@ -4,12 +4,12 @@
     <meta charset="utf-8"/>
     <title>earth wind map</title>
     <meta itemprop="name"                                      content="地球"/>
-    <meta itemprop="description"     name="description"        content="an animated map of global weather conditions"/>
+    <meta itemprop="description"     name="description"        content="世界中の天気状況がビジュアライズ"/>
     <meta itemprop="author"          name="author"             content="Cameron Beccario"/>
 
     <meta property="og:type"        content="website"/>
     <meta property="og:title"       content="地球"/>
-    <meta property="og:description" content="An animated map of global weather conditions. Visit the community at https://www.facebook.com/EarthWindMap"/>
+    <meta property="og:description" content="世界中の天気状況がビジュアライズ。コミュニティはこちらへ：https://www.facebook.com/EarthWindMap"/>
     <meta property="og:url"         content="http://earth.nullschool.net"/>
     <meta property="og:image"       content="http://earth.nullschool.net/preview.jpg"/>
     <meta property="fb:admins"      content="510217216"/>
@@ -64,14 +64,18 @@
             <p>発信源 | <span id="data-center"></span></p>
             <p>操作 | <span
                 class="text-button" id="nav-now" title="現在状況">最新</span><span
-                class="text-button" id="nav-prev-day" title="前日"> « </span> – <span
-                class="text-button" id="nav-prev-forecast" title="3時間前"> ‹ </span> – <span
-                class="text-button" id="nav-next-forecast" title="3時間後"> › </span> – <span
-                class="text-button" id="nav-next-day" title="前日"> » </span><span
+                class="text-button" id="nav-backward-more"> « </span> – <span
+                class="text-button" id="nav-backward"> ‹ </span> – <span
+                class="text-button" id="nav-forward"> › </span> – <span
+                class="text-button" id="nav-forward-more"> » </span><span
                 class="text-button" id="show-location" title="現在地">〖◯〗</span><span
-                class="text-button" id="option-show-grid" title="Grid">Grid</span>
+                class="text-button" id="option-show-grid" title="Toggle Grid">グリッド</span>
             </p>
-            <p>高度 | <span
+            <p>モード | <span
+                class="text-button" id="enable-wind-mode">風速</span> – <span
+                class="text-button" id="enable-ocean-mode">海</span>
+            </p>
+            <p class="wind-mode">高度 | <span
                 class="text-button" id="surface" title="地上">地上</span> – <span
                 class="text-button" id="iso-1000">1000</span> – <span
                 class="text-button" id="iso-850">850</span> – <span
@@ -81,13 +85,20 @@
                 class="text-button" id="iso-70">70</span> – <span
                 class="text-button" id="iso-10">10</span> hPa
             </p>
-            <p>レイヤー | <span
+            <p class="wind-mode">レイヤー | <span
                 class="text-button" id="off">無</span> – <span
                 class="text-button" id="wind" title="風速">風速</span> – <span
                 class="text-button" id="temp" title="気温">気温</span> – <span
                 class="text-button" id="total_precipitable_water" title="可降水量">可降水量</span> – <span
                 class="text-button" id="total_cloud_water" title="雲水量">雲水量</span> – <span
                 class="text-button" id="mean_sea_level_pressure" title="海面更正気圧">海面更正</span>
+            </p>
+            <p class="ocean-mode invisible">動画 | <span
+                class="text-button" id="animate-currents" title="海流">海流</span>
+            </p>
+            <p class="ocean-mode invisible">レイヤー | <span
+                class="text-button" id="ocean-off">無</span> – <span
+                class="text-button" id="currents" title="海流">海流</span>
             </p>
             <p>投影法 | <span
                 class="proj text-button" id="atlantis" title="アトランティス">A</span> – <span
@@ -100,9 +111,9 @@
                 class="proj text-button" id="winkel3" title="ヴィンケル第3">W3</span>
             </p>
             <!--<p>免責事項 | 正確な情報を提供するためのものではありません</p>-->
-            <p id="lang"><a href="/">English</a></p>
+            <p id="lang"><a href="/" class="internal-link">English</a></p>
             <p>
-                <a href="about.html">サイトについて</a>
+                <a href="about.html" class="internal-link">サイトについて</a>
                 <a href="https://www.facebook.com/EarthWindMap" class="social-icon" title="Facebook">&#xe027;</a>
                 <a href="https://twitter.com/cambecc" class="social-icon" title="Twitter">&#xe086;</a>
             </p>

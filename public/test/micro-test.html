@@ -68,6 +68,27 @@
             equal(µ.floorMod(-1e-16, 10), 0);
         });
 
+        test("ymdRedelimit", function() {
+            equal(µ.ymdRedelimit("2014-01-02", "-", "/"), "2014/01/02");
+            equal(µ.ymdRedelimit("2014-01-02", "-", ""), "20140102");
+            equal(µ.ymdRedelimit("2014/01/02", "/", "-"), "2014-01-02");
+            equal(µ.ymdRedelimit("2014/01/02", "/", ""), "20140102");
+            equal(µ.ymdRedelimit("20140102", "", "/"), "2014/01/02");
+            equal(µ.ymdRedelimit("20140102", "", "-"), "2014-01-02");
+
+            equal(µ.ymdRedelimit("2014-01-02T01:00Z", "-", ""), "20140102");
+            equal(µ.ymdRedelimit("20140102-0000Z", "", "-"), "2014-01-02");
+            equal(µ.ymdRedelimit("20140102-0000Z", "", "/"), "2014/01/02");
+        });
+
+        test("dateToUTCymd", function() {
+            equal(µ.dateToUTCymd(new Date("2014-01-02T00:00Z"), "/"), "2014/01/02");
+            equal(µ.dateToUTCymd(new Date("2014-01-02T00:00Z"), "-"), "2014-01-02");
+            equal(µ.dateToUTCymd(new Date("2014-01-02T00:00Z"), ""), "20140102");
+            equal(µ.dateToUTCymd(new Date("2014-01-02T00:00Z")), "20140102");
+            equal(µ.dateToUTCymd(new Date("2014-01-02T00:00:00.000+09:00"), "/"), "2014/01/01");
+        });
+
         test("view", function() {
             var view = µ.view();
             ok(view.width > 0);
@@ -102,8 +123,9 @@
             x.hour = x.hour || "";
             x.topology = x.topology || TOPOLOGY;
             x.projection = x.projection || "orthographic";
+            x.showGridPoints = x.showGridPoints || false;
             x.orientation = x.orientation || "";
-            x.overlayType = x.overlayType || "wind";
+            x.overlayType = x.overlayType || "default";
             return x;
         }
 
@@ -175,7 +197,7 @@
                 args({date: "current", param: "wind", surface: "isobaric", level: "1000hPa", overlayType: "wind"}));
             deepEqual(
                 µ.parse("current/wind/isobaric/1000hPa/overlay=bad", projections, overlays),
-                args({date: "current", param: "wind", surface: "isobaric", level: "1000hPa", overlayType: "wind"}));
+                args({date: "current", param: "wind", surface: "isobaric", level: "1000hPa", overlayType: "default"}));
         });
 
         test("configuration-defaults", function() {
@@ -187,38 +209,55 @@
                     projection: "orthographic", orientation: ""}));
         });
 
-        test("configuration-properties", function() {
+        test("configuration-path-roundtrips", function() {
             var config = µ.buildConfiguration(projections, overlays);
+            var paths = grids.paths(config);
 
             config.set({
                 date: "current", hour: "", param: "a", surface: "b", level: "c", projection: "x", orientation: "1"
             });
             equal(config.toHash(), "current/a/b/c/x=1");
-            equal(grids.toPath(config), "/data/weather/current/current-a-b-c-gfs-1.0.json");
+            equal(paths.primary(), "/data/weather/current/current-a-b-c-gfs-1.0.json");
 
             config.set({
                 date: "2013/11/20", hour: "0800", param: "a", surface: "b", level: "c", projection: "x", orientation: ""
             });
             equal(config.toHash(), "2013/11/20/0800Z/a/b/c/x");
-            equal(grids.toPath(config), "/data/weather/2013/11/20/0800-a-b-c-gfs-1.0.json");
+            equal(paths.primary(), "/data/weather/2013/11/20/0800-a-b-c-gfs-1.0.json");
 
             config.set({
-                date: "current", hour: "", param: "a", surface: "b", level: "c", projection: "x", overlayType: "none"
+                date: "current", hour: "", param: "a", surface: "b", level: "c", projection: "x", overlayType: "off"
             });
-            equal(config.toHash(), "current/a/b/c/overlay=none/x");
-            equal(grids.toPath(config), "/data/weather/current/current-a-b-c-gfs-1.0.json");
+            equal(config.toHash(), "current/a/b/c/overlay=off/x");
+            equal(paths.primary(), "/data/weather/current/current-a-b-c-gfs-1.0.json");
+            equal(paths.overlay(), null);
 
             config.set({
                 date: "current", hour: "", param: "a", surface: "b", level: "c", projection: "x", overlayType: "temp"
             });
             equal(config.toHash(), "current/a/b/c/overlay=temp/x");
-            equal(grids.toPath(config), "/data/weather/current/current-a-b-c-gfs-1.0.json");
+            equal(paths.primary(), "/data/weather/current/current-a-b-c-gfs-1.0.json");
+            equal(paths.overlay(), "/data/weather/current/current-temp-b-c-gfs-1.0.json");
 
             config.set({
-                date: "current", hour: "", param: "a", surface: "b", level: "c", projection: "x", overlayType: "wind"
+                date: "current", hour: "", param: "a", surface: "b", level: "c", projection: "x", overlayType: "default"
             });
             equal(config.toHash(), "current/a/b/c/x");
-            equal(grids.toPath(config), "/data/weather/current/current-a-b-c-gfs-1.0.json");
+            equal(paths.primary(), "/data/weather/current/current-a-b-c-gfs-1.0.json");
+            equal(paths.overlay(), "/data/weather/current/current-wind-b-c-gfs-1.0.json");
+
+            config.set({
+                date: "current", hour: "", param: "a", surface: "b", level: "c", projection: "x", overlayType: "foo"
+            });
+            equal(config.toHash(), "current/a/b/c/overlay=foo/x");
+            equal(paths.primary(), "/data/weather/current/current-a-b-c-gfs-1.0.json");
+            equal(paths.overlay(), "/data/weather/current/current-foo-gfs-1.0.json");
+
+            config.set({
+                date: "current", hour: "", param: "a", surface: "b", level: "c", projection: "x", overlayType: null, showGridPoints: true
+            });
+            equal(config.toHash(), "current/a/b/c/x/grid=on");
+            equal(paths.primary(), "/data/weather/current/current-a-b-c-gfs-1.0.json");
         });
 
         asyncTest("agent-submit-simple", 4, function() {

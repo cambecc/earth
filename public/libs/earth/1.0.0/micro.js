@@ -120,6 +120,26 @@ var µ = function() {
     }
 
     /**
+     * @returns {String} the string yyyyfmmfdd as yyyytmmtdd, where f and t are the "from" and "to" delimiters. Either
+     *          delimiter may be the empty string.
+     */
+    function ymdRedelimit(ymd, fromDelimiter, toDelimiter) {
+        if (!fromDelimiter) {
+            return ymd.substr(0, 4) + toDelimiter + ymd.substr(4, 2) + toDelimiter + ymd.substr(6, 2);
+        }
+        var parts = ymd.substr(0, 10).split(fromDelimiter);
+        return [parts[0], parts[1], parts[2]].join(toDelimiter);
+    }
+
+    /**
+     * @returns {String} the UTC year, month, and day of the specified date in yyyyfmmfdd format, where f is the
+     *          delimiter (and may be the empty string).
+     */
+    function dateToUTCymd(date, delimiter) {
+        return ymdRedelimit(date.toISOString(), "-", delimiter || "");
+    }
+
+    /**
      * @returns {Object} an object to perform logging, if/when the browser supports it.
      */
     function log() {
@@ -489,7 +509,7 @@ var µ = function() {
                 projection: "orthographic",
                 orientation: "",
                 topology: TOPOLOGY,
-                overlayType: "wind",
+                overlayType: "default",
                 showGridPoints: false
             };
             coalesce(tokens[9], "").split("/").forEach(function(segment) {
@@ -500,7 +520,7 @@ var µ = function() {
                     }
                 }
                 else if ((option = /^overlay=(\w+)$/.exec(segment))) {
-                    if (overlayTypes.has(option[1])) {
+                    if (overlayTypes.has(option[1]) || option[1] === "default") {
                         result.overlayType = option[1];
                     }
                 }
@@ -531,7 +551,7 @@ var µ = function() {
             var attr = this.attributes;
             var dir = attr.date === "current" ? "current" : attr.date + "/" + attr.hour + "Z";
             var proj = [attr.projection, attr.orientation].filter(isTruthy).join("=");
-            var ol = !isValue(attr.overlayType) || attr.overlayType === "wind" ? "" : "overlay=" + attr.overlayType;
+            var ol = !isValue(attr.overlayType) || attr.overlayType === "default" ? "" : "overlay=" + attr.overlayType;
             var grid = attr.showGridPoints ? "grid=on" : "";
             return [dir, attr.param, attr.surface, attr.level, ol, proj, grid].filter(isTruthy).join("/");
         },
@@ -593,6 +613,8 @@ var µ = function() {
         isEmbeddedInIFrame: isEmbeddedInIFrame,
         toUTCISO: toUTCISO,
         toLocalISO: toLocalISO,
+        ymdRedelimit: ymdRedelimit,
+        dateToUTCymd: dateToUTCymd,
         log: log,
         view: view,
         removeChildren: removeChildren,

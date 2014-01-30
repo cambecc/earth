@@ -9,6 +9,9 @@
 var grids = function() {
     "use strict";
 
+    var WEATHER_PATH = "/data/weather";
+    var OSCAR_PATH = "/data/oscar";
+
     function windRecipe(key, description) {
         return {
             type: "wind",
@@ -30,11 +33,11 @@ var grids = function() {
         };
     }
 
-    function oceanCurrentRecipe() {
+    function oceanCurrentsRecipe() {
         return {
-            type: "ocean",
+            type: "currents",
             key: "ocean,160,15",
-            description: "Ocean Currents",
+            description: "Ocean Currents @ Surface",
             units: [
                 {label: "m/s",  conversion: function(x) { return x; },            precision: 2},
                 {label: "km/h", conversion: function(x) { return x * 3.6; },      precision: 1},
@@ -42,16 +45,17 @@ var grids = function() {
                 {label: "mph",  conversion: function(x) { return x * 2.236936; }, precision: 1}
             ],
             scale: {
-                bounds: [0, 2.5],
+                bounds: [0, 1.5],
                 gradient: µ.segmentedColorScale([
                     [0, [10, 25, 68]],
                     [0.15, [10, 25, 250]],
-                    [0.7, [24, 255, 255]],
-                    [1.4, [255, 233, 45]],
-                    [2.5, [255, 45, 45]]
+                    [0.4, [24, 255, 93]],
+                    [0.65, [255, 233, 102]],
+                    [1.0, [255, 233, 15]],
+                    [1.5, [255, 15, 15]]
                 ])
             },
-            particles: { velocityScale: 1/4400, maxIntensity: 1 }
+            particles: { velocityScale: 1/4400, maxIntensity: 0.7 }
         };
     }
 
@@ -133,7 +137,9 @@ var grids = function() {
             key: "3,1,101,0",
             description: "Mean Sea Level Pressure",
             units: [
-                {label: "hPa", conversion: function(x) { return x / 100; }, precision: 0}
+                {label: "hPa", conversion: function(x) { return x / 100; }, precision: 0},
+                {label: "mmHg", conversion: function(x) { return x / 133.322387415; }, precision: 0},
+                {label: "inHg", conversion: function(x) { return x / 3386.389; }, precision: 1}
             ],
             scale: {
                 bounds: [92000, 105000],
@@ -164,7 +170,7 @@ var grids = function() {
         recipes.push(totalCloudWaterRecipe());
         recipes.push(totalPrecipitableWaterRecipe());
         recipes.push(meanSeaLevelPressureRecipe());
-        recipes.push(oceanCurrentRecipe());
+        recipes.push(oceanCurrentsRecipe());
         return recipes;
     }();
 
@@ -365,41 +371,76 @@ var grids = function() {
         };
     }
 
-    /**
-     * @returns {String} the path to the weather data JSON file implied by the specified configuration.
-     */
-    function toPath(configuration) {
-        var attr = configuration.attributes;
-        var dir = attr.date;
-        var stamp = dir === "current" ? "current" : attr.hour;
-        var file = [stamp, attr.param, attr.surface, attr.level, "gfs", "1.0"].join("-") + ".json";
-        return ["/data/weather", dir, file].join("/");
+    function windPaths(attr) {
+        return {
+            /**
+             * @returns {String} the path to the weather data JSON file implied by the specified configuration.
+             */
+            primary: function() {
+                var dir = attr.date, stamp = dir === "current" ? "current" : attr.hour;
+                var file = [stamp, attr.param, attr.surface, attr.level, "gfs", "1.0"].join("-") + ".json";
+                return [WEATHER_PATH, dir, file].join("/");
+            },
+            overlay: function() {
+                var dir = attr.date, stamp = dir === "current" ? "current" : attr.hour;
+                var file, overlayType = attr.overlayType;
+                switch (overlayType) {
+                    case "off":
+                        return null;
+                    case "default":
+                        overlayType = "wind";
+                        // fall-through
+                    case "wind":
+                    case "temp":
+                        file = [stamp, overlayType, attr.surface, attr.level, "gfs", "1.0"].join("-") + ".json";
+                        break;
+                    default:
+                        file = [stamp, overlayType, "gfs", "1.0"].join("-") + ".json";
+                }
+                return [WEATHER_PATH, dir, file].join("/");
+            }
+        };
     }
 
-    function toOverlayPath(configuration) {
+    function oceanPaths(attr) {
+        return {
+            primary: function(catalogs) {
+                if (attr.date === "current") {
+                    return [OSCAR_PATH, _.last(catalogs.oscar)].join("/");  // last entry is the most recent
+                }
+                var stamp = µ.ymdRedelimit(attr.date, "/", "");
+                var file = [stamp, attr.surface, attr.level, "oscar", "0.33"].join("-") + ".json";
+                return [OSCAR_PATH, file].join("/");
+            },
+            overlay: function(catalogs) {
+                return attr.overlayType === "off" ? null : this.primary(catalogs);
+            }
+        };
+    }
+
+    /**
+     * @returns an object that constructs paths to weather data files using the specified configuration.
+     *          For example, the path for the primary data file corresponding to "current/wind/surface/level" is
+     *          "/data/weather/current/current-wind-surface-level-gfs-1.0.json".
+     *
+     *          The returned object has the form: {primary: function(catalogs), overlay: function(catalogs)}
+     */
+    function paths(configuration) {
         var attr = configuration.attributes;
-        var dir = attr.date;
-        var stamp = dir === "current" ? "current" : attr.hour;
-        var file;
-        switch (attr.overlayType) {
-            case "off":
-                return null;
-            case "wind":
-            case "temp":
-                file = [stamp, attr.overlayType, attr.surface, attr.level, "gfs", "1.0"].join("-") + ".json";
-                break;
+        switch (attr.param) {
+            case "ocean":
+                return oceanPaths(attr);
             default:
-                file = [stamp, attr.overlayType, "gfs", "1.0"].join("-") + ".json";
+                return windPaths(attr);
         }
-        return ["/data/weather", dir, file].join("/");
     }
 
     return {
         pressureLevels: PRESSURE_LEVELS,
         overlayTypes: OVERLAY_TYPES,
         buildGrid: buildGrid,
-        toPath: toPath,
-        toOverlayPath: toOverlayPath
+        paths: paths,
+        OSCAR_CATALOG: [OSCAR_PATH, "catalog.json"].join("/")
     };
 
 }();
