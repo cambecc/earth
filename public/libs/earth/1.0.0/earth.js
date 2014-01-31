@@ -315,7 +315,7 @@
         var timestamp = validityDate(gridAgent.value());
         if (isFinite(timestamp)) {
             // GFS forecast files are three hours apart.
-            timestamp += (step > 1 ? 24 : step < -1 ? -24 : step) * 3 * HOUR;
+            timestamp += (step > 1 ? 8 : step < -1 ? -8 : step) * 3 * HOUR;
             var date = new Date(timestamp), parts = date.toISOString().split(/[- T:]/);
             configuration.save({date: µ.dateToUTCymd(date, "/"), hour: [parts[3], "00"].join("")});
         }
