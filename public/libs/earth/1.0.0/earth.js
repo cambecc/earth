@@ -930,11 +930,12 @@
         report.status("Initializing...");
 
         d3.select("#sponsor-link")
+            .attr("target", µ.isEmbeddedInIFrame() ? "_new" : null)
             .on("click", reportSponsorClick.bind(null, "click"))
-            .on("contextmenu", reportSponsorClick.bind(null, "right-click"));
-        if (µ.isEmbeddedInIFrame()) {
-            d3.select("#sponsor-link").attr("target", "_new");
-        }
+            .on("contextmenu", reportSponsorClick.bind(null, "right-click"))
+        d3.select("#sponsor-hide").on("click", function() {
+            d3.select("#sponsor").classed("invisible", true);
+        });
 
         d3.selectAll(".fill-screen").attr("width", view.width).attr("height", view.height);
         // Adjust size of the scale canvas to fill the width of the menu to the right of the label.

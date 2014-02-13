@@ -49,7 +49,7 @@ a:hover, a:focus, .no-touch .text-button:hover, .no-touch .text-button:focus, .t
     -webkit-transition: color 125ms ease-in;
 }
 
-p.invisible, span.invisible {
+p.invisible, span.invisible, #sponsor.invisible {
     display: none;
 }
 
@@ -88,6 +88,10 @@ body {
     border-radius: 0.5rem/0.5rem;
     padding: 0.5rem 1rem 0.5rem 1rem;
     font-size: 1.0rem;
+}
+
+#sponsor:hover #sponsor-hide {
+    display: inline;
 }
 
 #sponsor a {
