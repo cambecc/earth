@@ -79,6 +79,21 @@ body {
     left: 0;
 }
 
+#sponsor {
+    position: absolute;
+    text-align: right;
+    bottom: 3%;
+    right: 2%;
+    background-color: rgba(0, 0, 5, 0.6);
+    border-radius: 0.5rem/0.5rem;
+    padding: 0.5rem 1rem 0.5rem 1rem;
+    font-size: 1.0rem;
+}
+
+#sponsor a {
+    text-decoration: none;
+}
+
 #details {
     position: absolute;
     bottom: 3%;
