@@ -918,7 +918,7 @@
 
     function reportSponsorClick(type) {
         if (ga) {
-            ga("send", "event", "button", "click", "sponsor", type);
+            ga("send", "event", "sponsor", type);
         }
     }
 
@@ -932,6 +932,9 @@
         d3.select("#sponsor-link")
             .on("click", reportSponsorClick.bind(null, "click"))
             .on("contextmenu", reportSponsorClick.bind(null, "right-click"));
+        if (µ.isEmbeddedInIFrame()) {
+            d3.select("#sponsor-link").attr("target", "_new");
+        }
 
         d3.selectAll(".fill-screen").attr("width", view.width).attr("height", view.height);
         // Adjust size of the scale canvas to fill the width of the menu to the right of the label.
