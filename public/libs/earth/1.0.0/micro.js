@@ -10,7 +10,7 @@ var µ = function() {
     "use strict";
 
     var τ = 2 * Math.PI;
-    var H = Math.pow(10, -5.2);
+    var H = 0.000360;  // 0.000360ºφ ~= 40m
     var DEFAULT_CONFIG = "current/wind/surface/level/orthographic";
     var TOPOLOGY = isMobile() ? "/data/earth-topo-mobile.json?v2" : "/data/earth-topo.json?v2";
 
@@ -137,6 +137,10 @@ var µ = function() {
      */
     function dateToUTCymd(date, delimiter) {
         return ymdRedelimit(date.toISOString(), "-", delimiter || "");
+    }
+
+    function dateToConfig(date) {
+        return {date: µ.dateToUTCymd(date, "/"), hour: µ.zeroPad(date.getUTCHours(), 2) + "00"};
     }
 
     /**
@@ -364,16 +368,17 @@ var µ = function() {
     /**
      * Returns a new agent. An agent executes tasks and stores the result of the most recently completed task.
      *
-     * A task is a callback that yields a value or promise. After submitting a task to an agent using the submit()
-     * method, the task is invoked and its result becomes the agent's value, replacing the previous value. If a
-     * task is submitted to an agent while an earlier task is still in progress, the earlier task is cancelled and
-     * its result ignored. Invocation of a task may even be skipped entirely if cancellation occurs early enough.
+     * A task is a value or promise, or a function that returns a value or promise. After submitting a task to
+     * an agent using the submit() method, the task is evaluated and its result becomes the agent's value,
+     * replacing the previous value. If a task is submitted to an agent while an earlier task is still in
+     * progress, the earlier task is cancelled and its result ignored. Evaluation of a task may even be skipped
+     * entirely if cancellation occurs early enough.
      *
      * Agents are Backbone.js Event emitters. When a submitted task is accepted for invocation by an agent, a
      * "submit" event is emitted. This event has the agent as its sole argument. When a task finishes and
      * the agent's value changes, an "update" event is emitted, providing (value, agent) as arguments. If a task
      * fails by either throwing an exception or rejecting a promise, a "reject" event having arguments (err, agent)
-     * is emitted.
+     * is emitted. If an event handler throws an error, an "error" event having arguments (err, agent) is emitted.
      *
      * The current task can be cancelled by invoking the agent.cancel() method, and the cancel status is available
      * as the Boolean agent.cancel.requested key. Within the task callback, the "this" context is set to the agent,
@@ -396,9 +401,10 @@ var µ = function() {
      *     agent.submit(someLongAsynchronousProcess, "abc");
      * </pre>
      *
+     * @param [initial] initial value of the agent, if any
      * @returns {Object}
      */
-    function newAgent() {
+    function newAgent(initial) {
 
         /**
          * @returns {Function} a cancel function for a task.
@@ -413,12 +419,12 @@ var µ = function() {
         /**
          * Invokes the specified task.
          * @param cancel the task's cancel function.
-         * @param taskAndArguments the [task-callback, arg0, arg1, ...] array.
+         * @param taskAndArguments the [task-function-or-value, arg0, arg1, ...] array.
          */
         function runTask(cancel, taskAndArguments) {
 
             function run(args) {
-                return cancel.requested ? null : task.apply(agent, args);
+                return cancel.requested ? null : _.isFunction(task) ? task.apply(agent, args) : task;
             }
 
             function accept(result) {
@@ -430,18 +436,25 @@ var µ = function() {
 
             function reject(err) {
                 if (!cancel.requested) {  // ANNOYANCE: when cancelled, this task's error is silently suppressed
-                    value = null;
                     agent.trigger("reject", err, agent);
                 }
             }
 
-            // When all arguments are resolved, invoke the task then either accept or reject the result.
-            var task = taskAndArguments[0];
-            when.all(_.rest(taskAndArguments)).then(run).done(accept, reject);
-            agent.trigger("submit", agent);
+            function fail(err) {
+                agent.trigger("fail", err, agent);
+            }
+
+            try {
+                // When all arguments are resolved, invoke the task then either accept or reject the result.
+                var task = taskAndArguments[0];
+                when.all(_.rest(taskAndArguments)).then(run).then(accept, reject).done(undefined, fail);
+                agent.trigger("submit", agent);
+            } catch (err) {
+                fail(err);
+            }
         }
 
-        var value = null;
+        var value = initial;
         var runTask_debounced = _.debounce(runTask, 0);  // ignore multiple simultaneous submissions--reduces noise
         var agent = {
 
@@ -608,6 +621,7 @@ var µ = function() {
         clamp: clamp,
         proportion: proportion,
         spread: spread,
+        zeroPad: zeroPad,
         isFF: isFF,
         isMobile: isMobile,
         isEmbeddedInIFrame: isEmbeddedInIFrame,
@@ -615,6 +629,7 @@ var µ = function() {
         toLocalISO: toLocalISO,
         ymdRedelimit: ymdRedelimit,
         dateToUTCymd: dateToUTCymd,
+        dateToConfig: dateToConfig,
         log: log,
         view: view,
         removeChildren: removeChildren,

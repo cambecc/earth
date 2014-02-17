@@ -1,0 +1,95 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Products Tests</title>
+
+    <link rel="stylesheet" href="../libs/qunit/1.12.0/qunit.css">
+    <script src="../libs/qunit/1.12.0/qunit.js"></script>
+
+    <script src="../libs/underscore.js/1.6.0/underscore.js"></script>
+    <script src="../libs/backbone.js/1.1.0/backbone.js"></script>
+    <script src="../libs/d3/3.3.10/d3.js"></script>
+    <script src="../libs/when/2.6.0/when.js"></script>
+    <script src="../libs/earth/1.0.0/micro.js"></script>
+    <script src="../libs/earth/1.0.0/grids.js"></script>
+    <script src="../libs/earth/1.0.0/products.js"></script>
+
+    <script>
+
+        var log = µ.log();
+        var projections = d3.set(["orthographic", "winkel3"]);
+        var overlays = d3.set(["wind", "temp"]);
+
+        asyncTest("productsFor", 1, function() {
+            var cfg = µ.buildConfiguration(projections, overlays)
+                .set(µ.parse("current/ocean/surface/currents", projections, overlays));
+
+            var x = products.productsFor(cfg.attributes)[0];
+
+            when(x).then(function(x) {
+                ok(true);
+                start();
+            }).otherwise(µ.log().error);
+
+        });
+
+//        test("configuration-path-roundtrips", function() {
+//            var config = µ.buildConfiguration(projections, overlays);
+//            var paths = grids.paths(config);
+//
+//            config.set({
+//                date: "current", hour: "", param: "a", surface: "b", level: "c", projection: "x", orientation: "1"
+//            });
+//            equal(config.toHash(), "current/a/b/c/x=1");
+//            equal(paths.primary(), "/data/weather/current/current-a-b-c-gfs-1.0.json");
+//
+//            config.set({
+//                date: "2013/11/20", hour: "0800", param: "a", surface: "b", level: "c", projection: "x", orientation: ""
+//            });
+//            equal(config.toHash(), "2013/11/20/0800Z/a/b/c/x");
+//            equal(paths.primary(), "/data/weather/2013/11/20/0800-a-b-c-gfs-1.0.json");
+//
+//            config.set({
+//                date: "current", hour: "", param: "a", surface: "b", level: "c", projection: "x", overlayType: "off"
+//            });
+//            equal(config.toHash(), "current/a/b/c/overlay=off/x");
+//            equal(paths.primary(), "/data/weather/current/current-a-b-c-gfs-1.0.json");
+//            equal(paths.overlay(), null);
+//
+//            config.set({
+//                date: "current", hour: "", param: "a", surface: "b", level: "c", projection: "x", overlayType: "temp"
+//            });
+//            equal(config.toHash(), "current/a/b/c/overlay=temp/x");
+//            equal(paths.primary(), "/data/weather/current/current-a-b-c-gfs-1.0.json");
+//            equal(paths.overlay(), "/data/weather/current/current-temp-b-c-gfs-1.0.json");
+//
+//            config.set({
+//                date: "current", hour: "", param: "a", surface: "b", level: "c", projection: "x", overlayType: "default"
+//            });
+//            equal(config.toHash(), "current/a/b/c/x");
+//            equal(paths.primary(), "/data/weather/current/current-a-b-c-gfs-1.0.json");
+//            equal(paths.overlay(), "/data/weather/current/current-wind-b-c-gfs-1.0.json");
+//
+//            config.set({
+//                date: "current", hour: "", param: "a", surface: "b", level: "c", projection: "x", overlayType: "foo"
+//            });
+//            equal(config.toHash(), "current/a/b/c/overlay=foo/x");
+//            equal(paths.primary(), "/data/weather/current/current-a-b-c-gfs-1.0.json");
+//            equal(paths.overlay(), "/data/weather/current/current-foo-gfs-1.0.json");
+//
+//            config.set({
+//                date: "current", hour: "", param: "a", surface: "b", level: "c", projection: "x", overlayType: null, showGridPoints: true
+//            });
+//            equal(config.toHash(), "current/a/b/c/x/grid=on");
+//            equal(paths.primary(), "/data/weather/current/current-a-b-c-gfs-1.0.json");
+//        });
+
+    </script>
+</head>
+<body>
+
+    <div id="qunit"></div>
+
+</body>
+</html>

@@ -7,12 +7,11 @@
     <link rel="stylesheet" href="../libs/qunit/1.12.0/qunit.css">
     <script src="../libs/qunit/1.12.0/qunit.js"></script>
 
-    <script src="../libs/underscore.js/1.5.2/underscore.js"></script>
+    <script src="../libs/underscore.js/1.6.0/underscore.js"></script>
     <script src="../libs/backbone.js/1.1.0/backbone.js"></script>
     <script src="../libs/d3/3.3.10/d3.js"></script>
     <script src="../libs/when/2.6.0/when.js"></script>
     <script src="../libs/earth/1.0.0/micro.js"></script>
-    <script src="../libs/earth/1.0.0/grids.js"></script>
 
     <script>
         test("isTruthy", function() {
@@ -209,55 +208,14 @@
                     projection: "orthographic", orientation: ""}));
         });
 
-        test("configuration-path-roundtrips", function() {
-            var config = µ.buildConfiguration(projections, overlays);
-            var paths = grids.paths(config);
-
-            config.set({
-                date: "current", hour: "", param: "a", surface: "b", level: "c", projection: "x", orientation: "1"
-            });
-            equal(config.toHash(), "current/a/b/c/x=1");
-            equal(paths.primary(), "/data/weather/current/current-a-b-c-gfs-1.0.json");
-
-            config.set({
-                date: "2013/11/20", hour: "0800", param: "a", surface: "b", level: "c", projection: "x", orientation: ""
-            });
-            equal(config.toHash(), "2013/11/20/0800Z/a/b/c/x");
-            equal(paths.primary(), "/data/weather/2013/11/20/0800-a-b-c-gfs-1.0.json");
-
-            config.set({
-                date: "current", hour: "", param: "a", surface: "b", level: "c", projection: "x", overlayType: "off"
-            });
-            equal(config.toHash(), "current/a/b/c/overlay=off/x");
-            equal(paths.primary(), "/data/weather/current/current-a-b-c-gfs-1.0.json");
-            equal(paths.overlay(), null);
-
-            config.set({
-                date: "current", hour: "", param: "a", surface: "b", level: "c", projection: "x", overlayType: "temp"
-            });
-            equal(config.toHash(), "current/a/b/c/overlay=temp/x");
-            equal(paths.primary(), "/data/weather/current/current-a-b-c-gfs-1.0.json");
-            equal(paths.overlay(), "/data/weather/current/current-temp-b-c-gfs-1.0.json");
-
-            config.set({
-                date: "current", hour: "", param: "a", surface: "b", level: "c", projection: "x", overlayType: "default"
-            });
-            equal(config.toHash(), "current/a/b/c/x");
-            equal(paths.primary(), "/data/weather/current/current-a-b-c-gfs-1.0.json");
-            equal(paths.overlay(), "/data/weather/current/current-wind-b-c-gfs-1.0.json");
-
-            config.set({
-                date: "current", hour: "", param: "a", surface: "b", level: "c", projection: "x", overlayType: "foo"
-            });
-            equal(config.toHash(), "current/a/b/c/overlay=foo/x");
-            equal(paths.primary(), "/data/weather/current/current-a-b-c-gfs-1.0.json");
-            equal(paths.overlay(), "/data/weather/current/current-foo-gfs-1.0.json");
-
-            config.set({
-                date: "current", hour: "", param: "a", surface: "b", level: "c", projection: "x", overlayType: null, showGridPoints: true
-            });
-            equal(config.toHash(), "current/a/b/c/x/grid=on");
-            equal(paths.primary(), "/data/weather/current/current-a-b-c-gfs-1.0.json");
+        test("agent-initial", function() {
+            var agent;
+            agent = µ.newAgent();
+            ok(agent.value() === undefined);
+            agent = µ.newAgent(null);
+            ok(agent.value() === null);
+            agent = µ.newAgent("hi");
+            ok(agent.value() === "hi");
         });
 
         asyncTest("agent-submit-simple", 4, function() {
@@ -317,7 +275,7 @@
             }, 10);
 
             setTimeout(function() {
-                ok(agent.value() == null);
+                ok(agent.value() === undefined);
                 agent.cancel();
                 start();
             }, 30);
@@ -327,12 +285,12 @@
             var agent = µ.newAgent();
 
             agent.on("submit", function(context) {
-                ok(context, agent);
+                equal(context, agent);
             });
             agent.on("update", function(value, context) {
-                ok(value, 10);
-                ok(value, agent.value());
-                ok(context, agent);
+                equal(value, 10);
+                equal(value, agent.value());
+                equal(context, agent);
                 start();
             });
 
@@ -341,15 +299,12 @@
             }, when(true).then(function() { return 10; }));  // argument is a promise
         });
 
-        asyncTest("agent-exception-reject-event-emitting", 3, function() {
+        asyncTest("agent-exception-reject-event-emitting", 2, function() {
             var agent = µ.newAgent();
 
-            agent.on("submit", function(context) {
-                ok(context, agent);
-            });
             agent.on("reject", function(err, context) {
-                ok(err.message, "whoops!");
-                ok(context, agent);
+                equal(err.message, "whoops!");
+                equal(context, agent);
                 start();
             });
 
@@ -358,21 +313,80 @@
             });
         });
 
+        asyncTest("agent-accept-then-reject", 5, function() {
+            var agent = µ.newAgent();
+
+            agent.on("update", function(value, context) {
+                equal(value, 10);
+                equal(context.value(), 10);
+                agent.submit(function() {
+                    throw new Error("whoops!");
+                });
+            });
+            agent.on("reject", function(err, context) {
+                equal(err.message, "whoops!");
+                equal(context, agent);
+                equal(context.value(), 10);  // should still have previous value
+                start();
+            });
+
+            agent.submit(10);
+        });
+
         asyncTest("agent-promise-reject-event-emitting", 3, function() {
             var agent = µ.newAgent();
 
             agent.on("submit", function(context) {
-                ok(context, agent);
+                equal(context, agent);
             });
             agent.on("reject", function(err, context) {
-                ok(err, "whoops!");
-                ok(context, agent);
+                equal(err, "whoops!");
+                equal(context, agent);
                 start();
             });
 
             agent.submit(function() {
                 return when.reject("whoops!");
             });
+        });
+
+        asyncTest("agent-fail-on-submit", 3, function() {
+            var agent = µ.newAgent(0);
+            agent.on("submit", function() {
+                throw new Error("whoops!");
+            }).on("fail", function(err, context) {
+                equal(err.message, "whoops!");
+                equal(context, agent);
+                equal(context.value(), 0);
+                start();
+            });
+            agent.submit(10);
+        });
+
+        asyncTest("agent-fail-on-update", 3, function() {
+            var agent = µ.newAgent(0);
+            agent.on("update", function() {
+                throw new Error("whoops!");
+            }).on("fail", function(err, context) {
+                equal(err.message, "whoops!");
+                equal(context, agent);
+                equal(context.value(), 10);
+                start();
+            });
+            agent.submit(10);
+        });
+
+        asyncTest("agent-fail-on-reject", 3, function() {
+            var agent = µ.newAgent(0);
+            agent.on("reject", function() {
+                throw new Error("whoops!");
+            }).on("fail", function(err, context) {
+                equal(err.message, "whoops!");
+                equal(context, agent);
+                equal(context.value(), 0);
+                start();
+            });
+            agent.submit(when.reject("darn it"));
         });
 
     </script>

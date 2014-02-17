@@ -14,7 +14,7 @@
     },
     "engine": "node >= 0.10.21",
     "dependencies": {
-        "underscore": "1.5.2",
+        "underscore": "1.6.0",
         "underscore.string": "2.3.3",
         "when": "2.6.0",
         "temp": "0.6.0",

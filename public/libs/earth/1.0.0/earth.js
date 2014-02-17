@@ -67,17 +67,16 @@
     }();
 
     function newAgent() {
-        return µ.newAgent().on("reject", report.error);
+        return µ.newAgent().on({"reject": report.error, "fail": report.error});
     }
 
     // Construct the page's main internal components:
 
     var configuration =
-        µ.buildConfiguration(globes, grids.overlayTypes);  // holds the page's current configuration settings
-    var inputController = buildInputController();          // interprets drag/zoom operations
+        µ.buildConfiguration(globes, products.overlayTypes);  // holds the page's current configuration settings
+    var inputController = buildInputController();             // interprets drag/zoom operations
     var meshAgent = newAgent();      // map data for the earth
     var globeAgent = newAgent();     // the model of the globe
-    var catalogAgent = newAgent();   // holds catalogs of available weather data
     var gridAgent = newAgent();      // the grid of weather data
     var rendererAgent = newAgent();  // the globe SVG renderer
     var fieldAgent = newAgent();     // the interpolated wind vector field
@@ -243,119 +242,35 @@
         return when(builder(view));
     }
 
-    /**
-     * @returns {Object} a promise for downloading catalogs of weather data available on the server.
-     */
-    function buildCatalogs() {
-        return µ.loadJson(grids.OSCAR_CATALOG).then(function(catalog) {
-            // The OSCAR catalog is an array of file names, sorted and prefixed with yyyyMMdd. Last item is the
-            // most recent. For example: [ 20140101-abc.json, 20140106-abc.json, 20140112-abc.json, ... ]
-            return { oscar: catalog };
+    function buildGrids() {
+        report.status("Downloading...");
+        log.time("build grids");
+        // UNDONE: upon failure to load a product, the unloaded product should still be stored in the agent.
+        //         this allows us to use the product for navigation and other state.
+        var cancel = this.cancel;
+        var loaded = when.map(products.productsFor(configuration.attributes), function(product) {
+            return product.load(cancel);
         });
-    }
-
-    /**
-     * @returns {Object} a promise for weather data catalogs, which are downloaded if not already available.
-     */
-    function getOrLoadCatalogs() {
-        // If we already have the catalogs, return them.
-        if (catalogAgent.value()) {
-            return when.resolve(catalogAgent.value());
-        }
-        // Begin downloading the catalogs and return a promise for their eventual availability.
-        // CONSIDER: here is a deficiency in the agent design. We want a promise for task completion,
-        //           but all we have is the update event. So need to translate manually.
-        var d = when.defer();
-        catalogAgent.submit(buildCatalogs).on("update", function handler(catalogs) {
-            d.resolve(catalogs);
+        return when.all(loaded).then(function(products) {
+            log.time("build grids");
+            return {primaryGrid: products[0], overlayGrid: products[1] || products[0]};
         });
-        return d.promise;
     }
 
     // Some hacky stuff to ensure only one layer can be downloaded at a time.
-    var nextId = 0;
-    var downloadsInProgress = {};
-
-    function buildGrid(layer, cancel) {
-        var id = nextId++;
-        var task = µ.loadJson(layer).then(function(data) {
-            if (cancel.requested) return null;
-            log.time("build grid");
-            var result = grids.buildGrid(data);
-            log.timeEnd("build grid");
-            return result;
-        }).ensure(function() { delete downloadsInProgress[id]; });
-
-        downloadsInProgress[id] = task;
-        return task;
-    }
-
-    function buildGrids() {
-        report.status("Downloading...");
-        var cancel = this.cancel;
-        return getOrLoadCatalogs().then(function(catalogs) {
-            var paths = grids.paths(configuration);
-            var primaryLayer = paths.primary(catalogs);  // get path to data on server for animation grid.
-            var overlayLayer = paths.overlay(catalogs);  // get path to data on server for overlay grid. might be same.
-            var tasks = [];
-            tasks.push(buildGrid(primaryLayer, cancel));
-            tasks.push(overlayLayer && overlayLayer !== primaryLayer ? buildGrid(overlayLayer, cancel) : tasks[0]);
-            return when.all(tasks).spread(function(primaryGrid, overlayGrid) {
-                return {primaryGrid: primaryGrid, overlayGrid: overlayGrid};
-            });
-        });
-    }
-
-    /**
-     * Modifies the configuration to navigate to the chronologically next or previous GFS data layer. How far
-     * forward or backward in time to jump is determined by the step. Steps of ±1 move in 3-hour jumps, and steps
-     * of ±10 move in 24-hour jumps.
-     */
-    function navigateWind(step) {
-        var timestamp = validityDate(gridAgent.value());
-        if (isFinite(timestamp)) {
-            // GFS forecast files are three hours apart.
-            timestamp += (step > 1 ? 8 : step < -1 ? -8 : step) * 3 * HOUR;
-            var date = new Date(timestamp), parts = date.toISOString().split(/[- T:]/);
-            configuration.save({date: µ.dateToUTCymd(date, "/"), hour: [parts[3], "00"].join("")});
-        }
-    }
-
-    /**
-     * Modifies the configuration to navigate to the chronologically next or previous OSCAR data layer. How far
-     * forward or backward in time to jump is determined by the step and the catalog of available layers. A step
-     * of ±1 moves to the next/previous entry in the catalog (about 5 days), and a step of ±10 moves to the entry
-     * six positions away (about 30 days).
-     *
-     * The OSCAR catalog is an array of file names, sorted and prefixed with yyyyMMdd. Last item is the most
-     * recent. For example: [ 20140101-abc.json, 20140106-abc.json, 20140112-abc.json, ... ]
-     *
-     * UNDONE: the catalog object itself should encapsulate this logic. GFS can also be a "virtual" catalog, and
-     *         provide a mechanism for eliminating the need for /data/weather/current/* files.
-     */
-    function navigateOscar(step) {
-        var timestamp = validityDate(gridAgent.value()), catalog = (catalogAgent.value() || {}).oscar;
-        if (isFinite(timestamp) && catalog) {
-            step = step > 1 ? 6 : step < -1 ? -6 : step;
-            var i = _.sortedIndex(catalog, µ.dateToUTCymd(new Date(timestamp), "")) + step, target = catalog[i];
-            if (target) {
-                configuration.save({ date: µ.ymdRedelimit(target, "", "/"), hour: "0000" });
-            }
-        }
-    }
+    var downloadsInProgress = {};  // UNDONE: move to products module
 
     /**
      * Modifies the configuration to navigate to the chronologically next or previous data layer.
      */
     function navigate(step) {
-        if (_.size(downloadsInProgress) > 0) {
+        if (_.size(downloadsInProgress) > 0) {  // UNDONE: correctly migrate downloadsInProgress
             log.debug("Download in progress--ignoring nav request.");
             return;
         }
-        // Behavior depends on the current mode.
-        switch (configuration.get("param")) {
-            case "wind": return navigateWind(step);
-            case "ocean": return navigateOscar(step);
+        var next = gridAgent.value().primaryGrid.navigate(step);
+        if (next) {
+            configuration.save(µ.dateToConfig(next));
         }
     }
 
@@ -546,7 +461,7 @@
         var projection = globe.projection;
         var bounds = globe.bounds(view);
         // How fast particles move on the screen (arbitrary value chosen for aesthetics).
-        var velocityScale = bounds.height * primaryGrid.recipe.particles.velocityScale;
+        var velocityScale = bounds.height * primaryGrid.particles.velocityScale;
 
         var columns = [];
         var point = [];
@@ -554,7 +469,7 @@
         var interpolate = primaryGrid.interpolate;
         var overlayInterpolate = overlayGrid.interpolate;
         var hasDistinctOverlay = primaryGrid !== overlayGrid;
-        var scale = overlayGrid.recipe.scale;
+        var scale = overlayGrid.scale;
 
         function interpolateColumn(x) {
             var column = [];
@@ -622,9 +537,8 @@
 
         var cancel = this.cancel;
         var bounds = globe.bounds(view);
-        var recipe = grids.primaryGrid.recipe;
         // maxIntensity is the velocity at which particle color intensity is maximum
-        var colorStyles = µ.windIntensityColorScale(INTENSITY_SCALE_STEP, recipe.particles.maxIntensity);
+        var colorStyles = µ.windIntensityColorScale(INTENSITY_SCALE_STEP, grids.primaryGrid.particles.maxIntensity);
         var buckets = colorStyles.map(function() { return []; });
         var particleCount = Math.round(bounds.width * PARTICLE_MULTIPLIER);
         if (µ.isMobile()) {
@@ -746,7 +660,7 @@
 
         if (grid) {
             // Draw color bar for reference.
-            var colorBar = d3.select("#scale"), recipe = grid.recipe, scale = recipe.scale, bounds = scale.bounds;
+            var colorBar = d3.select("#scale"), scale = grid.scale, bounds = scale.bounds;
             var c = colorBar.node(), g = c.getContext("2d"), n = c.width - 1;
             for (var i = 0; i <= n; i++) {
                 var rgb = scale.gradient(µ.spread(i / n, bounds[0], bounds[1]), 1);
@@ -759,8 +673,8 @@
                 var x = d3.mouse(this)[0];
                 var pct = µ.clamp((Math.round(x) - 2) / (n - 2), 0, 1);
                 var value = µ.spread(pct, bounds[0], bounds[1]);
-                var elementId = recipe.type === "wind" ? "#location-wind-units" : "#location-value-units";
-                var units = createUnitToggle(elementId, recipe).value();
+                var elementId = grid.type === "wind" ? "#location-wind-units" : "#location-value-units";
+                var units = createUnitToggle(elementId, grid).value();
                 colorBar.attr("title", µ.formatScalar(value, units) + " " + units.label);
             });
         }
@@ -768,6 +682,8 @@
 
     /**
      * Extract the date the grids are valid, or the current date if no grid is available.
+     * UNDONE: if the grids hold unloaded products, then the date can be extracted from them.
+     *         This function would simplify nicely.
      */
     function validityDate(grids) {
         // When the active layer is considered "current", use its time as now, otherwise use current time as
@@ -798,9 +714,9 @@
         showDate(grids);
         var description = "", center = "";
         if (grids) {
-            description = grids.primaryGrid.recipe.description;
+            description = grids.primaryGrid.description;
             if (grids.overlayGrid !== grids.primaryGrid) {
-                description += " + " + grids.overlayGrid.recipe.description;
+                description += " + " + grids.overlayGrid.description;
             }
             center = grids.overlayGrid.source;
         }
@@ -809,13 +725,13 @@
     }
 
     /**
-     * Constructs a toggler for the specified recipe's units, storing the toggle state on the element having
-     * the specified id. For example, given a recipe having units ["m/s", "mph"], the object returned by this
+     * Constructs a toggler for the specified product's units, storing the toggle state on the element having
+     * the specified id. For example, given a product having units ["m/s", "mph"], the object returned by this
      * method sets the element's "data-index" attribute to 0 for m/s and 1 for mph. Calling value() returns the
      * currently active units object. Calling next() increments the index.
      */
-    function createUnitToggle(id, recipe) {
-        var units = recipe.units, size = units.length;
+    function createUnitToggle(id, product) {
+        var units = product.units, size = units.length;
         var index = +(d3.select(id).attr("data-index") || 0) % size;
         return {
             value: function() {
@@ -830,24 +746,24 @@
     /**
      * Display the specified wind value. Allow toggling between the different types of wind units.
      */
-    function showWindAtLocation(wind, recipe) {
-        var unitToggle = createUnitToggle("#location-wind-units", recipe), units = unitToggle.value();
+    function showWindAtLocation(wind, product) {
+        var unitToggle = createUnitToggle("#location-wind-units", product), units = unitToggle.value();
         d3.select("#location-wind").text(µ.formatVector(wind, units));
         d3.select("#location-wind-units").text(units.label).on("click", function() {
             unitToggle.next();
-            showWindAtLocation(wind, recipe);
+            showWindAtLocation(wind, product);
         });
     }
 
     /**
      * Display the specified overlay value. Allow toggling between the different types of supported units.
      */
-    function showOverlayValueAtLocation(value, recipe) {
-        var unitToggle = createUnitToggle("#location-value-units", recipe), units = unitToggle.value();
+    function showOverlayValueAtLocation(value, product) {
+        var unitToggle = createUnitToggle("#location-value-units", product), units = unitToggle.value();
         d3.select("#location-value").text(µ.formatScalar(value, units));
         d3.select("#location-value-units").text(units.label).on("click", function() {
             unitToggle.next();
-            showOverlayValueAtLocation(value, recipe);
+            showOverlayValueAtLocation(value, product);
         });
     }
 
@@ -872,12 +788,12 @@
         if (field.isDefined(point[0], point[1]) && grids) {
             var wind = grids.primaryGrid.interpolate(λ, φ);
             if (µ.isValue(wind)) {
-                showWindAtLocation(wind, grids.primaryGrid.recipe);
+                showWindAtLocation(wind, grids.primaryGrid);
             }
             if (grids.overlayGrid !== grids.primaryGrid) {
                 var value = grids.overlayGrid.interpolate(λ, φ);
                 if (µ.isValue(value)) {
-                    showOverlayValueAtLocation(value, grids.overlayGrid.recipe);
+                    showOverlayValueAtLocation(value, grids.overlayGrid);
                 }
             }
         }
@@ -997,7 +913,7 @@
                     // Do a rebuild if we have no overlay grid.
                     rebuildRequired = true;
                 }
-                else if (overlay.recipe.type !== overlayType && !(overlayType === "default" && primary === overlay)) {
+                else if (overlay.type !== overlayType && !(overlayType === "default" && primary === overlay)) {
                     // Do a rebuild if the types are different.
                     rebuildRequired = true;
                 }
@@ -1094,20 +1010,20 @@
         d3.select("#enable-ocean-mode").on("click", function() {
             if (configuration.get("param") !== "ocean") {
                 // When switching between modes, there may be no associated data for the current date. So we need
-                // find the closest available according to the catalog.
-                var date = configuration.get("date"), catalog = (catalogAgent.value() || {}).oscar;
-                if (date !== "current" && catalog) {
-                    var i = _.sortedIndex(catalog, µ.ymdRedelimit(date, "/", ""));
-                    var e = µ.coalesce(catalog[i], _.last(catalog));  // use best match, or latest avail if none found.
-                    date = µ.ymdRedelimit(e, "", "/");
+                // find the closest available according to the catalog. This is not necessary if date is "current".
+                // UNDONE: this code is annoying. should be easier to get date for closest ocean product.
+                var ocean = {param: "ocean", surface: "surface", level: "currents", overlayType: "default"};
+                var attr = _.clone(configuration.attributes);
+                if (attr.date === "current") {
+                    configuration.save(ocean);
                 }
-                configuration.save({
-                    date: date,
-                    hour: date === "current" ? "" : "0000",
-                    param: "ocean",
-                    surface: "surface",
-                    level: "currents",
-                    overlayType: "default"});
+                else {
+                    when.all(products.productsFor(_.extend(attr, ocean))).spread(function(product) {
+                        if (product.date) {
+                            configuration.save(_.extend(ocean, µ.dateToConfig(product.date)));
+                        }
+                    }).otherwise(report.error);
+                }
                 stopCurrentAnimation(true);  // cleanup particle artifacts over continents
             }
         });
@@ -1131,7 +1047,7 @@
 
         // Add handlers for all wind level buttons.
         bindButtonToConfiguration("#surface", {param: "wind", surface: "surface", level: "level"});
-        grids.pressureLevels.forEach(function(pressure) {
+        products.pressureLevels.forEach(function(pressure) {
             bindButtonToConfiguration("#iso-" + pressure, {param: "wind", surface: "isobaric", level: pressure + "hPa"});
         });
 
@@ -1139,7 +1055,7 @@
         bindButtonToConfiguration("#animate-currents", {param: "ocean", surface: "surface", level: "currents"});
 
         // Add handlers for all overlay buttons.
-        grids.overlayTypes.forEach(function(type) {
+        products.overlayTypes.forEach(function(type) {
             bindButtonToConfiguration("#" + type, {overlayType: type});
         });
         bindButtonToConfiguration("#wind", {param: "wind", overlayType: "default"});
