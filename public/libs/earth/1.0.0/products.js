@@ -11,17 +11,16 @@ var products = function() {
 
     var WEATHER_PATH = "/data/weather";
     var OSCAR_PATH = "/data/oscar";
-    var OSCAR_CATALOG = [OSCAR_PATH, "catalog.json"].join("/");
     var catalogs = {
         // The OSCAR catalog is an array of file names, sorted and prefixed with yyyyMMdd. Last item is the
         // most recent. For example: [ 20140101-abc.json, 20140106-abc.json, 20140112-abc.json, ... ]
-        oscar: µ.loadJson(OSCAR_CATALOG)
+        oscar: µ.loadJson([OSCAR_PATH, "catalog.json"].join("/"))
     }
 
     function buildProduct(overrides) {
         return _.extend({
             description: "",
-            paths: [],  // a product's paths may be promises when catalog is on server
+            paths: [],
             date: null,
             navigate: function(step) {
                 return gfsStep(this.date, step);
@@ -154,8 +153,8 @@ var products = function() {
                         }
                     },
                     units: [
-                        {label: "ºC", conversion: function(x) { return x - 273.15; },       precision: 1},
-                        {label: "ºF", conversion: function(x) { return x * 9/5 - 459.67; }, precision: 1},
+                        {label: "°C", conversion: function(x) { return x - 273.15; },       precision: 1},
+                        {label: "°F", conversion: function(x) { return x * 9/5 - 459.67; }, precision: 1},
                         {label: "K",  conversion: function(x) { return x; },                precision: 1}
                     ],
                     scale: {

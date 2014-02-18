@@ -98,7 +98,7 @@ implementation notes
 
 Building this project required solutions to some interesting problems. Here are a few:
 
-   * The GFS grid has a resolution of 1º. Intermediate points are interpolated in the browser using [bilinear
+   * The GFS grid has a resolution of 1°. Intermediate points are interpolated in the browser using [bilinear
      interpolation](http://en.wikipedia.org/wiki/Bilinear_interpolation). This operation is quite costly.
    * Each type of projection warps and distorts the earth in a particular way, and the degree of distortion must
      be calculated for each point (x, y) to ensure wind particle paths are rendered correctly. For example,

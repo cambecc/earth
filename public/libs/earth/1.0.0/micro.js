@@ -10,7 +10,7 @@ var µ = function() {
     "use strict";
 
     var τ = 2 * Math.PI;
-    var H = 0.000360;  // 0.000360ºφ ~= 40m
+    var H = 0.000360;  // 0.000360°φ ~= 40m
     var DEFAULT_CONFIG = "current/wind/surface/level/orthographic";
     var TOPOLOGY = isMobile() ? "/data/earth-topo-mobile.json?v2" : "/data/earth-topo.json?v2";
 
@@ -287,8 +287,8 @@ var µ = function() {
      * Returns a human readable string for the provided coordinates.
      */
     function formatCoordinates(λ, φ) {
-        return Math.abs(φ).toFixed(2) + "º " + (φ >= 0 ? "N" : "S") + ", " +
-            Math.abs(λ).toFixed(2) + "º " + (λ >= 0 ? "E" : "W");
+        return Math.abs(φ).toFixed(2) + "° " + (φ >= 0 ? "N" : "S") + ", " +
+            Math.abs(λ).toFixed(2) + "° " + (λ >= 0 ? "E" : "W");
     }
 
     /**
@@ -305,7 +305,7 @@ var µ = function() {
     function formatVector(wind, units) {
         var d = Math.atan2(-wind[0], -wind[1]) / τ * 360;  // calculate into-the-wind cardinal degrees
         var wd = Math.round((d + 360) % 360 / 5) * 5;  // shift [-180, 180] to [0, 360], and round to nearest 5.
-        return wd.toFixed(0) + "º @ " + formatScalar(wind[2], units);
+        return wd.toFixed(0) + "° @ " + formatScalar(wind[2], units);
     }
 
     /**
@@ -353,7 +353,7 @@ var µ = function() {
         var pλ = projection([λ + hλ, φ]);
         var pφ = projection([λ, φ + hφ]);
 
-        // Meridian scale factor (see Snyder, equation 4-3), where R = 1. This handles issue where length of 1º λ
+        // Meridian scale factor (see Snyder, equation 4-3), where R = 1. This handles issue where length of 1° λ
         // changes depending on φ. Without this, there is a pinching effect at the poles.
         var k = Math.cos(φ / 360 * τ);
 
