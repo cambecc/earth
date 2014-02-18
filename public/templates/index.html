@@ -6,14 +6,14 @@
 <html itemscope itemtype="http://schema.org/Map" prefix="og: http://ogp.me/ns# fb: http://ogp.me/ns/fb#">
 <head>
     <meta charset="utf-8"/>
-    <title>earth wind map</title>
+    <title>earth :: an animated map of global wind and weather</title>
     <meta itemprop="name"                                      content="{{__('earth')}}"/>
-    <meta itemprop="description"     name="description"        content="{{__('an animated map of global weather conditions')}}"/>
+    <meta itemprop="description"     name="description"        content="{{__('an animated map of global wind and weather')}}"/>
     <meta itemprop="author"          name="author"             content="Cameron Beccario"/>
 
     <meta property="og:type"        content="website"/>
     <meta property="og:title"       content="{{__('earth')}}"/>
-    <meta property="og:description" content="{{__('An animated map of global weather conditions. Visit the community at https://www.facebook.com/EarthWindMap')}}"/>
+    <meta property="og:description" content="{{__('An animated map of global wind and weather. Visit the community at https://www.facebook.com/EarthWindMap')}}"/>
     <meta property="og:url"         content="http://earth.nullschool.net"/>
     <meta property="og:image"       content="http://earth.nullschool.net/preview.jpg"/>
     <meta property="fb:admins"      content="510217216"/>
@@ -85,14 +85,14 @@
                 class="text-button" id="enable-ocean-mode">{{__('Ocean')}}</span>
             </p>
             <p class="wind-mode">{{__('Height')}} | <span
-                class="text-button" id="surface" title="{{__('Surface')}}">{{__('Sfc')}}</span> – <span
-                class="text-button" id="iso-1000">1000</span> – <span
-                class="text-button" id="iso-850">850</span> – <span
-                class="text-button" id="iso-700">700</span> – <span
-                class="text-button" id="iso-500">500</span> – <span
-                class="text-button" id="iso-250">250</span> – <span
-                class="text-button" id="iso-70">70</span> – <span
-                class="text-button" id="iso-10">10</span> hPa
+                class="surface text-button" id="surface-level" title="{{__('Surface')}}">{{__('Sfc')}}</span> – <span
+                class="surface text-button" id="isobaric-1000hPa">1000</span> – <span
+                class="surface text-button" id="isobaric-850hPa">850</span> – <span
+                class="surface text-button" id="isobaric-700hPa">700</span> – <span
+                class="surface text-button" id="isobaric-500hPa">500</span> – <span
+                class="surface text-button" id="isobaric-250hPa">250</span> – <span
+                class="surface text-button" id="isobaric-70hPa">70</span> – <span
+                class="surface text-button" id="isobaric-10hPa">10</span> hPa
             </p>
             <p class="wind-mode">{{__('Overlay')}} | <span
                 class="text-button" id="off">{{__('None')}}</span> – <span

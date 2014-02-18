@@ -1046,9 +1046,9 @@
         });
 
         // Add handlers for all wind level buttons.
-        bindButtonToConfiguration("#surface", {param: "wind", surface: "surface", level: "level"});
-        products.pressureLevels.forEach(function(pressure) {
-            bindButtonToConfiguration("#iso-" + pressure, {param: "wind", surface: "isobaric", level: pressure + "hPa"});
+        d3.selectAll(".surface").each(function() {
+            var id = this.id, parts = id.split("-");
+            bindButtonToConfiguration("#" + id, {param: "wind", surface: parts[0], level: parts[1]});
         });
 
         // Add handlers for ocean animation types.

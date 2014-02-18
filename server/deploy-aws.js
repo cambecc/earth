@@ -37,7 +37,7 @@ console.log(new Date().toISOString() + " - Starting");
     "libs/d3.geo/0.0.0/d3.geo.projection.v0.min.js",
     "libs/earth/1.0.0/earth.js",
     "libs/earth/1.0.0/globes.js",
-    "libs/earth/1.0.0/grids.js",
+    "libs/earth/1.0.0/products.js",
     "libs/earth/1.0.0/micro.js",
     "libs/when/2.6.0/when.js"
 
