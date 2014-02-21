@@ -10,7 +10,7 @@ var µ = function() {
     "use strict";
 
     var τ = 2 * Math.PI;
-    var H = 0.000360;  // 0.000360°φ ~= 40m
+    var H = 0.0000360;  // 0.0000360°φ ~= 4m
     var DEFAULT_CONFIG = "current/wind/surface/level/orthographic";
     var TOPOLOGY = isMobile() ? "/data/earth-topo-mobile.json?v2" : "/data/earth-topo.json?v2";
 
