@@ -58,7 +58,8 @@
                 <span id="location-value-units" class="text-button"></span>
             </p>
         </div>
-        <p id="start-button">
+        <p id="earth" class="invisible"></p>
+        <p id="earth-button">
             <span id="show-menu" class="text-button" title="menu">{{__('earth')}}</span>
             <span id="progress" class="invisible"></span>
         </p>
@@ -81,8 +82,8 @@
                 class="text-button" id="option-show-grid" title="{{__('Toggle Grid')}}">{{__('Grid')}}</span>
             </p>
             <p>{{__('Mode')}} | <span
-                class="text-button" id="enable-wind-mode">{{__('Wind')}}</span> – <span
-                class="text-button" id="enable-ocean-mode">{{__('Ocean')}}</span>
+                class="text-button" id="wind-mode-enable">{{__('Wind')}}</span> – <span
+                class="text-button" id="ocean-mode-enable">{{__('Ocean')}}</span>
             </p>
             <p class="wind-mode">{{__('Height')}} | <span
                 class="surface text-button" id="surface-level" title="{{__('Surface')}}">{{__('Sfc')}}</span> – <span
@@ -95,19 +96,19 @@
                 class="surface text-button" id="isobaric-10hPa">10</span> hPa
             </p>
             <p class="wind-mode">{{__('Overlay')}} | <span
-                class="text-button" id="off">{{__('None')}}</span> – <span
-                class="text-button" id="wind" title="{{__('Wind Speed')}}">{{__('Wind')}}</span> – <span
-                class="text-button" id="temp" title="{{__('Temperature')}}">{{__('Temp')}}</span> – <span
-                class="text-button" id="total_precipitable_water" title="{{__('Total Precipitable Water')}}">{{__('TPW')}}</span> – <span
-                class="text-button" id="total_cloud_water" title="{{__('Total Cloud Water')}}">{{__('TCW')}}</span> – <span
-                class="text-button" id="mean_sea_level_pressure" title="{{__('Mean Sea Level Pressure')}}">{{__('MSLP')}}</span>
+                class="text-button" id="overlay-off">{{__('None')}}</span> – <span
+                class="text-button" id="overlay-wind" title="{{__('Wind Speed')}}">{{__('Wind')}}</span> – <span
+                class="text-button" id="overlay-temp" title="{{__('Temperature')}}">{{__('Temp')}}</span> – <span
+                class="text-button" id="overlay-total_precipitable_water" title="{{__('Total Precipitable Water')}}">{{__('TPW')}}</span> – <span
+                class="text-button" id="overlay-total_cloud_water" title="{{__('Total Cloud Water')}}">{{__('TCW')}}</span> – <span
+                class="text-button" id="overlay-mean_sea_level_pressure" title="{{__('Mean Sea Level Pressure')}}">{{__('MSLP')}}</span>
             </p>
             <p class="ocean-mode invisible">{{__('Animate')}} | <span
                 class="text-button" id="animate-currents" title="{{__('Currents')}}">{{__('Currents')}}</span>
             </p>
             <p class="ocean-mode invisible">{{__('Overlay')}} | <span
-                class="text-button" id="ocean-off">{{__('None')}}</span> – <span
-                class="text-button" id="currents" title="{{__('Currents')}}">{{__('Currents')}}</span>
+                class="text-button" id="overlay-ocean-off">{{__('None')}}</span> – <span
+                class="text-button" id="overlay-currents" title="{{__('Currents')}}">{{__('Currents')}}</span>
             </p>
             <p>{{__('Projection')}} | <span
                 class="proj text-button" id="atlantis" title="{{__('Atlantis')}}">A</span> – <span

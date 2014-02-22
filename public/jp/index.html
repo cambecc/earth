@@ -54,7 +54,8 @@
                 <span id="location-value-units" class="text-button"></span>
             </p>
         </div>
-        <p id="start-button">
+        <p id="earth" class="invisible"></p>
+        <p id="earth-button">
             <span id="show-menu" class="text-button" title="menu">地球</span>
             <span id="progress" class="invisible"></span>
         </p>
@@ -77,8 +78,8 @@
                 class="text-button" id="option-show-grid" title="Toggle Grid">グリッド</span>
             </p>
             <p>モード | <span
-                class="text-button" id="enable-wind-mode">風速</span> – <span
-                class="text-button" id="enable-ocean-mode">海</span>
+                class="text-button" id="wind-mode-enable">風速</span> – <span
+                class="text-button" id="ocean-mode-enable">海</span>
             </p>
             <p class="wind-mode">高度 | <span
                 class="surface text-button" id="surface-level" title="地上">地上</span> – <span
@@ -91,19 +92,19 @@
                 class="surface text-button" id="isobaric-10hPa">10</span> hPa
             </p>
             <p class="wind-mode">レイヤー | <span
-                class="text-button" id="off">無</span> – <span
-                class="text-button" id="wind" title="風速">風速</span> – <span
-                class="text-button" id="temp" title="気温">気温</span> – <span
-                class="text-button" id="total_precipitable_water" title="可降水量">可降水量</span> – <span
-                class="text-button" id="total_cloud_water" title="雲水量">雲水量</span> – <span
-                class="text-button" id="mean_sea_level_pressure" title="海面更正気圧">海面更正</span>
+                class="text-button" id="overlay-off">無</span> – <span
+                class="text-button" id="overlay-wind" title="風速">風速</span> – <span
+                class="text-button" id="overlay-temp" title="気温">気温</span> – <span
+                class="text-button" id="overlay-total_precipitable_water" title="可降水量">可降水量</span> – <span
+                class="text-button" id="overlay-total_cloud_water" title="雲水量">雲水量</span> – <span
+                class="text-button" id="overlay-mean_sea_level_pressure" title="海面更正気圧">海面更正</span>
             </p>
             <p class="ocean-mode invisible">動画 | <span
                 class="text-button" id="animate-currents" title="海流">海流</span>
             </p>
             <p class="ocean-mode invisible">レイヤー | <span
-                class="text-button" id="ocean-off">無</span> – <span
-                class="text-button" id="currents" title="海流">海流</span>
+                class="text-button" id="overlay-ocean-off">無</span> – <span
+                class="text-button" id="overlay-currents" title="海流">海流</span>
             </p>
             <p>投影法 | <span
                 class="proj text-button" id="atlantis" title="アトランティス">A</span> – <span

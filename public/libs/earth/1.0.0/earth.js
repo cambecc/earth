@@ -999,15 +999,15 @@
         });
 
         // Add handlers for mode buttons.
-        d3.select("#enable-wind-mode").on("click", function() {
+        d3.select("#wind-mode-enable").on("click", function() {
             if (configuration.get("param") !== "wind") {
                 configuration.save({param: "wind", surface: "surface", level: "level", overlayType: "default"});
             }
         });
         configuration.on("change:param", function(x, param) {
-            d3.select("#enable-wind-mode").classed("enabled", param === "wind");
+            d3.select("#wind-mode-enable").classed("enabled", param === "wind");
         });
-        d3.select("#enable-ocean-mode").on("click", function() {
+        d3.select("#ocean-mode-enable").on("click", function() {
             if (configuration.get("param") !== "ocean") {
                 // When switching between modes, there may be no associated data for the current date. So we need
                 // find the closest available according to the catalog. This is not necessary if date is "current".
@@ -1028,7 +1028,7 @@
             }
         });
         configuration.on("change:param", function(x, param) {
-            d3.select("#enable-ocean-mode").classed("enabled", param === "ocean");
+            d3.select("#ocean-mode-enable").classed("enabled", param === "ocean");
         });
 
         // Add event handlers for the time navigation buttons.
@@ -1056,11 +1056,11 @@
 
         // Add handlers for all overlay buttons.
         products.overlayTypes.forEach(function(type) {
-            bindButtonToConfiguration("#" + type, {overlayType: type});
+            bindButtonToConfiguration("#overlay-" + type, {overlayType: type});
         });
-        bindButtonToConfiguration("#wind", {param: "wind", overlayType: "default"});
-        bindButtonToConfiguration("#ocean-off", {overlayType: "off"});
-        bindButtonToConfiguration("#currents", {overlayType: "default"});
+        bindButtonToConfiguration("#overlay-wind", {param: "wind", overlayType: "default"});
+        bindButtonToConfiguration("#overlay-ocean-off", {overlayType: "off"});
+        bindButtonToConfiguration("#overlay-currents", {overlayType: "default"});
 
         // Add handlers for all projection buttons.
         globes.keys().forEach(function(p) {
