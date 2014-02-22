@@ -1,5 +1,5 @@
 /**
- * dev-server - serves static resources locally for developing "earth"
+ * dev-server - serves static resources for developing "earth" locally
  */
 
 "use strict";
@@ -8,13 +8,12 @@ console.log("============================================================");
 console.log(new Date().toISOString() + " - Starting");
 
 var util = require("util");
-var tool = require("./tool");
 
 /**
  * Returns true if the response should be compressed.
  */
 function compressionFilter(req, res) {
-    return tool.isCompressionRequired(res.getHeader('Content-Type'));
+    return (/json|text|javascript|font/).test(res.getHeader('Content-Type'));
 }
 
 /**
@@ -22,7 +21,7 @@ function compressionFilter(req, res) {
  */
 function cacheControl() {
     return function(req, res, next) {
-        res.setHeader("Cache-Control", tool.cacheControl(req.url));
+        res.setHeader("Cache-Control", "public, max-age=300");
         return next();
     };
 }
@@ -39,7 +38,6 @@ function logger() {
     });
     return express.logger(
         ':date - info: :remote-addr :req[cf-connecting-ip] :req[cf-ipcountry] :method :url HTTP/:http-version ' +
-//      '":user-agent" :referrer :req[cf-ray] :req[accept-encoding]');
         '":user-agent" :referrer :req[cf-ray] :req[accept-encoding]\\n:request-all\\n\\n:response-all\\n');
 }
 
@@ -50,7 +48,7 @@ var app = express();
 app.use(cacheControl());
 app.use(express.compress({filter: compressionFilter}));
 app.use(logger());
-app.use(express.static("../public"));
+app.use(express.static("public"));
 
 app.listen(port);
 console.log("Listening on port " + port + "...");

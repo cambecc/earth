@@ -13,9 +13,51 @@
 "use strict";
 
 var fs = require("fs");
+var path = require("path");
 var when = require("when");
 var guard = require('when/guard');
-var tool = require("./tool");
+
+/**
+ * Recursively walks a directory, invoking onFile for each file found.
+ *
+ * @param dir the starting directory of the walk
+ * @param onFile a callback function(err, file, name, dir, stats) where file is the path of the file relative to
+ *               the start of the walk, name is the name of the file, dir is the directory containing the
+ *               the file, and stats is the fs.Stats object for the file. If the file is a directory, the callback
+ *               can return true to skip walking the contents of the directory.
+ */
+function walk(dir, onFile) {
+    var d = when.defer();
+    var pending = 1;
+
+    function visit(dir, name) {
+        var file = path.join(dir, name);
+        fs.stat(file, function(err, stats) {
+            var abort = onFile(err, file, name, dir, stats);
+            if (!abort && stats && stats.isDirectory()) {
+                return expand(file);
+            }
+            if (!--pending) {
+                d.resolve();
+            }
+        });
+    }
+
+    function expand(dir) {
+        fs.readdir(dir, function(err, names) {
+            pending += names.length;
+            names.forEach(function(name) {
+                visit(dir, name);
+            });
+            if (!--pending) {
+                d.resolve();
+            }
+        });
+    }
+
+    expand(dir);
+    return d.promise;
+}
 
 var inspections = [];
 var existingChars = {};
@@ -61,7 +103,7 @@ function onFile(err, file, name, dir, stats) {
 }
 
 inspect(existingChars, "characters.txt").then(function() {
-    return tool.walk("../public", onFile).then(function() {
+    return walk("public", onFile).then(function() {
         return when.all(inspections).then(function() {
             var n = 0, keys = Object.keys(uniqueChars);
             keys.sort();

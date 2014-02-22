@@ -14,20 +14,12 @@
     },
     "engine": "node >= 0.10.21",
     "dependencies": {
-        "underscore": "1.6.0",
-        "underscore.string": "2.3.3",
         "when": "2.6.0",
-        "temp": "0.6.0",
-        "aws-sdk": "1.12.0",
-        "express": "3.4.4",
-        "winston": "0.7.2",
+        "swig": "1.2.2",
         "mkdirp": "0.3.5",
-        "htmlparser": "1.7.6",
-        "optimist": "0.6.0",
-        "swig": "1.2.2"
+        "express": "3.4.4"
     },
     "devDependencies": {
-        "nodeunit": "0.8.2",
         "grunt": "~0.4.1",
         "grunt-contrib-jshint": "~0.7.1"
     }

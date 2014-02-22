@@ -18,9 +18,9 @@ var fs = require("fs");
 var path = require("path");
 var swig = require("swig");
 var mkdirp = require("mkdirp");
-var dictionary = require("../public/templates/il8n.json");
+var dictionary = require("./public/templates/il8n.json");
 
-var templateDir = "../public/templates";
+var templateDir = "public/templates";
 
 var templates = [
     "index.html",
@@ -28,8 +28,8 @@ var templates = [
 ];
 
 var languages = [
-    {code: "en", target: "../public"},
-    {code: "ja", target: "../public/jp"}  // *lang* code for Japanese is JA not JP. Too late now. Site already public.
+    {code: "en", target: "public"},
+    {code: "ja", target: "public/jp"}  // *lang* code for Japanese is JA not JP. Too late now. Site already public.
 ];
 
 function newContext(languageCode) {

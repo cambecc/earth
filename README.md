@@ -3,15 +3,6 @@ earth
 
 "earth" is a project to visualize global weather conditions.
 
-The main components of the project are:
-
-   * a script to download and process [Global Forecast System](http://www.emc.ncep.noaa.gov/index.php?branch=GFS)
-     weather data in GRIB2 format from the National Centers for Environmental Prediction, NOAA / National Weather
-     Service.
-   * a GRIB2 to JSON converter (see the [grib2json](https://github.com/cambecc/grib2json) project).
-   * scripts to push site files to [Amazon S3](http://aws.amazon.com/s3/) for static hosting.
-   * a browser app that interpolates the data and renders an animated wind map.
-
 An instance of "earth" is available at http://earth.nullschool.net. It is currently hosted by Amazon S3 and
 fronted by [CloudFlare](https://www.cloudflare.com).
 
@@ -30,7 +21,6 @@ After installing node.js and npm, clone "earth" and install dependencies:
 
 Next, launch the development web server:
 
-    cd server
     node dev-server.js 8080
 
 Finally, point your browser to:
