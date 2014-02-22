@@ -163,7 +163,7 @@
             }
         }, MOVE_END_WAIT);  // wait for a bit to decide if user has stopped moving the globe
 
-        d3.select("#details").call(zoom);
+        d3.select("#display").call(zoom);
         d3.select("#show-location").on("click", function() {
             if (navigator.geolocation) {
                 report.status("Finding current position...");
@@ -361,7 +361,7 @@
         var context = globe.defineMask(canvas.getContext("2d"));
         context.fillStyle = "rgba(255, 0, 0, 1)";
         context.fill();
-        // d3.select("#details").node().appendChild(canvas);  // make mask visible for debugging
+        // d3.select("#display").node().appendChild(canvas);  // make mask visible for debugging
 
         var imageData = context.getImageData(0, 0, width, height);
         var data = imageData.data;  // layout: [r, g, b, a, r, g, b, a, ...]
@@ -871,7 +871,7 @@
 
         if (µ.isFF()) {
             // Workaround FF performance issue of slow click behavior on map having thick coastlines.
-            d3.select("#details").classed("firefox", true);
+            d3.select("#display").classed("firefox", true);
         }
 
         // Tweak document to distinguish CSS styling between touch and non-touch environments. Hacky hack.

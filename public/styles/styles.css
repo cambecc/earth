@@ -69,7 +69,7 @@ body {
     left: 2%;
 }
 
-#details {
+#display {
     cursor: default;
 }
 
@@ -98,14 +98,14 @@ body {
     text-decoration: none;
 }
 
-#display {
+#details {
     position: absolute;
     bottom: 3%;
     left: 2%;
     pointer-events: none;  /* This div is just a container--do not let it interfere with operation of the map. */
 }
 
-#earth-button {
+#earth {
     font-size: 2.4rem;
 }
 
@@ -113,7 +113,7 @@ body {
     font-size: 1.75rem;
 }
 
-#status, #location, #earth-button {
+#status, #location, #earth {
     background-color: rgba(0, 0, 5, 0.6);
     border-radius: 0.5rem/0.5rem;
     display: table;
