@@ -69,7 +69,7 @@ body {
     left: 2%;
 }
 
-#display {
+#details {
     cursor: default;
 }
 
@@ -98,7 +98,7 @@ body {
     text-decoration: none;
 }
 
-#details {
+#display {
     position: absolute;
     bottom: 3%;
     left: 2%;
