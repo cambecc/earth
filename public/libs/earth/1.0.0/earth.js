@@ -242,29 +242,32 @@
         return when(builder(view));
     }
 
+    // Some hacky stuff to ensure only one download can be in progress at a time.
+    var downloadsInProgress = 0;
+
     function buildGrids() {
         report.status("Downloading...");
         log.time("build grids");
         // UNDONE: upon failure to load a product, the unloaded product should still be stored in the agent.
         //         this allows us to use the product for navigation and other state.
         var cancel = this.cancel;
+        downloadsInProgress++;
         var loaded = when.map(products.productsFor(configuration.attributes), function(product) {
             return product.load(cancel);
         });
         return when.all(loaded).then(function(products) {
             log.time("build grids");
             return {primaryGrid: products[0], overlayGrid: products[1] || products[0]};
+        }).ensure(function() {
+            downloadsInProgress--;
         });
     }
-
-    // Some hacky stuff to ensure only one layer can be downloaded at a time.
-    var downloadsInProgress = {};  // UNDONE: move to products module
 
     /**
      * Modifies the configuration to navigate to the chronologically next or previous data layer.
      */
     function navigate(step) {
-        if (_.size(downloadsInProgress) > 0) {  // UNDONE: correctly migrate downloadsInProgress
+        if (downloadsInProgress > 0) {
             log.debug("Download in progress--ignoring nav request.");
             return;
         }
@@ -301,6 +304,8 @@
         function drawLocationMark(point, coord) {
             // show the location on the map if defined
             if (fieldAgent.value() && !fieldAgent.value().isInsideBoundary(point[0], point[1])) {
+                // UNDONE: Sometimes this is invoked on an old, released field, because new one has not been
+                //         built yet, causing the mark to not get drawn.
                 return;  // outside the field boundary, so ignore.
             }
             if (coord && _.isFinite(coord[0]) && _.isFinite(coord[1])) {
@@ -406,7 +411,7 @@
          */
         field.isDefined = function(x, y) {
             return field(x, y)[2] !== null;
-        }
+        };
 
         /**
          * @returns {boolean} true if the point (x, y) lies inside the outer boundary of the vector field, even if
@@ -415,12 +420,12 @@
          */
         field.isInsideBoundary = function(x, y) {
             return field(x, y) !== NULL_WIND_VECTOR;
-        }
+        };
 
         // Frees the massive "columns" array for GC. Without this, the array is leaked (in Chrome) each time a new
         // field is interpolated because the field closure's context is leaked, for reasons that defy explanation.
         field.release = function() {
-            columns = null;
+            columns = [];
         };
 
         field.randomize = function(o) {  // UNDONE: this method is terrible

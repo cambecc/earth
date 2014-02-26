@@ -15,7 +15,7 @@ var products = function() {
         // The OSCAR catalog is an array of file names, sorted and prefixed with yyyyMMdd. Last item is the
         // most recent. For example: [ 20140101-abc.json, 20140106-abc.json, 20140112-abc.json, ... ]
         oscar: µ.loadJson([OSCAR_PATH, "catalog.json"].join("/"))
-    }
+    };
 
     function buildProduct(overrides) {
         return _.extend({
@@ -500,7 +500,7 @@ var products = function() {
                 return null;
             }
         }
-    }
+    };
 
     /**
      * Returns the file name for the most recent OSCAR data layer to the specified date. If offset is non-zero,
@@ -550,6 +550,7 @@ var products = function() {
     }
 
     function dataSource(header) {
+        // noinspection FallthroughInSwitchStatementJS
         switch (header.center || header.centerName) {
             case -3:
                 return "OSCAR / Earth & Space Research";
