@@ -1,6 +1,8 @@
 earth
 =====
 
+**NOTE: the location of `dev-server.js` has changed from `{repository}/server/` to `{repository}/`**
+
 "earth" is a project to visualize global weather conditions.
 
 An instance of "earth" is available at http://earth.nullschool.net. It is currently hosted by Amazon S3 and
