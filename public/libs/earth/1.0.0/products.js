@@ -259,9 +259,9 @@ var products = function() {
                         {label: "kg/m³", conversion: function(x) { return x; }, precision: 2}
                     ],
                     scale: {
-                        bounds: [0, 3],
+                        bounds: [0, 1.5],
                         gradient: function(v, a) {
-                            return µ.sinebowColor(Math.min(v, 3) / 3, a);
+                            return µ.sinebowColor(Math.min(v, 1.5) / 1.5, a);
                         }
                     }
                 });
