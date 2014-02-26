@@ -24,7 +24,7 @@ html, body, div, span, h1, h2, h3, h4, h5, h6, p, a, svg, canvas {
     -webkit-font-smoothing: subpixel-antialiased; /* safari disables subpixel antialiasing for some reason */
 }
 
-@media (max-width: 825px), (max-height: 570px) {
+@media (max-width: 825px), (max-height: 700px) {
     html, body, div, span, h1, h2, h3, h4, h5, h6, p, a, svg, canvas {
         font-size: 0.8em;
     }

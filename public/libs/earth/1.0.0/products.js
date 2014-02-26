@@ -101,7 +101,6 @@ var products = function() {
         return function(langCode) {
             var result = {};
             _.each(table, function(value, key) {
-                console.log("KV:", key, value);
                 result[key] = value[langCode] || value.en || value;
             });
             return result;

@@ -298,6 +298,25 @@
         var lakes = d3.select(".lakes");
         d3.selectAll("path").attr("d", path);  // do an initial draw -- fixes issue with safari
 
+        function drawLocationMark(point, coord) {
+            // show the location on the map if defined
+            if (fieldAgent.value() && !fieldAgent.value().isInsideBoundary(point[0], point[1])) {
+                return;  // outside the field boundary, so ignore.
+            }
+            if (coord && _.isFinite(coord[0]) && _.isFinite(coord[1])) {
+                var mark = d3.select(".location-mark");
+                if (!mark.node()) {
+                    mark = d3.select("#foreground").append("path").attr("class", "location-mark");
+                }
+                mark.datum({type: "Point", coordinates: coord}).attr("d", path);
+            }
+        }
+
+        // Draw the location mark if one is currently visible.
+        if (activeLocation.point && activeLocation.coord) {
+            drawLocationMark(activeLocation.point, activeLocation.coord);
+        }
+
         // Throttled draw method helps with slow devices that would get overwhelmed by too many redraw events.
         var REDRAW_WAIT = 5;  // milliseconds
         var doDraw_throttled = _.throttle(doDraw, REDRAW_WAIT, {leading: false});
@@ -325,19 +344,7 @@
                     d3.selectAll("path").attr("d", path);
                     rendererAgent.trigger("render");
                 },
-                click: function(point, coord) {
-                    // show the point on the map if defined
-                    if (fieldAgent.value() && !fieldAgent.value().isInsideBoundary(point[0], point[1])) {
-                        return;  // outside the field boundary, so ignore.
-                    }
-                    if (coord && _.isFinite(coord[0]) && _.isFinite(coord[1])) {
-                        var mark = d3.select(".location-mark");
-                        if (!mark.node()) {
-                            mark = d3.select("#foreground").append("path").attr("class", "location-mark");
-                        }
-                        mark.datum({type: "Point", coordinates: coord}).attr("d", path);
-                    }
-                }
+                click: drawLocationMark
             });
 
         // Finally, inject the globe model into the input controller. Do it on the next event turn to ensure
@@ -770,18 +777,25 @@
         });
     }
 
+    // Stores the point and coordinate of the currently visible location. This is used to update the location
+    // details when the field changes.
+    var activeLocation = {};
+
     /**
      * Display a local data callout at the given [x, y] point and its corresponding [lon, lat] coordinates.
      * The location may not be valid, in which case no callout is displayed. Display location data for both
      * the primary grid and overlay grid, performing interpolation when necessary.
      */
     function showLocationDetails(point, coord) {
+        point = point || [];
+        coord = coord || [];
         var grids = gridAgent.value(), field = fieldAgent.value(), λ = coord[0], φ = coord[1];
         if (!field || !field.isInsideBoundary(point[0], point[1])) {
             return;
         }
 
-        clearLocationDetails();
+        clearLocationDetails(false);  // clean the slate
+        activeLocation = {point: point, coord: coord};  // remember where the current location is
 
         if (_.isFinite(λ) && _.isFinite(φ)) {
             d3.select("#location-coord").text(µ.formatCoordinates(λ, φ));
@@ -802,14 +816,21 @@
         }
     }
 
-    function clearLocationDetails() {
+    function updateLocationDetails() {
+        showLocationDetails(activeLocation.point, activeLocation.coord);
+    }
+
+    function clearLocationDetails(clearEverything) {
         d3.select("#location-coord").text("");
         d3.select("#location-close").classed("invisible", true);
         d3.select("#location-wind").text("");
         d3.select("#location-wind-units").text("");
         d3.select("#location-value").text("");
         d3.select("#location-value-units").text("");
-        d3.select(".location-mark").remove();
+        if (clearEverything) {
+            activeLocation = {};
+            d3.select(".location-mark").remove();
+        }
     }
 
     function stopCurrentAnimation(alsoClearCanvas) {
@@ -978,11 +999,10 @@
             }
         });
 
-        // Add event handlers for showing and removing location details.
+        // Add event handlers for showing, updating, and removing location details.
         inputController.on("click", showLocationDetails);
-        gridAgent.on("update", clearLocationDetails);
-        rendererAgent.on("update", clearLocationDetails);
-        d3.select("#location-close").on("click", clearLocationDetails);
+        fieldAgent.on("update", updateLocationDetails);
+        d3.select("#location-close").on("click", _.partial(clearLocationDetails, true));
 
         // Modify menu depending on what mode we're in.
         configuration.on("change:param", function(context, mode) {
