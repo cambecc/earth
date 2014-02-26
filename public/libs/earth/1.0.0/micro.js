@@ -88,6 +88,13 @@ var µ = function() {
     }
 
     /**
+     * @returns {String} the specified string with the first letter capitalized.
+     */
+    function capitalize(s) {
+        return s.length === 0 ? s : s.charAt(0).toUpperCase() + s.substr(1);
+    }
+
+    /**
      * @returns {Boolean} true if agent is probably firefox. Don't really care if this is accurate.
      */
     function isFF() {
@@ -622,6 +629,7 @@ var µ = function() {
         proportion: proportion,
         spread: spread,
         zeroPad: zeroPad,
+        capitalize: capitalize,
         isFF: isFF,
         isMobile: isMobile,
         isEmbeddedInIFrame: isEmbeddedInIFrame,

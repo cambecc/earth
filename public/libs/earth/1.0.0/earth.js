@@ -714,9 +714,12 @@
         showDate(grids);
         var description = "", center = "";
         if (grids) {
-            description = grids.primaryGrid.description;
-            if (grids.overlayGrid !== grids.primaryGrid) {
-                description += " + " + grids.overlayGrid.description;
+            var langCode = d3.select("body").attr("data-lang") || "en";
+            var pd = grids.primaryGrid.description(langCode), od = grids.overlayGrid.description(langCode);
+            description = od.name + od.qualifier;
+            if (grids.primaryGrid !== grids.overlayGrid) {
+                // Combine both grid descriptions together with a " + " if their qualifiers are the same.
+                description = (pd.qualifier === od.qualifier ? pd.name : pd.name + pd.qualifier) + " + " + description;
             }
             center = grids.overlayGrid.source;
         }
@@ -819,16 +822,19 @@
     /**
      * Registers a click event handler for the specified DOM element which modifies the configuration to have
      * the attributes represented by newAttr. An event listener is also registered for configuration change events,
-     * so when a change occurs the button becomes enabled (i.e., class ".enabled" is assigned or removed) if the
-     * configuration matches the attributes for this button. The set of attributes used for the matching is taken
+     * so when a change occurs the button becomes highlighted (i.e., class ".highlighted" is assigned or removed) if
+     * the configuration matches the attributes for this button. The set of attributes used for the matching is taken
      * from newAttr, unless a custom set of keys is provided.
      */
     function bindButtonToConfiguration(elementId, newAttr, keys) {
         keys = keys || _.keys(newAttr);
-        d3.select(elementId).on("click", function() { configuration.save(newAttr); });
+        d3.select(elementId).on("click", function() {
+            if (d3.select(elementId).classed("disabled")) return;
+            configuration.save(newAttr);
+        });
         configuration.on("change", function(model) {
             var attr = model.attributes;
-            d3.select(elementId).classed("enabled", _.isEqual(_.pick(attr, keys), _.pick(newAttr, keys)));
+            d3.select(elementId).classed("highlighted", _.isEqual(_.pick(attr, keys), _.pick(newAttr, keys)));
         });
     }
 
@@ -1005,7 +1011,7 @@
             }
         });
         configuration.on("change:param", function(x, param) {
-            d3.select("#wind-mode-enable").classed("enabled", param === "wind");
+            d3.select("#wind-mode-enable").classed("highlighted", param === "wind");
         });
         d3.select("#ocean-mode-enable").on("click", function() {
             if (configuration.get("param") !== "ocean") {
@@ -1028,7 +1034,16 @@
             }
         });
         configuration.on("change:param", function(x, param) {
-            d3.select("#ocean-mode-enable").classed("enabled", param === "ocean");
+            d3.select("#ocean-mode-enable").classed("highlighted", param === "ocean");
+        });
+
+        // Add logic to disable buttons that are incompatible with each other.
+        configuration.on("change:overlayType", function(x, ot) {
+            d3.select("#surface-level").classed("disabled", ot === "air_density" || ot === "wind_power_density");
+        });
+        configuration.on("change:surface", function(x, s) {
+            d3.select("#overlay-air_density").classed("disabled", s === "surface");
+            d3.select("#overlay-wind_power_density").classed("disabled", s === "surface");
         });
 
         // Add event handlers for the time navigation buttons.
@@ -1042,7 +1057,7 @@
             configuration.save({showGridPoints: !configuration.get("showGridPoints")});
         });
         configuration.on("change:showGridPoints", function(x, showGridPoints) {
-            d3.select("#option-show-grid").classed("enabled", showGridPoints);
+            d3.select("#option-show-grid").classed("highlighted", showGridPoints);
         });
 
         // Add handlers for all wind level buttons.

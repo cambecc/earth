@@ -82,7 +82,7 @@
                 class="text-button" id="option-show-grid" title="{{__('Toggle Grid')}}">{{__('Grid')}}</span>
             </p>
             <p>{{__('Mode')}} | <span
-                class="text-button" id="wind-mode-enable">{{__('Wind')}}</span> – <span
+                class="text-button" id="wind-mode-enable">{{__('Air')}}</span> – <span
                 class="text-button" id="ocean-mode-enable">{{__('Ocean')}}</span>
             </p>
             <p class="wind-mode">{{__('Height')}} | <span
@@ -99,6 +99,11 @@
                 class="text-button" id="overlay-off">{{__('None')}}</span> – <span
                 class="text-button" id="overlay-wind" title="{{__('Wind Speed')}}">{{__('Wind')}}</span> – <span
                 class="text-button" id="overlay-temp" title="{{__('Temperature')}}">{{__('Temp')}}</span> – <span
+                class="text-button" id="overlay-relative_humidity" title="{{__('Relative Humidity')}}">{{__('RH')}}</span> – <span
+                class="text-button" id="overlay-air_density" title="{{__('Air Density')}}">{{__('AD')}}</span> – <span
+                class="text-button" id="overlay-wind_power_density" title="{{__('Wind Power Density')}}">{{__('WPD')}}</span>
+            </p>
+            <p class="wind-mode"><span style="visibility:hidden">{{__('Overlay')}}</span> | <span
                 class="text-button" id="overlay-total_precipitable_water" title="{{__('Total Precipitable Water')}}">{{__('TPW')}}</span> – <span
                 class="text-button" id="overlay-total_cloud_water" title="{{__('Total Cloud Water')}}">{{__('TCW')}}</span> – <span
                 class="text-button" id="overlay-mean_sea_level_pressure" title="{{__('Mean Sea Level Pressure')}}">{{__('MSLP')}}</span>
@@ -110,6 +115,7 @@
                 class="text-button" id="overlay-ocean-off">{{__('None')}}</span> – <span
                 class="text-button" id="overlay-currents" title="{{__('Currents')}}">{{__('Currents')}}</span>
             </p>
+            <p class="ocean-mode invisible"><span style="visibility:hidden">{{__('Overlay')}}</span> |</p>
             <p>{{__('Projection')}} | <span
                 class="proj text-button" id="atlantis" title="{{__('Atlantis')}}">A</span> – <span
                 class="proj text-button" id="azimuthal_equidistant" title="{{__('Azimuthal Equidistant')}}">AE</span> – <span
@@ -130,17 +136,17 @@
         </div>
     </div>
 
-<!--
     <script src="//cdnjs.cloudflare.com/ajax/libs/underscore.js/1.6.0/underscore-min.js" charset="utf-8"></script>
     <script src="//cdnjs.cloudflare.com/ajax/libs/backbone.js/1.1.0/backbone-min.js" charset="utf-8"></script>
     <script src="//cdnjs.cloudflare.com/ajax/libs/topojson/1.1.0/topojson.min.js" charset="utf-8"></script>
     <script src="//cdnjs.cloudflare.com/ajax/libs/d3/3.3.10/d3.min.js" charset="utf-8"></script>
--->
 
+<!--
     <script src="/libs/underscore.js/1.6.0/underscore.js" charset="utf-8"></script>
     <script src="/libs/backbone.js/1.1.0/backbone.js" charset="utf-8"></script>
     <script src="/libs/topojson/1.1.0/topojson.js" charset="utf-8"></script>
     <script src="/libs/d3/3.3.10/d3.js" charset="utf-8"></script>
+-->
 
     <script src="/libs/d3.geo/0.0.0/d3.geo.projection.v0.min.js" charset="utf-8"></script>
     <script src="/libs/d3.geo/0.0.0/d3.geo.polyhedron.v0.min.js" charset="utf-8"></script>

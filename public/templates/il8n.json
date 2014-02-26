@@ -111,6 +111,9 @@
     "Community": {
         "ja": "コミュニティ"
     },
+    "community": {
+        "ja": "コミュニティ"
+    },
     "Author": {
         "ja": "作り手"
     },
@@ -324,5 +327,27 @@
     },
     "sponsor": {
         "ja": ""
+    },
+    "Relative Humidity": {
+        "ja": "相対湿度"
+    },
+    "RH": {
+        "ja": "相対湿度"
+    },
+    "Air Density": {
+        "ja": "空気密度"
+    },
+    "AD": {
+        "ja": "空気密度"
+    },
+    "Wind Power Density": {
+        "ja": "風力エネルギー密度"
+    },
+    "WPD": {
+        "ja": "WPD"
+    },
+    "Air": {
+        "ja": "大気圏",
+        "comment": "Japanese version means 'Atmosphere'"
     }
 }

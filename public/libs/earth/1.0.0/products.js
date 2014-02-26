@@ -47,30 +47,6 @@ var products = function() {
         return [WEATHER_PATH, dir, file].join("/");
     }
 
-//    function createWindBuilder2(file) {
-//        var uComp = file.variables["u-component_of_wind_isobaric"], vComp = file.variables["v-component_of_wind_isobaric"];
-//        var time = file.variables.time, lon = file.variables.lon, lat = file.variables.lat, isobaric = file.variables.isobaric;
-//        var uData = uComp.data, vData = vComp.data;
-//        var header = {
-//            lo1: lon.sequence.start,
-//            la1: lat.sequence.start,
-//            dx: lon.sequence.delta,
-//            dy: -lat.sequence.delta,
-//            nx: lon.sequence.size,
-//            ny: lat.sequence.size,
-//            refTime: time.data[0],
-//            forecastTime: 0,
-//            centerName: file.Originating_or_generating_Center
-//        };
-//        return {
-//            header: header,
-//            interpolate: bilinearInterpolateVector,
-//            data: function(i) {
-//                return [uData[i], vData[i]];
-//            }
-//        };
-//    }
-
     function gfsDate(attr) {
         if (attr.date === "current") {
             // Construct the date from the current time, rounding down to the nearest three-hour block.
@@ -91,6 +67,47 @@ var products = function() {
         return adjusted;
     }
 
+    function netcdfHeader(time, lat, lon, center) {
+        return {
+            lo1: lon.sequence.start,
+            la1: lat.sequence.start,
+            dx: lon.sequence.delta,
+            dy: -lat.sequence.delta,
+            nx: lon.sequence.size,
+            ny: lat.sequence.size,
+            refTime: time.data[0],
+            forecastTime: 0,
+            centerName: center
+        };
+    }
+
+    function describeSurface(attr) {
+        return attr.surface === "surface" ? "Surface" : µ.capitalize(attr.level);
+    }
+
+    function describeSurfaceJa(attr) {
+        return attr.surface === "surface" ? "地上" : µ.capitalize(attr.level);
+    }
+
+    /**
+     * Returns a function f(langCode) that, given table:
+     *     {foo: {en: "A", ja: "あ"}, bar: {en: "I", ja: "い"}}
+     * will return the following when called with "en":
+     *     {foo: "A", bar: "I"}
+     * or when called with "ja":
+     *     {foo: "あ", bar: "い"}
+     */
+    function localize(table) {
+        return function(langCode) {
+            var result = {};
+            _.each(table, function(value, key) {
+                console.log("KV:", key, value);
+                result[key] = value[langCode] || value.en || value;
+            });
+            return result;
+        }
+    }
+
     var FACTORIES = {
 
         "wind": {
@@ -99,13 +116,13 @@ var products = function() {
                 return buildProduct({
                     field: "vector",
                     type: "wind",
-                    description: "Wind @ " + attr.surface + " " + attr.level,
+                    description: localize({
+                        name: {en: "Wind", ja: "風速"},
+                        qualifier: {en: " @ " + describeSurface(attr), ja: " @ " + describeSurfaceJa(attr)}
+                    }),
                     paths: [gfs1p0degPath(attr, "wind", attr.surface, attr.level)],
                     date: gfsDate(attr),
                     builder: function(file) {
-//                        if (file.variables) {
-//                            return createWindBuilder2(file);
-//                        }
                         var uData = file[0].data, vData = file[1].data;
                         return {
                             header: file[0].header,
@@ -138,7 +155,10 @@ var products = function() {
                 return buildProduct({
                     field: "scalar",
                     type: "temp",
-                    description: "Temp @ " + attr.surface + " " + attr.level,
+                    description: localize({
+                        name: {en: "Temp", ja: "気温"},
+                        qualifier: {en: " @ " + describeSurface(attr), ja: " @ " + describeSurfaceJa(attr)}
+                    }),
                     paths: [gfs1p0degPath(attr, "temp", attr.surface, attr.level)],
                     date: gfsDate(attr),
                     builder: function(file) {
@@ -176,13 +196,142 @@ var products = function() {
             }
         },
 
+        "relative_humidity": {
+            matches: _.matches({param: "wind", overlayType: "relative_humidity"}),
+            create: function(attr) {
+                return buildProduct({
+                    field: "scalar",
+                    type: "relative_humidity",
+                    description: localize({
+                        name: {en: "Relative Humidity", ja: "相対湿度"},
+                        qualifier: {en: " @ " + describeSurface(attr), ja: " @ " + describeSurfaceJa(attr)}
+                    }),
+                    paths: [gfs1p0degPath(attr, "relative_humidity", attr.surface, attr.level)],
+                    date: gfsDate(attr),
+                    builder: function(file) {
+                        var vars = file.variables;
+                        var rh = vars.Relative_humidity_isobaric || vars.Relative_humidity_height_above_ground;
+                        var data = rh.data;
+                        return {
+                            header: netcdfHeader(vars.time, vars.lat, vars.lon, file.Originating_or_generating_Center),
+                            interpolate: bilinearInterpolateScalar,
+                            data: function(i) {
+                                return data[i];
+                            }
+                        };
+                    },
+                    units: [
+                        {label: "%", conversion: function(x) { return x; }, precision: 0}
+                    ],
+                    scale: {
+                        bounds: [0, 100],
+                        gradient: function(v, a) {
+                            return µ.sinebowColor(Math.min(v, 100) / 100, a);
+                        }
+                    }
+                });
+            }
+        },
+
+        "air_density": {
+            matches: _.matches({param: "wind", overlayType: "air_density"}),
+            create: function(attr) {
+                return buildProduct({
+                    field: "scalar",
+                    type: "air_density",
+                    description: localize({
+                        name: {en: "Air Density", ja: "空気密度"},
+                        qualifier: {en: " @ " + describeSurface(attr), ja: " @ " + describeSurfaceJa(attr)}
+                    }),
+                    paths: [gfs1p0degPath(attr, "air_density", attr.surface, attr.level)],
+                    date: gfsDate(attr),
+                    builder: function(file) {
+                        var vars = file.variables;
+                        var air_density = vars.air_density, data = air_density.data;
+                        return {
+                            header: netcdfHeader(vars.time, vars.lat, vars.lon, file.Originating_or_generating_Center),
+                            interpolate: bilinearInterpolateScalar,
+                            data: function(i) {
+                                return data[i];
+                            }
+                        };
+                    },
+                    units: [
+                        {label: "kg/m³", conversion: function(x) { return x; }, precision: 2}
+                    ],
+                    scale: {
+                        bounds: [0, 3],
+                        gradient: function(v, a) {
+                            return µ.sinebowColor(Math.min(v, 3) / 3, a);
+                        }
+                    }
+                });
+            }
+        },
+
+        "wind_power_density": {
+            matches: _.matches({param: "wind", overlayType: "wind_power_density"}),
+            create: function(attr) {
+                var windProduct = FACTORIES.wind.create(attr);
+                var airdensProduct = FACTORIES.air_density.create(attr);
+                return buildProduct({
+                    field: "scalar",
+                    type: "wind_power_density",
+                    description: localize({
+                        name: {en: "Wind Power Density", ja: "風力エネルギー密度"},
+                        qualifier: {en: " @ " + describeSurface(attr), ja: " @ " + describeSurfaceJa(attr)}
+                    }),
+                    paths: [windProduct.paths[0], airdensProduct.paths[0]],
+                    date: gfsDate(attr),
+                    builder: function(windFile, airdensFile) {
+                        var windBuilder = windProduct.builder(windFile);
+                        var airdensBuilder = airdensProduct.builder(airdensFile);
+                        var windData = windBuilder.data, windInterpolate = windBuilder.interpolate;
+                        var airdensData = airdensBuilder.data, airdensInterpolate = airdensBuilder.interpolate;
+                        return {
+                            header: _.clone(airdensBuilder.header),
+                            interpolate: function(x, y, g00, g10, g01, g11) {
+                                var m = windInterpolate(x, y, g00[0], g10[0], g01[0], g11[0])[2];
+                                var ρ = airdensInterpolate(x, y, g00[1], g10[1], g01[1], g11[1]);
+                                return 0.5 * ρ * m * m * m;
+                            },
+                            data: function(i) {
+                                return [windData(i), airdensData(i)];
+                            }
+                        };
+                    },
+                    units: [
+                        {label: "kW/m²", conversion: function(x) { return x / 1000; }, precision: 1},
+                        {label: "W/m²", conversion: function(x) { return x; }, precision: 0}
+                    ],
+                    scale: {
+                        bounds: [0, 80000],
+                        gradient: µ.segmentedColorScale([
+                            [0, [15, 4, 96]],
+                            [250, [30, 8, 180]],
+                            [1000, [121, 102, 2]],
+                            [2000, [118, 161, 66]],
+                            [4000, [50, 102, 219]],
+                            [8000, [19, 131, 193]],
+                            [16000, [59, 204, 227]],
+                            [64000, [241, 1, 45]],
+                            [80000, [243, 0, 241]]
+                        ])
+                    }
+                });
+            }
+        },
+
         "total_cloud_water": {
             matches: _.matches({param: "wind", overlayType: "total_cloud_water"}),
             create: function(attr) {
                 return buildProduct({
                     field: "scalar",
                     type: "total_cloud_water",
-                    description: "Total Cloud Water",
+                    description: localize({
+                        name: {en: "Total Cloud Water", ja: "雲水量"},
+                        qualifier: ""
+                    }),
                     paths: [gfs1p0degPath(attr, "total_cloud_water")],
                     date: gfsDate(attr),
                     builder: function(file) {
@@ -216,7 +365,10 @@ var products = function() {
                 return buildProduct({
                     field: "scalar",
                     type: "total_precipitable_water",
-                    description: "Total Precipitable Water",
+                    description: localize({
+                        name: {en: "Total Precipitable Water", ja: "可降水量"},
+                        qualifier: ""
+                    }),
                     paths: [gfs1p0degPath(attr, "total_precipitable_water")],
                     date: gfsDate(attr),
                     builder: function(file) {
@@ -255,7 +407,10 @@ var products = function() {
                 return buildProduct({
                     field: "scalar",
                     type: "mean_sea_level_pressure",
-                    description: "Mean Sea Level Pressure",
+                    description: localize({
+                        name: {en: "Mean Sea Level Pressure", ja: "海面更正気圧"},
+                        qualifier: ""
+                    }),
                     paths: [gfs1p0degPath(attr, "mean_sea_level_pressure")],
                     date: gfsDate(attr),
                     builder: function(file) {
@@ -297,7 +452,10 @@ var products = function() {
                     return buildProduct({
                         field: "vector",
                         type: "currents",
-                        description: "Ocean Currents @ Surface",
+                        description: localize({
+                            name: {en: "Ocean Currents", ja: "海流"},
+                            qualifier: {en: " @ Surface", ja: " @ 地上"}
+                        }),
                         paths: [oscar0p33Path(catalog, attr)],
                         date: oscarDate(catalog, attr),
                         navigate: function(step) {
@@ -393,10 +551,11 @@ var products = function() {
     }
 
     function dataSource(header) {
-        switch (header.center) {
+        switch (header.center || header.centerName) {
             case -3:
                 return "OSCAR / Earth & Space Research";
             case 7:
+            case "US National Weather Service, National Centres for Environmental Prediction (NCEP)":
                 return "GFS / NCEP / US National Weather Service";
             default:
                 return header.centerName;

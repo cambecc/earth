@@ -4,7 +4,7 @@
 
 @font-face {
     font-family: mplus-2p-light-sub;
-    src: url("/styles/mplus-2p-light-sub.ttf?v5");
+    src: url("/styles/mplus-2p-light-sub.ttf?v6");
 }
 
 @font-face {
@@ -24,7 +24,7 @@ html, body, div, span, h1, h2, h3, h4, h5, h6, p, a, svg, canvas {
     -webkit-font-smoothing: subpixel-antialiased; /* safari disables subpixel antialiasing for some reason */
 }
 
-@media (max-width: 825px) {
+@media (max-width: 825px), (max-height: 570px) {
     html, body, div, span, h1, h2, h3, h4, h5, h6, p, a, svg, canvas {
         font-size: 0.8em;
     }
@@ -38,8 +38,12 @@ a, .text-button {
     color: #888888;
 }
 
-.text-button.enabled {
+.text-button.highlighted {
     color: #e2b42e;
+}
+
+.text-button.disabled {
+    color: #444444;
 }
 
 a:hover, a:focus, .no-touch .text-button:hover, .no-touch .text-button:focus, .text-button:active {
@@ -131,7 +135,7 @@ body {
     margin-top: 1rem;
     padding: 0.5rem 1rem 0.5rem 1rem;
     opacity: 1;
-    max-height: 32rem;
+    max-height: 34rem;
     transition: opacity 250ms ease, max-height 250ms ease, margin-top 250ms ease;
     -webkit-transition: opacity 250ms ease, max-height 250ms ease, margin-top 250ms ease;
 }

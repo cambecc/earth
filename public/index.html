@@ -78,7 +78,7 @@
                 class="text-button" id="option-show-grid" title="Toggle Grid">Grid</span>
             </p>
             <p>Mode | <span
-                class="text-button" id="wind-mode-enable">Wind</span> – <span
+                class="text-button" id="wind-mode-enable">Air</span> – <span
                 class="text-button" id="ocean-mode-enable">Ocean</span>
             </p>
             <p class="wind-mode">Height | <span
@@ -95,6 +95,11 @@
                 class="text-button" id="overlay-off">None</span> – <span
                 class="text-button" id="overlay-wind" title="Wind Speed">Wind</span> – <span
                 class="text-button" id="overlay-temp" title="Temperature">Temp</span> – <span
+                class="text-button" id="overlay-relative_humidity" title="Relative Humidity">RH</span> – <span
+                class="text-button" id="overlay-air_density" title="Air Density">AD</span> – <span
+                class="text-button" id="overlay-wind_power_density" title="Wind Power Density">WPD</span>
+            </p>
+            <p class="wind-mode"><span style="visibility:hidden">Overlay</span> | <span
                 class="text-button" id="overlay-total_precipitable_water" title="Total Precipitable Water">TPW</span> – <span
                 class="text-button" id="overlay-total_cloud_water" title="Total Cloud Water">TCW</span> – <span
                 class="text-button" id="overlay-mean_sea_level_pressure" title="Mean Sea Level Pressure">MSLP</span>
@@ -106,6 +111,7 @@
                 class="text-button" id="overlay-ocean-off">None</span> – <span
                 class="text-button" id="overlay-currents" title="Currents">Currents</span>
             </p>
+            <p class="ocean-mode invisible"><span style="visibility:hidden">Overlay</span> |</p>
             <p>Projection | <span
                 class="proj text-button" id="atlantis" title="Atlantis">A</span> – <span
                 class="proj text-button" id="azimuthal_equidistant" title="Azimuthal Equidistant">AE</span> – <span
@@ -126,17 +132,17 @@
         </div>
     </div>
 
-<!--
     <script src="//cdnjs.cloudflare.com/ajax/libs/underscore.js/1.6.0/underscore-min.js" charset="utf-8"></script>
     <script src="//cdnjs.cloudflare.com/ajax/libs/backbone.js/1.1.0/backbone-min.js" charset="utf-8"></script>
     <script src="//cdnjs.cloudflare.com/ajax/libs/topojson/1.1.0/topojson.min.js" charset="utf-8"></script>
     <script src="//cdnjs.cloudflare.com/ajax/libs/d3/3.3.10/d3.min.js" charset="utf-8"></script>
--->
 
+<!--
     <script src="/libs/underscore.js/1.6.0/underscore.js" charset="utf-8"></script>
     <script src="/libs/backbone.js/1.1.0/backbone.js" charset="utf-8"></script>
     <script src="/libs/topojson/1.1.0/topojson.js" charset="utf-8"></script>
     <script src="/libs/d3/3.3.10/d3.js" charset="utf-8"></script>
+-->
 
     <script src="/libs/d3.geo/0.0.0/d3.geo.projection.v0.min.js" charset="utf-8"></script>
     <script src="/libs/d3.geo/0.0.0/d3.geo.polyhedron.v0.min.js" charset="utf-8"></script>
