@@ -5,7 +5,7 @@ earth
 
 "earth" is a project to visualize global weather conditions.
 
-An instance of "earth" is available at http://earth.nullschool.net.
+A customized instance of "earth" is available at http://earth.nullschool.net.
 
 "earth" is a personal project I've used to learn javascript and browser programming, and is based on the earlier
 [Tokyo Wind Map](https://github.com/cambecc/air) project.  Feedback and contributions are welcome! ...especially
