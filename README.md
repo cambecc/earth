@@ -33,6 +33,8 @@ serves all files located in the `earth/public` directory. See `public/index.html
 for the main entry points. Data files are located in the `public/data` directory, and there is one sample
 weather layer located at `data/weather/current`.
 
+*For Ubuntu, Mint, and elementary OS, use `nodejs` instead of `node` instead due to a [naming conflict](https://github.com/joyent/node/wiki/Installing-Node.js-via-package-manager#ubuntu-mint-elementary-os).
+
 getting map data
 ----------------
 
