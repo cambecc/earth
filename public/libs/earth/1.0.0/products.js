@@ -11,7 +11,57 @@ var products = function() {
 
     var WEATHER_PATH = "/data/weather";
     var OSCAR_PATH = "/data/oscar";
-
+    var ourHeader = {
+        discipline: 0,
+        disciplineName: "Meteorological products",
+        gribEdition: 2,
+        gribLength: 131858,
+        center: 7,
+        centerName: "US National Weather Service - NCEP(WMC)",
+        subcenter: 0,
+        refTime: "2014-01-31T00:00:00.000Z",
+        significanceOfRT: 1,
+        significanceOfRTName: "Start of forecast",
+        productStatus: 0,
+        productStatusName: "Operational products",
+        productType: 1,
+        productTypeName: "Forecast products",
+        productDefinitionTemplate: 0,
+        productDefinitionTemplateName: "Analysis/forecast at horizontal level/layer at a point in time",
+        parameterCategory: 2,
+        parameterCategoryName: "Momentum",
+        parameterNumber: 2,
+        parameterNumberName: "U-component_of_wind",
+        parameterUnit: "m.s-1",
+        genProcessType: 2,
+        genProcessTypeName: "Forecast",
+        forecastTime: 3,
+        surface1Type: 103,
+        surface1TypeName: "Specified height level above ground",
+        surface1Value: 10,
+        surface2Type: 255,
+        surface2TypeName: "Missing",
+        surface2Value: 0,
+        gridDefinitionTemplate: 0,
+        gridDefinitionTemplateName: "Latitude_Longitude",
+        numberPoints: 65160,
+        shape: 6,
+        shapeName: "Earth spherical with radius of 6,371,229.0 m",
+        gridUnits: "degrees",
+        resolution: 48,
+        winds: "true",
+        scanMode: 0,
+        nx: 90,
+        ny: 90,
+        basicAngle: 0,
+        subDivisions: 0,
+        lo1: 0,
+        la1: 90,
+        lo2: 90,
+        la2: -90,
+        dx: 120,
+        dy: 120
+        };
     var WindxOutput = new Array((GridResolutionx+Gridbuffer)*(GridResolutiony+Gridbuffer));
     var WindyOutput = new Array((GridResolutionx+Gridbuffer)*(GridResolutiony+Gridbuffer));
     var TemperatureOutput = new Array((GridResolutionx+Gridbuffer)*(GridResolutiony+Gridbuffer));
@@ -132,9 +182,9 @@ var products = function() {
                     paths: [gfs1p0degPath(attr, "wind", attr.surface, attr.level)],
                     date: gfsDate(attr),
                     builder: function(file) {
-                        var uData = file[0].data, vData = file[1].data;
+                        //var uData = file[0].data, vData = file[1].data;
                         return {
-                            header: file[0].header,
+                            header: ourHeader,
                             interpolate: bilinearInterpolateVector,
                             data: function(i) {
                                 return [WindxOutput[i], WindyOutput[i]];
