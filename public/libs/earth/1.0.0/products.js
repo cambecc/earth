@@ -11,6 +11,12 @@ var products = function() {
 
     var WEATHER_PATH = "/data/weather";
     var OSCAR_PATH = "/data/oscar";
+
+    var WindxOutput = new Array((GridResolutionx+Gridbuffer)*(GridResolutiony+Gridbuffer));
+    var WindyOutput = new Array((GridResolutionx+Gridbuffer)*(GridResolutiony+Gridbuffer));
+    var TemperatureOutput = new Array((GridResolutionx+Gridbuffer)*(GridResolutiony+Gridbuffer));
+    var PressureOutput = new Array((GridResolutionx+Gridbuffer)*(GridResolutiony+Gridbuffer));
+
     var catalogs = {
         // The OSCAR catalog is an array of file names, sorted and prefixed with yyyyMMdd. Last item is the
         // most recent. For example: [ 20140101-abc.json, 20140106-abc.json, 20140112-abc.json, ... ]
@@ -44,6 +50,10 @@ var products = function() {
     function gfs1p0degPath(attr, type, surface, level) {
         var dir = attr.date, stamp = dir === "current" ? "current" : attr.hour;
         var file = [stamp, type, surface, level, "gfs", "1.0"].filter(µ.isValue).join("-") + ".json";
+        SimulateClimate(WindxOutput, WindyOutput, TemperatureOutput, PressureOutput);
+
+        console.log(WindxOutput);
+        console.log(TemperatureOutput);
         return [WEATHER_PATH, dir, file].join("/");
     }
 
@@ -127,7 +137,7 @@ var products = function() {
                             header: file[0].header,
                             interpolate: bilinearInterpolateVector,
                             data: function(i) {
-                                return [uData[i], vData[i]];
+                                return [WindxOutput[i], WindyOutput[i]];
                             }
                         }
                     },
