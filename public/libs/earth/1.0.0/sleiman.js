@@ -7,10 +7,16 @@
    var Maxx = 1000;
    var Maxy =  500;
    var Maxz =  500;
-   var GridResolutionx= 60;
-   var GridResolutiony= 62;
+   var GridResolutionx= 120-4;
+   var GridResolutiony= 80-4;
    var GridResolutionz= 10;
    var Gridbuffer = 4; // 2 data points on each side
+   var LocationX = 60;  //Between 0 and 360
+   var LocationY = 25;  // between +90 and -90
+   var FillerBefore = LocationY*360+LocationX;
+   var FillerBetween = 360- GridResolutionx - Gridbuffer;
+   var FillerAfter   = 360* (180 - (LocationY + GridResolutiony+ Gridbuffer)) + 360 - LocationX;// - GridResolutionx - Gridbuffer;
+   var FillerContent = 0;
    var DistanceResolutionx = Maxx/GridResolutionx;
    var DistanceResolutiony = Maxy/GridResolutiony;
    var DistanceResolutionz = Maxz/GridResolutionz;
@@ -27,8 +33,8 @@
    var SoilThermalCapacityperm3 = 2.25 * 0.00277778; // 2.25 is average and 277.778 is to convert from MJ to Wh
    var SoilThermalCapacity = SoilThermalCapacityperm3/HeatAveDepth;
 
-   var HeatSinkNetNumX = 6;
-   var HeatSinkNetNumY = 6;
+   var HeatSinkNetNumX = 10;
+   var HeatSinkNetNumY = 8;
    var HeatSinkX = new Array (HeatSinkNetNumX);
    var HeatSinkY = new Array (HeatSinkNetNumY);
 
@@ -365,11 +371,12 @@ function TempSimulateClimate(){
 	var WindyOutput = new Array((GridResolutionx+Gridbuffer)*(GridResolutiony+Gridbuffer));
 	var TemperatureOutput = new Array((GridResolutionx+Gridbuffer)*(GridResolutiony+Gridbuffer));
 	var PressureOutput = new Array((GridResolutionx+Gridbuffer)*(GridResolutiony+Gridbuffer));
-	SimulateClimate(WindxOutput, WindyOutput, TemperatureOutput, PressureOutput);
+  var MonthToSimulate, HourToSimulate, SourceWaterTemperature, Altitude, GallonsPerMinute, PrmiaryWaterVolume, SecondaryWaterVolume, HillsHeight, NetworkArea;
+	SimulateClimate(WindxOutput, WindyOutput, TemperatureOutput, PressureOutput, MonthToSimulate, HourToSimulate, SourceWaterTemperature, Altitude, GallonsPerMinute, PrmiaryWaterVolume, SecondaryWaterVolume, HillsHeight, NetworkArea);
 
 }
 
-function SimulateClimate(WindxOutput, WindyOutput, TemperatureOutput, PressureOutput){
+function SimulateClimate(WindxOutput, WindyOutput, TemperatureOutput, PressureOutput, MonthToSimulate, HourToSimulate, SourceWaterTemperature, Altitude, GallonsPerMinute, PrmiaryWaterVolume, SecondaryWaterVolume, HillsHeight, NetworkArea){
 
 //
 // Create all of the needed arrays.
@@ -501,22 +508,55 @@ for(t=0;t<NumOfSamplesToCollect ;t++){
 			}
 		}
 	}
-
+/*
 	for (var i = 0; i < GridResolutionx+Gridbuffer; i++){
 		for (var j = 0; j < GridResolutiony+Gridbuffer; j++){
 				var temp_val = Temperaturet1[i][j][Gridbuffer/2];
   				//TemperatureOut[t][i][j][k] = temp_val;
   				TemperatureToDisplay[i][j] = temp_val;
-  				TemperatureOutput[i+j*(GridResolutionx+Gridbuffer)] = temp_val;
-  				WindxOutput[i+j*(GridResolutionx+Gridbuffer)] 	   = 10000*WindVelocity[i][j][Gridbuffer/2][0];
-  				WindyOutput[i+j*(GridResolutionx+Gridbuffer)] 	   = 10000*WindVelocity[i][j][Gridbuffer/2][1];
-  				PressureOutput[i+j*(GridResolutionx+Gridbuffer)]   = 45-temp_val;
+  				//TemperatureOutput[i+j*(GridResolutionx+Gridbuffer)] = temp_val;
+  				//WindxOutput[i+j*(GridResolutionx+Gridbuffer)] 	   = 100000*WindVelocity[i][j][Gridbuffer/2][0];
+  				//WindyOutput[i+j*(GridResolutionx+Gridbuffer)] 	   = 100000*WindVelocity[i][j][Gridbuffer/2][1];
+  				//PressureOutput[i+j*(GridResolutionx+Gridbuffer)]   = 45-temp_val;
   				//console.log(TemperatureOut[t][i][j][k]);
   				//WindOut[t][i][j][k][0] = WindVelocity[i][j][k][0];
   				//WindOut[t][i][j][k][1] = WindVelocity[i][j][k][1];
   				//WindOut[t][i][j][k][2] = WindVelocity[i][j][k][2];
 		}
 	}
+*/
+
+for(var i=0;i<FillerBefore;i++){
+  TemperatureOutput[i] = FillerContent;
+  WindxOutput[i] 	     = FillerContent;
+  WindyOutput[i] 	     = FillerContent;
+  PressureOutput[i]    = FillerContent;
+}
+
+for (var j = 0; j < GridResolutiony+Gridbuffer; j++){
+    for (var i = 0; i < GridResolutionx+Gridbuffer; i++){
+          var temp_val = Temperaturet1[i][j][Gridbuffer/2];
+          TemperatureOutput[FillerBefore+i+j*360] = temp_val;
+          WindxOutput[FillerBefore+i+j*360] 	    = 100000*WindVelocity[i][j][Gridbuffer/2][0];
+          WindyOutput[FillerBefore+i+j*360] 	    = 100000*WindVelocity[i][j][Gridbuffer/2][1];
+          PressureOutput[FillerBefore+i+j*360]    = 45-temp_val;
+    }
+    for (var i = 0; i < FillerBetween; i++){
+          TemperatureOutput[FillerBefore+GridResolutionx+Gridbuffer+i+j*360] = FillerContent;
+          WindxOutput[FillerBefore+GridResolutionx+Gridbuffer+i+j*360] 	     = FillerContent;
+          WindyOutput[FillerBefore+GridResolutionx+Gridbuffer+i+j*360] 	     = FillerContent;
+          PressureOutput[FillerBefore+GridResolutionx+Gridbuffer+i+j*360]    = FillerContent;
+    }
+}
+
+  for(var i=0; i<FillerAfter; i++)
+  {
+      TemperatureOutput[360*181- FillerAfter + i] = FillerContent;
+      WindxOutput[360*181- FillerAfter + i]       = FillerContent;
+      WindyOutput[360*181 - FillerAfter + i] 	    = FillerContent;
+      PressureOutput[360*181- FillerAfter + i]    = FillerContent;
+  }
+
 }
 //DisplayTemp(TemperatureToDisplay);
 

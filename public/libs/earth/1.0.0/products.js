@@ -51,21 +51,26 @@ var products = function() {
         resolution: 48,
         winds: "true",
         scanMode: 0,
-        nx: 90,
-        ny: 90,
+        nx: 360,
+        ny: 181,
         basicAngle: 0,
         subDivisions: 0,
         lo1: 0,
         la1: 90,
-        lo2: 90,
+        lo2: 359,
         la2: -90,
-        dx: 120,
-        dy: 120
+        dx: 1,
+        dy: 1
         };
-    var WindxOutput = new Array((GridResolutionx+Gridbuffer)*(GridResolutiony+Gridbuffer));
-    var WindyOutput = new Array((GridResolutionx+Gridbuffer)*(GridResolutiony+Gridbuffer));
-    var TemperatureOutput = new Array((GridResolutionx+Gridbuffer)*(GridResolutiony+Gridbuffer));
-    var PressureOutput = new Array((GridResolutionx+Gridbuffer)*(GridResolutiony+Gridbuffer));
+        var totalGridSize= 360*181;
+        var WindxOutput = new Array(totalGridSize);
+        var WindyOutput = new Array(totalGridSize);
+        var TemperatureOutput = new Array(totalGridSize);
+        var PressureOutput = new Array(totalGridSize);
+    //var WindxOutput = new Array((GridResolutionx+Gridbuffer)*(GridResolutiony+Gridbuffer));
+    //var WindyOutput = new Array((GridResolutionx+Gridbuffer)*(GridResolutiony+Gridbuffer));
+    //var TemperatureOutput = new Array((GridResolutionx+Gridbuffer)*(GridResolutiony+Gridbuffer));
+    //var PressureOutput = new Array((GridResolutionx+Gridbuffer)*(GridResolutiony+Gridbuffer));
 
     var catalogs = {
         // The OSCAR catalog is an array of file names, sorted and prefixed with yyyyMMdd. Last item is the
@@ -100,10 +105,11 @@ var products = function() {
     function gfs1p0degPath(attr, type, surface, level) {
         var dir = attr.date, stamp = dir === "current" ? "current" : attr.hour;
         var file = [stamp, type, surface, level, "gfs", "1.0"].filter(µ.isValue).join("-") + ".json";
-        SimulateClimate(WindxOutput, WindyOutput, TemperatureOutput, PressureOutput);
+        var MonthToSimulate, HourToSimulate, SourceWaterTemperature, Altitude, GallonsPerMinute, PrmiaryWaterVolume, SecondaryWaterVolume, HillsHeight, NetworkArea;
+        SimulateClimate(WindxOutput, WindyOutput, TemperatureOutput, PressureOutput, MonthToSimulate, HourToSimulate, SourceWaterTemperature, Altitude, GallonsPerMinute, PrmiaryWaterVolume, SecondaryWaterVolume, HillsHeight, NetworkArea);
 
-        console.log(WindxOutput);
-        console.log(TemperatureOutput);
+        //console.log(WindxOutput);
+        //console.log(TemperatureOutput);
         return [WEATHER_PATH, dir, file].join("/");
     }
 
@@ -221,9 +227,10 @@ var products = function() {
                     paths: [gfs1p0degPath(attr, "temp", attr.surface, attr.level)],
                     date: gfsDate(attr),
                     builder: function(file) {
-                        var record = file[0], data = record.data;
+                        var record = file[0], data = TemperatureOutput;
                         return {
-                            header: record.header,
+                            //header: record.header,
+                            header: ourHeader,
                             interpolate: bilinearInterpolateScalar,
                             data: function(i) {
                                 return data[i];
@@ -703,8 +710,11 @@ var products = function() {
             //      ---G------G--- cj 9   Note that for wrapped grids, the first column is duplicated as the last
             //         |      |           column, so the index ci can be used without taking a modulo.
 
-            var fi = Math.floor(i), ci = fi + 1;
-            var fj = Math.floor(j), cj = fj + 1;
+             var fi = Math.floor(i), ci = fi + 1;
+             var fj = Math.floor(j), cj = fj + 1;
+
+            //var fi = i, ci = fi + 1;
+            //var fj = j, cj = fj + 1;
 
             var row;
             if ((row = grid[fj])) {
