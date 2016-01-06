@@ -7,12 +7,12 @@
    var Maxx = 1000;
    var Maxy =  500;
    var Maxz =  500;
-   var GridResolutionx= 120-4;
-   var GridResolutiony= 80-4;
+   var GridResolutionx= 40-4;
+   var GridResolutiony= 20-4;
    var GridResolutionz= 10;
    var Gridbuffer = 4; // 2 data points on each side
    var LocationX = 60;  //Between 0 and 360
-   var LocationY = 25;  // between +90 and -90
+   var LocationY = 60;  // between 0 and 181
    var FillerBefore = LocationY*360+LocationX;
    var FillerBetween = 360- GridResolutionx - Gridbuffer;
    var FillerAfter   = 360* (180 - (LocationY + GridResolutiony+ Gridbuffer)) + 360 - LocationX;// - GridResolutionx - Gridbuffer;
@@ -33,8 +33,8 @@
    var SoilThermalCapacityperm3 = 2.25 * 0.00277778; // 2.25 is average and 277.778 is to convert from MJ to Wh
    var SoilThermalCapacity = SoilThermalCapacityperm3/HeatAveDepth;
 
-   var HeatSinkNetNumX = 10;
-   var HeatSinkNetNumY = 8;
+   var HeatSinkNetNumX = 4;
+   var HeatSinkNetNumY = 2;
    var HeatSinkX = new Array (HeatSinkNetNumX);
    var HeatSinkY = new Array (HeatSinkNetNumY);
 
