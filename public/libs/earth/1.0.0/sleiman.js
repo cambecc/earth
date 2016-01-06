@@ -8,11 +8,11 @@
    var Maxy =  500;
    var Maxz =  500;
    var GridResolutionx= 40-4;
-   var GridResolutiony= 20-4;
+   var GridResolutiony= 26-4;
    var GridResolutionz= 10;
    var Gridbuffer = 4; // 2 data points on each side
    var LocationX = 60;  //Between 0 and 360
-   var LocationY = 60;  // between 0 and 181
+   var LocationY = 77;  // between 0 and 181
    var FillerBefore = LocationY*360+LocationX;
    var FillerBetween = 360- GridResolutionx - Gridbuffer;
    var FillerAfter   = 360* (180 - (LocationY + GridResolutiony+ Gridbuffer)) + 360 - LocationX;// - GridResolutionx - Gridbuffer;
@@ -33,8 +33,8 @@
    var SoilThermalCapacityperm3 = 2.25 * 0.00277778; // 2.25 is average and 277.778 is to convert from MJ to Wh
    var SoilThermalCapacity = SoilThermalCapacityperm3/HeatAveDepth;
 
-   var HeatSinkNetNumX = 4;
-   var HeatSinkNetNumY = 2;
+   var HeatSinkNetNumX = 6;
+   var HeatSinkNetNumY = 4;
    var HeatSinkX = new Array (HeatSinkNetNumX);
    var HeatSinkY = new Array (HeatSinkNetNumY);
 
@@ -536,9 +536,9 @@ for(var i=0;i<FillerBefore;i++){
 for (var j = 0; j < GridResolutiony+Gridbuffer; j++){
     for (var i = 0; i < GridResolutionx+Gridbuffer; i++){
           var temp_val = Temperaturet1[i][j][Gridbuffer/2];
-          TemperatureOutput[FillerBefore+i+j*360] = temp_val;
-          WindxOutput[FillerBefore+i+j*360] 	    = 100000*WindVelocity[i][j][Gridbuffer/2][0];
-          WindyOutput[FillerBefore+i+j*360] 	    = 100000*WindVelocity[i][j][Gridbuffer/2][1];
+          TemperatureOutput[FillerBefore+i+j*360] = temp_val +273.15;
+          WindxOutput[FillerBefore+i+j*360] 	    = 10000*WindVelocity[i][j][Gridbuffer/2][0];
+          WindyOutput[FillerBefore+i+j*360] 	    = 10000*WindVelocity[i][j][Gridbuffer/2][1];
           PressureOutput[FillerBefore+i+j*360]    = 45-temp_val;
     }
     for (var i = 0; i < FillerBetween; i++){

@@ -62,6 +62,8 @@ var products = function() {
         dx: 1,
         dy: 1
         };
+
+
         var totalGridSize= 360*181;
         var WindxOutput = new Array(totalGridSize);
         var WindyOutput = new Array(totalGridSize);
@@ -230,6 +232,7 @@ var products = function() {
                     builder: function(file) {
                         var data = TemperatureOutput;
                         //var record = file[0], data = TemperatureOutput;
+                        //console.log(data);
                         return {
                             //header: record.header,
                             header: ourHeader,
@@ -245,7 +248,23 @@ var products = function() {
                         {label: "K",  conversion: function(x) { return x; },                precision: 1}
                     ],
                     scale: {
-                        bounds: [193, 328],
+                        //bounds: [193, 328],
+                        bounds: [270, 310],
+
+                        gradient: µ.segmentedColorScale([
+                            [270,     [37, 4, 42]],
+                            [271,     [41, 10, 130]],
+                            [272,     [81, 40, 40]],
+                            [273,  [192, 37, 149]],  // -40 C/F
+                            [277, [70, 215, 215]],  // 0 F
+                            [290,  [21, 84, 187]],   // 0 C
+                            [298,  [24, 132, 14]],   // just above 0 C
+                            [302,     [247, 251, 59]],
+                            [303,     [235, 167, 21]],
+                            [306,     [230, 71, 39]],
+                            [310,     [88, 27, 67]]
+                        ])
+                        /*
                         gradient: µ.segmentedColorScale([
                             [193,     [37, 4, 42]],
                             [206,     [41, 10, 130]],
@@ -259,6 +278,7 @@ var products = function() {
                             [311,     [230, 71, 39]],
                             [328,     [88, 27, 67]]
                         ])
+                        */
                     }
                 });
             }
