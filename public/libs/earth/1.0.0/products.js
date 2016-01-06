@@ -67,6 +67,8 @@ var products = function() {
         var WindyOutput = new Array(totalGridSize);
         var TemperatureOutput = new Array(totalGridSize);
         var PressureOutput = new Array(totalGridSize);
+        var MonthToSimulate, HourToSimulate, SourceWaterTemperature, Altitude, GallonsPerMinute, PrmiaryWaterVolume, SecondaryWaterVolume, HillsHeight, NetworkArea;
+
     //var WindxOutput = new Array((GridResolutionx+Gridbuffer)*(GridResolutiony+Gridbuffer));
     //var WindyOutput = new Array((GridResolutionx+Gridbuffer)*(GridResolutiony+Gridbuffer));
     //var TemperatureOutput = new Array((GridResolutionx+Gridbuffer)*(GridResolutiony+Gridbuffer));
@@ -105,7 +107,6 @@ var products = function() {
     function gfs1p0degPath(attr, type, surface, level) {
         var dir = attr.date, stamp = dir === "current" ? "current" : attr.hour;
         var file = [stamp, type, surface, level, "gfs", "1.0"].filter(µ.isValue).join("-") + ".json";
-        var MonthToSimulate, HourToSimulate, SourceWaterTemperature, Altitude, GallonsPerMinute, PrmiaryWaterVolume, SecondaryWaterVolume, HillsHeight, NetworkArea;
         SimulateClimate(WindxOutput, WindyOutput, TemperatureOutput, PressureOutput, MonthToSimulate, HourToSimulate, SourceWaterTemperature, Altitude, GallonsPerMinute, PrmiaryWaterVolume, SecondaryWaterVolume, HillsHeight, NetworkArea);
 
         //console.log(WindxOutput);
@@ -227,7 +228,8 @@ var products = function() {
                     paths: [gfs1p0degPath(attr, "temp", attr.surface, attr.level)],
                     date: gfsDate(attr),
                     builder: function(file) {
-                        var record = file[0], data = TemperatureOutput;
+                        var data = TemperatureOutput;
+                        //var record = file[0], data = TemperatureOutput;
                         return {
                             //header: record.header,
                             header: ourHeader,
