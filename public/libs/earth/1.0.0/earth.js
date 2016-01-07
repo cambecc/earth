@@ -112,12 +112,12 @@
          * @returns {Object} an object to represent the state for one move operation.
          */
         function newOp(startMouse, startScale) {
-            return {
-                type: "click",  // initially assumed to be a click operation
-                startMouse: startMouse,
-                startScale: startScale,
-                manipulator: globe.manipulator(startMouse, startScale)
-            };
+            // return {
+            //     type: "click",  // initially assumed to be a click operation
+            //     startMouse: startMouse,
+            //     startScale: startScale,
+            //     manipulator: globe.manipulator(startMouse, startScale)
+            // };
         }
 
         var zoom = d3.behavior.zoom()
