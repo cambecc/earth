@@ -291,10 +291,10 @@
         rendererAgent._previous = dispatch;
 
         // First clear map and foreground svg contents.
-        µ.removeChildren(d3.select("#map").node());
+        // µ.removeChildren(d3.select("#map").node());
         µ.removeChildren(d3.select("#foreground").node());
         // Create new map svg elements.
-        globe.defineMap(d3.select("#map"), d3.select("#foreground"));
+        // globe.defineMap(d3.select("#map"), d3.select("#foreground"));
 
         var path = d3.geo.path().projection(globe.projection).pointRadius(7);
         var coastline = d3.select(".coastline");
