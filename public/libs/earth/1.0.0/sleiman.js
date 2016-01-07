@@ -7,8 +7,8 @@
    var Maxx = 1000;
    var Maxy =  500;
    var Maxz =  500;
-   var GridResolutionx= 40-4;
-   var GridResolutiony= 26-4;
+   var GridResolutionx= 46-4;
+   var GridResolutiony= 28-4;
    var GridResolutionz= 10;
    var Gridbuffer = 4; // 2 data points on each side
    var LocationX = 60;  //Between 0 and 360
@@ -33,10 +33,10 @@
    var SoilThermalCapacityperm3 = 2.25 * 0.00277778; // 2.25 is average and 277.778 is to convert from MJ to Wh
    var SoilThermalCapacity = SoilThermalCapacityperm3/HeatAveDepth;
 
-   var HeatSinkNetNumX = 6;
+   var HeatSinkNetNumX = 8;
    var HeatSinkNetNumY = 4;
-   var HeatSinkX = new Array (HeatSinkNetNumX);
-   var HeatSinkY = new Array (HeatSinkNetNumY);
+   var HeatSinkX = new Array (HeatSinkNetNumX*HeatSinkNetNumY);
+   var HeatSinkY = new Array (HeatSinkNetNumX*HeatSinkNetNumY);
 
    var SourcewaterTemp =4;
    var GoalTemp = 22;
@@ -165,15 +165,14 @@ DM[2][1][1] = DMNormSum;
 
 
 
-/*
-				console.log(i);
-				console.log(j);
-				console.log(k);
-				console.log(WindVelocity[i+1][j+1][k+1][1]* Math.abs(WindVelocity[i+1][j+1][k+1][1]));
-				console.log(WindVelocity[i+1][j+1][k+1][2]* Math.abs(WindVelocity[i+1][j+1][k+1][2]));
-				console.log(WindVelocity[i+1][j+1][k+1][3]* Math.abs(WindVelocity[i+1][j+1][k+1][3]));
-   				console.log(TempGradient);
-   				*/
+				//console.log(i);
+				//console.log(j);
+				//console.log(k);
+				//console.log(WindVelocity[i+1][j+1][k+1][1]* Math.abs(WindVelocity[i+1][j+1][k+1][1]));
+				//console.log(WindVelocity[i+1][j+1][k+1][2]* Math.abs(WindVelocity[i+1][j+1][k+1][2]));
+				//console.log(WindVelocity[i+1][j+1][k+1][3]* Math.abs(WindVelocity[i+1][j+1][k+1][3]));
+   			//	console.log(TempGradient);
+
 
 			}
 		}
@@ -192,6 +191,26 @@ for (var i=1; i<GridResolutionx+Gridbuffer-1; i++){
 
 // We then Add the network sinks (also at z=0 originally)
 
+for (var k=0; k<HeatSinkNetNumX* HeatSinkNetNumY;k++)
+{
+
+  if (Temperaturet1[HeatSinkX[k]][HeatSinkY[k]][Gridbuffer/2] - TimeStep * HeatSinkNetEnergyGapPerSec * (Temperaturet1[HeatSinkX[k]][HeatSinkY[k]][Gridbuffer/2] - SourcewaterTemp) >SourcewaterTemp)
+  {
+    Temperaturet1[HeatSinkX[k]][HeatSinkY[k]][Gridbuffer/2] = Temperaturet1[HeatSinkX[k]][HeatSinkY[k]][Gridbuffer/2] - TimeStep * HeatSinkNetEnergyGapPerSec * (Temperaturet1[HeatSinkX[k]][HeatSinkY[k]][Gridbuffer/2] - SourcewaterTemp) ;
+  }
+  else
+  {
+    Temperaturet1[HeatSinkX[k]][HeatSinkY[k]][Gridbuffer/2] = SourcewaterTemp;
+  }
+  if (k==1)
+  {
+    console.log(HeatSinkX[k]);
+    console.log(HeatSinkY[k]);
+    console.log(  Temperaturet1[HeatSinkX[k]][HeatSinkY[k]][Gridbuffer/2] );
+  }
+
+}
+/*
 for (var i=0; i<HeatSinkNetNumX; i++){
 	for (var j=0; j<HeatSinkNetNumY;j++){
 		if (Temperaturet1[HeatSinkX[i]][HeatSinkY[j]][Gridbuffer/2] - TimeStep * HeatSinkNetEnergyGapPerSec * (Temperaturet1[HeatSinkX[i]][HeatSinkY[j]][Gridbuffer/2] - SourcewaterTemp) >SourcewaterTemp)
@@ -205,6 +224,7 @@ for (var i=0; i<HeatSinkNetNumX; i++){
 		//console.log(Temperaturet1[HeatSinkX[i]][HeatSinkY[j]][Gridbuffer] );
 	}
 }
+*/
 
 // We finally update the boundary conditions these are the six faces of the grid in the cube... Very annoying since we have to do vertices, lines, and internal faces. The easiest thing to do is to just "reflect" the internal points
 
@@ -384,15 +404,26 @@ function SimulateClimate(WindxOutput, WindyOutput, TemperatureOutput, PressureOu
 //
 //   var InitialTemperature = new Array(GridResolutionx+Gridbuffer);
 
-   for(var i=0; i<HeatSinkNetNumX;i++){
-   	HeatSinkX[i]= Gridbuffer/2+2 + Math.floor(GridResolutionx/HeatSinkNetNumX)*i;
-   	//console.log(HeatSinkX[i]);
-   }
+   for(var k=0; k<HeatSinkNetNumX* HeatSinkNetNumY;k++){
+     var i =k%HeatSinkNetNumX;
+     var j= (k-i)/HeatSinkNetNumX;
+   	HeatSinkX[k]= Gridbuffer/2+2 + Math.floor(GridResolutionx/HeatSinkNetNumX)*i;
+    HeatSinkY[k]= Gridbuffer/2+2 + Math.floor(GridResolutiony/HeatSinkNetNumY)*j;
 
-   for(var i=0; i<HeatSinkNetNumY;i++){
-   	HeatSinkY[i]= Gridbuffer/2+ 2 + Math.floor(GridResolutiony/HeatSinkNetNumY)*i;
-   	//console.log(HeatSinkY[i]);
+   	console.log(HeatSinkX[k]);
+    console.log(HeatSinkY[k]);
    }
+/*
+   for(var i=0; i<HeatSinkNetNumY;i++){
+    // if(i%2 ==0)
+     {
+   	   HeatSinkY[i]= Gridbuffer/2+ 2 + Math.floor(GridResolutiony/HeatSinkNetNumY)*i;
+     }
+     //else {
+      // HeatSinkY[i]= Gridbuffer/2+ 4 + Math.floor(GridResolutiony/HeatSinkNetNumY)*i;
+     //}
+   	//console.log(HeatSinkY[i]);
+  }*/
 
    	var monthlySolarIrradiance = new Array (12); // Average Per m^2 hour
    	monthlySolarIrradiance[1]  = 3663.5/3600;    // to make it per second
@@ -537,9 +568,10 @@ for (var j = 0; j < GridResolutiony+Gridbuffer; j++){
     for (var i = 0; i < GridResolutionx+Gridbuffer; i++){
           var temp_val = Temperaturet1[i][j][Gridbuffer/2];
           TemperatureOutput[FillerBefore+i+j*360] = temp_val +273.15;
-          WindxOutput[FillerBefore+i+j*360] 	    = 10000*WindVelocity[i][j][Gridbuffer/2][0];
-          WindyOutput[FillerBefore+i+j*360] 	    = 10000*WindVelocity[i][j][Gridbuffer/2][1];
+          WindxOutput[FillerBefore+i+j*360] 	    = 6000*WindVelocity[i][j][Gridbuffer/2][0];
+          WindyOutput[FillerBefore+i+j*360] 	    = 6000*WindVelocity[i][j][Gridbuffer/2][1];
           PressureOutput[FillerBefore+i+j*360]    = 45-temp_val;
+          //console.log(TemperatureOutput[FillerBefore+i+j*360]);
     }
     for (var i = 0; i < FillerBetween; i++){
           TemperatureOutput[FillerBefore+GridResolutionx+Gridbuffer+i+j*360] = FillerContent;
