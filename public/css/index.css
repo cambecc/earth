@@ -1,0 +1,68 @@
+.slider-blue{
+
+    background: transparent;      
+    background: -webkit-linear-gradient(-90deg, blue, transparent); 
+    background: -moz-linear-gradient(-90deg, blue, transparent); 
+    background: linear-gradient(-90deg, blue, transparent);
+
+}
+.slider-dark-blue{
+
+    background: transparent;      
+    background: -webkit-linear-gradient(-90deg, #000e7b, transparent); 
+    background: -moz-linear-gradient(-90deg, #000e7b, transparent); 
+    background: linear-gradient(-90deg, #000e7b, transparent);
+
+}
+.slider-red{
+
+    background: transparent;      
+    background: -webkit-linear-gradient(-90deg, red, transparent); 
+    background: -moz-linear-gradient(-90deg, red, transparent); 
+    background: linear-gradient(-90deg, red, transparent);
+
+}
+
+.slider-cyan{
+
+    background: transparent;      
+    background: -webkit-linear-gradient(-90deg, cyan, transparent); 
+    background: -moz-linear-gradient(-90deg, cyan, transparent); 
+    background: linear-gradient(-90deg, cyan, transparent);
+
+}
+.slider-purple{
+
+    background: transparent;      
+    background: -webkit-linear-gradient(-90deg, purple, transparent); 
+    background: -moz-linear-gradient(-90deg, purple, transparent); 
+    background: linear-gradient(-90deg, purple, transparent);
+
+}
+
+
+
+.slider{
+    float: right;
+    margin-top: 5px;
+    margin-left: 13px;
+    width: 50%;
+}
+
+.ui-slider-handle{
+    height: 16px !important;
+    margin-top: 4px !important;
+    width: 15px !important;
+    border-radius: 4px !important;
+
+}
+
+.ui-state-active{
+    background-color: white !important;
+
+}
+
+#menu{
+    width: 750px;
+    font-size: 18px;
+}

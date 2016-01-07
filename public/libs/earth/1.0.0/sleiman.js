@@ -202,12 +202,6 @@ for (var k=0; k<HeatSinkNetNumX* HeatSinkNetNumY;k++)
   {
     Temperaturet1[HeatSinkX[k]][HeatSinkY[k]][Gridbuffer/2] = SourcewaterTemp;
   }
-  if (k==1)
-  {
-    console.log(HeatSinkX[k]);
-    console.log(HeatSinkY[k]);
-    console.log(  Temperaturet1[HeatSinkX[k]][HeatSinkY[k]][Gridbuffer/2] );
-  }
 
 }
 /*
@@ -410,8 +404,8 @@ function SimulateClimate(WindxOutput, WindyOutput, TemperatureOutput, PressureOu
    	HeatSinkX[k]= Gridbuffer/2+2 + Math.floor(GridResolutionx/HeatSinkNetNumX)*i;
     HeatSinkY[k]= Gridbuffer/2+2 + Math.floor(GridResolutiony/HeatSinkNetNumY)*j;
 
-   	console.log(HeatSinkX[k]);
-    console.log(HeatSinkY[k]);
+   	//console.log(HeatSinkX[k]);
+    //console.log(HeatSinkY[k]);
    }
 /*
    for(var i=0; i<HeatSinkNetNumY;i++){
