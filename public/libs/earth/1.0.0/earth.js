@@ -252,7 +252,7 @@
         //         this allows us to use the product for navigation and other state.
         var cancel = this.cancel;
         downloadsInProgress++;
-        debugger
+        //debugger
         var loaded = when.map(products.productsFor(configuration.attributes), function(product) {
             return product.load(cancel);
         });

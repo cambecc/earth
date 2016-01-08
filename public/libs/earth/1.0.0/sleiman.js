@@ -569,7 +569,7 @@ for (var j = 0; j < GridResolutiony+Gridbuffer; j++){
           TemperatureOutput[FillerBefore+i+j*360] = temp_val +273.15;
           WindxOutput[FillerBefore+i+j*360] 	    = 5000*WindVelocity[i][j][Gridbuffer/2][0] + 1;
           WindyOutput[FillerBefore+i+j*360] 	    = 5000*WindVelocity[i][j][Gridbuffer/2][1] + 1;
-          PressureOutput[FillerBefore+i+j*360]    = 45-temp_val;
+          PressureOutput[FillerBefore+i+j*360]    = 50-temp_val + 273.15;
           //console.log(TemperatureOutput[FillerBefore+i+j*360]);
     }
     for (var i = 0; i < FillerBetween; i++){

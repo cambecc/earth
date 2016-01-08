@@ -107,7 +107,7 @@ var products = function() {
      * @returns {String}
      */
     function gfs1p0degPath(attr, type, surface, level) {
-        debugger
+        //debugger
         var dir = attr.date, stamp = dir === "current" ? "current" : attr.hour;
         var file = [stamp, type, surface, level, "gfs", "1.0"].filter(µ.isValue).join("-") + ".json";
         SimulateClimate(WindxOutput, WindyOutput, TemperatureOutput, PressureOutput, MonthToSimulate, HourToSimulate, SourceWaterTemperature, Altitude, GallonsPerMinute, PrmiaryWaterVolume, SecondaryWaterVolume, HillsHeight, NetworkArea);
@@ -310,7 +310,7 @@ var products = function() {
                             }
                         }
                     },
-                    
+
                     scale: {
                         //bounds: [193, 328],
                         bounds: [270, 310],
