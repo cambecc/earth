@@ -107,6 +107,7 @@ var products = function() {
      * @returns {String}
      */
     function gfs1p0degPath(attr, type, surface, level) {
+        debugger
         var dir = attr.date, stamp = dir === "current" ? "current" : attr.hour;
         var file = [stamp, type, surface, level, "gfs", "1.0"].filter(µ.isValue).join("-") + ".json";
         SimulateClimate(WindxOutput, WindyOutput, TemperatureOutput, PressureOutput, MonthToSimulate, HourToSimulate, SourceWaterTemperature, Altitude, GallonsPerMinute, PrmiaryWaterVolume, SecondaryWaterVolume, HillsHeight, NetworkArea);
@@ -283,6 +284,57 @@ var products = function() {
                 });
             }
         },
+
+        "Pressure": {
+            matches: _.matches({param: "wind", overlayType: "Pressure"}),
+            create: function(attr) {
+                return buildProduct({
+                    field: "scalar",
+                    type: "Pressure",
+                    description: localize({
+                        name: {en: "Pressure", ja: "気温"},
+                        qualifier: {en: " @ " + describeSurface(attr), ja: " @ " + describeSurfaceJa(attr)}
+                    }),
+                    paths: [gfs1p0degPath(attr, "Pressure", attr.surface, attr.level)],
+                    date: gfsDate(attr),
+                    builder: function(file) {
+                        var data = PressureOutput;
+                        //var record = file[0], data = TemperatureOutput;
+                        //console.log(data);
+                        return {
+                            //header: record.header,
+                            header: ourHeader,
+                            interpolate: bilinearInterpolateScalar,
+                            data: function(i) {
+                                return data[i];
+                            }
+                        }
+                    },
+                    
+                    scale: {
+                        //bounds: [193, 328],
+                        bounds: [270, 310],
+
+                        gradient: µ.segmentedColorScale([
+                            [270,     [37, 4, 42]],
+                            [271,     [41, 10, 130]],
+                            [272,     [81, 40, 40]],
+                            [273,  [192, 37, 149]],  // -40 C/F
+                            [277, [70, 215, 215]],  // 0 F
+                            [290,  [21, 84, 187]],   // 0 C
+                            [298,  [24, 132, 14]],   // just above 0 C
+                            [302,     [247, 251, 59]],
+                            [303,     [235, 167, 21]],
+                            [306,     [230, 71, 39]],
+                            [310,     [88, 27, 67]]
+                        ])
+                    }
+                });
+            }
+        },
+
+
+
 
         "relative_humidity": {
             matches: _.matches({param: "wind", overlayType: "relative_humidity"}),

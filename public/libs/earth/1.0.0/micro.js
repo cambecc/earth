@@ -11,7 +11,7 @@ var µ = function() {
 
     var τ = 2 * Math.PI;
     var H = 0.0000360;  // 0.0000360°φ ~= 4m
-    var DEFAULT_CONFIG = "current/wind/surface/level/equirectangular=-270.43,0,1550";
+    var DEFAULT_CONFIG = "current/wind/surface/level/equirectangular=-280.43,0,1550";
     var TOPOLOGY = isMobile() ? "/data/earth-topo-mobile.json?v2" : "/data/earth-topo.json?v2";
 
     /**

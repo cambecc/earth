@@ -30,7 +30,7 @@
 
 
     <div id="display">
-        <img class="fill-screen" src="map.jpg" />
+        <img class="fill-screen" src="berlin_mosaic.jpg" />
         <canvas id="animation" class="fill-screen"></canvas>
         <canvas id="overlay" class="fill-screen"></canvas>
         <svg id="foreground" class="fill-screen" xmlns="http://www.w3.org/2000/svg" version="1.1"></svg>
@@ -104,7 +104,7 @@
                 class="text-button" id="overlay-off">None</span> – <span
                 class="text-button" id="overlay-wind" title="Wind Speed">Wind</span> – <span
                 class="text-button" id="overlay-temp" title="Temperature">Temperature</span> – <span
-                class="text-button" id="overlay-relative_humidity" title="Relative Humidity">Pressure</span>
+                class="text-button" id="overlay-Pressure" title="Pressure">Pressure</span>
             </p>
             <p class="wind-mode">Hills Height | <span
 
@@ -115,15 +115,30 @@
             class="surface text-button" id="isobaric-250hPa">200m</span> – <span
             class="surface text-button" id="isobaric-70hPa">250m</span>
         </p>
-            <p><div id="scale-label" style="clear:left;float:left">Source water temperature | </div><div class="slider slider-blue"></div></p>
+            <p>
+              <div id="scale-label" style="clear:left;float:left">Source water temperature | </div>
+              <div id="water-temperature" class="slider slider-blue"></div>
+            </p>
 
-             <p><div id="scale-label" style="clear:left;float:left">GPM | </div><div class="slider slider-purple"></div></p>
+             <p>
+               <div id="scale-label" style="clear:left;float:left">GPM | </div>
+               <div id="gpm" class="slider slider-purple"></div>
+             </p>
 
-             <p><div id="scale-label" style="clear:left;float:left">Primary Chilled Water Storage Volume | </div><div class="slider slider-cyan"></div></p>
+             <p>
+               <div id="scale-label" style="clear:left;float:left">Primary Chilled Water Storage Volume | </div>
+               <div id="primary-water-volume" class="slider slider-cyan"></div>
+             </p>
 
-             <p><div id="scale-label" style="clear:left;float:left">Secondary Chilled Water Storage Volume | </div><div class="slider slider-dark-blue"></div></p>
+             <p>
+               <div id="scale-label" style="clear:left;float:left">Secondary Chilled Water Storage Volume | </div>
+               <div id="secondary-water-volume" class="slider slider-dark-blue"></div>
+             </p>
 
-            <p><div id="scale-label" style="clear:left;float:left">Size of Heat Network  | </div><div class="slider slider-red"></div></p>
+            <p>
+              <div id="scale-label" style="clear:left;float:left">Size of Heat Network  | </div>
+              <div id="heat-network-area" class="slider slider-red"></div>
+            </p>
 
         </div>
     </div>
@@ -144,16 +159,17 @@
     <script src="/libs/d3.geo/0.0.0/d3.geo.polyhedron.v0.min.js" charset="utf-8"></script>
     <script src="/libs/when/2.6.0/when.js" charset="utf-8"></script>
 
+    <script src="assets/jquery-ui-1.11.4.custom/external/jquery/jquery.js"></script>
+    <script src="assets/jquery-ui-1.11.4.custom/jquery-ui.js"></script>
+    <script> $(function() {
+        $( ".slider" ).slider();
+      });</script>
+
     <script src="/libs/earth/1.0.0/micro.js" charset="utf-8"></script>
     <script src="/libs/earth/1.0.0/globes.js" charset="utf-8"></script>
     <script src="/libs/earth/1.0.0/sleiman.js" charset="utf-8"></script>
     <script src="/libs/earth/1.0.0/products.js" charset="utf-8"></script>
     <script src="/libs/earth/1.0.0/earth.js" charset="utf-8"></script>
 
-    <script src="assets/jquery-ui-1.11.4.custom/external/jquery/jquery.js"></script>
-    <script src="assets/jquery-ui-1.11.4.custom/jquery-ui.js"></script>
-    <script> $(function() {
-        $( ".slider" ).slider();
-      });</script>
 </body>
 </html>

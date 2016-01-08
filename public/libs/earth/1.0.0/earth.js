@@ -252,6 +252,7 @@
         //         this allows us to use the product for navigation and other state.
         var cancel = this.cancel;
         downloadsInProgress++;
+        debugger
         var loaded = when.map(products.productsFor(configuration.attributes), function(product) {
             return product.load(cancel);
         });
@@ -1111,6 +1112,12 @@
         d3.select(window).on("orientationchange", function() {
             view = µ.view();
             globeAgent.submit(buildGlobe, configuration.get("projection"));
+        });
+
+        $( ".slider" ).on( "slidechange", function( event, ui ) {
+          var param = event.target.id,
+              value = ui.value;
+          debugger
         });
     }
 

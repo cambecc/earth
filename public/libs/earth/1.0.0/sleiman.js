@@ -403,6 +403,11 @@ function SimulateClimate(WindxOutput, WindyOutput, TemperatureOutput, PressureOu
      var j= (k-i)/HeatSinkNetNumX;
    	HeatSinkX[k]= Gridbuffer/2+2 + Math.floor(GridResolutionx/HeatSinkNetNumX)*i;
     HeatSinkY[k]= Gridbuffer/2+2 + Math.floor(GridResolutiony/HeatSinkNetNumY)*j;
+    if (i%2 ==1)
+    {
+      //HeatSinkX[k]=HeatSinkX[k] +2;
+      HeatSinkY[k]=HeatSinkY[k] +3;
+    }
 
    	//console.log(HeatSinkX[k]);
     //console.log(HeatSinkY[k]);
@@ -562,8 +567,8 @@ for (var j = 0; j < GridResolutiony+Gridbuffer; j++){
     for (var i = 0; i < GridResolutionx+Gridbuffer; i++){
           var temp_val = Temperaturet1[i][j][Gridbuffer/2];
           TemperatureOutput[FillerBefore+i+j*360] = temp_val +273.15;
-          WindxOutput[FillerBefore+i+j*360] 	    = 6000*WindVelocity[i][j][Gridbuffer/2][0];
-          WindyOutput[FillerBefore+i+j*360] 	    = 6000*WindVelocity[i][j][Gridbuffer/2][1];
+          WindxOutput[FillerBefore+i+j*360] 	    = 5000*WindVelocity[i][j][Gridbuffer/2][0] + 1;
+          WindyOutput[FillerBefore+i+j*360] 	    = 5000*WindVelocity[i][j][Gridbuffer/2][1] + 1;
           PressureOutput[FillerBefore+i+j*360]    = 45-temp_val;
           //console.log(TemperatureOutput[FillerBefore+i+j*360]);
     }
