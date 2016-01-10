@@ -67,7 +67,16 @@
     font-size: 18px;
 }
 
-.fill-screen2 {
+.fill-screen {
   width: 900px;
   height: 705px;
+}
+
+.fixed-screen {
+  /*min-width:500px;
+  min-height:400px;
+  max-width:500px;
+  max-height:400px;
+  width:500px;
+  height:400px;*/
 }

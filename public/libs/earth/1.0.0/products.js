@@ -64,12 +64,6 @@ var products = function() {
         };
 
 
-        var totalGridSize= 360*181;
-        var WindxOutput = new Array(totalGridSize);
-        var WindyOutput = new Array(totalGridSize);
-        var TemperatureOutput = new Array(totalGridSize);
-        var PressureOutput = new Array(totalGridSize);
-        var MonthToSimulate, HourToSimulate, SourceWaterTemperature, Altitude, GallonsPerMinute, PrmiaryWaterVolume, SecondaryWaterVolume, HillsHeight, NetworkArea;
 
     //var WindxOutput = new Array((GridResolutionx+Gridbuffer)*(GridResolutiony+Gridbuffer));
     //var WindyOutput = new Array((GridResolutionx+Gridbuffer)*(GridResolutiony+Gridbuffer));
@@ -110,7 +104,9 @@ var products = function() {
         //debugger
         var dir = attr.date, stamp = dir === "current" ? "current" : attr.hour;
         var file = [stamp, type, surface, level, "gfs", "1.0"].filter(µ.isValue).join("-") + ".json";
-        SimulateClimate(WindxOutput, WindyOutput, TemperatureOutput, PressureOutput, MonthToSimulate, HourToSimulate, SourceWaterTemperature, Altitude, GallonsPerMinute, PrmiaryWaterVolume, SecondaryWaterVolume, HillsHeight, NetworkArea);
+        SimulateClimate(glWindxOutput, glWindyOutput, glTemperatureOutput, glPressureOutput,
+          glMonthToSimulate, glHourToSimulate, glSourceWaterTemperature, glAltitude,
+          glGallonsPerMinute, glPrmiaryWaterVolume, glSecondaryWaterVolume, glHillsHeight, glNetworkArea);
 
         //console.log(WindxOutput);
         //console.log(TemperatureOutput);
@@ -197,7 +193,7 @@ var products = function() {
                             header: ourHeader,
                             interpolate: bilinearInterpolateVector,
                             data: function(i) {
-                                return [WindxOutput[i], WindyOutput[i]];
+                                return [glWindxOutput[i], glWindyOutput[i]];
                             }
                         }
                     },
@@ -231,7 +227,7 @@ var products = function() {
                     paths: [gfs1p0degPath(attr, "temp", attr.surface, attr.level)],
                     date: gfsDate(attr),
                     builder: function(file) {
-                        var data = TemperatureOutput;
+                        var data = glTemperatureOutput;
                         //var record = file[0], data = TemperatureOutput;
                         //console.log(data);
                         return {
@@ -298,7 +294,7 @@ var products = function() {
                     paths: [gfs1p0degPath(attr, "Pressure", attr.surface, attr.level)],
                     date: gfsDate(attr),
                     builder: function(file) {
-                        var data = PressureOutput;
+                        var data = glPressureOutput;
                         //var record = file[0], data = TemperatureOutput;
                         //console.log(data);
                         return {

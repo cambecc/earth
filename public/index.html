@@ -24,13 +24,13 @@
     <link href="assets/jquery-ui-1.11.4.custom/jquery-ui.css" rel="stylesheet">
     <link href="css/index.css" rel="stylesheet">
 </head>
-<body data-lang="en">
+<body data-lang="en" class="fill-screen">
 
     <!--[if lte IE 8]><p id="warn">This site requires IE9 or newer.</p><![endif]-->
 
 
-    <div id="display">
-        <img class="fill-screen" src="CDH NP B-W.jpg" />
+    <div id="display" class="fill-screen">
+        <img class="fill-screen" src="CDH NP B-W.jpg"/>
         <canvas id="animation" class="fill-screen"></canvas>
         <canvas id="overlay" class="fill-screen"></canvas>
         <svg id="foreground" class="fill-screen" xmlns="http://www.w3.org/2000/svg" version="1.1"></svg>
@@ -165,9 +165,10 @@
         $( ".slider" ).slider();
       });</script>
 
+
+    <script src="/libs/earth/1.0.0/sleiman.js" charset="utf-8"></script>
     <script src="/libs/earth/1.0.0/micro.js" charset="utf-8"></script>
     <script src="/libs/earth/1.0.0/globes.js" charset="utf-8"></script>
-    <script src="/libs/earth/1.0.0/sleiman.js" charset="utf-8"></script>
     <script src="/libs/earth/1.0.0/products.js" charset="utf-8"></script>
     <script src="/libs/earth/1.0.0/earth.js" charset="utf-8"></script>
 

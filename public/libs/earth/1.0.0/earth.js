@@ -369,7 +369,7 @@
         log.time("render mask");
 
         // Create a detached canvas, ask the model to define the mask polygon, then fill with an opaque color.
-        var width = view.width, height = view.height;
+        var width = 900, height = 705;
         var canvas = d3.select(document.createElement("canvas")).attr("width", width).attr("height", height).node();
         var context = globe.defineMask(canvas.getContext("2d"));
         context.fillStyle = "rgba(255, 0, 0, 1)";
@@ -886,7 +886,7 @@
             d3.select("#sponsor").classed("invisible", true);
         });
 
-        d3.selectAll(".fill-screen").attr("width", view.width).attr("height", view.height);
+        d3.selectAll(".fill-screen").attr("width", 900).attr("height", 705);
         // Adjust size of the scale canvas to fill the width of the menu to the right of the label.
         var label = d3.select("#scale-label").node();
         d3.select("#scale")
@@ -1099,6 +1099,9 @@
         products.overlayTypes.forEach(function(type) {
             bindButtonToConfiguration("#overlay-" + type, {overlayType: type});
         });
+        //bindButtonToConfiguration("#primary-water-volume", {param: "wind", overlayType: "default"});
+
+
         bindButtonToConfiguration("#overlay-wind", {param: "wind", overlayType: "default"});
         bindButtonToConfiguration("#overlay-ocean-off", {overlayType: "off"});
         bindButtonToConfiguration("#overlay-currents", {overlayType: "default"});
@@ -1117,7 +1120,8 @@
         $( ".slider" ).on( "slidechange", function( event, ui ) {
           var param = event.target.id,
               value = ui.value;
-          debugger
+              glGallonsPerMinute = 100;
+              gridAgent.submit(buildGrids);
         });
     }
 

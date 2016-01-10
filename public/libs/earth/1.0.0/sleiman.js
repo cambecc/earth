@@ -46,6 +46,12 @@
    var TransferEfficiency = 0.93;
    var HeatSinkNetEnergyGapPerSec= TransferEfficiency*WaterflowPerNode* WaterSpecificHeat;
 
+   var glTotalGridSize= 360*181;
+   var glWindxOutput = new Array(glTotalGridSize);
+   var glWindyOutput = new Array(glTotalGridSize);
+   var glTemperatureOutput = new Array(glTotalGridSize);
+   var glPressureOutput = new Array(glTotalGridSize);
+   var glMonthToSimulate, glHourToSimulate, glSourceWaterTemperature, glAltitude, glGallonsPerMinute, glPrmiaryWaterVolume, glSecondaryWaterVolume, glHillsHeight, glNetworkArea;
 
 function createNetworkLine (startingIndex, startingX, startingY,Xratio, Yratio, lineLength)
 {
@@ -527,6 +533,8 @@ function TempSimulateClimate(){
 
 function SimulateClimate(WindxOutput, WindyOutput, TemperatureOutput, PressureOutput, MonthToSimulate, HourToSimulate, SourceWaterTemperature, Altitude, GallonsPerMinute, PrmiaryWaterVolume, SecondaryWaterVolume, HillsHeight, NetworkArea){
 
+console.log("gallonsPerminute");
+console.log(GallonsPerMinute);
 //
 // Create all of the needed arrays.
 //
