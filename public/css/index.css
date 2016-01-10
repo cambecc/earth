@@ -1,41 +1,41 @@
 .slider-blue{
 
-    background: transparent;      
-    background: -webkit-linear-gradient(-90deg, blue, transparent); 
-    background: -moz-linear-gradient(-90deg, blue, transparent); 
+    background: transparent;
+    background: -webkit-linear-gradient(-90deg, blue, transparent);
+    background: -moz-linear-gradient(-90deg, blue, transparent);
     background: linear-gradient(-90deg, blue, transparent);
 
 }
 .slider-dark-blue{
 
-    background: transparent;      
-    background: -webkit-linear-gradient(-90deg, #000e7b, transparent); 
-    background: -moz-linear-gradient(-90deg, #000e7b, transparent); 
+    background: transparent;
+    background: -webkit-linear-gradient(-90deg, #000e7b, transparent);
+    background: -moz-linear-gradient(-90deg, #000e7b, transparent);
     background: linear-gradient(-90deg, #000e7b, transparent);
 
 }
 .slider-red{
 
-    background: transparent;      
-    background: -webkit-linear-gradient(-90deg, red, transparent); 
-    background: -moz-linear-gradient(-90deg, red, transparent); 
+    background: transparent;
+    background: -webkit-linear-gradient(-90deg, red, transparent);
+    background: -moz-linear-gradient(-90deg, red, transparent);
     background: linear-gradient(-90deg, red, transparent);
 
 }
 
 .slider-cyan{
 
-    background: transparent;      
-    background: -webkit-linear-gradient(-90deg, cyan, transparent); 
-    background: -moz-linear-gradient(-90deg, cyan, transparent); 
+    background: transparent;
+    background: -webkit-linear-gradient(-90deg, cyan, transparent);
+    background: -moz-linear-gradient(-90deg, cyan, transparent);
     background: linear-gradient(-90deg, cyan, transparent);
 
 }
 .slider-purple{
 
-    background: transparent;      
-    background: -webkit-linear-gradient(-90deg, purple, transparent); 
-    background: -moz-linear-gradient(-90deg, purple, transparent); 
+    background: transparent;
+    background: -webkit-linear-gradient(-90deg, purple, transparent);
+    background: -moz-linear-gradient(-90deg, purple, transparent);
     background: linear-gradient(-90deg, purple, transparent);
 
 }
@@ -65,4 +65,9 @@
 #menu{
     width: 750px;
     font-size: 18px;
+}
+
+.fill-screen2 {
+  width: 900px;
+  height: 705px;
 }

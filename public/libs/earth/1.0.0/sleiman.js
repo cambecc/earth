@@ -7,8 +7,8 @@
    var Maxx = 1000;
    var Maxy =  500;
    var Maxz =  500;
-   var GridResolutionx= 46-4;
-   var GridResolutiony= 28-4;
+   var GridResolutionx= 90-4;
+   var GridResolutiony= 40-4;
    var GridResolutionz= 10;
    var Gridbuffer = 4; // 2 data points on each side
    var LocationX = 60;  //Between 0 and 360
@@ -33,8 +33,8 @@
    var SoilThermalCapacityperm3 = 2.25 * 0.00277778; // 2.25 is average and 277.778 is to convert from MJ to Wh
    var SoilThermalCapacity = SoilThermalCapacityperm3/HeatAveDepth;
 
-   var HeatSinkNetNumX = 8;
-   var HeatSinkNetNumY = 4;
+   var HeatSinkNetNumX = 10;
+   var HeatSinkNetNumY = 10;
    var HeatSinkX = new Array (HeatSinkNetNumX*HeatSinkNetNumY);
    var HeatSinkY = new Array (HeatSinkNetNumX*HeatSinkNetNumY);
 
@@ -47,9 +47,144 @@
    var HeatSinkNetEnergyGapPerSec= TransferEfficiency*WaterflowPerNode* WaterSpecificHeat;
 
 
+function createNetworkLine (startingIndex, startingX, startingY,Xratio, Yratio, lineLength)
+{
+  for (var i=0; i < lineLength; i++)
+  {
+    HeatSinkX[startingIndex+i]=Math.round(startingX +i*Xratio);
+    HeatSinkY[startingIndex+i]=Math.round(startingY +i*Yratio);
+    // console.log(HeatSinkX[startingIndex+i]);
+    // console.log(HeatSinkY[startingIndex+i]);
+  }
+}
+function createNetworkArc(startingIndex, startingX, startingY, centerX, centerY, arcLength)
+{
 
+  HeatSinkX[startingIndex]=startingX;
+  HeatSinkY[startingIndex]=startingY;
 
+  var sSin = -(startingY - centerY); // sign of sin  +ve or -ve flipped because y is downwards
+  var sCos = startingX - centerX; //sing of cos
+  var eps = 0.000001;  // this is to make sure that we don't have infinite ratios
+  var ratio= (Math.abs(sSin) +eps)/(Math.abs(sCos)+eps);
+  var tan225 = 0.41421356237; // Tan(22.5 degrees)
+  var tan675 = 2.41421356237; // Tan(67.5 degrees)
+  var currentX,currentY,nextX,nextY;
+  currentX=startingX;
+  currentY=startingY;
 
+  for (i=1; i < arcLength; i++)
+  {
+    if (ratio <tan225)
+    {
+            // X is much longer than Y, so the direction is horizontal
+      if (sCos >0)
+      { // current direction is East
+        nextX = currentX;
+        nextY= currentY+1;
+      }
+      else
+      { // Current Direction is West
+        nextX= currentX;
+        nextY= currentY-1;
+      }
+    }
+    else if (ratio > tan675)
+    {
+      if(sSin > 0)
+      {  // Current Direction is North
+        nextX = currentX +1;
+        nextY = currentY;
+      }
+      else
+      {    //Current Direction is South
+        nextX = currentX -1;
+        nextY = currentY;
+      }
+    }
+    else
+    {
+      if (sCos>0)
+      {
+        if (sSin >0)
+        { // Current Direction is NorthEast
+          nextX = currentX +1;
+          nextY = currentY +1;
+
+        }
+        else
+        { // Current Direction is SouthEast
+          nextX = currentX -1;
+          nextY = currentY +1;
+
+        }
+      }
+      else
+      {
+        if (sSin >0)
+        { // Current Direction is NorthWest
+          nextX = currentX +1;
+          nextY = currentY -1;
+
+        }
+        else
+        { // Current Direction is SouthWest
+          nextX = currentX -1;
+          nextY = currentY -1;
+        }
+      }
+    }
+
+    currentX = nextX;
+    currentY = nextY;
+    sSin =  -(currentY - centerY); // again, flipped because y is downwards
+    sCos =  currentX - centerX;
+    ratio= (Math.abs(sSin) +eps)/(Math.abs(sCos)+eps);
+
+    HeatSinkX[startingIndex+i]= currentX;
+    HeatSinkY[startingIndex+i]= currentY;
+    // console.log(HeatSinkX[startingIndex+i]);
+    // console.log(HeatSinkY[startingIndex+i]);
+  }
+
+}
+
+function createNetworkGrid (startingIndex, startingX, startingY, XStep, YStep, XNum, YNum)
+{
+  for(var k=0; k<XNum* YNum;k++)
+  {
+      var i =k%HeatSinkNetNumX;
+      var j= (k-i)/HeatSinkNetNumX;
+      HeatSinkX[k]= Gridbuffer/2+2 + XStep*i;
+      HeatSinkY[k]= Gridbuffer/2+2 + YStep*j;
+  }
+}
+
+ function createNetworkStarryNight(startingIndex, startingX, startingY, XStep, YStep, XNum, YNum)
+ {
+   for(var k=0; k<XNum* YNum;k++)
+   {
+       var i =k%HeatSinkNetNumX;
+       var j= (k-i)/HeatSinkNetNumX;
+       HeatSinkX[k]= Gridbuffer/2+2 + XStep*i;
+       HeatSinkY[k]= Gridbuffer/2+2 + YStep*j;
+       if (i%2 ==1)
+       {
+        HeatSinkY[k]=HeatSinkY[k] + Math.floor(YStep/2);
+       }
+  }
+}
+
+function setUpHeatSinks()
+{
+  createNetworkLine (0, 31.5, 8.2, -0.4, 1.65, 17);
+  createNetworkArc  (17, 10, 10, 13, 18, 17);
+  for (var i=34; i < HeatSinkNetNumX*HeatSinkNetNumY; i++ )
+  {
+    HeatSinkX[i]=1;
+    HeatSinkY[i]=1;
+  }
+}
 
 function TemperatureUpdate (Temperaturet, Temperaturet1, WindVelocity, currentSolarIrradiance){
 
@@ -398,20 +533,35 @@ function SimulateClimate(WindxOutput, WindyOutput, TemperatureOutput, PressureOu
 //
 //   var InitialTemperature = new Array(GridResolutionx+Gridbuffer);
 
-   for(var k=0; k<HeatSinkNetNumX* HeatSinkNetNumY;k++){
-     var i =k%HeatSinkNetNumX;
-     var j= (k-i)/HeatSinkNetNumX;
-   	HeatSinkX[k]= Gridbuffer/2+2 + Math.floor(GridResolutionx/HeatSinkNetNumX)*i;
-    HeatSinkY[k]= Gridbuffer/2+2 + Math.floor(GridResolutiony/HeatSinkNetNumY)*j;
-    if (i%2 ==1)
-    {
-      //HeatSinkX[k]=HeatSinkX[k] +2;
-      HeatSinkY[k]=HeatSinkY[k] +3;
-    }
-
-   	//console.log(HeatSinkX[k]);
-    //console.log(HeatSinkY[k]);
-   }
+  //  for(var k=0; k<HeatSinkNetNumX* HeatSinkNetNumY;k++){
+  //    if (k<32)
+  //    {
+   //
+  //      var i =k%HeatSinkNetNumX;
+  //      var j= (k-i)/HeatSinkNetNumX;
+  //  	   HeatSinkX[k]= Gridbuffer/2+2 + Math.floor(GridResolutionx/HeatSinkNetNumX)*i;
+  //      HeatSinkY[k]= Gridbuffer/2+2 + Math.floor(GridResolutiony/HeatSinkNetNumY)*j;
+  //      if (i%2 ==1)
+  //      {
+  //        //HeatSinkX[k]=HeatSinkX[k] +2;
+  //       HeatSinkY[k]=HeatSinkY[k] +3;
+  //     }
+  //
+   //
+  //         //  HeatSinkX[k]= k+1;
+  //       //    HeatSinkY[k]= 10;
+   //
+  //   }
+  //   else {
+   //
+  //     HeatSinkX[k]= k-20;
+  //     HeatSinkY[k]= k-20;
+   //
+  //   }
+   //
+  //  	//console.log(HeatSinkX[k]);
+  //   //console.log(HeatSinkY[k]);
+  //  }
 /*
    for(var i=0; i<HeatSinkNetNumY;i++){
     // if(i%2 ==0)
@@ -424,8 +574,9 @@ function SimulateClimate(WindxOutput, WindyOutput, TemperatureOutput, PressureOu
    	//console.log(HeatSinkY[i]);
   }*/
 
-   	var monthlySolarIrradiance = new Array (12); // Average Per m^2 hour
-   	monthlySolarIrradiance[1]  = 3663.5/3600;    // to make it per second
+  setUpHeatSinks();
+  var monthlySolarIrradiance = new Array (12); // Average Per m^2 hour
+  monthlySolarIrradiance[1]  = 3663.5/3600;    // to make it per second
 	monthlySolarIrradiance[2]  = 4586.1/3600;
 	monthlySolarIrradiance[3]  = 5643.7/3600;
 	monthlySolarIrradiance[4]  = 5969.5/3600;

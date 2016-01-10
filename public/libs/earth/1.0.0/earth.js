@@ -120,41 +120,41 @@
             // };
         }
 
-        var zoom = d3.behavior.zoom()
-            .on("zoomstart", function() {
-                op = op || newOp(d3.mouse(this), zoom.scale());  // a new operation begins
-            })
-            .on("zoom", function() {
-                var currentMouse = d3.mouse(this), currentScale = d3.event.scale;
-                op = op || newOp(currentMouse, 1);  // Fix bug on some browsers where zoomstart fires out of order.
-                if (op.type === "click" || op.type === "spurious") {
-                    var distanceMoved = µ.distance(currentMouse, op.startMouse);
-                    if (currentScale === op.startScale && distanceMoved < MIN_MOVE) {
-                        // to reduce annoyance, ignore op if mouse has barely moved and no zoom is occurring
-                        op.type = distanceMoved > 0 ? "click" : "spurious";
-                        return;
-                    }
-                    dispatch.trigger("moveStart");
-                    op.type = "drag";
-                }
-                if (currentScale != op.startScale) {
-                    op.type = "zoom";  // whenever a scale change is detected, (stickily) switch to a zoom operation
-                }
-
-                // when zooming, ignore whatever the mouse is doing--really cleans up behavior on touch devices
-                op.manipulator.move(op.type === "zoom" ? null : currentMouse, currentScale);
-                dispatch.trigger("move");
-            })
-            .on("zoomend", function() {
-                op.manipulator.end();
-                if (op.type === "click") {
-                    dispatch.trigger("click", op.startMouse, globe.projection.invert(op.startMouse) || []);
-                }
-                else if (op.type !== "spurious") {
-                    signalEnd();
-                }
-                op = null;  // the drag/zoom/click operation is over
-            });
+        // var zoom = d3.behavior.zoom()
+        //     .on("zoomstart", function() {
+        //         op = op || newOp(d3.mouse(this), zoom.scale());  // a new operation begins
+        //     })
+        //     .on("zoom", function() {
+        //         var currentMouse = d3.mouse(this), currentScale = d3.event.scale;
+        //         op = op || newOp(currentMouse, 1);  // Fix bug on some browsers where zoomstart fires out of order.
+        //         if (op.type === "click" || op.type === "spurious") {
+        //             var distanceMoved = µ.distance(currentMouse, op.startMouse);
+        //             if (currentScale === op.startScale && distanceMoved < MIN_MOVE) {
+        //                 // to reduce annoyance, ignore op if mouse has barely moved and no zoom is occurring
+        //                 op.type = distanceMoved > 0 ? "click" : "spurious";
+        //                 return;
+        //             }
+        //             dispatch.trigger("moveStart");
+        //             op.type = "drag";
+        //         }
+        //         if (currentScale != op.startScale) {
+        //             op.type = "zoom";  // whenever a scale change is detected, (stickily) switch to a zoom operation
+        //         }
+        //
+        //         // when zooming, ignore whatever the mouse is doing--really cleans up behavior on touch devices
+        //         op.manipulator.move(op.type === "zoom" ? null : currentMouse, currentScale);
+        //         dispatch.trigger("move");
+        //     })
+        //     .on("zoomend", function() {
+        //         op.manipulator.end();
+        //         if (op.type === "click") {
+        //             dispatch.trigger("click", op.startMouse, globe.projection.invert(op.startMouse) || []);
+        //         }
+        //         else if (op.type !== "spurious") {
+        //             signalEnd();
+        //         }
+        //         op = null;  // the drag/zoom/click operation is over
+        //     });
 
         var signalEnd = _.debounce(function() {
             if (!op || op.type !== "drag" && op.type !== "zoom") {
@@ -163,7 +163,7 @@
             }
         }, MOVE_END_WAIT);  // wait for a bit to decide if user has stopped moving the globe
 
-        d3.select("#display").call(zoom);
+        // d3.select("#display").call(zoom);
         d3.select("#show-location").on("click", function() {
             if (navigator.geolocation) {
                 report.status("Finding current position...");
@@ -188,7 +188,7 @@
             }
             dispatch.trigger("moveStart");
             globe.orientation(configuration.get("orientation"), view);
-            zoom.scale(globe.projection.scale());
+            // zoom.scale(globe.projection.scale());
             dispatch.trigger("moveEnd");
         }
 
@@ -196,7 +196,7 @@
             globe: function(_) {
                 if (_) {
                     globe = _;
-                    zoom.scaleExtent(globe.scaleExtent());
+                    // zoom.scaleExtent(globe.scaleExtent());
                     reorient();
                 }
                 return _ ? this : globe;
