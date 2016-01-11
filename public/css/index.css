@@ -68,8 +68,8 @@
 }
 
 .fill-screen {
-  width: 900px;
-  height: 705px;
+  width: SolomonWidth;
+  height: SolomonHeight;
 }
 
 .fixed-screen {

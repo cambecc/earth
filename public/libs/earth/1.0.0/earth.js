@@ -369,24 +369,23 @@
         log.time("render mask");
 
         // Create a detached canvas, ask the model to define the mask polygon, then fill with an opaque color.
-        var width = 900, height = 705;
-        var canvas = d3.select(document.createElement("canvas")).attr("width", width).attr("height", height).node();
+        var canvas = d3.select(document.createElement("canvas")).attr("width", SolomonWidth).attr("height", SolomonHeight).node();
         var context = globe.defineMask(canvas.getContext("2d"));
         context.fillStyle = "rgba(255, 0, 0, 1)";
         context.fill();
         // d3.select("#display").node().appendChild(canvas);  // make mask visible for debugging
 
-        var imageData = context.getImageData(0, 0, width, height);
+        var imageData = context.getImageData(0, 0, SolomonWidth, SolomonHeight);
         var data = imageData.data;  // layout: [r, g, b, a, r, g, b, a, ...]
         log.timeEnd("render mask");
         return {
             imageData: imageData,
             isVisible: function(x, y) {
-                var i = (y * width + x) * 4;
+                var i = (y * SolomonWidth + x) * 4;
                 return data[i + 3] > 0;  // non-zero alpha means pixel is visible
             },
             set: function(x, y, rgba) {
-                var i = (y * width + x) * 4;
+                var i = (y * SolomonWidth + x) * 4;
                 data[i    ] = rgba[0];
                 data[i + 1] = rgba[1];
                 data[i + 2] = rgba[2];
@@ -886,7 +885,7 @@
             d3.select("#sponsor").classed("invisible", true);
         });
 
-        d3.selectAll(".fill-screen").attr("width", 900).attr("height", 705);
+        d3.selectAll(".fill-screen").attr("width", SolomonWidth).attr("height", SolomonHeight);
         // Adjust size of the scale canvas to fill the width of the menu to the right of the label.
         var label = d3.select("#scale-label").node();
         d3.select("#scale")

@@ -2,17 +2,20 @@
 
 // function ClimateNode (Temp, Press, Windx, Windy, Windz)
 
+
+   var SolomonWidth = 900, SolomonHeight = 705; // These are the height and width of the rendering canvas
+
    var Kair = 0.000019; // Thermal diffusivity of Air
    var AirTempVelConst = 0.01; // Effect of temperature difference on air velocity
    var Maxx = 1000;
    var Maxy =  500;
    var Maxz =  500;
-   var GridResolutionx= 90-4;
-   var GridResolutiony= 40-4;
+   var GridResolutionx= HeatSinkImageWidth-4;
+   var GridResolutiony= HeatSinkImageHeight-4;
    var GridResolutionz= 10;
    var Gridbuffer = 4; // 2 data points on each side
-   var LocationX = 60;  //Between 0 and 360
-   var LocationY = 77;  // between 0 and 181
+   var LocationX = 136;  //Between 0 and 360
+   var LocationY = 56;  // between 0 and 181
    var FillerBefore = LocationY*360+LocationX;
    var FillerBetween = 360- GridResolutionx - Gridbuffer;
    var FillerAfter   = 360* (180 - (LocationY + GridResolutiony+ Gridbuffer)) + 360 - LocationX;// - GridResolutionx - Gridbuffer;
@@ -33,10 +36,10 @@
    var SoilThermalCapacityperm3 = 2.25 * 0.00277778; // 2.25 is average and 277.778 is to convert from MJ to Wh
    var SoilThermalCapacity = SoilThermalCapacityperm3/HeatAveDepth;
 
-   var HeatSinkNetNumX = 10;
-   var HeatSinkNetNumY = 10;
-   var HeatSinkX = new Array (HeatSinkNetNumX*HeatSinkNetNumY);
-   var HeatSinkY = new Array (HeatSinkNetNumX*HeatSinkNetNumY);
+   var HeatSinkNetNumX = HeatSinkFromImageNumber;
+   var HeatSinkNetNumY = 1;
+//   var HeatSinkX = new Array (HeatSinkNetNumX*HeatSinkNetNumY);
+//   var HeatSinkY = new Array (HeatSinkNetNumX*HeatSinkNetNumY);
 
    var SourcewaterTemp =4;
    var GoalTemp = 22;
@@ -53,14 +56,17 @@
    var glPressureOutput = new Array(glTotalGridSize);
    var glMonthToSimulate, glHourToSimulate, glSourceWaterTemperature, glAltitude, glGallonsPerMinute, glPrmiaryWaterVolume, glSecondaryWaterVolume, glHillsHeight, glNetworkArea;
 
-function createNetworkLine (startingIndex, startingX, startingY,Xratio, Yratio, lineLength)
+function createNetworkLine (startingIndex, startingX, startingY, Xratio, Yratio, lineLength)
 {
+
   for (var i=0; i < lineLength; i++)
   {
-    HeatSinkX[startingIndex+i]=Math.round(startingX +i*Xratio);
-    HeatSinkY[startingIndex+i]=Math.round(startingY +i*Yratio);
-    // console.log(HeatSinkX[startingIndex+i]);
-    // console.log(HeatSinkY[startingIndex+i]);
+
+    HeatSinkX[startingIndex+i]= Math.round(startingX+i*Xratio);
+    HeatSinkY[startingIndex+i]= Math.round(startingY +i*Yratio);
+
+    console.log(HeatSinkX[startingIndex+i]);
+    console.log(HeatSinkY[startingIndex+i]);
   }
 }
 function createNetworkArc(startingIndex, startingX, startingY, centerX, centerY, arcLength)
@@ -183,13 +189,13 @@ function createNetworkGrid (startingIndex, startingX, startingY, XStep, YStep, X
 
 function setUpHeatSinks()
 {
-  createNetworkLine (0, 31.5, 8.2, -0.4, 1.65, 17);
-  createNetworkArc  (17, 10, 10, 13, 18, 17);
-  for (var i=34; i < HeatSinkNetNumX*HeatSinkNetNumY; i++ )
-  {
-    HeatSinkX[i]=1;
-    HeatSinkY[i]=1;
-  }
+  // createNetworkLine (0, 72, 16, -0.25, 0.75, 19);
+  // createNetworkArc  (19, 10, 10, 13, 18, 17);
+  // for (var i=36; i < HeatSinkNetNumX*HeatSinkNetNumY; i++ )
+  // {
+  //   HeatSinkX[i]=1;
+  //   HeatSinkY[i]=1;
+  // }
 }
 
 function TemperatureUpdate (Temperaturet, Temperaturet1, WindVelocity, currentSolarIrradiance){
