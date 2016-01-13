@@ -44,7 +44,7 @@
    var SourcewaterTemp =4;
    var GoalTemp = 22;
    var WaterSpecificHeat = 4000 * 0.000277778; // 4000 is average and 0.000277778 is to convert from J to Wh
-   var TotalWaterflow = 400000/(24*60*60); // Total water flow in KG/s
+   var TotalWaterflow = 200000/(24*60*60); // Total water flow in KG/s
    var WaterflowPerNode = TotalWaterflow/(HeatSinkNetNumX*HeatSinkNetNumY);
    var TransferEfficiency = 0.93;
    var HeatSinkNetEnergyGapPerSec= TransferEfficiency*WaterflowPerNode* WaterSpecificHeat;
@@ -213,9 +213,9 @@ for (i=0; i<3;i++){
 	}
 }
 
-var DMKeepPertimeStep = 0.6;
+var DMKeepPertimeStep = 0.3;
 
-var DMCorRatio  = 0.6;
+var DMCorRatio  = 0.4;
 var DMEdgeRatio = 0.5;
 
 var DMNormSum =(1-DMKeepPertimeStep )/(8*DMCorRatio + 12*DMEdgeRatio + 6);

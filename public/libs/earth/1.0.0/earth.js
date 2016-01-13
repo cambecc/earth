@@ -1116,12 +1116,60 @@
             globeAgent.submit(buildGlobe, configuration.get("projection"));
         });
 
-        $( ".slider" ).on( "slidechange", function( event, ui ) {
+        // $( ".slider" ).on( "slidechange", function( event, ui ) {
+        //   var param = event.target.id,
+        //       value = ui.value;
+        //       glGallonsPerMinute = 100;
+        //       gridAgent.submit(buildGrids);
+        // });
+
+        $( "#water-temperature" ).on( "slidechange", function( event, ui ) {
           var param = event.target.id,
               value = ui.value;
               glGallonsPerMinute = 100;
               gridAgent.submit(buildGrids);
         });
+        $( "#gpm" ).on( "slidechange", function( event, ui ) {
+          var param = event.target.id,
+              value = ui.value;
+              glGallonsPerMinute = 200;
+              gridAgent.submit(buildGrids);
+        });
+
+        $( "#primary-water-volume" ).on( "slidechange", function( event, ui ) {
+                  var param = event.target.id,
+                      value = ui.value;
+                      glGallonsPerMinute = 300;
+                      gridAgent.submit(buildGrids);
+        });
+
+        $( "#secondary-water-volume" ).on( "slidechange", function( event, ui ) {
+          var param = event.target.id,
+              value = ui.value;
+              glGallonsPerMinute = 400;
+              gridAgent.submit(buildGrids);
+        });
+        $( "#heat-network-area" ).on( "slidechange", function( event, ui ) {
+          var param = event.target.id,
+              value = ui.value;
+              glGallonsPerMinute = 500;
+              gridAgent.submit(buildGrids);
+        });
+
+        $( "#MicroClimate-On" ).on( "click", function() {
+          var param = event.target.id,
+              value = ui.value;
+              glGallonsPerMinute = 600;
+              gridAgent.submit(buildGrids);
+        });
+
+        $( "#MicroClimate-Off" ).on( "click", function() {
+          var param = event.target.id,
+              value = ui.value;
+              glGallonsPerMinute = 700;
+              gridAgent.submit(buildGrids);
+        });
+
     }
 
     function start() {
