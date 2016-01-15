@@ -1,0 +1,29 @@
+/*-----------------------------------------------------------------------------------
+
+    shortcodes.css
+
+-----------------------------------------------------------------------------------*/
+
+
+@import url("shortcodes/countdown.css");
+@import url("shortcodes/buttons.css");
+@import url("shortcodes/promo.css");
+@import url("shortcodes/feature-box.css");
+@import url("shortcodes/process-steps.css");
+@import url("shortcodes/alerts.css");
+@import url("shortcodes/styled-icons.css");
+@import url("shortcodes/social-icons.css");
+@import url("shortcodes/toggles-accordions.css");
+@import url("shortcodes/tabs.css");
+@import url("shortcodes/faqs.css");
+@import url("shortcodes/clients.css");
+@import url("shortcodes/testimonials.css");
+@import url("shortcodes/team.css");
+@import url("shortcodes/pricing.css");
+@import url("shortcodes/counter-skills.css");
+@import url("shortcodes/carousel.css");
+@import url("shortcodes/overlay.css");
+@import url("shortcodes/headings.css");
+@import url("shortcodes/dividers.css");
+@import url("shortcodes/youtubebg.css");
+@import url("shortcodes/misc.css");

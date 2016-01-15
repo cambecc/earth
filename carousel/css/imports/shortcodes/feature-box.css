@@ -1,0 +1,585 @@
+
+/*-----------------------------------------------------------------------------------
+
+	Shortcodes: feature-box.css
+
+-----------------------------------------------------------------------------------*/
+
+
+/* ----------------------------------------------------------------
+	Featured Boxes
+-----------------------------------------------------------------*/
+
+
+.feature-box {
+	position: relative;
+	margin-top: 20px;
+	padding: 0 0 0 80px;
+}
+
+.feature-box:first-child { margin-top: 0; }
+
+.feature-box .fbox-icon {
+	display: block;
+	position: absolute;
+	width: 64px;
+	height: 64px;
+	top: 0;
+	left: 0;
+}
+
+.feature-box .fbox-icon a,
+.feature-box .fbox-icon i,
+.feature-box .fbox-icon img {
+	display: block;
+	position: relative;
+	width: 100%;
+	height: 100%;
+	color: #FFF;
+}
+
+.feature-box .fbox-icon i,
+.feature-box .fbox-icon img {
+	border-radius: 50%;
+	background-color: #1ABC9C;
+}
+
+.feature-box .fbox-icon i {
+	font-style: normal;
+	font-size: 28px;
+	text-align: center;
+	line-height: 64px;
+}
+
+.feature-box h3 {
+	font-size: 16px;
+	font-weight: 700;
+	text-transform: uppercase;
+	letter-spacing: 1px;
+	margin-bottom: 0;
+	color: #333;
+}
+
+.feature-box p {
+	margin: 8px 0 0 0;
+	color: #999;
+}
+
+.feature-box .before-heading { font-size: 14px; }
+
+
+/* Feature Box - Icon Large
+-----------------------------------------------------------------*/
+
+.feature-box.fbox-large { padding: 0 0 0 115px; }
+
+.feature-box.fbox-large .fbox-icon {
+	width: 96px;
+	height: 96px;
+}
+
+.feature-box.fbox-large .fbox-icon i {
+	font-size: 42px;
+	line-height: 96px;
+}
+
+
+/* Feature Box - Icon Outline
+-----------------------------------------------------------------*/
+
+.feature-box.fbox-outline .fbox-icon {
+	border: 1px solid #1ABC9C;
+	border-radius: 50%;
+	padding: 3px;
+}
+
+.feature-box.fbox-outline .fbox-icon i { line-height: 56px; }
+
+
+/* Feature Box - Icon Outline Large
+-----------------------------------------------------------------*/
+
+.feature-box.fbox-outline.fbox-large .fbox-icon { padding: 4px; }
+
+.feature-box.fbox-outline.fbox-large .fbox-icon i { line-height: 86px; }
+
+
+/* Feature Box - Icon Rounded
+-----------------------------------------------------------------*/
+
+.feature-box.fbox-rounded .fbox-icon { border-radius: 3px !important; }
+
+.feature-box.fbox-rounded .fbox-icon i,
+.feature-box.fbox-rounded .fbox-icon img { border-radius: 3px !important; }
+
+
+/* Feature Box - Icon Rounded & Large
+-----------------------------------------------------------------*/
+
+.feature-box.fbox-rounded.fbox-large .fbox-icon { border-radius: 4px !important; }
+
+.feature-box.fbox-rounded.fbox-large .fbox-icon i,
+.feature-box.fbox-rounded.fbox-large .fbox-icon img { border-radius: 4px !important; }
+
+
+/* Feature Box - Light Background
+-----------------------------------------------------------------*/
+
+.feature-box.fbox-light.fbox-outline .fbox-icon { border-color: #E5E5E5; }
+
+.feature-box.fbox-light .fbox-icon i,
+.feature-box.fbox-light .fbox-icon img {
+	border: 1px solid #E5E5E5;
+	background-color: #F5F5F5;
+	color: #444;
+}
+
+.feature-box.fbox-light .fbox-icon i { line-height: 62px; }
+
+.feature-box.fbox-light.fbox-outline .fbox-icon i { line-height: 54px; }
+
+.feature-box.fbox-light.fbox-large .fbox-icon i { line-height: 96px; }
+
+.feature-box.fbox-light.fbox-outline.fbox-large .fbox-icon i { line-height: 84px; }
+
+
+/* Feature Box - Dark Background
+-----------------------------------------------------------------*/
+
+.feature-box.fbox-dark.fbox-outline .fbox-icon { border-color: #444; }
+
+.feature-box.fbox-dark .fbox-icon i,
+.feature-box.fbox-dark .fbox-icon img { background-color: #333; }
+
+
+/* Feature Box - Border
+-----------------------------------------------------------------*/
+
+.feature-box.fbox-border .fbox-icon {
+	border: 1px solid #1ABC9C;
+	border-radius: 50%;
+}
+
+.feature-box.fbox-border .fbox-icon i,
+.feature-box.fbox-border .fbox-icon img {
+	border: none;
+	background-color: transparent !important;
+	color: #1ABC9C;
+}
+
+.feature-box.fbox-border .fbox-icon { padding: 0; }
+
+.feature-box.fbox-border .fbox-icon i { line-height: 62px !important; }
+
+.feature-box.fbox-border.fbox-large .fbox-icon i { line-height: 94px !important; }
+
+
+/* Feature Box - Border - Light
+-----------------------------------------------------------------*/
+
+.feature-box.fbox-border.fbox-light .fbox-icon { border-color: #E5E5E5; }
+
+.feature-box.fbox-border.fbox-light .fbox-icon i,
+.feature-box.fbox-border.fbox-light .fbox-icon img { color: #888; }
+
+
+/* Feature Box - Border - Dark
+-----------------------------------------------------------------*/
+
+.feature-box.fbox-border.fbox-dark .fbox-icon { border-color: #333; }
+
+.feature-box.fbox-border.fbox-dark .fbox-icon i,
+.feature-box.fbox-border.fbox-dark .fbox-icon img { color: #444; }
+
+
+/* Feature Box - Plain
+-----------------------------------------------------------------*/
+
+.feature-box.fbox-plain .fbox-icon {
+	border: none !important;
+	height: auto !important;
+}
+
+.feature-box.fbox-plain .fbox-icon i,
+.feature-box.fbox-plain .fbox-icon img {
+	border: none !important;
+	background-color: transparent !important;
+	color: #1ABC9C;
+	border-radius: 0;
+}
+
+.feature-box.fbox-plain .fbox-icon i {
+	font-size: 48px;
+	line-height: 1 !important;
+}
+
+.feature-box.fbox-plain .fbox-icon img { height: 64px; }
+
+.feature-box.fbox-plain.fbox-image .fbox-icon { width: auto; }
+
+.feature-box.fbox-plain.fbox-image .fbox-icon img {
+	width: auto;
+	display: inline-block;
+}
+
+.feature-box.fbox-plain.fbox-small { padding-left: 42px; }
+
+.feature-box.fbox-plain.fbox-small .fbox-icon { width: 28px; }
+
+.feature-box.fbox-plain.fbox-small h3 {
+	font-size: 15px;
+	line-height: 26px;
+	margin-bottom: 10px;
+}
+
+.feature-box.fbox-plain.fbox-small p { margin-left: -42px; }
+
+.feature-box.fbox-plain.fbox-small .fbox-icon i { font-size: 28px; }
+
+.feature-box.fbox-plain.fbox-small .fbox-icon img { height: 28px; }
+
+.feature-box.fbox-plain.fbox-large .fbox-icon i { font-size: 72px; }
+
+.feature-box.fbox-plain.fbox-large .fbox-icon img { height: 96px; }
+
+.feature-box.fbox-plain.fbox-light .fbox-icon i,
+.feature-box.fbox-plain.fbox-light .fbox-icon img { color: #888; }
+
+.feature-box.fbox-plain.fbox-dark .fbox-icon i,
+.feature-box.fbox-plain.fbox-dark .fbox-icon img { color: #444; }
+
+
+/* Feature Box - Center
+-----------------------------------------------------------------*/
+
+.feature-box.fbox-center {
+	padding: 0;
+	text-align: center;
+}
+
+.feature-box.fbox-center.fbox-small { padding-left: 0 !important; }
+
+.feature-box.fbox-center .fbox-icon {
+	position: relative;
+	width: 96px;
+	height: 96px;
+	margin: 0 auto 30px;
+}
+
+.feature-box.fbox-center .fbox-icon i {
+	font-size: 42px;
+	line-height: 96px;
+}
+
+.feature-box.fbox-center.fbox-outline .fbox-icon i { line-height: 88px; }
+
+.feature-box.fbox-center p {
+	font-size: 14px;
+	margin-top: 15px;
+}
+
+
+/* Feature Box - Center & Large Icons
+-----------------------------------------------------------------*/
+
+.feature-box.fbox-center.fbox-large .fbox-icon {
+	width: 128px;
+	height: 128px;
+}
+
+.feature-box.fbox-center.fbox-large .fbox-icon i {
+	font-size: 70px;
+	line-height: 128px;
+}
+
+.feature-box.fbox-center.fbox-large.fbox-outline .fbox-icon i { line-height: 118px; }
+
+.feature-box.fbox-center.fbox-light .fbox-icon i { line-height: 94px; }
+
+.feature-box.fbox-center.fbox-light.fbox-outline .fbox-icon i { line-height: 86px; }
+
+.feature-box.fbox-center.fbox-light.fbox-outline.fbox-large .fbox-icon i { line-height: 114px; }
+
+.feature-box.fbox-center.fbox-border .fbox-icon i { line-height: 94px !important; }
+
+.feature-box.fbox-center.fbox-large.fbox-border .fbox-icon i { line-height: 126px !important; }
+
+.feature-box.fbox-center.fbox-plain .fbox-icon i { font-size: 84px; }
+
+.feature-box.fbox-center.fbox-plain .fbox-icon img { height: 96px; }
+
+.feature-box.fbox-center.fbox-large.fbox-plain .fbox-icon i { font-size: 112px; }
+
+.feature-box.fbox-center.fbox-large.fbox-plain .fbox-icon img { height: 128px; }
+
+
+/* Feature Box - Center & Large Icons
+-----------------------------------------------------------------*/
+
+.feature-box.fbox-center.fbox-small .fbox-icon {
+	width: 64px;
+	height: 64px;
+}
+
+.feature-box.fbox-center.fbox-small .fbox-icon i {
+	font-size: 28px;
+	line-height: 64px;
+}
+
+.feature-box.fbox-center.fbox-small.fbox-outline .fbox-icon i { line-height: 58px; }
+
+.feature-box.fbox-center.fbox-light.fbox-outline.fbox-small .fbox-icon i { line-height: 54px; }
+
+.feature-box.fbox-center.fbox-small.fbox-border .fbox-icon i { line-height: 62px !important; }
+
+.feature-box.fbox-center.fbox-small.fbox-plain .fbox-icon i { font-size: 56px; }
+
+.feature-box.fbox-center.fbox-small.fbox-plain .fbox-icon img { height: 64px; }
+
+.feature-box.fbox-center.fbox-small p {
+	font-size: 14px;
+	margin-top: 10px;
+}
+
+.feature-box.fbox-center.fbox-plain.fbox-small p { margin-left: 0; }
+
+
+/* Feature Box - Right
+-----------------------------------------------------------------*/
+
+.feature-box.fbox-right {
+	padding: 0 80px 0 0;
+	text-align: right;
+}
+
+.feature-box.fbox-right.fbox-large { padding-right: 115px; }
+
+.feature-box.fbox-right .fbox-icon {
+	left: auto;
+	right: 0;
+}
+
+.feature-box.fbox-right.fbox-plain.fbox-small { padding: 0 42px 0 0; }
+
+.feature-box.fbox-right.fbox-plain.fbox-small p { margin: 0 -42px 0 0; }
+
+
+/* Feature Box - Subtitle
+-----------------------------------------------------------------*/
+
+.feature-box h3 + .fbox-icon { margin-top: 20px !important; }
+
+.feature-box h3 span.subtitle {
+	display: block;
+	margin-top: 5px;
+	color: #444;
+	font-weight: 300;
+	text-transform: none;
+}
+
+.feature-box.fbox-center:not(.fbox-bg) h3:after {
+	content: '';
+	display: block;
+	margin: 20px auto;
+	width: 30px;
+	border-top: 2px solid #555;
+	-webkit-transition: width .3s ease;
+	-o-transition: width .3s ease;
+	transition: width .3s ease;
+}
+
+.feature-box.fbox-center:not(.fbox-bg):hover h3:after { width: 50px; }
+
+.feature-box.fbox-center.noborder:not(.fbox-bg) h3:after,
+.feature-box.fbox-center.nobottomborder:not(.fbox-bg) h3:after { display: none; }
+
+.feature-box.fbox-center.fbox-italic p {
+	font-style: italic;
+	font-family: 'Lato', sans-serif;
+}
+
+
+/* Feature Box - Background
+-----------------------------------------------------------------*/
+
+.feature-box.fbox-bg.fbox-center {
+	margin-top: 68px;
+	padding: 68px 30px 30px;
+	background-color: #FFF;
+	border: 1px solid #E5E5E5;
+	border-radius: 5px;
+}
+
+.feature-box.fbox-bg.fbox-center:first-child { margin-top: 48px; }
+
+.feature-box.fbox-bg.fbox-center.fbox-large {
+	margin-top: 84px;
+	padding-top: 84px;
+}
+
+.feature-box.fbox-bg.fbox-center.fbox-large:first-child { margin-top: 64px; }
+
+.feature-box.fbox-bg.fbox-center .fbox-icon {
+	position: absolute;
+	top: -48px;
+	left: 50%;
+	margin: 0 0 0 -48px;
+}
+
+.feature-box.fbox-bg.fbox-center.fbox-large .fbox-icon {
+	top: -64px;
+	left: 50%;
+	margin-left: -64px;
+}
+
+.feature-box.fbox-bg.fbox-center.fbox-plain .fbox-icon,
+.feature-box.fbox-bg.fbox-center.fbox-border .fbox-icon,
+.feature-box.fbox-bg.fbox-center.fbox-outline .fbox-icon { background-color: #FFF; }
+
+
+/* Animated Icon Hovers
+-----------------------------------------------------------------*/
+
+.fbox-effect .fbox-icon i { z-index: 1; }
+
+.fbox-effect .fbox-icon i:after {
+	pointer-events: none;
+	position: absolute;
+	width: 100%;
+	height: 100%;
+	border-radius: 50%;
+	content: '';
+	-webkit-box-sizing: content-box;
+	-moz-box-sizing: content-box;
+	box-sizing: content-box;
+}
+
+.fbox-rounded.fbox-effect .fbox-icon i:after { border-radius: 3px; }
+
+.fbox-effect .fbox-icon i {
+	-webkit-transition: background-color 0.3s, color 0.3s;
+	-o-transition: background-color 0.3s, color 0.3s;
+	transition: background-color 0.3s, color 0.3s;
+}
+
+.fbox-effect .fbox-icon i:after {
+	top: -3px;
+	left: -3px;
+	padding: 3px;
+	box-shadow: 0 0 0 2px #333;
+	-webkit-transition: -webkit-transform 0.3s, opacity 0.3s;
+	-webkit-transform: scale(.8);
+	-moz-transition: -moz-transform 0.3s, opacity 0.3s;
+	-moz-transform: scale(.8);
+	-ms-transform: scale(.8);
+	transition: transform 0.3s, opacity 0.3s;
+	transform: scale(.8);
+	opacity: 0;
+}
+
+.fbox-effect .fbox-icon i:hover,
+.fbox-effect:hover .fbox-icon i {
+	background-color: #333;
+	color: #FFF;
+}
+
+.fbox-effect.fbox-dark .fbox-icon i:after { box-shadow: 0 0 0 2px #1ABC9C; }
+
+.fbox-effect.fbox-dark .fbox-icon i:hover,
+.fbox-effect.fbox-dark:hover .fbox-icon i { background-color: #1ABC9C; }
+
+.fbox-effect .fbox-icon i:hover:after,
+.fbox-effect:hover .fbox-icon i:after {
+	-webkit-transform: scale(1);
+	-moz-transform: scale(1);
+	-ms-transform: scale(1);
+	transform: scale(1);
+	opacity: 1;
+}
+
+/* Icon Effects - Bordered
+-----------------------------------------------------------------*/
+
+.fbox-border.fbox-effect .fbox-icon i {
+	-webkit-transition: color 0.5s, box-shadow 0.5s, background-color 0.5s;
+	-o-transition: color 0.5s, box-shadow 0.5s, background-color 0.5s;
+	transition: color 0.5s, box-shadow 0.5s, background-color 0.5s;
+}
+
+.fbox-border.fbox-effect .fbox-icon i:after {
+	top: -2px;
+	left: -2px;
+	padding: 2px;
+	z-index: -1;
+	box-shadow: none;
+	background-image: url('../../../images/icons/iconalt.svg');
+	background-position: center center;
+	background-size: 100% 100%;
+	-webkit-transition: -webkit-transform 0.5s, opacity 0.5s, background-color 0.5s;
+	-o-transition: -moz-transform 0.5s, opacity 0.5s, background-color 0.5s;
+	transition: transform 0.5s, opacity 0.5s, background-color 0.5s;
+}
+
+.fbox-border.fbox-rounded.fbox-effect .fbox-icon i:after { border-radius: 3px; }
+
+.fbox-border.fbox-effect .fbox-icon i:hover,
+.fbox-border.fbox-effect:hover .fbox-icon i {
+	color: #FFF;
+	box-shadow: 0 0 0 1px #333;
+}
+
+.fbox-border.fbox-effect .fbox-icon i:after {
+	-webkit-transform: scale(1.3);
+	-moz-transform: scale(1.3);
+	-ms-transform: scale(1.3);
+	transform: scale(1.3);
+	opacity: 0;
+	background-color: #333;
+}
+
+.fbox-border.fbox-effect.fbox-dark .fbox-icon i:hover,
+.fbox-border.fbox-effect.fbox-dark:hover .fbox-icon i { box-shadow: 0 0 0 1px #1ABC9C; }
+
+.fbox-border.fbox-effect.fbox-dark .fbox-icon i:after { background-color: #1ABC9C; }
+
+.fbox-border.fbox-effect .fbox-icon i:hover:after,
+.fbox-border.fbox-effect:hover .fbox-icon i:after {
+	-webkit-transform: scale(1);
+	-moz-transform: scale(1);
+	-ms-transform: scale(1);
+	transform: scale(1);
+	opacity: 1;
+}
+
+
+/* Media Featured Box
+-----------------------------------------------------------------*/
+
+.feature-box.media-box { padding: 0; }
+
+.feature-box.media-box .fbox-media { margin: 0 0 25px; }
+
+.feature-box.media-box .fbox-media,
+.feature-box.media-box .fbox-media a,
+.feature-box.media-box .fbox-media img {
+	position: relative;
+	display: block;
+	width: 100%;
+	height: auto;
+}
+
+.feature-box.media-box .fbox-media iframe { display: block; }
+
+.feature-box.media-box p { margin-top: 17px; }
+
+.feature-box.media-box.fbox-bg .fbox-media { margin: 0; }
+
+.feature-box.media-box.fbox-bg .fbox-desc {
+	padding: 25px;
+	background-color: #FFF;
+	border: 1px solid #E5E5E5;
+	border-top: 0;
+	border-radius: 0 0 5px 5px;
+}
+
+.feature-box.media-box.fbox-bg .fbox-media img { border-radius: 5px 5px 0 0; }

@@ -1,0 +1,263 @@
+
+/*-----------------------------------------------------------------------------------
+
+    Shortcodes: pricing.css
+
+-----------------------------------------------------------------------------------*/
+
+
+/* ----------------------------------------------------------------
+	Pricing Boxes
+-----------------------------------------------------------------*/
+
+.pricing { position: relative; }
+
+.pricing [class^=col-] {
+	padding: 0;
+	margin-top: 20px;
+}
+
+
+/* Pricing Boxes
+-----------------------------------------------------------------*/
+
+.pricing-box {
+	position: relative;
+	border: 1px solid rgba(0,0,0,0.075);
+	border-radius: 3px;
+	text-align: center;
+	box-shadow: 0 1px 1px rgba(0,0,0,0.1);
+	background-color: #F5F5F5;
+}
+
+
+/* Pricing Boxes - Title
+-----------------------------------------------------------------*/
+
+.pricing-title {
+	padding: 15px 0;
+	background-color: #F9F9F9;
+	border-radius: 3px 3px 0 0;
+	text-shadow: 1px 1px 1px #FFF;
+	border-bottom: 1px solid rgba(0,0,0,0.05);
+}
+
+.pricing-title h3 {
+	margin: 0;
+	font-size: 20px;
+	letter-spacing: 1px;
+	font-weight: bold;
+	text-transform: uppercase;
+	color: #555;
+}
+
+.pricing-title span {
+	display: block;
+	color: #999;
+	font-weight: 300;
+	font-size: 14px;
+	margin-top: 3px;
+	text-transform: uppercase;
+}
+
+
+/* Pricing Boxes - Price
+-----------------------------------------------------------------*/
+
+.pricing-price {
+	position: relative;
+	padding: 25px 0;
+	color: #333;
+	font-weight: 300;
+	font-size: 64px;
+	line-height: 1;
+}
+
+.pricing-price:after {
+	content: '';
+	position: absolute;
+	width: 100px;
+	border-top: 1px solid rgba(0,0,0,0.1);
+	top: auto;
+	bottom: 0;
+	left: 50%;
+	margin-left: -50px;
+}
+
+.pricing-price span {
+	display: inline-block;
+	vertical-align: top;
+	margin: 7px 3px 0 0;
+	font-size: 28px;
+	font-weight: normal;
+}
+
+.pricing-price span.price-tenure {
+	vertical-align: baseline;
+	font-size: 16px;
+	font-weight: normal;
+	color: #999;
+	margin: 0 0 0 3px;
+}
+
+
+/* Pricing Boxes - Features
+-----------------------------------------------------------------*/
+
+.pricing-features { border-bottom: 1px solid rgba(0,0,0,0.075); }
+
+.pricing-features ul {
+	margin: 0;
+	padding: 15px 0;
+	list-style: none;
+}
+
+.pricing-features li {
+	padding: 6px 0;
+	font-size: 14px;
+}
+
+
+/* Pricing Boxes - Action
+-----------------------------------------------------------------*/
+
+.pricing-action { padding: 15px 30px; }
+
+
+/* Pricing Boxes - Best Price
+-----------------------------------------------------------------*/
+
+.pricing-box.best-price {
+	background-color: #FFF;
+	box-shadow: 0 0 8px rgba(0,0,0,0.1);
+	z-index: 10;
+}
+
+.pricing-box.best-price { margin: -20px -1px 0 -1px; }
+
+.pricing-box.best-price .pricing-title {
+	background-color: #FFF;
+	padding: 20px 0;
+}
+
+.pricing-box.best-price .pricing-title h3 { font-size: 22px; }
+
+.pricing-box.best-price .pricing-price {
+	color: #1ABC9C;
+	font-size: 72px;
+}
+
+
+/* Pricing Boxes - Minimal
+-----------------------------------------------------------------*/
+
+.pricing-box.pricing-minimal .pricing-price {
+	background-color: #FFF;
+	border-bottom: 1px solid rgba(0,0,0,0.075);
+}
+
+.pricing-box.pricing-minimal .pricing-price:after { display: none; }
+
+
+/* Pricing Boxes - 5 Columns
+-----------------------------------------------------------------*/
+
+.pricing.pricing-5 .pricing-box {
+	float: left;
+	width: 20%;
+	margin-top: 20px;
+}
+
+.pricing.pricing-5 .pricing-box.best-price { margin-top: 0; }
+
+.pricing.pricing-5 .pricing-box:nth-child(5) { margin-left: -1px; }
+
+.pricing.pricing-5 .pricing-title h3 { font-size: 18px; }
+
+.pricing.pricing-5 .best-price .pricing-title h3 { font-size: 20px; }
+
+
+/* Pricing Boxes - Extended
+-----------------------------------------------------------------*/
+
+.pricing-box.pricing-extended {
+	background-color: #FFF;
+	text-align: left;
+}
+
+.pricing-box.pricing-extended .pricing-desc {
+	float: left;
+	width: 75%;
+	padding: 25px;
+}
+
+.pricing-box.pricing-extended .pricing-title {
+	background-color: transparent;
+	padding-top: 0;
+	text-align: left;
+}
+
+.pricing-box.pricing-extended .pricing-features { border: 0; }
+
+.pricing-box.pricing-extended .pricing-features ul { padding: 15px 0 0 0; }
+
+.pricing-box.pricing-extended .pricing-features li {
+	padding: 6px 0;
+	font-size: 15px;
+	width: 50%;
+	float: left;
+}
+
+.pricing-box.pricing-extended .pricing-features ul li i {
+	position: relative;
+	top: 1px;
+	width: 16px;
+	margin-right: 2px;
+}
+
+.pricing-box.pricing-extended .pricing-action-area {
+	position: absolute;
+	top: 0;
+	left: auto;
+	right: 0;
+	width: 25%;
+	height: 100%;
+	border-left: 1px solid rgba(0,0,0,0.05);
+	background-color: #F9F9F9;
+	padding: 30px;
+	border-radius: 0 3px 3px 0;
+	text-align: center;
+}
+
+.pricing-box.pricing-extended .pricing-action-area .pricing-price,
+.pricing-box.pricing-extended .pricing-action-area .pricing-action { padding: 0; }
+
+.pricing-box.pricing-extended .pricing-action-area .pricing-price { padding-bottom: 20px; }
+
+.pricing-box.pricing-extended .pricing-action-area .pricing-price:after { display: none; }
+
+.pricing-box.pricing-extended .pricing-action-area .pricing-price span.price-tenure {
+	display: block;
+	margin: 10px 0 0 0;
+	font-weight: 300;
+	text-transform: uppercase;
+	font-size: 14px;
+}
+
+.pricing-box.pricing-extended .pricing-meta {
+	color: #999;
+	font-weight: 300;
+	font-size: 14px;
+	letter-spacing: 1px;
+	text-transform: uppercase;
+	padding-bottom: 10px;
+}
+
+.table-comparison,
+.table-comparison th { text-align: center; }
+
+.table-comparison th:first-child,
+.table-comparison td:first-child {
+	text-align: left;
+	font-weight: bold;
+}
