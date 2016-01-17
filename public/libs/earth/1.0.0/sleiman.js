@@ -10,8 +10,8 @@
    var Maxx = 1000;
    var Maxy =  500;
    var Maxz =  500;
-   var GridResolutionx= HeatSinkImageWidth-4;
-   var GridResolutiony= HeatSinkImageHeight-4;
+   var GridResolutionx= 10;// HeatSinkImageWidth-4;
+   var GridResolutiony= 10; //HeatSinkImageHeight-4;
    var GridResolutionz= 10;
    var Gridbuffer = 4; // 2 data points on each side
    var LocationX = 136;  //Between 0 and 360
@@ -36,7 +36,7 @@
    var SoilThermalCapacityperm3 = 2.25 * 0.00277778; // 2.25 is average and 277.778 is to convert from MJ to Wh
    var SoilThermalCapacity = SoilThermalCapacityperm3/HeatAveDepth;
 
-   var HeatSinkNetNumX = HeatSinkFromImageNumber;
+   var HeatSinkNetNumX = 1;// HeatSinkFromImageNumber;
    var HeatSinkNetNumY = 1;
 //   var HeatSinkX = new Array (HeatSinkNetNumX*HeatSinkNetNumY);
 //   var HeatSinkY = new Array (HeatSinkNetNumX*HeatSinkNetNumY);
@@ -54,7 +54,7 @@
    var glWindyOutput = new Array(glTotalGridSize);
    var glTemperatureOutput = new Array(glTotalGridSize);
    var glPressureOutput = new Array(glTotalGridSize);
-   var glMonthToSimulate, glHourToSimulate, glSourceWaterTemperature, glAltitude, glGallonsPerMinute, glPrmiaryWaterVolume, glSecondaryWaterVolume, glHillsHeight, glNetworkArea;
+   var glMonthToSimulate, glHourToSimulate, glSourceWaterTemperature, glAltitude, glGallonsPerMinute, glPrmiaryWaterVolume, glSecondaryWaterVolume, glHillsHeight, glNetworkArea, glRayyanOnOFF;
 
 function createNetworkLine (startingIndex, startingX, startingY, Xratio, Yratio, lineLength)
 {
@@ -303,7 +303,7 @@ DM[2][1][1] = DMNormSum;
 
     			Temperaturet1[i+1][j+1][k+1] = Temperaturet[i+1][j+1][k+1] + TimeStep *(AirTempVelConst*TempGradient+ Kair*Temp2ndDer);
 */
-    			WindVelocity[i+1][j+1][k+1][0]=AirTempVelConst*WindVelocity[i+1][j+1][k+1][0];
+    		WindVelocity[i+1][j+1][k+1][0]=AirTempVelConst*WindVelocity[i+1][j+1][k+1][0];
 				WindVelocity[i+1][j+1][k+1][1]=AirTempVelConst*WindVelocity[i+1][j+1][k+1][1];
 				WindVelocity[i+1][j+1][k+1][2]=AirTempVelConst*WindVelocity[i+1][j+1][k+1][2];
 
@@ -416,6 +416,7 @@ for(var i=0;i<GridResolutionx+Gridbuffer;i++){
 
 
 }
+
 
 function DisplayTemp(TempToDisplay) {
 
@@ -532,12 +533,54 @@ function TempSimulateClimate(){
 	var WindyOutput = new Array((GridResolutionx+Gridbuffer)*(GridResolutiony+Gridbuffer));
 	var TemperatureOutput = new Array((GridResolutionx+Gridbuffer)*(GridResolutiony+Gridbuffer));
 	var PressureOutput = new Array((GridResolutionx+Gridbuffer)*(GridResolutiony+Gridbuffer));
-  var MonthToSimulate, HourToSimulate, SourceWaterTemperature, Altitude, GallonsPerMinute, PrmiaryWaterVolume, SecondaryWaterVolume, HillsHeight, NetworkArea;
-	SimulateClimate(WindxOutput, WindyOutput, TemperatureOutput, PressureOutput, MonthToSimulate, HourToSimulate, SourceWaterTemperature, Altitude, GallonsPerMinute, PrmiaryWaterVolume, SecondaryWaterVolume, HillsHeight, NetworkArea);
+  var MonthToSimulate, HourToSimulate, SourceWaterTemperature, Altitude, GallonsPerMinute, PrmiaryWaterVolume, SecondaryWaterVolume, HillsHeight, NetworkArea, RayyanOnOFF;
+	SimulateClimate(WindxOutput, WindyOutput, TemperatureOutput, PressureOutput, MonthToSimulate, HourToSimulate, SourceWaterTemperature, Altitude, GallonsPerMinute, PrmiaryWaterVolume, SecondaryWaterVolume, HillsHeight, NetworkArea, RayyanOnOFF);
 
 }
 
-function SimulateClimate(WindxOutput, WindyOutput, TemperatureOutput, PressureOutput, MonthToSimulate, HourToSimulate, SourceWaterTemperature, Altitude, GallonsPerMinute, PrmiaryWaterVolume, SecondaryWaterVolume, HillsHeight, NetworkArea){
+function SimulateClimate(WindxOutput, WindyOutput, TemperatureOutput, PressureOutput, MonthToSimulate, HourToSimulate, SourceWaterTemperature, Altitude, GallonsPerMinute, PrimaryWaterVolume, SecondaryWaterVolume, HillsHeight, NetworkArea, RayyanOnOFF){
+
+if (MonthToSimulate === undefined)
+{
+  MonthToSimulate = 8;
+}
+if (HourToSimulate === undefined)
+{
+  HourToSimulate = 12;
+}
+if (SourceWaterTemperature === undefined)
+{
+  SourceWaterTemperature = 4;
+}
+if (Altitude === undefined)
+{
+  Altitude = 0;
+}
+if (GallonsPerMinute === undefined)
+{
+  gallonsPerminute = 40000;
+}
+if (PrimaryWaterVolume === undefined)
+{
+  PrimaryWaterVolume = 1000000;
+}
+if (SecondaryWaterVolume === undefined)
+{
+  SecondaryWaterVolume = 10000;
+}
+if (HillsHeight === undefined)
+{
+  HillsHeight = 150;
+}
+if (NetworkArea === undefined)
+{
+  NetworkArea = 0.1;
+}
+if (RayyanOnOFF === undefined)
+{
+  RayyanOnOFF = 1;
+}
+
 
 console.log("gallonsPerminute");
 console.log(GallonsPerMinute);
@@ -603,16 +646,35 @@ console.log(GallonsPerMinute);
 	monthlySolarIrradiance[11] = 4142.6/3600;
 	monthlySolarIrradiance[12] = 3716/3600  ;
 
+  var monthlyWindSpeed = new Array (12);
+
+    monthlyWindSpeed[1]  = 11.68914956;
+    monthlyWindSpeed[2]  = 12.44155844;
+    monthlyWindSpeed[3]  = 12.82991202;
+    monthlyWindSpeed[4]  = 12.42727273;
+    monthlyWindSpeed[5]  = 12.58181818;
+    monthlyWindSpeed[6]  = 12.70967742;
+    monthlyWindSpeed[7]  = 12.99393939;
+    monthlyWindSpeed[8]  = 13.13489736;
+    monthlyWindSpeed[9]  = 11.75757576;
+    monthlyWindSpeed[10] = 10.8797654 ;
+    monthlyWindSpeed[11] = 10.92121212;
+    monthlyWindSpeed[12] = 11.28152493;
+
+
+  var WindExponential = 0.34;
+  var naturalWindDirection = 360*Math.random(); // Random angle
+
 	var longestDayExtralength = 2 * 3600; // The longest day in Dubai is around 14 hours, so 2 hours extra
-   	var monthlySunrise = new Array(12);
-   	var monthlySunset   = new Array(12);
+  var monthlySunrise  = new Array(12);
+  var monthlySunset   = new Array(12);
 
 	for(var i=0; i<12;i++){
 		monthlySunrise[i] = (6*3600 + 0.5*longestDayExtralength*Math.cos(Math.PI*(i+1)/6));
 		monthlySunset[i]  = (18*3600 -0.5*longestDayExtralength*Math.cos(Math.PI*(i+1)/6));
 	}
 
-	var ChosenMonth = 7;
+	var ChosenMonth = MonthToSimulate;
 	var ChosenHour = 11; // Needs to be in 24 hour format
 	var ChosenHourInSecs = ChosenHour * 3600; // Everything we do is in seconds
 	var TempSolarIrraniance =0;
@@ -621,7 +683,7 @@ console.log(GallonsPerMinute);
 
    var Temperaturet = new Array(GridResolutionx+Gridbuffer);
    var Temperaturet1 = new Array(GridResolutionx+Gridbuffer);
-   var TemperatureToDisplay = new Array(GridResolutionx+Gridbuffer);
+   //var TemperatureToDisplay = new Array(GridResolutionx+Gridbuffer);
    var WindVelocity = new Array(GridResolutionx+Gridbuffer);
  //  var TemperatureOut = new Array (NumOfSamplesToCollect);
  //  var WindOut = new Array(NumOfSamplesToCollect);
@@ -629,7 +691,7 @@ console.log(GallonsPerMinute);
 for (var i = 0; i < GridResolutionx+Gridbuffer; i++) {
 //  InitialTemperature[i] = new Array(GridResolutiony+Gridbuffer);
   Temperaturet[i] = new Array(GridResolutiony+Gridbuffer);
-  TemperatureToDisplay[i] = new Array(GridResolutiony+Gridbuffer);
+  //TemperatureToDisplay[i] = new Array(GridResolutiony+Gridbuffer);
   Temperaturet1[i] = new Array(GridResolutiony+Gridbuffer);
   WindVelocity[i] = new Array(GridResolutiony+Gridbuffer);
   for (var j=0; j<GridResolutiony+Gridbuffer;j++){
@@ -691,7 +753,8 @@ for(t=0;t<NumOfSamplesToCollect ;t++){
 		TimeSinceSunrise = ChosenHourInSecs + t*NumOfTimeStepsperSample*TimeStep + eps*TimeStep - monthlySunrise[ChosenMonth];
 
 		TempSolarIrraniance = integrationConst*monthlySolarIrradiance[ChosenMonth]*Math.sin(Math.PI * (TimeSinceSunrise/(monthlySunset[ChosenMonth] - monthlySunrise[ChosenMonth])));
-		TemperatureUpdate(Temperaturet, Temperaturet1, WindVelocity,TempSolarIrraniance);
+
+    TemperatureUpdate(Temperaturet, Temperaturet1, WindVelocity,TempSolarIrraniance);
 
 		for (var i = 0; i < GridResolutionx+Gridbuffer; i++){
 			for (var j = 0; j < GridResolutiony+Gridbuffer; j++){

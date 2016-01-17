@@ -1125,48 +1125,105 @@
 
         $( "#water-temperature" ).on( "slidechange", function( event, ui ) {
           var param = event.target.id,
-              value = ui.value;
-              glGallonsPerMinute = 100;
+              glSourceWaterTemperature = ui.value;
               gridAgent.submit(buildGrids);
         });
         $( "#gpm" ).on( "slidechange", function( event, ui ) {
           var param = event.target.id,
               value = ui.value;
-              glGallonsPerMinute = 200;
+              glGallonsPerMinute = ui.value;
               gridAgent.submit(buildGrids);
         });
 
         $( "#primary-water-volume" ).on( "slidechange", function( event, ui ) {
-                  var param = event.target.id,
-                      value = ui.value;
-                      glGallonsPerMinute = 300;
-                      gridAgent.submit(buildGrids);
+          var param = event.target.id,
+              glPrmiaryWaterVolume = ui.value;
+              gridAgent.submit(buildGrids);
         });
 
         $( "#secondary-water-volume" ).on( "slidechange", function( event, ui ) {
           var param = event.target.id,
-              value = ui.value;
-              glGallonsPerMinute = 400;
+              glSecondaryWaterVolume = ui.value;
               gridAgent.submit(buildGrids);
         });
         $( "#heat-network-area" ).on( "slidechange", function( event, ui ) {
           var param = event.target.id,
-              value = ui.value;
-              glGallonsPerMinute = 500;
+              glNetworkArea = ui.value;
               gridAgent.submit(buildGrids);
         });
 
         $( "#MicroClimate-On" ).on( "click", function() {
-          var param = event.target.id,
-              value = ui.value;
-              glGallonsPerMinute = 600;
+              glRayyanOnOFF = 1;
               gridAgent.submit(buildGrids);
         });
 
         $( "#MicroClimate-Off" ).on( "click", function() {
-          var param = event.target.id,
-              value = ui.value;
-              glGallonsPerMinute = 700;
+              glRayyanOnOFF = 0;
+              gridAgent.submit(buildGrids);
+        });
+
+        $( "#level-0" ).on( "click", function() {
+              glAltitude= 0;
+              gridAgent.submit(buildGrids);
+        });
+
+        $( "#level-10" ).on( "click", function() {
+              glAltitude = 10;
+              gridAgent.submit(buildGrids);
+        });
+
+        $( "#level-20" ).on( "click", function() {
+              glAltitude = 20;
+              gridAgent.submit(buildGrids);
+        });
+
+        $( "#level-50" ).on( "click", function() {
+              glAltitude = 50;
+              gridAgent.submit(buildGrids);
+        });
+
+        $( "#level-100" ).on( "click", function() {
+              glAltitude = 100;
+              gridAgent.submit(buildGrids);
+        });
+
+        $( "#level-200" ).on( "click", function() {
+              glAltitude = 200;
+              gridAgent.submit(buildGrids);
+        });
+
+        $( "#level-500" ).on( "click", function() {
+              glAltitude = 500;
+              gridAgent.submit(buildGrids);
+        });
+
+        $( "#Hills-0" ).on( "click", function() {
+              glHillsHeight = 0;
+              gridAgent.submit(buildGrids);
+        });
+
+        $( "#Hills-50" ).on( "click", function() {
+              glHillsHeight = 50;
+              gridAgent.submit(buildGrids);
+        });
+
+        $( "#Hills-100" ).on( "click", function() {
+              glHillsHeight = 100;
+              gridAgent.submit(buildGrids);
+        });
+
+        $( "#Hills-150" ).on( "click", function() {
+              glHillsHeight = 150;
+              gridAgent.submit(buildGrids);
+        });
+
+        $( "#Hills-200" ).on( "click", function() {
+              glHillsHeight = 200;
+              gridAgent.submit(buildGrids);
+        });
+
+        $( "#Hills-250" ).on( "click", function() {
+              glHillsHeight = 250;
               gridAgent.submit(buildGrids);
         });
 
