@@ -9,7 +9,7 @@ var HeatSinkImageWidth = 88;
 var HeatSinkImageHeight= 69;
 var HeatSinkFromImageNumber=1476;
 
-var simulationName = getParameterByName('SimulationType');
+var simulationName = getParameterByName('simulationName');
 if (!simulationName || simulationName == '') simulationName = 'Full';
 var HeatSinkX;
 $.getJSON('data/HeatSinkX_' + simulationName + '.json', function (json) {
@@ -21,6 +21,4 @@ $.getJSON('data/HeatSinkY_' + simulationName + '.json', function (json) {
 });
 
 document.getElementById('simulationBGImage').src = 'simulationImage_' + simulationName + ".png";
-
-document.getElementById('show-menu').innerHTML = 'DCH ' + simulationName;
 //debugger
