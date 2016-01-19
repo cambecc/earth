@@ -1,61 +1,70 @@
 
 
-// function ClimateNode (Temp, Press, Windx, Windy, Windz)
+    // function ClimateNode (Temp, Press, Windx, Windy, Windz)
+
+    var SolomonWidth = 900, SolomonHeight = 705; // These are the height and width of the rendering canvas
+
+    var Kair = 0.000019; // Thermal diffusivity of Air
+    var AirTempVelConst = 0.01; // Effect of temperature difference on air velocity
+    var Maxx = 1000;
+    var Maxy =  500;
+    var Maxz =  500;
+    var GridResolutionx= 10;// HeatSinkImageWidth-4;
+    var GridResolutiony= 10; //HeatSinkImageHeight-4;
+    var GridResolutionz= 10;
+    var Gridbuffer = 4; // 2 data points on each side
+    var LocationX = 136;  //Between 0 and 360
+    var LocationY = 56;  // between 0 and 181
+    var FillerBefore = LocationY*360+LocationX;
+    var FillerBetween = 360- GridResolutionx - Gridbuffer;
+    var FillerAfter   = 360* (180 - (LocationY + GridResolutiony+ Gridbuffer)) + 360 - LocationX;// - GridResolutionx - Gridbuffer;
+    var FillerContent = 0;
+    var DistanceResolutionx = Maxx/GridResolutionx;
+    var DistanceResolutiony = Maxy/GridResolutiony;
+    var DistanceResolutionz = Maxz/GridResolutionz;
+    var TimeStep = 30; // this is in seconds. 300 sec = 5 mins, so 12 steps would be 1 hour
+    var DataTimeStep = 3600; // This is in seconds. It the time we take between climate Snapshots
+    var NumOfSamplesToCollect = 1; // This is the number of climate Snapshots to collect
+    var NumOfTimeStepsperSample = DataTimeStep/TimeStep; // This is the total number of timeSteps for the calculation
+    var SolarIrradiancePerHourMetersquared = 5400;
+    var SolarIrradiancePersecond = SolarIrradiancePerHourMetersquared/(3600); // SolarHeat per second per squared distance used
+    var ReverseSolarIrradiancePerHourMetersquared =      1600;
+    var ReverseSolarIrradiancePersecondTempRatio  =   70/3600;
+    var ReverseSolarIrradiancePersecond = ReverseSolarIrradiancePerHourMetersquared/(3600); //Heat transmitted to the sky through irradiance
+    var HeatAveDepth = 10; // Assuming 10 m average depth penetration for heat
+    var SoilThermalCapacityperm3 = 2.25 * 0.00277778; // 2.25 is average and 277.778 is to convert from MJ to Wh
+    var SoilThermalCapacity = SoilThermalCapacityperm3/HeatAveDepth;
+
+    var HeatSinkNetNumX = 1;// HeatSinkFromImageNumber;
+    var HeatSinkNetNumY = 1;
+    //   var HeatSinkX = new Array (HeatSinkNetNumX*HeatSinkNetNumY);
+    //   var HeatSinkY = new Array (HeatSinkNetNumX*HeatSinkNetNumY);
+
+    var SourcewaterTemp =4;
+    var GoalTemp = 22;
+    var WaterSpecificHeat = 4000 * 0.000277778; // 4000 is average and 0.000277778 is to convert from J to Wh
+    var TotalWaterflow = 200000/(24*60*60); // Total water flow in KG/s
+    var WaterflowPerNode = TotalWaterflow/(HeatSinkNetNumX*HeatSinkNetNumY);
+    var TransferEfficiency = 0.93;
+    var HeatSinkNetEnergyGapPerSec= TransferEfficiency*WaterflowPerNode* WaterSpecificHeat;
 
 
-   var SolomonWidth = 900, SolomonHeight = 705; // These are the height and width of the rendering canvas
+    //Tahas Changes
 
-   var Kair = 0.000019; // Thermal diffusivity of Air
-   var AirTempVelConst = 0.01; // Effect of temperature difference on air velocity
-   var Maxx = 1000;
-   var Maxy =  500;
-   var Maxz =  500;
-   var GridResolutionx= 10;// HeatSinkImageWidth-4;
-   var GridResolutiony= 10; //HeatSinkImageHeight-4;
-   var GridResolutionz= 10;
-   var Gridbuffer = 4; // 2 data points on each side
-   var LocationX = 136;  //Between 0 and 360
-   var LocationY = 56;  // between 0 and 181
-   var FillerBefore = LocationY*360+LocationX;
-   var FillerBetween = 360- GridResolutionx - Gridbuffer;
-   var FillerAfter   = 360* (180 - (LocationY + GridResolutiony+ Gridbuffer)) + 360 - LocationX;// - GridResolutionx - Gridbuffer;
-   var FillerContent = 0;
-   var DistanceResolutionx = Maxx/GridResolutionx;
-   var DistanceResolutiony = Maxy/GridResolutiony;
-   var DistanceResolutionz = Maxz/GridResolutionz;
-   var TimeStep = 30; // this is in seconds. 300 sec = 5 mins, so 12 steps would be 1 hour
-   var DataTimeStep = 3600; // This is in seconds. It the time we take between climate Snapshots
-   var NumOfSamplesToCollect = 1; // This is the number of climate Snapshots to collect
-   var NumOfTimeStepsperSample = DataTimeStep/TimeStep; // This is the total number of timeSteps for the calculation
-   var SolarIrradiancePerHourMetersquared = 5400;
-   var SolarIrradiancePersecond = SolarIrradiancePerHourMetersquared/(3600); // SolarHeat per second per squared distance used
-   var ReverseSolarIrradiancePerHourMetersquared =      1600;
-   var ReverseSolarIrradiancePersecondTempRatio  =   70/3600;
-   var ReverseSolarIrradiancePersecond = ReverseSolarIrradiancePerHourMetersquared/(3600); //Heat transmitted to the sky through irradiance
-   var HeatAveDepth = 10; // Assuming 10 m average depth penetration for heat
-   var SoilThermalCapacityperm3 = 2.25 * 0.00277778; // 2.25 is average and 277.778 is to convert from MJ to Wh
-   var SoilThermalCapacity = SoilThermalCapacityperm3/HeatAveDepth;
+    var totalTimeStepCount = 10;
+    var currentTimeStepIndex = 0;
+    var arraySize = (GridResolutionx+Gridbuffer)*(GridResolutiony+Gridbuffer);
 
-   var HeatSinkNetNumX = 1;// HeatSinkFromImageNumber;
-   var HeatSinkNetNumY = 1;
-//   var HeatSinkX = new Array (HeatSinkNetNumX*HeatSinkNetNumY);
-//   var HeatSinkY = new Array (HeatSinkNetNumX*HeatSinkNetNumY);
+    //Tahas Changes End
 
-   var SourcewaterTemp =4;
-   var GoalTemp = 22;
-   var WaterSpecificHeat = 4000 * 0.000277778; // 4000 is average and 0.000277778 is to convert from J to Wh
-   var TotalWaterflow = 200000/(24*60*60); // Total water flow in KG/s
-   var WaterflowPerNode = TotalWaterflow/(HeatSinkNetNumX*HeatSinkNetNumY);
-   var TransferEfficiency = 0.93;
-   var HeatSinkNetEnergyGapPerSec= TransferEfficiency*WaterflowPerNode* WaterSpecificHeat;
+    var glTotalGridSize= totalTimeStepCount*360*181;
+    var glWindxOutput = new Array(glTotalGridSize);
+    var glWindyOutput = new Array(glTotalGridSize);
+    var glTemperatureOutput = new Array(glTotalGridSize);
+    var glPressureOutput = new Array(glTotalGridSize);
+    var glMonthToSimulate, glHourToSimulate, glSourceWaterTemperature, glAltitude, glGallonsPerMinute, glPrmiaryWaterVolume, glSecondaryWaterVolume, glHillsHeight, glNetworkArea, glRayyanOnOFF;
 
-   var glTotalGridSize= 360*181;
-   var glWindxOutput = new Array(glTotalGridSize);
-   var glWindyOutput = new Array(glTotalGridSize);
-   var glTemperatureOutput = new Array(glTotalGridSize);
-   var glPressureOutput = new Array(glTotalGridSize);
-   var glMonthToSimulate, glHourToSimulate, glSourceWaterTemperature, glAltitude, glGallonsPerMinute, glPrmiaryWaterVolume, glSecondaryWaterVolume, glHillsHeight, glNetworkArea, glRayyanOnOFF;
-
+    
 function createNetworkLine (startingIndex, startingX, startingY, Xratio, Yratio, lineLength)
 {
 
@@ -529,17 +538,17 @@ function getTemperatureColor(TemperatureToColor) {
 
 function TempSimulateClimate(){
 
-	var WindxOutput = new Array((GridResolutionx+Gridbuffer)*(GridResolutiony+Gridbuffer));
-	var WindyOutput = new Array((GridResolutionx+Gridbuffer)*(GridResolutiony+Gridbuffer));
-	var TemperatureOutput = new Array((GridResolutionx+Gridbuffer)*(GridResolutiony+Gridbuffer));
-	var PressureOutput = new Array((GridResolutionx+Gridbuffer)*(GridResolutiony+Gridbuffer));
+	var WindxOutput = new Array(totalTimeStepCount * arraySize);
+	var WindyOutput = new Array(totalTimeStepCount * arraySize);
+	var TemperatureOutput = new Array(totalTimeStepCount * arraySize);
+	var PressureOutput = new Array(totalTimeStepCount * arraySize);
   var MonthToSimulate, HourToSimulate, SourceWaterTemperature, Altitude, GallonsPerMinute, PrmiaryWaterVolume, SecondaryWaterVolume, HillsHeight, NetworkArea, RayyanOnOFF;
 	SimulateClimate(WindxOutput, WindyOutput, TemperatureOutput, PressureOutput, MonthToSimulate, HourToSimulate, SourceWaterTemperature, Altitude, GallonsPerMinute, PrmiaryWaterVolume, SecondaryWaterVolume, HillsHeight, NetworkArea, RayyanOnOFF);
 
 }
 
 function SimulateClimate(WindxOutput, WindyOutput, TemperatureOutput, PressureOutput, MonthToSimulate, HourToSimulate, SourceWaterTemperature, Altitude, GallonsPerMinute, PrimaryWaterVolume, SecondaryWaterVolume, HillsHeight, NetworkArea, RayyanOnOFF){
-
+console.log("SimulateClimate");
 if (MonthToSimulate === undefined)
 {
   MonthToSimulate = 8;
@@ -786,34 +795,34 @@ for(t=0;t<NumOfSamplesToCollect ;t++){
 
 for(var i=0;i<FillerBefore;i++){
   TemperatureOutput[i] = FillerContent;
-  WindxOutput[i] 	     = FillerContent;
-  WindyOutput[i] 	     = FillerContent;
-  PressureOutput[i]    = FillerContent;
+  WindxOutput[(currentTimeStepIndex * arraySize) + i] = FillerContent;
+  WindyOutput[(currentTimeStepIndex * arraySize) + i] = FillerContent;
+  PressureOutput[(currentTimeStepIndex * arraySize) + i] = FillerContent;
 }
 
 for (var j = 0; j < GridResolutiony+Gridbuffer; j++){
     for (var i = 0; i < GridResolutionx+Gridbuffer; i++){
           var temp_val = Temperaturet1[i][j][Gridbuffer/2];
           TemperatureOutput[FillerBefore+i+j*360] = temp_val +273.15;
-          WindxOutput[FillerBefore+i+j*360] 	    = 5000*WindVelocity[i][j][Gridbuffer/2][0] + 1;
-          WindyOutput[FillerBefore+i+j*360] 	    = 5000*WindVelocity[i][j][Gridbuffer/2][1] + 1;
-          PressureOutput[FillerBefore+i+j*360]    = 50-temp_val + 273.15;
+          WindxOutput[(currentTimeStepIndex * arraySize) + FillerBefore+i+j*360] 	    = 5000*WindVelocity[i][j][Gridbuffer/2][0] + 1;
+          WindyOutput[(currentTimeStepIndex * arraySize) + FillerBefore+i+j*360] 	    = 5000*WindVelocity[i][j][Gridbuffer/2][1] + 1;
+          PressureOutput[(currentTimeStepIndex * arraySize) + FillerBefore+i+j*360]    = 50-temp_val + 273.15;
           //console.log(TemperatureOutput[FillerBefore+i+j*360]);
     }
     for (var i = 0; i < FillerBetween; i++){
-          TemperatureOutput[FillerBefore+GridResolutionx+Gridbuffer+i+j*360] = FillerContent;
-          WindxOutput[FillerBefore+GridResolutionx+Gridbuffer+i+j*360] 	     = FillerContent;
-          WindyOutput[FillerBefore+GridResolutionx+Gridbuffer+i+j*360] 	     = FillerContent;
-          PressureOutput[FillerBefore+GridResolutionx+Gridbuffer+i+j*360]    = FillerContent;
+          TemperatureOutput[(currentTimeStepIndex * arraySize) + FillerBefore+GridResolutionx+Gridbuffer+i+j*360] = FillerContent;
+          WindxOutput[(currentTimeStepIndex * arraySize) + FillerBefore+GridResolutionx+Gridbuffer+i+j*360] 	     = FillerContent;
+          WindyOutput[(currentTimeStepIndex * arraySize) + FillerBefore+GridResolutionx+Gridbuffer+i+j*360] 	     = FillerContent;
+          PressureOutput[(currentTimeStepIndex * arraySize) + FillerBefore+GridResolutionx+Gridbuffer+i+j*360]    = FillerContent;
     }
 }
 
   for(var i=0; i<FillerAfter; i++)
   {
-      TemperatureOutput[360*181- FillerAfter + i] = FillerContent;
-      WindxOutput[360*181- FillerAfter + i]       = FillerContent;
-      WindyOutput[360*181 - FillerAfter + i] 	    = FillerContent;
-      PressureOutput[360*181- FillerAfter + i]    = FillerContent;
+      TemperatureOutput[(currentTimeStepIndex * arraySize) + 360*181- FillerAfter + i] = FillerContent;
+      WindxOutput[(currentTimeStepIndex * arraySize) + 360*181- FillerAfter + i]       = FillerContent;
+      WindyOutput[(currentTimeStepIndex * arraySize) + 360*181 - FillerAfter + i] 	    = FillerContent;
+      PressureOutput[(currentTimeStepIndex * arraySize) + 360*181- FillerAfter + i]    = FillerContent;
   }
 
 }
