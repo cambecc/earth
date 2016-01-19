@@ -1,6 +1,5 @@
 
 
-<<<<<<< Updated upstream
     // function ClimateNode (Temp, Press, Windx, Windy, Windz)
 
     var SolomonWidth = 900, SolomonHeight = 705; // These are the height and width of the rendering canvas
@@ -66,64 +65,6 @@
     var glMonthToSimulate, glHourToSimulate, glSourceWaterTemperature, glAltitude, glGallonsPerMinute, glPrmiaryWaterVolume, glSecondaryWaterVolume, glHillsHeight, glNetworkArea, glRayyanOnOFF;
 
     
-=======
-// function ClimateNode (Temp, Press, Windx, Windy, Windz)
-
-
-   var SolomonWidth = 900, SolomonHeight = 705; // These are the height and width of the rendering canvas
-
-   var Kair = 0.000019; // Thermal diffusivity of Air
-   var AirTempVelConst = 0.01; // Effect of temperature difference on air velocity
-   var Maxx = 1000;
-   var Maxy =  500;
-   var Maxz =  500;
-   var GridResolutionx=  HeatSinkImageWidth-4;
-   var GridResolutiony= HeatSinkImageHeight-4;
-   var GridResolutionz= 10;
-   var Gridbuffer = 4; // 2 data points on each side
-   var LocationX = 136;  //Between 0 and 360
-   var LocationY = 56;  // between 0 and 181
-   var FillerBefore = LocationY*360+LocationX;
-   var FillerBetween = 360- GridResolutionx - Gridbuffer;
-   var FillerAfter   = 360* (180 - (LocationY + GridResolutiony+ Gridbuffer)) + 360 - LocationX;// - GridResolutionx - Gridbuffer;
-   var FillerContent = 0;
-   var DistanceResolutionx = Maxx/GridResolutionx;
-   var DistanceResolutiony = Maxy/GridResolutiony;
-   var DistanceResolutionz = Maxz/GridResolutionz;
-   var TimeStep = 30; // this is in seconds. 300 sec = 5 mins, so 12 steps would be 1 hour
-   var DataTimeStep = 3600; // This is in seconds. It the time we take between climate Snapshots
-   var NumOfSamplesToCollect = 1; // This is the number of climate Snapshots to collect
-   var NumOfTimeStepsperSample = DataTimeStep/TimeStep; // This is the total number of timeSteps for the calculation
-   var SolarIrradiancePerHourMetersquared = 5400;
-   var SolarIrradiancePersecond = SolarIrradiancePerHourMetersquared/(3600); // SolarHeat per second per squared distance used
-   var ReverseSolarIrradiancePerHourMetersquared =      1600;
-   var ReverseSolarIrradiancePersecondTempRatio  =   70/3600;
-   var ReverseSolarIrradiancePersecond = ReverseSolarIrradiancePerHourMetersquared/(3600); //Heat transmitted to the sky through irradiance
-   var HeatAveDepth = 10; // Assuming 10 m average depth penetration for heat
-   var SoilThermalCapacityperm3 = 2.25 * 0.00277778; // 2.25 is average and 277.778 is to convert from MJ to Wh
-   var SoilThermalCapacity = SoilThermalCapacityperm3/HeatAveDepth;
-
-   var HeatSinkNetNumX = HeatSinkFromImageNumber;
-   var HeatSinkNetNumY = 1;
-//   var HeatSinkX = new Array (HeatSinkNetNumX*HeatSinkNetNumY);
-//   var HeatSinkY = new Array (HeatSinkNetNumX*HeatSinkNetNumY);
-
-   var SourcewaterTemp =4;
-   var GoalTemp = 22;
-   var WaterSpecificHeat = 4000 * 0.000277778; // 4000 is average and 0.000277778 is to convert from J to Wh
-   var TotalWaterflow = 200000/(24*60*60); // Total water flow in KG/s
-   var WaterflowPerNode = TotalWaterflow/(HeatSinkNetNumX*HeatSinkNetNumY);
-   var TransferEfficiency = 0.93;
-   var HeatSinkNetEnergyGapPerSec= TransferEfficiency*WaterflowPerNode* WaterSpecificHeat;
-
-   var glTotalGridSize= 360*181;
-   var glWindxOutput = new Array(glTotalGridSize);
-   var glWindyOutput = new Array(glTotalGridSize);
-   var glTemperatureOutput = new Array(glTotalGridSize);
-   var glPressureOutput = new Array(glTotalGridSize);
-   var glMonthToSimulate, glHourToSimulate, glSourceWaterTemperature, glAltitude, glGallonsPerMinute, glPrmiaryWaterVolume, glSecondaryWaterVolume, glHillsHeight, glNetworkArea, glRayyanOnOFF;
-
->>>>>>> Stashed changes
 function createNetworkLine (startingIndex, startingX, startingY, Xratio, Yratio, lineLength)
 {
 
@@ -371,7 +312,7 @@ DM[2][1][1] = DMNormSum;
 
     			Temperaturet1[i+1][j+1][k+1] = Temperaturet[i+1][j+1][k+1] + TimeStep *(AirTempVelConst*TempGradient+ Kair*Temp2ndDer);
 */
-    			WindVelocity[i+1][j+1][k+1][0]=AirTempVelConst*WindVelocity[i+1][j+1][k+1][0];
+    		WindVelocity[i+1][j+1][k+1][0]=AirTempVelConst*WindVelocity[i+1][j+1][k+1][0];
 				WindVelocity[i+1][j+1][k+1][1]=AirTempVelConst*WindVelocity[i+1][j+1][k+1][1];
 				WindVelocity[i+1][j+1][k+1][2]=AirTempVelConst*WindVelocity[i+1][j+1][k+1][2];
 
@@ -484,6 +425,7 @@ for(var i=0;i<GridResolutionx+Gridbuffer;i++){
 
 
 }
+
 
 function DisplayTemp(TempToDisplay) {
 
@@ -625,7 +567,7 @@ if (Altitude === undefined)
 }
 if (GallonsPerMinute === undefined)
 {
-  gallonsPerminute = 4000000;
+  gallonsPerminute = 40000;
 }
 if (PrimaryWaterVolume === undefined)
 {
@@ -729,20 +671,12 @@ console.log(GallonsPerMinute);
     monthlyWindSpeed[12] = 11.28152493;
 
 
-
-
-
-
-
-
-
-
-
-
+  var WindExponential = 0.34;
+  var naturalWindDirection = 360*Math.random(); // Random angle
 
 	var longestDayExtralength = 2 * 3600; // The longest day in Dubai is around 14 hours, so 2 hours extra
-   	var monthlySunrise = new Array(12);
-   	var monthlySunset   = new Array(12);
+  var monthlySunrise  = new Array(12);
+  var monthlySunset   = new Array(12);
 
 	for(var i=0; i<12;i++){
 		monthlySunrise[i] = (6*3600 + 0.5*longestDayExtralength*Math.cos(Math.PI*(i+1)/6));
