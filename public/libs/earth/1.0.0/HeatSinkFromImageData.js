@@ -19,4 +19,6 @@ var HeatSinkY;
 $.getJSON('data/HeatSinkY_' + simulationName + '.json', function (json) {
     HeatSinkY = json;
 });
+
+document.getElementById('simulationBGImage').src = 'simulationImage_' + simulationName + ".png";
 //debugger
