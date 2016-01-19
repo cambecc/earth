@@ -9,8 +9,9 @@
     var Maxx = 1000;
     var Maxy =  500;
     var Maxz =  500;
-    var GridResolutionx= 10;// HeatSinkImageWidth-4;
-    var GridResolutiony= 10; //HeatSinkImageHeight-4;
+    var GridResolutionx=  HeatSinkImageWidth-4;
+    var GridResolutiony= HeatSinkImageHeight-4;
+    console.log(GridResolutionx);
     var GridResolutionz= 10;
     var Gridbuffer = 4; // 2 data points on each side
     var LocationX = 136;  //Between 0 and 360
@@ -35,7 +36,7 @@
     var SoilThermalCapacityperm3 = 2.25 * 0.00277778; // 2.25 is average and 277.778 is to convert from MJ to Wh
     var SoilThermalCapacity = SoilThermalCapacityperm3/HeatAveDepth;
 
-    var HeatSinkNetNumX = 1;// HeatSinkFromImageNumber;
+    var HeatSinkNetNumX =  HeatSinkFromImageNumber;
     var HeatSinkNetNumY = 1;
     //   var HeatSinkX = new Array (HeatSinkNetNumX*HeatSinkNetNumY);
     //   var HeatSinkY = new Array (HeatSinkNetNumX*HeatSinkNetNumY);
@@ -51,7 +52,7 @@
 
     //Tahas Changes
 
-    var totalTimeStepCount = 10;
+    var totalTimeStepCount = 1;
     var currentTimeStepIndex = 0;
     var arraySize = (GridResolutionx+Gridbuffer)*(GridResolutiony+Gridbuffer);
 
@@ -64,7 +65,7 @@
     var glPressureOutput = new Array(glTotalGridSize);
     var glMonthToSimulate, glHourToSimulate, glSourceWaterTemperature, glAltitude, glGallonsPerMinute, glPrmiaryWaterVolume, glSecondaryWaterVolume, glHillsHeight, glNetworkArea, glRayyanOnOFF;
 
-    
+
 function createNetworkLine (startingIndex, startingX, startingY, Xratio, Yratio, lineLength)
 {
 
@@ -548,7 +549,7 @@ function TempSimulateClimate(){
 }
 
 function SimulateClimate(WindxOutput, WindyOutput, TemperatureOutput, PressureOutput, MonthToSimulate, HourToSimulate, SourceWaterTemperature, Altitude, GallonsPerMinute, PrimaryWaterVolume, SecondaryWaterVolume, HillsHeight, NetworkArea, RayyanOnOFF){
-console.log("SimulateClimate");
+//console.log("SimulateClimate");
 if (MonthToSimulate === undefined)
 {
   MonthToSimulate = 8;
@@ -765,6 +766,7 @@ for(t=0;t<NumOfSamplesToCollect ;t++){
 
     TemperatureUpdate(Temperaturet, Temperaturet1, WindVelocity,TempSolarIrraniance);
 
+    console.log(GridResolutionx);
 		for (var i = 0; i < GridResolutionx+Gridbuffer; i++){
 			for (var j = 0; j < GridResolutiony+Gridbuffer; j++){
 				for (var k = 0; k < GridResolutionz+Gridbuffer; k++){
