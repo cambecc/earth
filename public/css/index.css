@@ -71,6 +71,11 @@
   width: SolomonWidth;
   height: SolomonHeight;
 }
+.fill-screen2 {
+  width: SolomonWidth;
+  height: SolomonHeight;
+  opacity: 0.3;
+}
 
 .fixed-screen {
   /*min-width:500px;

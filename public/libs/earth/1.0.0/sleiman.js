@@ -2,7 +2,7 @@
 
     // function ClimateNode (Temp, Press, Windx, Windy, Windz)
 
-    var SolomonWidth = 900, SolomonHeight = 705; // These are the height and width of the rendering canvas
+    var SolomonWidth = 770, SolomonHeight = 700; // These are the height and width of the rendering canvas
 
     var Kair = 0.000019; // Thermal diffusivity of Air
     var AirTempVelConst = 0.01; // Effect of temperature difference on air velocity
@@ -11,11 +11,11 @@
     var Maxz =  500;
     var GridResolutionx=  HeatSinkImageWidth-4;
     var GridResolutiony= HeatSinkImageHeight-4;
-    console.log(GridResolutionx);
+    //console.log(GridResolutionx);
     var GridResolutionz= 10;
     var Gridbuffer = 4; // 2 data points on each side
-    var LocationX = 136;  //Between 0 and 360
-    var LocationY = 56;  // between 0 and 181
+    var LocationX = 136;  //Between 0 and 359
+    var LocationY = 40;  // between 0 and 180
     var FillerBefore = LocationY*360+LocationX;
     var FillerBetween = 360- GridResolutionx - Gridbuffer;
     var FillerAfter   = 360* (180 - (LocationY + GridResolutiony+ Gridbuffer)) + 360 - LocationX;// - GridResolutionx - Gridbuffer;
@@ -44,7 +44,7 @@
     var SourcewaterTemp =4;
     var GoalTemp = 22;
     var WaterSpecificHeat = 4000 * 0.000277778; // 4000 is average and 0.000277778 is to convert from J to Wh
-    var TotalWaterflow = 200000/(24*60*60); // Total water flow in KG/s
+    var TotalWaterflow = 2000000/(24*60*60); // Total water flow in KG/s
     var WaterflowPerNode = TotalWaterflow/(HeatSinkNetNumX*HeatSinkNetNumY);
     var TransferEfficiency = 0.93;
     var HeatSinkNetEnergyGapPerSec= TransferEfficiency*WaterflowPerNode* WaterSpecificHeat;
@@ -223,7 +223,7 @@ for (i=0; i<3;i++){
 	}
 }
 
-var DMKeepPertimeStep = 0.3;
+var DMKeepPertimeStep = 0.5;
 
 var DMCorRatio  = 0.4;
 var DMEdgeRatio = 0.5;
@@ -350,7 +350,6 @@ for (var i=1; i<GridResolutionx+Gridbuffer-1; i++){
 
 for (var k=0; k<HeatSinkNetNumX* HeatSinkNetNumY;k++)
 {
-
   if (Temperaturet1[HeatSinkX[k]][HeatSinkY[k]][Gridbuffer/2] - TimeStep * HeatSinkNetEnergyGapPerSec * (Temperaturet1[HeatSinkX[k]][HeatSinkY[k]][Gridbuffer/2] - SourcewaterTemp) >SourcewaterTemp)
   {
     Temperaturet1[HeatSinkX[k]][HeatSinkY[k]][Gridbuffer/2] = Temperaturet1[HeatSinkX[k]][HeatSinkY[k]][Gridbuffer/2] - TimeStep * HeatSinkNetEnergyGapPerSec * (Temperaturet1[HeatSinkX[k]][HeatSinkY[k]][Gridbuffer/2] - SourcewaterTemp) ;
@@ -549,7 +548,7 @@ function TempSimulateClimate(){
 }
 
 function SimulateClimate(WindxOutput, WindyOutput, TemperatureOutput, PressureOutput, MonthToSimulate, HourToSimulate, SourceWaterTemperature, Altitude, GallonsPerMinute, PrimaryWaterVolume, SecondaryWaterVolume, HillsHeight, NetworkArea, RayyanOnOFF){
-//console.log("SimulateClimate");
+console.log("SimulateClimate");
 if (MonthToSimulate === undefined)
 {
   MonthToSimulate = 8;
@@ -591,9 +590,6 @@ if (RayyanOnOFF === undefined)
   RayyanOnOFF = 1;
 }
 
-
-console.log("gallonsPerminute");
-console.log(GallonsPerMinute);
 //
 // Create all of the needed arrays.
 //
@@ -766,7 +762,7 @@ for(t=0;t<NumOfSamplesToCollect ;t++){
 
     TemperatureUpdate(Temperaturet, Temperaturet1, WindVelocity,TempSolarIrraniance);
 
-    console.log(GridResolutionx);
+    //console.log(GridResolutionx);
 		for (var i = 0; i < GridResolutionx+Gridbuffer; i++){
 			for (var j = 0; j < GridResolutiony+Gridbuffer; j++){
 				for (var k = 0; k < GridResolutionz+Gridbuffer; k++){
