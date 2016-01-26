@@ -893,12 +893,12 @@
             .attr("height", label.offsetHeight / 2);
 
         d3.select("#show-menu").on("click", function() {
-            if (µ.isEmbeddedInIFrame()) {
-                window.open("http://earth.nullschool.net/" + window.location.hash, "_blank");
-            }
-            else {
+            // if (µ.isEmbeddedInIFrame()) {
+            //     window.open("http://earth.nullschool.net/" + window.location.hash, "_blank");
+            // }
+            // else {
                 d3.select("#menu").classed("invisible", !d3.select("#menu").classed("invisible"));
-            }
+            // }
         });
 
         if (µ.isFF()) {
