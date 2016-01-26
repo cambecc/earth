@@ -242,7 +242,7 @@
 
 	document.getElementById("frameDiv").style.display = "none";
 	var height = 0;
-	
+
 	document.addEventListener('DOMContentLoaded', function() {
 		height = document.getElementById("carousel").offsetHeight;
 		document.getElementById('iframe').setAttribute("style","height:700px");
@@ -260,7 +260,7 @@
 	hideCarouselAndShowIframe();
 	document.getElementById("iframe").src = "http://localhost:8080/?SimulationType=SouthPark";
 	}
-	
+
 	function changeLinkToNorth() {
 	hideCarouselAndShowIframe();
 	document.getElementById("iframe").src = "http://localhost:8080/?SimulationType=NorthPark ";
@@ -271,7 +271,7 @@
 	}
 	function changeLinkToFull() {
 	hideCarouselAndShowIframe();
-	document.getElementById("iframe").src = "http://localhost:8080/?SimulationType=FullPark";
+	document.getElementById("iframe").src = "http://localhost:8080/?SimulationType=Full";
 	}
     </script>
 </body>

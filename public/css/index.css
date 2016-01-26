@@ -71,7 +71,7 @@
   width: SolomonWidth;
   height: SolomonHeight;
 }
-.fill-screen2 {
+.fill-screen-semi-transparent {
   width: SolomonWidth;
   height: SolomonHeight;
   opacity: 0.3;
