@@ -223,7 +223,7 @@ for (i=0; i<3;i++){
 	}
 }
 
-var DMKeepPertimeStep = 0.5;
+var DMKeepPertimeStep = 0.2;
 
 var DMCorRatio  = 0.4;
 var DMEdgeRatio = 0.5;
@@ -551,7 +551,7 @@ function SimulateClimate(WindxOutput, WindyOutput, TemperatureOutput, PressureOu
 console.log("SimulateClimate");
 if (MonthToSimulate === undefined)
 {
-  MonthToSimulate = 8;
+  MonthToSimulate = 3;
 }
 if (HourToSimulate === undefined)
 {
@@ -637,35 +637,53 @@ if (RayyanOnOFF === undefined)
    	//console.log(HeatSinkY[i]);
   }*/
 
+
   setUpHeatSinks();
   var monthlySolarIrradiance = new Array (12); // Average Per m^2 hour
-  monthlySolarIrradiance[1]  = 3663.5/3600;    // to make it per second
-	monthlySolarIrradiance[2]  = 4586.1/3600;
-	monthlySolarIrradiance[3]  = 5643.7/3600;
-	monthlySolarIrradiance[4]  = 5969.5/3600;
-	monthlySolarIrradiance[5]  = 6257.9/3600;
-	monthlySolarIrradiance[6]  = 6583.1/3600;
-	monthlySolarIrradiance[7]  = 6253/3600  ;
-	monthlySolarIrradiance[8]  = 5984.8/3600;
-	monthlySolarIrradiance[9]  = 5846.7/3600;
-	monthlySolarIrradiance[10] = 5218.7/3600;
-	monthlySolarIrradiance[11] = 4142.6/3600;
-	monthlySolarIrradiance[12] = 3716/3600  ;
+  monthlySolarIrradiance[0]  = 3663.5/3600;    // to make it per second
+	monthlySolarIrradiance[1]  = 4586.1/3600;
+	monthlySolarIrradiance[2]  = 5643.7/3600;
+	monthlySolarIrradiance[3]  = 5969.5/3600;
+	monthlySolarIrradiance[4]  = 6257.9/3600;
+	monthlySolarIrradiance[5]  = 6583.1/3600;
+	monthlySolarIrradiance[6]  = 6253/3600  ;
+	monthlySolarIrradiance[7]  = 5984.8/3600;
+	monthlySolarIrradiance[8]  = 5846.7/3600;
+	monthlySolarIrradiance[9]  = 5218.7/3600;
+	monthlySolarIrradiance[10] = 4142.6/3600;
+	monthlySolarIrradiance[11] = 3716/3600  ;
+
+
+  var monthlyMeanMaxTemp = new Array(12);
+
+  monthlyMeanMaxTemp[0]  = 23.80351906;
+  monthlyMeanMaxTemp[1]  = 25.88636364;
+  monthlyMeanMaxTemp[2]  = 29.00293255;
+  monthlyMeanMaxTemp[3]  = 33.68787879;
+  monthlyMeanMaxTemp[4]  = 38.09393939;
+  monthlyMeanMaxTemp[5]  = 39.71554252;
+  monthlyMeanMaxTemp[6]  = 41.09090909;
+  monthlyMeanMaxTemp[7]  = 41.3431085 ;
+  monthlyMeanMaxTemp[8]  = 39.11818182;
+  monthlyMeanMaxTemp[9]  = 35.771261  ;
+  monthlyMeanMaxTemp[10] = 30.76363636;
+  monthlyMeanMaxTemp[11] = 25.84164223;
+
 
   var monthlyWindSpeed = new Array (12);
 
-    monthlyWindSpeed[1]  = 11.68914956;
-    monthlyWindSpeed[2]  = 12.44155844;
-    monthlyWindSpeed[3]  = 12.82991202;
-    monthlyWindSpeed[4]  = 12.42727273;
-    monthlyWindSpeed[5]  = 12.58181818;
-    monthlyWindSpeed[6]  = 12.70967742;
-    monthlyWindSpeed[7]  = 12.99393939;
-    monthlyWindSpeed[8]  = 13.13489736;
-    monthlyWindSpeed[9]  = 11.75757576;
-    monthlyWindSpeed[10] = 10.8797654 ;
-    monthlyWindSpeed[11] = 10.92121212;
-    monthlyWindSpeed[12] = 11.28152493;
+    monthlyWindSpeed[0]  = 11.68914956;
+    monthlyWindSpeed[1]  = 12.44155844;
+    monthlyWindSpeed[2]  = 12.82991202;
+    monthlyWindSpeed[3]  = 12.42727273;
+    monthlyWindSpeed[4]  = 12.58181818;
+    monthlyWindSpeed[5]  = 12.70967742;
+    monthlyWindSpeed[6]  = 12.99393939;
+    monthlyWindSpeed[7]  = 13.13489736;
+    monthlyWindSpeed[8]  = 11.75757576;
+    monthlyWindSpeed[9]  = 10.8797654 ;
+    monthlyWindSpeed[10] = 10.92121212;
+    monthlyWindSpeed[11] = 11.28152493;
 
 
   var WindExponential = 0.34;
@@ -742,14 +760,15 @@ for (var i = 0; i < GridResolutionx+Gridbuffer; i++) {
 		for (var k=0; k< GridResolutionz+Gridbuffer;k++){
 
  // 			InitialTemperature[i][j][k] = 30;
-  			Temperaturet[i][j][k] = 30;
-  			Temperaturet1[i][j][k] = 30;
+  			Temperaturet[i][j][k]  = monthlyMeanMaxTemp[MonthToSimulate];
+  			Temperaturet1[i][j][k] = monthlyMeanMaxTemp[MonthToSimulate];
 		}
 	}
 }
 
 // Start Simulation
-
+if(RayyanOnOFF ==1)
+{
 var integrationConst = 12 * 3600* (Math.PI/(monthlySunset[ChosenMonth] - monthlySunrise[ChosenMonth])); // This is the const to normalize correctly. The total should be 24*3600* monthlySolarIrradiance. The integration of the sin() function will give 2* (monthlySunset[ChosenMonth] - monthlySunrise[ChosenMonth])/PI . Note that the time difference needs to be in seconds -so it has the 3600 factor-
 
 for(t=0;t<NumOfSamplesToCollect ;t++){
@@ -790,7 +809,8 @@ for(t=0;t<NumOfSamplesToCollect ;t++){
 		}
 	}
 */
-
+}
+}
 for(var i=0;i<FillerBefore;i++){
   TemperatureOutput[i] = FillerContent;
   WindxOutput[(currentTimeStepIndex * arraySize) + i] = FillerContent;
@@ -801,11 +821,12 @@ for(var i=0;i<FillerBefore;i++){
 for (var j = 0; j < GridResolutiony+Gridbuffer; j++){
     for (var i = 0; i < GridResolutionx+Gridbuffer; i++){
           var temp_val = Temperaturet1[i][j][Gridbuffer/2];
-          TemperatureOutput[FillerBefore+i+j*360] = temp_val +273.15;
+          TemperatureOutput[(currentTimeStepIndex * arraySize) +FillerBefore+i+j*360] = temp_val +273.15;
           WindxOutput[(currentTimeStepIndex * arraySize) + FillerBefore+i+j*360] 	    = 5000*WindVelocity[i][j][Gridbuffer/2][0] + 1;
           WindyOutput[(currentTimeStepIndex * arraySize) + FillerBefore+i+j*360] 	    = 5000*WindVelocity[i][j][Gridbuffer/2][1] + 1;
           PressureOutput[(currentTimeStepIndex * arraySize) + FillerBefore+i+j*360]    = 50-temp_val + 273.15;
           //console.log(TemperatureOutput[FillerBefore+i+j*360]);
+          //console.log(TemperatureOutput[(currentTimeStepIndex * arraySize) +FillerBefore+i+j*360]);
     }
     for (var i = 0; i < FillerBetween; i++){
           TemperatureOutput[(currentTimeStepIndex * arraySize) + FillerBefore+GridResolutionx+Gridbuffer+i+j*360] = FillerContent;
@@ -841,4 +862,4 @@ for (var i = 0; i < GridResolutionx+Gridbuffer; i++) {
 
 document.getElementById("demo").innerHTML=text_out;
 */
-}
+//}
