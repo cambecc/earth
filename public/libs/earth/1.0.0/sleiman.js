@@ -44,7 +44,7 @@
     var SourcewaterTemp =4;
     var GoalTemp = 22;
     var WaterSpecificHeat = 4000 * 0.000277778; // 4000 is average and 0.000277778 is to convert from J to Wh
-    var TotalWaterflow = 2000000/(24*60*60); // Total water flow in KG/s
+    var TotalWaterflow = 4000000/(24*60*60); // Total water flow in KG/s
     var WaterflowPerNode = TotalWaterflow/(HeatSinkNetNumX*HeatSinkNetNumY);
     var TransferEfficiency = 0.93;
     var HeatSinkNetEnergyGapPerSec= TransferEfficiency*WaterflowPerNode* WaterSpecificHeat;
@@ -567,7 +567,7 @@ if (Altitude === undefined)
 }
 if (GallonsPerMinute === undefined)
 {
-  gallonsPerminute = 40000;
+  gallonsPerminute = 400000;
 }
 if (PrimaryWaterVolume === undefined)
 {
@@ -811,6 +811,20 @@ for(t=0;t<NumOfSamplesToCollect ;t++){
 */
 }
 }
+
+// Prepare Altitude to sample data from
+
+var ZtoSample=0;
+
+for(var i=0; i< GridResolutionz;i++)
+{
+  if (i*Maxz/GridResolutionz < Altitude)
+  {
+    ZtoSample = i + Math.floor(Gridbuffer/2);
+  }
+}
+
+
 for(var i=0;i<FillerBefore;i++){
   TemperatureOutput[i] = FillerContent;
   WindxOutput[(currentTimeStepIndex * arraySize) + i] = FillerContent;
@@ -820,10 +834,10 @@ for(var i=0;i<FillerBefore;i++){
 
 for (var j = 0; j < GridResolutiony+Gridbuffer; j++){
     for (var i = 0; i < GridResolutionx+Gridbuffer; i++){
-          var temp_val = Temperaturet1[i][j][Gridbuffer/2];
+          var temp_val = Temperaturet1[i][j][ZtoSample];
           TemperatureOutput[(currentTimeStepIndex * arraySize) +FillerBefore+i+j*360] = temp_val +273.15;
-          WindxOutput[(currentTimeStepIndex * arraySize) + FillerBefore+i+j*360] 	    = 5000*WindVelocity[i][j][Gridbuffer/2][0] + 1;
-          WindyOutput[(currentTimeStepIndex * arraySize) + FillerBefore+i+j*360] 	    = 5000*WindVelocity[i][j][Gridbuffer/2][1] + 1;
+          WindxOutput[(currentTimeStepIndex * arraySize) + FillerBefore+i+j*360] 	    = 5000*WindVelocity[i][j][ZtoSample][0] + 1;
+          WindyOutput[(currentTimeStepIndex * arraySize) + FillerBefore+i+j*360] 	    = 5000*WindVelocity[i][j][ZtoSample][1] + 1;
           PressureOutput[(currentTimeStepIndex * arraySize) + FillerBefore+i+j*360]    = 50-temp_val + 273.15;
           //console.log(TemperatureOutput[FillerBefore+i+j*360]);
           //console.log(TemperatureOutput[(currentTimeStepIndex * arraySize) +FillerBefore+i+j*360]);
