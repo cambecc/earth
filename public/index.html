@@ -1,181 +1,272 @@
 <!DOCTYPE html>
-<html itemscope itemtype="http://schema.org/Map" prefix="og: http://ogp.me/ns# fb: http://ogp.me/ns/fb#">
+
+<html dir="ltr" lang="en-US">
 <head>
-    <meta charset="utf-8"/>
-    <title>Rayyan - Dubai Creek Harbor</title>
-    <meta itemprop="name"                                      content="earth"/>
-    <meta itemprop="description"     name="description"        content="an animated map of global wind and weather"/>
-    <meta itemprop="author"          name="author"             content="Cameron Beccario"/>
 
-    <meta property="og:type"        content="website"/>
-    <meta property="og:title"       content="earth"/>
-    <meta property="og:description" content="An animated map of global wind and weather. Visit the community at https://www.facebook.com/EarthWindMap"/>
-    <meta property="og:url"         content="http://earth.nullschool.net"/>
-    <meta property="og:image"       content="http://earth.nullschool.net/preview.jpg"/>
+	<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+	<meta name="author" content="SemiColonWeb" />
 
-    <link rel="shortcut icon" href="/favicon.ico"/>
-    <link rel="apple-touch-icon" sizes="120x120" href="/iphone-icon.png"/>
-    <link rel="apple-touch-icon" sizes="152x152" href="/ipad-icon.png"/>
-    <link rel="stylesheet" type="text/css" href="/styles/styles.css"/>
+	<!-- Stylesheets
+	============================================= -->
+	<link href="http://fonts.googleapis.com/css?family=Lato:300,400,400italic,600,700|Raleway:300,400,500,600,700|Crete+Round:400italic" rel="stylesheet" type="text/css" />
+	<link rel="stylesheet" href="css/bootstrap.css" type="text/css" />
+	<link rel="stylesheet" href="style.css" type="text/css" />
+	<link rel="stylesheet" href="css/dark.css" type="text/css" />
+	<link rel="stylesheet" href="css/font-icons.css" type="text/css" />
+	<link rel="stylesheet" href="css/animate.css" type="text/css" />
+	<link rel="stylesheet" href="css/magnific-popup.css" type="text/css" />
 
-    <link rel="alternate" hreflang="x-default" href="http://earth.nullschool.net/"/>
-    <link rel="alternate" hreflang="ja" href="http://earth.nullschool.net/jp/"/>
+	<link rel="stylesheet" href="css/responsive.css" type="text/css" />
+	<meta name="viewport" content="width=device-width, initial-scale=1" />
+	<!--[if lt IE 9]>
+		<script src="http://css3-mediaqueries-js.googlecode.com/svn/trunk/css3-mediaqueries.js"></script>
+	<![endif]-->
 
-    <link href="assets/jquery-ui-1.11.4.custom/jquery-ui.css" rel="stylesheet">
-    <link href="css/index.css" rel="stylesheet">
+	<!-- Document Title
+	============================================= -->
+	<title>Rayyan</title>
+
 </head>
-<body data-lang="en" class="fill-screen">
 
-    <!--[if lte IE 8]><p id="warn">This site requires IE9 or newer.</p><![endif]-->
+<body class="stretched">
+
+	<!-- Document Wrapper
+	============================================= -->
+	<div id="wrapper" class="clearfix">
+
+		<header id="header" class="sticky-style-1">
+
+			<div class="container clearfix">
+
+				<div id="logo">
+					<img src="images/rayyan_logo.png">Rayyan</p>
+				</div>
+			</div>
+		</header>
+		
+		<font color="white">
+		
+		<section id="page-title" style="padding: 150px 0; background-image: url('images/about/parallax.jpg'); background-size: cover;" data-stellar-background-ratio="0.4">
+
+				<div class="container clearfix">
+
+					<div class="col_two_third col_last nobottommargin">
+					 <div class="postcontent bothsidebar nobottommargin clearfix">
+
+						<p> <font size="50">F</font>oster best practices effectiveness inspire breakthroughs solve immunize turmoil. Policy dialogue peaceful The Elders rural global support. Process inclusive innovate readiness, public sector complexity. Lifting people up cornerstone partner, technology working families civic engagement activist recognize potential global network. Countries tackling solution respond change-makers tackle. Assistance, giving; fight against malnutrition experience in the field lasting change scalable. Empowerment long-term, fairness policy community progress social responsibility; Cesar Chavez recognition. Expanding community ownership visionary indicator pursue these aspirations accessibility. Achieve; worldwide, life-saving initiative facilitate. New approaches, John Lennon humanitarian relief fundraise vaccine Jane Jacobs community health workers Oxfam. Our ambitions informal economies.</p>
+
+						<blockquote class="topmargin bottommargin">
+							<p>Human rights healthcare immunize; advancement grantees. Medical supplies; meaningful, truth technology catalytic effect. Promising development capacity building international enable poverty.</p>
+						</blockquote>
+
+						<div class="col_half nobottommargin">
+
+							<p>Provide, Aga Khan, interconnectivity governance fairness replicable, new approaches visionary implementation. End hunger evolution, future promising development youth. Public sector, small-scale farmers; harness facilitate gender. Contribution dedicated global change movements, prosperity accelerate progress citizens of change. Elevate; accelerate reduce child mortality; billionaire philanthropy fluctuation, plumpy'nut care opportunity catalyze. Partner deep.</p>
+
+						</div>
+
+						<div class="col_half nobottommargin col_last">
+
+							<p>Frontline harness criteria governance freedom contribution. Campaign Angelina Jolie natural resources, Rockefeller peaceful philanthropy human potential. Justice; outcomes reduce carbon emissions nonviolent resistance human being. Solve innovate aid communities; benefit truth rural development UNICEF meaningful work. Generosity Action Against Hunger relief; many voices impact crisis situation poverty pride. Vaccine carbon.</p>
+
+						</div>
+
+					</div><!-- .postcontent end -->
+					</div>
+					
+					<div class="col_one_third nobottommargin">
+
+						<div class="well well-lg nobottommargin">
+							<form id="login-form" name="login-form" class="nobottommargin" action="http://localhost:8080/authenticate" method="post">
+
+								<h3>Login to your Account</h3>
+
+								<div class="col_full">
+									<label for="login-form-username">Username:</label>
+									<input type="text" id="login-form-username" name="username" value="" class="form-control" required>
+								</div>
+
+								<div class="col_full">
+									<label for="login-form-password">Password:</label>
+									<input type="password" id="login-form-password" name="password" value="" class="form-control" required>
+								</div>
+
+								<div class="col_full nobottommargin">
+									<button class="button button-3d nomargin" id="login-form-submit" name="login-form-submit" value="login">Login</button>
+								</div>
+
+							</form>
+						</div>
+
+					</div>
+
+				</div>
 
 
-    <div id="display" class="fill-screen">
-        <img id="simulationBGImage" class="fill-screen-semi-transparent" src="" width=770 height=700/>
-        <canvas id="animation" class="fill-screen"></canvas>
-        <canvas id="overlay" class="fill-screen"></canvas>
-        <svg id="foreground" class="fill-screen" xmlns="http://www.w3.org/2000/svg" version="1.1"></svg>
-    </div>
-<!--
-<div id="display">
-    <svg id="map" class="fill-screen" xmlns="http://www.w3.org/2000/svg" version="1.1" style="display:none"></svg>
 
-    <svg id="foreground" class="fill-screen" xmlns="http://www.w3.org/2000/svg" version="1.1" style="display:none"></svg>
-</div>
+		</section>
+        </font>
+		
+		<section id="content">
 
-<div style="width:100%; height=:100%">
+			<div class="content-wrap">
 
-    <canvas  style="width:100%;height:100% !important;z-index:90" id="animation" class="fill-screen"></canvas>
- <canvas  style="width:100%;height:100%;z-index:91" id="overlay" class="fill-screen"  ></canvas>
- <img width="100%" height="100%" style="position:absolute" src="map.jpg" />
+				<div class="container clearfix">
 
-</div>
--->
-    <div id="sponsor" class="invisible">
-        <p><span id="sponsor-hide" class="text-button invisible"> ✕ </span>community</p>
-        <a id="sponsor-link" href="https://www.facebook.com/EarthWindMap">EarthWindMap</a>
-    </div>
+					<div class="col_one_third">
 
-    <div id="details">
-        <p id="status"></p>
-        <div id="location">
-            <p>
-                <span id="location-coord"></span>
-                <span id="location-close" class="invisible text-button"> ✕ </span>
-            </p>
-            <p>
-                <span id="location-wind"></span>
-                <span id="location-wind-units" class="text-button"></span>
-            </p>
-            <p>
-                <span id="location-value"></span>
-                <span id="location-value-units" class="text-button"></span>
-            </p>
-        </div>
+						<div class="heading-block fancy-title nobottomborder title-bottom-border">
+							<h4>Why choose <span>Us</span>.</h4>
+						</div>
 
-        <p id="earth">
-            <span id="show-menu" class="text-button" title="menu">DCH North Park</span>
-            <span id="progress" class="invisible"></span>
-        </p>
+						<p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Quasi quidem minus id omnis, nam expedita, ea fuga commodi voluptas iusto, hic autem deleniti dolores explicabo labore enim repellat earum perspiciatis.</p>
 
-        <div id="menu" class="invisible">
-            <p>Date | <span
-                id="data-date" class="local"></span> <span
-                id="toggle-zone" class="text-button"></span>
-            </p>
-            <p>Data | <span id="data-layer"></span></p>
-            <p><span id="scale-label">Scale | </span><canvas id="scale"></canvas></p>
-            <p>Control | <span
-                class="text-button" id="nav-now" title="Current Conditions">Now</span><span
-                class="text-button" id="nav-backward-more"> « </span> – <span
-                class="text-button" id="nav-backward"> ‹ </span> – <span
-                class="text-button" id="nav-forward"> › </span> – <span
-                class="text-button" id="nav-forward-more"> » </span>
-            </p>
-            <p class="wind-mode">Height | <span
-                class="surface text-button" id="level-0" title="Surface">Sfc</span> – <span
-                class="surface text-button" id="level-10">10m</span> – <span
-                class="surface text-button" id="level-20">20m</span> – <span
-                class="surface text-button" id="level-50">50m</span> – <span
-                class="surface text-button" id="level-100">100m</span> – <span
-                class="surface text-button" id="level-200">200m</span> – <span
-                class="surface text-button" id="level-500">500m</span>
-            </p>
-            <p class="wind-mode">MicroClimate Control | <span
-                class="surface text-button" id="MicroClimate-On">ON</span> – <span
-                class="surface text-button" id="MicroClimate-Off">OFF</span>
-            </p>
+					</div>
 
-            <p class="wind-mode">Overlay | <span
-                class="text-button" id="overlay-off">None</span> – <span
-                class="text-button" id="overlay-wind" title="Wind Speed">Wind</span> – <span
-                class="text-button" id="overlay-temp" title="Temperature">Temperature</span> – <span
-                class="text-button" id="overlay-Pressure" title="Pressure">Pressure</span>
-            </p>
-            <p class="wind-mode">Hills Height | <span
+					<div class="col_one_third">
 
-            <span class="surface text-button" id="Hills-0">0m</span> – <span
-            class="surface text-button" id="Hills-50">50m</span> – <span
-            class="surface text-button" id="Hills-100">100m</span> – <span
-            class="surface text-button" id="Hills-150">150m</span> – <span
-            class="surface text-button" id="Hills-200">200m</span> – <span
-            class="surface text-button" id="Hills-250">250m</span>
-        </p>
-            <p>
-              <div id="scale-label" style="clear:left;float:left">Source water temperature | </div>
-              <div id="water-temperature" class="slider slider-blue"></div>
-            </p>
+						<div class="heading-block fancy-title nobottomborder title-bottom-border">
+							<h4>Our <span>Mission</span>.</h4>
+						</div>
 
-             <p>
-               <div id="scale-label" style="clear:left;float:left">GPM | </div>
-               <div id="gpm" class="slider slider-purple"></div>
-             </p>
+						<p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Quasi quidem minus id omnis, nam expedita, ea fuga commodi voluptas iusto, hic autem deleniti dolores explicabo labore enim repellat earum perspiciatis.</p>
 
-             <p>
-               <div id="scale-label" style="clear:left;float:left">Primary Chilled Water Storage Volume | </div>
-               <div id="primary-water-volume" class="slider slider-cyan"></div>
-             </p>
+					</div>
 
-             <p>
-               <div id="scale-label" style="clear:left;float:left">Secondary Chilled Water Storage Volume | </div>
-               <div id="secondary-water-volume" class="slider slider-dark-blue"></div>
-             </p>
+					<div class="col_one_third col_last">
 
-            <p>
-              <div id="scale-label" style="clear:left;float:left">Size of Heat Network  | </div>
-              <div id="heat-network-area" class="slider slider-red"></div>
-            </p>
+						<div class="heading-block fancy-title nobottomborder title-bottom-border">
+							<h4>What we <span>Do</span>.</h4>
+						</div>
 
-        </div>
-    </div>
+						<p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Quasi quidem minus id omnis, nam expedita, ea fuga commodi voluptas iusto, hic autem deleniti dolores explicabo labore enim repellat earum perspiciatis.</p>
 
-    <script src="/libs/underscore.js/1.6.0/underscore.js" charset="utf-8"></script>
-    <script src="/libs/backbone.js/1.1.0/backbone.js" charset="utf-8"></script>
-    <script src="/libs/topojson/1.1.0/topojson.js" charset="utf-8"></script>
-    <script src="/libs/d3/3.3.10/d3.js" charset="utf-8"></script>
+					</div>
 
-<!--
-    <script src="/libs/underscore.js/1.6.0/underscore.js" charset="utf-8"></script>
-    <script src="/libs/backbone.js/1.1.0/backbone.js" charset="utf-8"></script>
-    <script src="/libs/topojson/1.1.0/topojson.js" charset="utf-8"></script>
-    <script src="/libs/d3/3.3.10/d3.js" charset="utf-8"></script>
--->
+				</div>
 
-    <script src="/libs/d3.geo/0.0.0/d3.geo.projection.v0.min.js" charset="utf-8"></script>
-    <script src="/libs/d3.geo/0.0.0/d3.geo.polyhedron.v0.min.js" charset="utf-8"></script>
-    <script src="/libs/when/2.6.0/when.js" charset="utf-8"></script>
+				<div class="row common-height bottommargin-lg clearfix">
 
-    <script src="assets/jquery-ui-1.11.4.custom/external/jquery/jquery.js"></script>
-    <script src="assets/jquery-ui-1.11.4.custom/jquery-ui.js"></script>
-    <script> $(function() {
-        $( ".slider" ).slider();
-      });</script>
+					<div class="col-sm-7 col-padding" style="background-color: #F5F5F5;">
+						<div>
+							<div class="heading-block">
+								<span class="before-heading color">Developer &amp; Evangelist</span>
+								<h3>Mary Jane</h3>
+							</div>
 
-    <script src="/libs/earth/1.0.0/HeatSinkFromImageData.js" charset="utf-8"></script>
-    <script src="/libs/earth/1.0.0/sleiman.js" charset="utf-8"></script>
-    <script src="/libs/earth/1.0.0/micro.js" charset="utf-8"></script>
-    <script src="/libs/earth/1.0.0/globes.js" charset="utf-8"></script>
-    <script src="/libs/earth/1.0.0/products.js" charset="utf-8"></script>
-    <script src="/libs/earth/1.0.0/earth.js" charset="utf-8"></script>
+							<div class="row clearfix">
+
+								<div class="col-md-6">
+									<p>Employment respond committed meaningful fight against oppression social challenges rural legal aid governance. Meaningful work, implementation, process cooperation, campaign inspire.</p>
+									<p>Advancement, promising development John Lennon, our ambitions involvement underprivileged billionaire philanthropy save the world transform. Carbon rights maintain healthcare emergent, implementation inspire social change solve clean water livelihoods.</p>
+									<a href="#" class="social-icon inline-block si-small si-light si-rounded si-facebook">
+										<i class="icon-facebook"></i>
+										<i class="icon-facebook"></i>
+									</a>
+									<a href="#" class="social-icon inline-block si-small si-light si-rounded si-twitter">
+										<i class="icon-twitter"></i>
+										<i class="icon-twitter"></i>
+									</a>
+									<a href="#" class="social-icon inline-block si-small si-light si-rounded si-gplus">
+										<i class="icon-gplus"></i>
+										<i class="icon-gplus"></i>
+									</a>
+								</div>
+
+								<div class="col-md-6">
+									<ul class="skills">
+										<li data-percent="80">
+											<span>Wordpress</span>
+											<div class="progress">
+												<div class="progress-percent"><div class="counter counter-inherit counter-instant"><span data-from="0" data-to="80" data-refresh-interval="30" data-speed="1100"></span>%</div></div>
+											</div>
+										</li>
+										<li data-percent="60">
+											<span>CSS3</span>
+											<div class="progress">
+												<div class="progress-percent"><div class="counter counter-inherit counter-instant"><span data-from="0" data-to="60" data-refresh-interval="30" data-speed="1100"></span>%</div></div>
+											</div>
+										</li>
+										<li data-percent="90">
+											<span>HTML5</span>
+											<div class="progress">
+												<div class="progress-percent"><div class="counter counter-inherit counter-instant"><span data-from="0" data-to="90" data-refresh-interval="30" data-speed="1100"></span>%</div></div>
+											</div>
+										</li>
+										<li data-percent="70">
+											<span>jQuery</span>
+											<div class="progress">
+												<div class="progress-percent"><div class="counter counter-inherit counter-instant"><span data-from="0" data-to="70" data-refresh-interval="30" data-speed="1100"></span>%</div></div>
+											</div>
+										</li>
+										<li data-percent="85">
+											<span>Ruby</span>
+											<div class="progress">
+												<div class="progress-percent"><div class="counter counter-inherit counter-instant"><span data-from="0" data-to="85" data-refresh-interval="30" data-speed="1100"></span>%</div></div>
+											</div>
+										</li>
+									</ul>
+								</div>
+
+							</div>
+
+						</div>
+					</div>
+
+					<div class="col-sm-5 col-padding" style="background: url('images/team/8.jpg') center center no-repeat; background-size: cover;"></div>
+
+				</div>
+
+			</div>
+
+		</section><!-- #content end -->
+
+		<!-- Footer
+		============================================= -->
+		<footer id="footer" class="dark">
+
+
+
+			<!-- Copyrights
+			============================================= -->
+			<div id="copyrights">
+
+				<div class="container clearfix">
+
+					<div class="col_half">
+						Copyrights &copy; 2016 All Rights Reserved by RayyanSystems.<br>
+						<div class="copyright-links"><a href="#">Terms of Use</a> / <a href="#">Privacy Policy</a></div>
+					</div>
+
+					<div class="col_half col_last tright">
+						<div class="fright clearfix">
+
+						</div>
+
+						<div class="clear"></div>
+
+						<i class="icon-envelope2"></i> info@rayyansystems.com <span class="middot">&middot;</span> <i class="icon-headphones"></i> +1 650 305 1916 <span class="middot">&middot;</span> <i class="icon-skype2"></i> RayyanOnSkype
+					</div>
+				</div>
+
+
+			</div><!-- #copyrights end -->
+
+		</footer><!-- #footer end -->
+	</div><!-- #wrapper end -->
+
+	<!-- Go To Top
+	============================================= -->
+	<div id="gotoTop" class="icon-angle-up"></div>
+
+	<!-- External JavaScripts
+	============================================= -->
+	<script type="text/javascript" src="js/jquery.js"></script>
+	<script type="text/javascript" src="js/plugins.js"></script>
+
+	<!-- Footer Scripts
+	============================================= -->
+	<script type="text/javascript" src="js/functions.js"></script>
 
 </body>
 </html>

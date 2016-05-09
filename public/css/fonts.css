@@ -1,0 +1,200 @@
+/* ----------------------------------------------------------------
+    Fonts
+
+    Replace your Fonts as necessary
+-----------------------------------------------------------------*/
+
+
+
+body,
+small,
+#primary-menu ul ul a,
+.wp-caption,
+.feature-box.fbox-center.fbox-italic p,
+.skills li .progress-percent .counter,
+.nav-tree ul ul a,
+.font-body { font-family: 'Lato', sans-serif; }
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+#logo,
+#primary-menu ul li a,
+#primary-menu ul li .mega-menu-content.style-2 > ul > li.mega-menu-title > a,
+#top-search form input,
+.entry-link,
+.entry.entry-date-section span,
+.button.button-desc,
+.counter,
+label,
+.nav-tree li a,
+.wedding-head .first-name,
+.wedding-head .last-name,
+.font-primary { font-family: 'Raleway', sans-serif; }
+
+.entry-meta li,
+.entry-link span,
+.entry blockquote p,
+.more-link,
+.comment-content .comment-author span,
+.button.button-desc span,
+.testi-content p,
+.team-title span,
+.before-heading,
+.wedding-head .first-name span,
+.wedding-head .last-name span,
+.font-secondary { font-family: 'Crete Round', serif; }
+
+
+/* ----------------------------------------------------------------
+    You can change your Font Specific Settings here
+-----------------------------------------------------------------*/
+
+
+body { line-height: 1.5; }
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+    font-weight: 600;
+    line-height: 1.5;
+}
+
+#logo {
+    font-size: 36px;
+    line-height: 100%;
+}
+
+#primary-menu ul li a {
+    font-weight: bold;
+    font-size: 13px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+}
+
+#primary-menu ul ul a {
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0;
+}
+
+#primary-menu ul li .mega-menu-content.style-2 > ul > li.mega-menu-title > a {
+    font-size: 13px;
+    font-weight: bold;
+    letter-spacing: 1px;
+    text-transform: uppercase !important;
+    line-height: 1.3 !important;
+}
+
+#top-search form input {
+    font-size: 32px;
+    font-weight: 700;
+    letter-spacing: 2px;
+}
+
+.entry-meta li {
+    font-size: 13px;
+    line-height: 14px;
+    font-style: italic;
+}
+
+.entry-link {
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-size: 24px;
+    font-weight: 700;
+}
+
+.entry-link span {
+    font-style: italic;
+    font-weight: normal;
+    text-transform: none;
+    letter-spacing: 0;
+    font-size: 14px;
+}
+
+.entry blockquote p {
+    font-weight: 400;
+    font-style: italic;
+}
+
+.entry.entry-date-section span {
+    font-size: 18px;
+    font-weight: bold;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+}
+
+.more-link { font-style: italic; }
+
+.comment-content .comment-author span {
+    font-size: 12px;
+    font-weight: normal;
+    font-style: italic;
+}
+
+.wp-caption { font-style: italic; }
+
+.button.button-desc {
+    font-size: 22px;
+    line-height: 1;
+}
+
+.button.button-desc span {
+    font-size: 14px;
+    font-weight: 400;
+    letter-spacing: 1px;
+    font-style: italic;
+    text-transform: none;
+}
+
+.feature-box.fbox-center.fbox-italic p { font-style: italic; }
+
+.testi-content p { font-style: italic; }
+
+.team-title span {
+    font-weight: 400;
+    font-style: italic;
+    font-size: 15px;
+}
+
+.counter {
+    font-size: 42px;
+    font-weight: 600;
+}
+
+.skills li .progress-percent .counter { font-weight: 400; }
+
+label {
+    font-size: 13px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.before-heading {
+    font-size: 16px;
+    font-style: italic;
+    font-weight: 400;
+}
+
+.wedding-head .first-name,
+.wedding-head .last-name {
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+}
+
+.wedding-head .first-name span,
+.wedding-head .last-name span {
+    font-size: 56px;
+    font-weight: 400;
+    font-style: italic;
+    text-transform: none;
+}

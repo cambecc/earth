@@ -1,0 +1,190 @@
+/*-----------------------------------------------------------------------------------
+
+	pagetitle.css
+
+-----------------------------------------------------------------------------------*/
+
+
+
+/* ----------------------------------------------------------------
+	Page Title
+-----------------------------------------------------------------*/
+
+
+#page-title {
+	position: relative;
+	padding: 50px 0;
+	background-color: #F5F5F5;
+	border-bottom: 1px solid #EEE;
+}
+
+#page-title .container { position: relative; }
+
+#page-title h1 {
+	padding: 0;
+	margin: 0;
+	line-height: 1;
+	font-weight: 600;
+	letter-spacing: 1px;
+	color: #333;
+	font-size: 28px;
+	text-transform: uppercase;
+}
+
+#page-title span {
+	display: block;
+	margin-top: 10px;
+	font-weight: 300;
+	color: #777;
+	font-size: 18px;
+}
+
+.breadcrumb {
+	position: absolute !important;
+	width: auto !important;
+	top: 50% !important;
+	left: auto !important;
+	right: 15px !important;
+	margin: -10px 0 0 0 !important;
+	background-color: transparent !important;
+	padding: 0 !important;
+	font-size: 12px;
+}
+
+body.stretched .container-fullwidth .breadcrumb { right: 60px !important; }
+
+#header.transparent-header + #page-title.page-title-parallax .breadcrumb { margin-top: 35px !important; }
+
+.breadcrumb a { color: #555; }
+
+.breadcrumb a:hover { color: #1ABC9C; }
+
+.breadcrumb i { width: auto !important; }
+
+/* Page Title - Dark
+-----------------------------------------------------------------*/
+
+#page-title.page-title-dark {
+	background-color: #333;
+	text-shadow: 1px 1px 1px rgba(0,0,0,0.15) !important;
+	border-bottom: none;
+}
+
+#page-title.page-title-dark h1 { color: rgba(255,255,255,0.9) !important; }
+
+#page-title.page-title-dark span { color: rgba(255,255,255,0.7); }
+
+#page-title.page-title-dark .breadcrumb > .active { color: rgba(255,255,255,0.6); }
+
+#page-title.page-title-dark .breadcrumb a { color: rgba(255,255,255,0.8); }
+
+#page-title.page-title-dark .breadcrumb a:hover { color: rgba(255,255,255,0.95); }
+
+/* Page Title - Right Aligned
+-----------------------------------------------------------------*/
+
+#page-title.page-title-right { text-align: right; }
+
+#page-title.page-title-right .breadcrumb {
+	left: 15px !important;
+	right: auto !important;
+}
+
+/* Page Title - Center Aligned
+-----------------------------------------------------------------*/
+
+#page-title.page-title-center { text-align: center; }
+
+#page-title.page-title-center span {
+	max-width: 700px;
+	margin-left: auto;
+	margin-right: auto;
+}
+
+#page-title.page-title-center .breadcrumb {
+	position: relative !important;
+	top: 0 !important;
+	left: 0 !important;
+	right: 0 !important;
+	margin: 20px 0 0 !important;
+}
+
+/* Page Title - Background Pattern
+-----------------------------------------------------------------*/
+
+#page-title.page-title-pattern {
+	background-image: url('../../images/pattern.png');
+	background-repeat: repeat;
+	background-attachment: fixed;
+}
+
+/* Page Title - Parallax Background
+-----------------------------------------------------------------*/
+
+#page-title.page-title-parallax {
+	padding: 100px 0;
+	text-shadow: none;
+	border-bottom: none;
+}
+
+#page-title.page-title-parallax h1 {
+	font-size: 40px;
+	font-weight: 600;
+	letter-spacing: 2px;
+}
+
+#page-title.page-title-parallax span { font-size: 22px; }
+
+#page-title.page-title-parallax .breadcrumb { font-size: 13px; }
+
+#page-title.page-title-parallax {
+	background-color: transparent;
+	background-image: url('../../images/parallax/parallax-bg.jpg');
+	background-attachment: fixed;
+	background-position: 50% 0;
+	background-repeat: no-repeat;
+}
+
+
+/* Page Title - Mini
+-----------------------------------------------------------------*/
+
+#page-title.page-title-mini { padding: 20px 0; }
+
+#page-title.page-title-mini h1 {
+	font-weight: 600;
+	font-size: 18px;
+	color: #444;
+}
+
+#page-title.page-title-mini span { display: none; }
+
+
+/* Page Title - No Background
+-----------------------------------------------------------------*/
+
+#page-title.page-title-nobg {
+	background: transparent !important;
+	border-bottom: 1px solid #F5F5F5;
+}
+
+
+/* Page Title - Video
+-----------------------------------------------------------------*/
+
+#page-title.page-title-video {
+	background: none;
+	position: relative;
+	overflow: hidden;
+}
+
+#page-title.page-title-video .container { z-index: 3; }
+
+#page-title.page-title-video .video-wrap {
+	position: absolute;
+	width: 100%;
+	top: 0;
+	left: 0;
+}
+
+#page-title.page-title-video .video-wrap video { width: 100%; }

@@ -1,0 +1,382 @@
+
+/*-----------------------------------------------------------------------------------
+
+    Shortcodes: social-icons.css
+
+-----------------------------------------------------------------------------------*/
+
+
+/* ----------------------------------------------------------------
+	Social Icons
+-----------------------------------------------------------------*/
+
+
+.social-icon {
+	margin: 0 5px 5px 0;
+	width: 40px;
+	height: 40px;
+	font-size: 20px;
+	line-height: 38px !important;
+	color: #555;
+	text-shadow: none;
+	border: 1px solid #AAA;
+	border-radius: 3px;
+	overflow: hidden;
+}
+
+
+/* Social Icons - Rounded
+-----------------------------------------------------------------*/
+
+.si-rounded { border-radius: 50%; }
+
+/* Social Icons - Borderless
+-----------------------------------------------------------------*/
+
+.si-borderless { border-color: transparent !important; }
+
+/* Social Icons - Dark
+-----------------------------------------------------------------*/
+
+.si-dark {
+	background-color: #444;
+	color: #FFF !important;
+	border-color: transparent;
+}
+
+/* Social Icons - Light
+-----------------------------------------------------------------*/
+
+.si-light {
+	background-color: rgba(0,0,0,0.05);
+	color: #666 !important;
+	border-color: transparent;
+}
+
+/* Social Icons - Colored
+-----------------------------------------------------------------*/
+
+.si-colored { border-color: transparent !important; }
+
+.si-colored i { color: #FFF; }
+
+/* Social Icons - Large
+-----------------------------------------------------------------*/
+
+.social-icon.si-large {
+	margin: 0 10px 10px 0;
+	width: 56px;
+	height: 56px;
+	font-size: 30px;
+	line-height: 54px !important;
+}
+
+/* Social Icons - Small
+-----------------------------------------------------------------*/
+
+.social-icon.si-small {
+	width: 32px;
+	height: 32px;
+	font-size: 14px;
+	line-height: 30px !important;
+}
+
+.social-icon i {
+	display: block;
+	position: relative;
+}
+
+body:not(.device-touch) .social-icon i {
+	-webkit-transition: all .3s ease;
+	-o-transition: all .3s ease;
+	transition: all .3s ease;
+}
+
+.social-icon i:last-child { color: #FFF !important; }
+
+.social-icon:hover i:first-child { margin-top: -38px; }
+
+.social-icon.si-large:hover i:first-child { margin-top: -54px; }
+
+.social-icon.si-small:hover i:first-child { margin-top: -30px; }
+
+.social-icon:hover {
+	color: #555;
+	border-color: transparent;
+}
+
+.si-colored.social-icon { border-color: transparent; }
+
+/* Social Icons - Sticky
+-----------------------------------------------------------------*/
+
+.si-sticky {
+	position: fixed;
+	top: 50%;
+	left: 5px;
+	width: 36px;
+	z-index: 100;
+}
+
+/* Social Icons - Sticky Right
+-----------------------------------------------------------------*/
+
+.si-sticky.si-sticky-right {
+	left: auto;
+	right: 8px;
+}
+
+/* Social Icons - Share
+-----------------------------------------------------------------*/
+
+.si-share {
+	position: relative;
+	padding-left: 5px;
+	border-top: 1px solid #EEE;
+	border-bottom: 1px solid #EEE;
+}
+
+.si-share span {
+	line-height: 36px;
+	font-weight: bold;
+	font-size: 13px;
+}
+
+.si-share div { float: right; }
+
+.si-share .social-icon {
+	margin: -1px 0;
+	border-radius: 0;
+	font-size: 15px;
+}
+
+.si-facebook:hover,
+.si-colored.si-facebook { background-color: #3B5998 !important; }
+.si-delicious:hover,
+.si-colored.si-delicious { background-color: #205CC0 !important; }
+.si-paypal:hover,
+.si-colored.si-paypal { background-color: #00588B !important; }
+.si-flattr:hover,
+.si-colored.si-flattr { background-color: #F67C1A !important; }
+.si-android:hover,
+.si-colored.si-android { background-color: #A4C639 !important; }
+.si-smashmag:hover,
+.si-colored.si-smashmag { background-color: #E53B2C !important; }
+.si-gplus:hover,
+.si-colored.si-gplus { background-color: #DD4B39 !important; }
+.si-wikipedia:hover,
+.si-colored.si-wikipedia { background-color: #333 !important; }
+.si-stumbleupon:hover,
+.si-colored.si-stumbleupon { background-color: #F74425 !important; }
+.si-foursquare:hover,
+.si-colored.si-foursquare { background-color: #25A0CA !important; }
+.si-call:hover,
+.si-colored.si-call { background-color: #444 !important; }
+.si-ninetyninedesigns:hover,
+.si-colored.si-ninetyninedesigns { background-color: #F26739 !important; }
+.si-forrst:hover,
+.si-colored.si-forrst { background-color: #5B9A68 !important; }
+.si-digg:hover,
+.si-colored.si-digg { background-color: #191919 !important; }
+.si-spotify:hover,
+.si-colored.si-spotify { background-color: #81B71A !important; }
+.si-reddit:hover,
+.si-colored.si-reddit { background-color: #C6C6C6 !important; }
+.si-blogger:hover,
+.si-colored.si-blogger { background-color: #FC4F08 !important; }
+.si-cc:hover,
+.si-colored.si-cc { background-color: #688527 !important; }
+.si-dribbble:hover,
+.si-colored.si-dribbble { background-color: #EA4C89 !important; }
+.si-evernote:hover,
+.si-colored.si-evernote { background-color: #5BA525 !important; }
+.si-flickr:hover,
+.si-colored.si-flickr { background-color: #FF0084 !important; }
+.si-google:hover,
+.si-colored.si-google { background-color: #DD4B39 !important; }
+.si-instapaper:hover,
+.si-colored.si-instapaper { background-color: #333 !important; }
+.si-klout:hover,
+.si-colored.si-klout { background-color: #FF5F52 !important; }
+.si-linkedin:hover,
+.si-colored.si-linkedin { background-color: #0E76A8 !important; }
+.si-vk:hover,
+.si-colored.si-vk { background-color: #2B587A !important; }
+.si-rss:hover,
+.si-colored.si-rss { background-color: #EE802F !important; }
+.si-skype:hover,
+.si-colored.si-skype { background-color: #00AFF0 !important; }
+.si-twitter:hover,
+.si-colored.si-twitter { background-color: #00ACEE !important; }
+.si-youtube:hover,
+.si-colored.si-youtube { background-color: #C4302B !important; }
+.si-vimeo:hover,
+.si-colored.si-vimeo { background-color: #86C9EF !important; }
+.si-aim:hover,
+.si-colored.si-aim { background-color: #FCD20B !important; }
+.si-yahoo:hover,
+.si-colored.si-yahoo { background-color: #720E9E !important; }
+.si-email3:hover,
+.si-colored.si-email3 { background-color: #6567A5 !important; }
+.si-macstore:hover,
+.si-colored.si-macstore { background-color: #333333 !important; }
+.si-myspace:hover,
+.si-colored.si-myspace { background-color: #666666 !important; }
+.si-podcast:hover,
+.si-colored.si-podcast { background-color: #E4B21B !important; }
+.si-cloudapp:hover,
+.si-colored.si-cloudapp { background-color: #525557 !important; }
+.si-dropbox:hover,
+.si-colored.si-dropbox { background-color: #3D9AE8 !important; }
+.si-ebay:hover,
+.si-colored.si-ebay { background-color: #89C507 !important; }
+.si-github:hover,
+.si-colored.si-github { background-color: #171515 !important; }
+.si-googleplay:hover,
+.si-colored.si-googleplay { background-color: #DD4B39 !important; }
+.si-itunes:hover,
+.si-colored.si-itunes { background-color: #222 !important; }
+.si-plurk:hover,
+.si-colored.si-plurk { background-color: #CF5A00 !important; }
+.si-pinboard:hover,
+.si-colored.si-pinboard { background-color: #0000E6 !important; }
+.si-soundcloud:hover,
+.si-colored.si-soundcloud { background-color: #FF7700 !important; }
+.si-tumblr:hover,
+.si-colored.si-tumblr { background-color: #34526F !important; }
+.si-wordpress:hover,
+.si-colored.si-wordpress { background-color: #1E8CBE !important; }
+.si-yelp:hover,
+.si-colored.si-yelp { background-color: #C41200 !important; }
+.si-intensedebate:hover,
+.si-colored.si-intensedebate { background-color: #009EE4 !important; }
+.si-eventbrite:hover,
+.si-colored.si-eventbrite { background-color: #F16924 !important; }
+.si-scribd:hover,
+.si-colored.si-scribd { background-color: #666666 !important; }
+.si-stripe:hover,
+.si-colored.si-stripe { background-color: #008CDD !important; }
+.si-print:hover,
+.si-colored.si-print { background-color: #111 !important; }
+.si-dwolla:hover,
+.si-colored.si-dwolla { background-color: #FF5C03 !important; }
+.si-statusnet:hover,
+.si-colored.si-statusnet { background-color: #131A30 !important; }
+.si-acrobat:hover,
+.si-colored.si-acrobat { background-color: #D3222A !important; }
+.si-drupal:hover,
+.si-colored.si-drupal { background-color: #27537A !important; }
+.si-buffer:hover,
+.si-colored.si-buffer { background-color: #333333 !important; }
+.si-pocket:hover,
+.si-colored.si-pocket { background-color: #EE4056 !important; }
+.si-bitbucket:hover,
+.si-colored.si-bitbucket { background-color: #0E4984 !important; }
+.si-stackoverflow:hover,
+.si-colored.si-stackoverflow { background-color: #EF8236 !important; }
+.si-hackernews:hover,
+.si-colored.si-hackernews { background-color: #FF6600 !important; }
+.si-xing:hover,
+.si-colored.si-xing { background-color: #126567 !important; }
+.si-instagram:hover,
+.si-colored.si-instagram { background-color: #3F729B !important; }
+.si-quora:hover,
+.si-colored.si-quora { background-color: #A82400 !important; }
+.si-openid:hover,
+.si-colored.si-openid { background-color: #E16309 !important; }
+.si-steam:hover,
+.si-colored.si-steam { background-color: #111 !important; }
+.si-amazon:hover,
+.si-colored.si-amazon { background-color: #E47911 !important; }
+.si-disqus:hover,
+.si-colored.si-disqus { background-color: #E4E7EE !important; }
+.si-plancast:hover,
+.si-colored.si-plancast { background-color: #222 !important; }
+.si-appstore:hover,
+.si-colored.si-appstore { background-color: #000 !important; }
+.si-pinterest:hover,
+.si-colored.si-pinterest { background-color: #C8232C !important; }
+.si-fivehundredpx:hover,
+.si-colored.si-fivehundredpx { background-color: #111 !important; }
+
+
+
+/* Social Icons Text Color
+-----------------------------------------------------------------*/
+
+.si-text-color.si-facebook i { color: #3B5998; }
+.si-text-color.si-delicious i { color: #205CC0; }
+.si-text-color.si-paypal i { color: #00588B; }
+.si-text-color.si-flattr i { color: #F67C1A; }
+.si-text-color.si-android i { color: #A4C639; }
+.si-text-color.si-smashmag i { color: #E53B2C; }
+.si-text-color.si-gplus i { color: #DD4B39; }
+.si-text-color.si-wikipedia i { color: #333; }
+.si-text-color.si-stumbleupon i { color: #F74425; }
+.si-text-color.si-foursquare i { color: #25A0CA; }
+.si-text-color.si-call i { color: #444; }
+.si-text-color.si-ninetyninedesigns i { color: #F26739; }
+.si-text-color.si-forrst i { color: #5B9A68; }
+.si-text-color.si-digg i { color: #191919; }
+.si-text-color.si-spotify i { color: #81B71A; }
+.si-text-color.si-reddit i { color: #C6C6C6; }
+.si-text-color.si-blogger i { color: #FC4F08; }
+.si-text-color.si-cc i { color: #688527; }
+.si-text-color.si-dribbble i { color: #EA4C89; }
+.si-text-color.si-evernote i { color: #5BA525; }
+.si-text-color.si-flickr i { color: #FF0084; }
+.si-text-color.si-google i { color: #DD4B39; }
+.si-text-color.si-instapaper i { color: #333; }
+.si-text-color.si-klout i { color: #FF5F52; }
+.si-text-color.si-linkedin i { color: #0E76A8; }
+.si-text-color.si-vk i { color: #2B587A; }
+.si-text-color.si-rss i { color: #EE802F; }
+.si-text-color.si-skype i { color: #00AFF0; }
+.si-text-color.si-twitter i { color: #00ACEE; }
+.si-text-color.si-youtube i { color: #C4302B; }
+.si-text-color.si-vimeo i { color: #86C9EF; }
+.si-text-color.si-aim i { color: #FCD20B; }
+.si-text-color.si-yahoo i { color: #720E9E; }
+.si-text-color.si-email3 i { color: #6567A5; }
+.si-text-color.si-macstore i { color: #333333; }
+.si-text-color.si-myspace i { color: #666666; }
+.si-text-color.si-podcast i { color: #E4B21B; }
+.si-text-color.si-cloudapp i { color: #525557; }
+.si-text-color.si-dropbox i { color: #3D9AE8; }
+.si-text-color.si-ebay i { color: #89C507; }
+.si-text-color.si-github i { color: #171515; }
+.si-text-color.si-googleplay i { color: #DD4B39; }
+.si-text-color.si-itunes i { color: #222; }
+.si-text-color.si-plurk i { color: #CF5A00; }
+.si-text-color.si-pinboard i { color: #0000E6; }
+.si-text-color.si-soundcloud i { color: #FF7700; }
+.si-text-color.si-tumblr i { color: #34526F; }
+.si-text-color.si-wordpress i { color: #1E8CBE; }
+.si-text-color.si-yelp i { color: #C41200; }
+.si-text-color.si-intensedebate i { color: #009EE4; }
+.si-text-color.si-eventbrite i { color: #F16924; }
+.si-text-color.si-scribd i { color: #666666; }
+.si-text-color.si-stripe i { color: #008CDD; }
+.si-text-color.si-print i { color: #111; }
+.si-text-color.si-dwolla i { color: #FF5C03; }
+.si-text-color.si-statusnet i { color: #131A30; }
+.si-text-color.si-acrobat i { color: #D3222A; }
+.si-text-color.si-drupal i { color: #27537A; }
+.si-text-color.si-buffer i { color: #333333; }
+.si-text-color.si-pocket i { color: #EE4056; }
+.si-text-color.si-bitbucket i { color: #0E4984; }
+.si-text-color.si-stackoverflow i { color: #EF8236; }
+.si-text-color.si-hackernews i { color: #FF6600; }
+.si-text-color.si-xing i { color: #126567; }
+.si-text-color.si-instagram i { color: #3F729B; }
+.si-text-color.si-quora i { color: #A82400; }
+.si-text-color.si-openid i { color: #E16309; }
+.si-text-color.si-steam i { color: #111; }
+.si-text-color.si-amazon i { color: #E47911; }
+.si-text-color.si-disqus i { color: #E4E7EE; }
+.si-text-color.si-plancast i { color: #222; }
+.si-text-color.si-appstore i { color: #000; }
+.si-text-color.si-pinterest i { color: #C8232C; }
+.si-text-color.si-fivehundredpx i { color: #111; }
+
+.si-text-color:hover { color: #FFF; }

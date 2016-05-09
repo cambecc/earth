@@ -1,0 +1,661 @@
+
+/*-----------------------------------------------------------------------------------
+
+    Shortcodes: misc.css
+
+-----------------------------------------------------------------------------------*/
+
+
+/* Infinity Scroll - Message Style
+-----------------------------------------------------------------*/
+
+#infscr-loading,
+#portfolio-ajax-loader {
+	position: fixed;
+	z-index: 20;
+	top: 50%;
+	left: 50%;
+	width: 48px;
+	height: 48px;
+	margin: -24px 0 0 -24px;
+	background-color: rgba(0,0,0,0.7);
+	border-radius: 3px;
+	line-height: 48px;
+	font-size: 24px;
+	color: #FFF;
+	text-align: center;
+}
+
+#infscr-loading img,
+#portfolio-ajax-loader img {
+	display: none;
+	width: 24px;
+	height: 24px;
+	margin: 12px;
+}
+
+#portfolio-ajax-loader { display: none; }
+
+#portfolio-ajax-loader img { display: block; }
+
+
+/* ----------------------------------------------------------------
+	Forms
+-----------------------------------------------------------------*/
+
+.sm-form-control {
+	display: block;
+	width: 100%;
+	height: 38px;
+	padding: 8px 14px;
+	font-size: 15px;
+	line-height: 1.42857143;
+	color: #555555;
+	background-color: #ffffff;
+	background-image: none;
+	border: 2px solid #DDD;
+	border-radius: 0 !important;
+	-webkit-transition: border-color ease-in-out .15s;
+	-o-transition: border-color ease-in-out .15s;
+	transition: border-color ease-in-out .15s;
+}
+
+.sm-form-control:focus {
+	border-color: #AAA;
+	outline: 0;
+	-webkit-box-shadow: none;
+	box-shadow: none;
+}
+
+.sm-form-control::-moz-placeholder {
+	color: #999;
+	opacity: 1;
+}
+
+.sm-form-control:-ms-input-placeholder { color: #999; }
+.sm-form-control::-webkit-input-placeholder { color: #999; }
+
+.sm-form-control[disabled],
+.sm-form-control[readonly],
+fieldset[disabled] .sm-form-control {
+  cursor: not-allowed;
+  background-color: #eeeeee;
+  opacity: 1;
+}
+
+.sm-form-control { height: auto; }
+
+.form-control { border-radius: 3px; }
+
+.form-control:active,
+.form-control:focus {
+	border-color: #999;
+	box-shadow: none;
+}
+
+label {
+	display: inline-block;
+	font-size: 13px;
+	font-weight: 700;
+	font-family: 'Raleway', sans-serif;
+	text-transform: uppercase;
+	letter-spacing: 1px;
+	color: #555;
+	margin-bottom: 10px;
+	cursor: pointer;
+}
+
+label.label-muted {
+	color: #999;
+	font-weight: normal;
+	margin-right: 5px;
+}
+
+form .col_full,
+form .col_half,
+form .col_one_third,
+form .col_two_third,
+form .col_three_fourth,
+form .col_one_fourth,
+form .col_one_fifth,
+form .col_two_fifth,
+form .col_three_fifth,
+form .col_four_fifth,
+form .col_one_sixth,
+form .col_five_sixth { margin-bottom: 25px; }
+
+
+/* ----------------------------------------------------------------
+	Contact Form
+-----------------------------------------------------------------*/
+
+
+#contact-form-overlay,
+#contact-form-overlay-mini {
+	position: relative;
+	max-width: 800px;
+	background-color: #FFF;
+	padding: 40px;
+	margin: 0 auto;
+	z-index: 10;
+	border-radius: 4px;
+	box-shadow: 0 1px 10px rgba(0,0,0,0.15);
+}
+
+#contact-form-overlay-mini {
+	float: right;
+	width: 380px;
+	margin: 0;
+}
+
+label.error {
+	margin-top: 5px;
+	color: #E42C3E;
+	font-weight: 400;
+}
+
+label.error { display: none !important; }
+
+.form-control.error,
+.sm-form-control.error { border-color: #E42C3E; }
+
+
+/* ----------------------------------------------------------------
+	Google Maps
+-----------------------------------------------------------------*/
+
+
+#google-map {
+	position: relative;
+	width: 100%;
+	height: 450px;
+}
+
+.gmap img { max-width: none !important; }
+
+.gm-style .gm-style-iw h3 span {
+	font-size: inherit;
+	font-family: inherit;
+}
+
+#map-overlay {
+	position: relative;
+	padding: 100px 0;
+}
+
+#map-overlay #google-map {
+	position: absolute;
+	height: 100%;
+	top: 0;
+	left: 0;
+}
+
+
+/* ----------------------------------------------------------------
+	Google Custom Search
+-----------------------------------------------------------------*/
+
+
+#content .cse .gsc-control-cse,
+#content .gsc-control-cse,
+#content .gsc-above-wrapper-area,
+#content .gsc-adBlock,
+#content .gsc-thumbnail-inside,
+#content .gsc-url-top,
+#content .gsc-table-result,
+#content .gsc-webResult,
+#content .gsc-result { padding: 0 !important; }
+
+#content .gsc-selected-option-container { width: auto !important; }
+
+#content .gsc-result-info { padding-left: 0 !important; }
+
+#content .gsc-above-wrapper-area-container,
+#content .gsc-table-result { margin-bottom: 10px; }
+
+#content .gcsc-branding { display: none; }
+
+#content .gsc-results,
+#content .gsc-webResult { width: 100% !important; }
+
+#content .gs-no-results-result .gs-snippet,
+#content .gs-error-result .gs-snippet { margin: 0 !important; }
+
+
+/* ----------------------------------------------------------------
+	Quotes & Blockquotes
+-----------------------------------------------------------------*/
+
+
+blockquote p { margin-bottom: 15px; }
+
+blockquote.pull-left {
+	max-width: 300px;
+	margin: 5px 20px 10px 0;
+	padding-right: 0;
+}
+
+blockquote.pull-right {
+	max-width: 300px;
+	margin: 5px 0 10px 20px;
+	padding-left: 0;
+}
+
+.quote {
+	border: none !important;
+	position: relative;
+}
+
+.quote p { position: relative; }
+
+.quote:before {
+	font-family: 'font-icons';
+	speak: none;
+	font-style: normal;
+	font-weight: normal;
+	font-variant: normal;
+	content: "\e7ad";
+	position: absolute;
+	width: 48px;
+	height: 48px;
+	line-height: 48px;
+	font-size: 42px;
+	top: 0;
+	left: 0;
+	color: #EEE;
+}
+
+.quote.blockquote-reverse:before {
+	content: "\e7ae";
+	left: auto;
+	right: 0;
+}
+
+
+/* ----------------------------------------------------------------
+	Dropcaps & Highlights
+-----------------------------------------------------------------*/
+
+
+.dropcap {
+	float: left;
+	font-size: 42px;
+	line-height: 1;
+	margin: 0 5px 0 0;
+	text-transform: uppercase;
+}
+
+.highlight {
+	padding: 2px 5px;
+	background-color: #444;
+	color: #FFF;
+	border-radius: 2px;
+}
+
+
+/* ----------------------------------------------------------------
+	Magazine Specific Classes
+-----------------------------------------------------------------*/
+
+.top-advert {
+	float: right;
+	padding: 5px;
+	border-left: 1px solid #EEE;
+	border-right: 1px solid #EEE;
+}
+
+.top-advert a,
+.top-advert img { display: block; }
+
+.bnews-title {
+	display: block;
+	float: left;
+	margin-top: 2px;
+	padding-top: .3em;
+	text-transform: uppercase;
+}
+
+.bnews-slider {
+	float: left;
+	width: 970px;
+	margin-left: 20px;
+	min-height: 0;
+}
+
+
+/* ----------------------------------------------------------------
+	Text Rotater
+-----------------------------------------------------------------*/
+
+.text-rotater {}
+
+.text-rotater > .t-rotate > .animated { display: inline-block; }
+
+
+/* ----------------------------------------------------------------
+	Go To Top
+-----------------------------------------------------------------*/
+
+
+#gotoTop {
+	display: none;
+	z-index: 299;
+	position: fixed;
+	width: 40px;
+	height: 40px;
+	background-color: #333;
+	background-color: rgba(0,0,0,0.3);
+	font-size: 20px;
+	line-height: 36px;
+	text-align: center;
+	color: #FFF;
+	top: auto;
+	left: auto;
+	right: 30px;
+	bottom: 50px;
+	cursor: pointer;
+	border-radius: 2px;
+}
+
+body:not(.device-touch) #gotoTop {
+	transition: background-color .2s linear;
+	-webkit-transition: background-color .2s linear;
+	-o-transition: background-color .2s linear;
+}
+
+.stretched #gotoTop { bottom: 30px; }
+
+#gotoTop:hover { background-color: #1ABC9C; }
+
+
+/* ----------------------------------------------------------------
+	Error 404
+-----------------------------------------------------------------*/
+
+
+.error404 {
+	display: block;
+	font-size: 216px;
+	font-weight: 600;
+	color: #DDD;
+	line-height: 1.35;
+	letter-spacing: 4px;
+}
+
+.error404-wrap .container { z-index: 7; }
+
+.error404-wrap .error404 {
+	line-height: 0.9;
+	margin-bottom: 40px;
+	font-weight: bold;
+	font-size: 244px;
+	color: #FFF !important;
+	opacity: 0.2;
+	text-shadow: 1px 1px 5px rgba(0,0,0,0.4);
+}
+
+.error404-wrap .heading-block h4 {
+	font-weight: 300;
+	margin-bottom: 8px;
+}
+
+.error404-wrap .heading-block span { font-size: 17px; }
+
+.error404-wrap form { max-width: 500px; }
+
+
+/* ----------------------------------------------------------------
+	Landing Pages
+-----------------------------------------------------------------*/
+
+.landing-wide-form {
+	background: rgba(0,0,0,0.3);
+	padding: 30px;
+	border-radius: 3px;
+}
+
+.landing-form-overlay {
+	position: absolute;
+	z-index: 10;
+	top: auto;
+	left: auto;
+	right: 0;
+	bottom: -154px;
+	background-color: rgba(0,0,0,0.6);
+	border-radius: 3px 3px 0 0;
+}
+
+.landing-video {
+	z-index: 1;
+	width: 560px;
+	height: 315px;
+	margin: 22px 0 0 95px;
+	overflow: hidden;
+}
+
+.landing-promo h3 { font-size: 26px; }
+
+.landing-promo > .container > span { font-size: 17px; }
+
+
+/* ----------------------------------------------------------------
+	Preloaders
+-----------------------------------------------------------------*/
+
+
+.preloader,
+.preloader2,
+.form-process {
+	display: block;
+	width: 100%;
+	height: 100%;
+	background: url("../../../../images/preloader.gif") center center no-repeat #FFF;
+}
+
+.preloader2 { background-color: transparent; }
+
+.form-process {
+	display: none;
+	position: absolute;
+	z-index: 3;
+	background-color: rgba(255,255,255,0.7);
+}
+
+
+/* ----------------------------------------------------------------
+	Toastr Notifications
+-----------------------------------------------------------------*/
+
+
+.toast-title { font-weight: bold; }
+
+.toast-message {
+	-ms-word-wrap: break-word;
+	word-wrap: break-word;
+}
+
+.toast-message a,
+.toast-message label { color: #ffffff; }
+
+.toast-message a:hover {
+	color: #cccccc;
+	text-decoration: none;
+}
+
+.toast-close-button {
+	position: absolute;
+	right: 5px;
+	top: 3px;
+	font-size: 14px;
+	color: #ffffff;
+	opacity: 0.8;
+	-ms-filter: progid:DXImageTransform.Microsoft.Alpha(Opacity=80);
+	filter: alpha(opacity=80);
+}
+
+.toast-close-button:hover,
+.toast-close-button:focus {
+	color: #000000;
+	text-decoration: none;
+	cursor: pointer;
+	opacity: 0.5;
+	-ms-filter: progid:DXImageTransform.Microsoft.Alpha(Opacity=50);
+	filter: alpha(opacity=50);
+}
+
+
+button.toast-close-button {
+	padding: 0;
+	cursor: pointer;
+	background: transparent;
+	border: 0;
+	-webkit-appearance: none;
+}
+
+.toast-top-full-width {
+	top: 10px;
+	right: 0;
+	width: 100%;
+}
+
+.toast-bottom-full-width {
+	bottom: 10px;
+	right: 0;
+	width: 100%;
+}
+
+.toast-top-left {
+	top: 12px;
+	left: 12px;
+}
+
+.toast-top-right {
+	top: 12px;
+	right: 12px;
+}
+
+.toast-bottom-right {
+	right: 12px;
+	bottom: 12px;
+}
+
+.toast-bottom-left {
+	bottom: 12px;
+	left: 12px;
+}
+
+#toast-container {
+	position: fixed;
+	z-index: 1999;
+}
+
+#toast-container * {
+	-moz-box-sizing: border-box;
+	-webkit-box-sizing: border-box;
+	box-sizing: border-box;
+}
+
+#toast-container > div {
+	margin: 0 0 6px;
+	padding: 15px;
+	width: 300px;
+	border-radius: 3px;
+	background-position: 15px center;
+	background-repeat: no-repeat;
+	color: #ffffff;
+	opacity: 0.8;
+	-ms-filter: progid:DXImageTransform.Microsoft.Alpha(Opacity=80);
+	filter: alpha(opacity=80);
+}
+
+#toast-container > div i {
+	position: relative;
+	top: 1px;
+	width: 16px;
+	text-align: center;
+	margin-right: 3px;
+}
+
+#toast-container > :hover {
+	opacity: 1;
+	-ms-filter: progid:DXImageTransform.Microsoft.Alpha(Opacity=100);
+	filter: alpha(opacity=100);
+	cursor: pointer;
+}
+
+#toast-container.toast-top-full-width > div,
+#toast-container.toast-bottom-full-width > div {
+	width: 96%;
+	margin: auto;
+}
+
+.toast { background-color: #030303; }
+
+.toast-success { background-color: #51a351; }
+
+.toast-error { background-color: #bd362f; }
+
+.toast-info { background-color: #2f96b4; }
+
+.toast-warning { background-color: #f89406; }
+
+
+@media all and (min-width: 240px) and (max-width: 479px) {
+	#toast-container > div {
+		padding: 8px;
+		width: 18em;
+	}
+}
+
+@media all and (min-width: 480px) and (max-width: 767px) {
+	#toast-container > div {
+		padding: 15px;
+		width: 25em;
+	}
+}
+
+/* ----------------------------------------------------------------
+	Wedding
+-----------------------------------------------------------------*/
+
+
+.wedding-head {
+	position: relative;
+	line-height: 1;
+	font-size: 80px;
+	text-shadow: 1px 1px 1px rgba(0,0,0,0.15);
+}
+
+.wedding-head .first-name,
+.wedding-head .last-name,
+.wedding-head .and {
+	display: inline-block;
+	margin-right: 15px;
+	font-weight: bold;
+	text-align: right;
+	text-transform: uppercase;
+	font-family: 'Raleway', sans-serif;
+	letter-spacing: 2px;
+}
+
+.wedding-head .last-name {
+	margin: 0 0 0 15px;
+	text-align: left;
+}
+
+.wedding-head .first-name span,
+.wedding-head .last-name span {
+	display: block;
+	margin-top: 10px;
+	font-size: 56px;
+	font-weight: 400;
+	font-style: italic;
+	font-family: 'Crete Round', serif;
+	text-transform: none;
+}
+
+.wedding-head .and {
+	margin: 0;
+	font-size: 200px;
+	font-family: 'Times New Roman', serif;
+}

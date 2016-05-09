@@ -1,0 +1,187 @@
+
+/*-----------------------------------------------------------------------------------
+
+    Shortcodes: counter-skills.css
+
+-----------------------------------------------------------------------------------*/
+
+
+/* ----------------------------------------------------------------
+	Counter
+-----------------------------------------------------------------*/
+
+
+.counter {
+	font-size: 42px;
+	font-weight: 600;
+	font-family: 'Raleway', sans-serif;
+}
+
+.counter.counter-small { font-size: 28px; }
+
+.counter.counter-large { font-size: 56px; }
+
+.counter.counter-xlarge {
+	font-size: 64px;
+	font-weight: 400;
+}
+
+.counter.counter-inherit {
+	font-size: inherit;
+	font-weight: inherit;
+}
+
+.counter + h5 {
+	font-weight: 400;
+	text-transform: uppercase;
+	letter-spacing: 1px;
+	margin-top: 10px;
+}
+
+.counter.counter-lined + h5:before {
+	display: block;
+	position: relative;
+	margin: 20px auto 25px auto;
+	content: '';
+	width: 15%;
+	border-top: 2px solid #444;
+	opacity: 0.9;
+}
+
+.counter.counter-small + h5 { font-size: 13px; }
+
+.counter.counter-large + h5,
+.counter.counter-xlarge + h5 {
+	font-size: 15px;
+	font-weight: 300;
+}
+
+.widget .counter + h5 { opacity: 0.7; }
+
+
+/* ----------------------------------------------------------------
+	Animated Rounded Skills
+-----------------------------------------------------------------*/
+
+
+.rounded-skill {
+	display: inline-block;
+	margin: 0 15px 15px;
+}
+
+body:not(.device-touch) .rounded-skill {
+	-webkit-transition: opacity .4s ease;
+	-o-transition: opacity .4s ease;
+	transition: opacity .4s ease;
+}
+
+.rounded-skill + h5 { margin-bottom: 0; }
+
+.easyPieChart {
+	display: inline-block;
+	position: relative;
+	text-align: center;
+	font-size: 22px;
+	font-weight: bold;
+	color: #333;
+}
+
+.easyPieChart i { font-size: 42px; }
+
+.easyPieChart canvas {
+	position: absolute;
+	top: 0;
+	left: 0;
+}
+
+
+/* ----------------------------------------------------------------
+	Skills Bar
+-----------------------------------------------------------------*/
+
+
+.skills {
+	margin: 0;
+	list-style: none;
+	padding-top: 25px;
+}
+
+.skills li {
+	position: relative;
+	margin-top: 38px;
+	height: 4px;
+	background-color: #F5F5F5;
+	box-shadow: inset 0 1px 2px rgba(0,0,0,0.1);
+	border-radius: 2px;
+}
+
+.skills li:first-child { margin-top: 0; }
+
+.skills li .progress {
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 0;
+	height: 100%;
+	background-color: #1ABC9C;
+	overflow: visible !important;
+	border-radius: 2px;
+	-webkit-transition: width 1.2s ease-in-out;
+	-o-transition: width 1.2s ease-in-out;
+	transition: width 1.2s ease-in-out;
+}
+
+.skills li .progress-percent {
+	position: absolute;
+	top: -28px;
+	right: 0;
+	background-color: #333;
+	color: #F9F9F9;
+	text-shadow: 1px 1px 1px rgba(0,0,0,0.2);
+	height: 22px;
+	line-height: 22px;
+	padding: 0px 5px;
+	font-size: 11px;
+	border-radius: 2px;
+}
+
+.skills li .progress-percent .counter {
+	font-weight: 400;
+	font-family: 'Lato', sans-serif;
+}
+
+.progress-percent:after, .progress-percent:before {
+	top: 100%;
+	border: solid transparent;
+	content: " ";
+	height: 0;
+	width: 0;
+	position: absolute;
+	pointer-events: none;
+}
+
+.progress-percent:after {
+	border-top-color: #333;
+	border-width: 4px;
+	left: 50%;
+	margin-left: -4px;
+}
+
+.progress-percent:before {
+	border-top-color: #333;
+	border-width: 5px;
+	left: 50%;
+	margin-left: -5px;
+}
+
+.skills li > span {
+	position: absolute;
+	z-index: 1;
+	top: -23px;
+	left: 0;
+	line-height: 20px;
+	font-size: 12px;
+	font-weight: bold;
+	text-transform: uppercase;
+	color: #222;
+}

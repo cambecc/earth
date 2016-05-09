@@ -1,0 +1,448 @@
+
+/*-----------------------------------------------------------------------------------
+
+    Shortcodes: buttons.css
+
+-----------------------------------------------------------------------------------*/
+
+
+
+
+/* ----------------------------------------------------------------
+	Buttons
+-----------------------------------------------------------------*/
+
+
+.button {
+	display: inline-block;
+	position: relative;
+	cursor: pointer;
+	outline: none;
+	white-space: nowrap;
+	margin: 5px;
+	padding: 0 22px;
+	font-size: 14px;
+	height: 40px;
+	line-height: 40px;
+	background-color: #1ABC9C;
+	color: #FFF;
+	font-weight: 600;
+	text-transform: uppercase;
+	letter-spacing: 1px;
+	border: none;
+	text-shadow: 1px 1px 1px rgba(0,0,0,0.2);
+}
+
+body:not(.device-touch) .button {
+	-webkit-transition: all .2s ease-in-out;
+	-o-transition: all .2s ease-in-out;
+	transition: all .2s ease-in-out;
+}
+
+.button-dark { background-color: #444; }
+
+.button-light {
+	background-color: #EEE;
+	color: #333;
+	text-shadow: none !important;
+}
+
+.button:hover {
+	background-color: #444;
+	color: #FFF;
+	text-shadow: 1px 1px 1px rgba(0,0,0,0.2);
+}
+
+.button.button-dark:hover { background-color: #1ABC9C; }
+
+.button.button-mini {
+	padding: 0 14px;
+	font-size: 11px;
+	height: 28px;
+	line-height: 28px;
+}
+
+.button.button-small {
+	padding: 0 17px;
+	font-size: 12px;
+	height: 34px;
+	line-height: 34px;
+}
+
+.button.button-large {
+	padding: 0 26px;
+	font-size: 16px;
+	height: 46px;
+	line-height: 46px;
+}
+
+.button.button-xlarge {
+	padding: 0 32px;
+	font-size: 18px;
+	letter-spacing: 2px;
+	height: 52px;
+	line-height: 52px;
+}
+
+.button.button-desc {
+	text-align: left;
+	padding: 24px 34px;
+	font-size: 22px;
+	height: auto;
+	line-height: 1;
+	font-family: 'Raleway', sans-serif;
+}
+
+.button.button-desc span {
+	display: block;
+	margin-top: 10px;
+	font-size: 14px;
+	font-weight: 400;
+	letter-spacing: 1px;
+	font-family: 'Crete Round', serif;
+	font-style: italic;
+	text-transform: none;
+}
+
+.button i {
+	position: relative;
+	top: 1px;
+	line-height: 1;
+	margin-right: 5px;
+}
+
+.button.tright i { margin: 0 0 0 5px; }
+
+.button-mini i { margin-right: 3px; }
+
+.button-mini.tright i { margin: 0 0 0 3px; }
+
+.button-small i { margin-right: 4px; }
+
+.button-small.tright i { margin: 0 0 0 4px; }
+
+.button-xlarge i {
+	top: 2px;
+	margin-right: 8px;
+}
+
+.button-xlarge.tright i { margin: 0 0 0 8px; }
+
+.button.button-desc i {
+	top: 1px;
+	font-size: 48px;
+	width: 48px;
+	text-align: center;
+	margin-right: 12px;
+}
+
+.button.button-desc.tright i { margin: 0 0 0 12px; }
+
+.button.button-desc div { display: inline-block; }
+
+.button.button-rounded { border-radius: 3px; }
+
+
+/* Buttons - Border
+-----------------------------------------------------------------*/
+
+.button.button-border {
+	border: 2px solid #444;
+	background-color: transparent;
+	color: #333;
+	line-height: 36px;
+	font-weight: 600;
+	text-shadow: none;
+}
+
+.button.button-border.button-mini { line-height: 24px; }
+
+.button.button-border.button-small { line-height: 30px; }
+
+.button.button-border.button-large { line-height: 42px; }
+
+.button.button-border.button-xlarge { line-height: 48px; }
+
+.button.button-border.button-desc { line-height: 1; }
+
+.button.button-border:hover {
+	background-color: #444;
+	color: #FFF;
+	border-color: transparent !important;
+	text-shadow: 1px 1px 1px rgba(0,0,0,0.2);
+}
+
+.button.button-border.button-light {
+	border-color: #EEE;
+	color: #EEE;
+}
+
+.button.button-border.button-light:hover {
+	background-color: #EEE;
+	color: #333;
+	text-shadow: none;
+}
+
+
+/* Buttons - Border
+-----------------------------------------------------------------*/
+
+.button.button-3d {
+	border-radius: 3px;
+	border-bottom: 3px solid rgba(0,0,0,0.15);
+	-webkit-transition: none;
+	-o-transition: none;
+	transition: none;
+}
+
+.button.button-3d:hover {
+	background-color: #1ABC9C !important;
+	opacity: 0.9;
+}
+
+.button.button-3d.button-light:hover,
+.button.button-reveal.button-light:hover {
+	text-shadow: none;
+	color: #333;
+}
+
+
+/* Buttons - Icon Reveal
+-----------------------------------------------------------------*/
+
+.button.button-reveal {
+	padding: 0 28px;
+	overflow: hidden;
+}
+
+.button.button-reveal i {
+	display: block;
+	position: absolute;
+	top: 0;
+	left: -32px;
+	width: 32px;
+	height: 40px;
+	line-height: 40px;
+	margin: 0;
+	text-align: center;
+	background-color: rgba(0,0,0,0.1);
+}
+
+.button.button-reveal.button-border i { top: -2px; }
+
+.button.button-reveal.tright i {
+	left: auto;
+	right: -32px;
+}
+
+.button.button-reveal.button-3d i,
+.button.button-reveal.button-rounded i { border-radius: 3px 0 0 3px; }
+
+.button.button-reveal.button-3d.tright i,
+.button.button-reveal.button-rounded.tright i { border-radius: 0 3px 3px 0; }
+
+.button.button-reveal span {
+	display: inline-block;
+	position: relative;
+	left: 0;
+}
+
+body:not(.device-touch) .button.button-reveal i,
+body:not(.device-touch) .button.button-reveal span {
+	-webkit-transition: left 0.3s ease, right 0.3s ease;
+	-o-transition: left 0.3s ease, right 0.3s ease;
+	transition: left 0.3s ease, right 0.3s ease;
+}
+
+.button.button-reveal.button-mini { padding: 0 17px; }
+
+.button.button-reveal.button-mini i {
+	left: -22px;
+	width: 22px;
+	height: 28px;
+	line-height: 28px;
+}
+
+.button.button-reveal.button-mini.tright i {
+	left: auto;
+	right: -22px;
+}
+
+.button.button-reveal.button-small { padding: 0 22px; }
+
+.button.button-reveal.button-small i {
+	left: -26px;
+	width: 26px;
+	height: 34px;
+	line-height: 34px;
+}
+
+.button.button-reveal.button-small.tright i {
+	left: auto;
+	right: -26px;
+}
+
+.button.button-reveal.button-large { padding: 0 32px; }
+
+.button.button-reveal.button-large i {
+	left: -38px;
+	width: 38px;
+	height: 46px;
+	line-height: 46px;
+}
+
+.button.button-reveal.button-large.tright i {
+	left: auto;
+	right: -38px;
+}
+
+.button.button-reveal.button-xlarge { padding: 0 40px; }
+
+.button.button-reveal.button-xlarge i {
+	left: -44px;
+	width: 44px;
+	height: 52px;
+	line-height: 52px;
+}
+
+.button.button-reveal.button-xlarge.tright i {
+	left: auto;
+	right: -44px;
+}
+
+.button.button-reveal:hover i { left: 0; }
+
+.button.button-reveal.tright:hover i {
+	left: auto;
+	right: 0;
+}
+
+.button.button-reveal:hover span { left: 16px; }
+
+.button.button-reveal.button-mini:hover span { left: 11px; }
+
+.button.button-reveal.button-small:hover span { left: 13px; }
+
+.button.button-reveal.button-large:hover span { left: 19px; }
+
+.button.button-reveal.button-xlarge:hover span { left: 22px; }
+
+.button.button-reveal.tright:hover span { left: -16px; }
+
+.button.button-reveal.button-mini.tright:hover span { left: -11px; }
+
+.button.button-reveal.button-small.tright:hover span { left: -13px; }
+
+.button.button-reveal.button-large.tright:hover span { left: -19px; }
+
+.button.button-reveal.button-xlarge.tright:hover span { left: -22px; }
+
+
+/* Buttons - Promo 100% Width
+-----------------------------------------------------------------*/
+
+.button.button-full {
+	display: block !important;
+	white-space: normal;
+	margin: 0;
+	height: auto;
+	line-height: 1.6;
+	padding: 30px 0;
+	font-size: 30px;
+	font-weight: 300;
+	text-transform: none;
+	border-radius: 0;
+	text-shadow: 1px 1px 1px rgba(0,0,0,0.1);
+}
+
+.button.button-full.button-light { border-bottom: 1px solid rgba(0,0,0,0.15); }
+
+.button.button-full strong {
+	font-weight: 600;
+	border-bottom: 2px solid #EEE;
+}
+
+body:not(.device-touch) .button.button-full strong {
+	-webkit-transition: border .2s ease-in-out;
+	-o-transition: border .2s ease-in-out;
+	transition: border .2s ease-in-out;
+}
+
+.button.button-full.button-light strong { border-bottom-color: #333; }
+
+.button.button-full.button-light:hover strong { border-bottom-color: #EEE; }
+
+
+/* Buttons - Colors
+-----------------------------------------------------------------*/
+
+.button-red { background-color: #C02942; }
+.button-3d.button-red:hover,
+.button-reveal.button-red:hover { background-color: #C02942 !important; }
+
+.button-teal { background-color: #53777A; }
+.button-3d.button-teal:hover,
+.button-reveal.button-teal:hover { background-color: #53777A !important; }
+
+.button-yellow { background-color: #ECD078; }
+.button-3d.button-yellow:hover,
+.button-reveal.button-yellow:hover { background-color: #ECD078 !important; }
+
+.button-green { background-color: #59BA41; }
+.button-3d.button-green:hover,
+.button-reveal.button-green:hover { background-color: #59BA41 !important; }
+
+.button-brown { background-color: #774F38; }
+.button-3d.button-brown:hover,
+.button-reveal.button-brown:hover { background-color: #774F38 !important; }
+
+.button-aqua { background-color: #40C0CB; }
+.button-3d.button-aqua:hover,
+.button-reveal.button-aqua:hover { background-color: #40C0CB !important; }
+
+.button-lime { background-color: #AEE239; }
+.button-3d.button-lime:hover,
+.button-reveal.button-lime:hover { background-color: #AEE239 !important; }
+
+.button-purple { background-color: #5D4157; }
+.button-3d.button-purple:hover,
+.button-reveal.button-purple:hover { background-color: #5D4157 !important; }
+
+.button-leaf { background-color: #A8CABA; }
+.button-3d.button-leaf:hover,
+.button-reveal.button-leaf:hover { background-color: #A8CABA !important; }
+
+.button-pink { background-color: #F89FA1; }
+.button-3d.button-pink:hover,
+.button-reveal.button-pink:hover { background-color: #F89FA1 !important; }
+
+.button-dirtygreen { background-color: #1693A5; }
+.button-3d.button-dirtygreen:hover,
+.button-reveal.button-dirtygreen:hover { background-color: #1693A5 !important; }
+
+.button-blue { background-color: #1265A8; }
+.button-3d.button-blue:hover,
+.button-reveal.button-blue:hover { background-color: #1265A8 !important; }
+
+.button-amber { background-color: #EB9C4D; }
+.button-3d.button-amber:hover,
+.button-reveal.button-amber:hover { background-color: #EB9C4D !important; }
+
+.button-black { background-color: #111; }
+.button-3d.button-black:hover,
+.button-reveal.button-black:hover { background-color: #111 !important; }
+
+.button-white { background-color: #F9F9F9; }
+.button-3d.button-white:hover,
+.button-reveal.button-white:hover { background-color: #F9F9F9 !important; }
+
+
+/* Buttons - No Hover
+-----------------------------------------------------------------*/
+
+.button.button-nohover:hover {
+	opacity: inherit !important;
+	background-color: inherit !important;
+	color: inherit !important;
+	border-color: inherit !important;
+}
