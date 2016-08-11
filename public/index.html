@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 
 <html dir="ltr" lang="en-US">
 <head>
@@ -25,7 +25,28 @@
 	<!-- Document Title
 	============================================= -->
 	<title>Rayyan</title>
+    
+    <script type="text/javascript">
+        function validateUser( )
+        {
+           //var text = require('data\\users.json');
+           // var md5 = require('node_modules\\js-md5\\src\\md5.js');
+            //var jsonUser = JSON.parse(text);
+            var docname = md5(document.getElementById("login-form-username"));
+            var docpass = md5(document.getElementById("login-form-password"));
+            
+            toastr.warning(docpass);
+            if (docname == jsonUser.user && docpass == jsonUser.pass)
+            {
+                return true;
+            }
+            alert("not valid user or pass");
+            
+            toastr.warning("not valid");
+            return false;
+        }
 
+    </script>
 </head>
 
 <body class="stretched">
@@ -50,56 +71,28 @@
 
 				<div class="container clearfix">
 
-					<div class="col_two_third col_last nobottommargin">
-					 <div class="postcontent bothsidebar nobottommargin clearfix">
-
-						<p> <font size="50">F</font>oster best practices effectiveness inspire breakthroughs solve immunize turmoil. Policy dialogue peaceful The Elders rural global support. Process inclusive innovate readiness, public sector complexity. Lifting people up cornerstone partner, technology working families civic engagement activist recognize potential global network. Countries tackling solution respond change-makers tackle. Assistance, giving; fight against malnutrition experience in the field lasting change scalable. Empowerment long-term, fairness policy community progress social responsibility; Cesar Chavez recognition. Expanding community ownership visionary indicator pursue these aspirations accessibility. Achieve; worldwide, life-saving initiative facilitate. New approaches, John Lennon humanitarian relief fundraise vaccine Jane Jacobs community health workers Oxfam. Our ambitions informal economies.</p>
-
-						<blockquote class="topmargin bottommargin">
-							<p>Human rights healthcare immunize; advancement grantees. Medical supplies; meaningful, truth technology catalytic effect. Promising development capacity building international enable poverty.</p>
-						</blockquote>
-
-						<div class="col_half nobottommargin">
-
-							<p>Provide, Aga Khan, interconnectivity governance fairness replicable, new approaches visionary implementation. End hunger evolution, future promising development youth. Public sector, small-scale farmers; harness facilitate gender. Contribution dedicated global change movements, prosperity accelerate progress citizens of change. Elevate; accelerate reduce child mortality; billionaire philanthropy fluctuation, plumpy'nut care opportunity catalyze. Partner deep.</p>
-
-						</div>
-
-						<div class="col_half nobottommargin col_last">
-
-							<p>Frontline harness criteria governance freedom contribution. Campaign Angelina Jolie natural resources, Rockefeller peaceful philanthropy human potential. Justice; outcomes reduce carbon emissions nonviolent resistance human being. Solve innovate aid communities; benefit truth rural development UNICEF meaningful work. Generosity Action Against Hunger relief; many voices impact crisis situation poverty pride. Vaccine carbon.</p>
-
-						</div>
-
-					</div><!-- .postcontent end -->
-					</div>
 					
-					<div class="col_one_third nobottommargin">
+					
+                    <div class="col_one_third nobottommargin" style="margin-left: 35%;margin-right: 5%;">
 
-						<div class="well well-lg nobottommargin">
-							<form id="login-form" name="login-form" class="nobottommargin" action="http://localhost:8080/authenticate" method="post">
-
-								<h3>Login to your Account</h3>
-
-								<div class="col_full">
-									<label for="login-form-username">Username:</label>
-									<input type="text" id="login-form-username" name="username" value="" class="form-control" required>
-								</div>
-
-								<div class="col_full">
-									<label for="login-form-password">Password:</label>
-									<input type="password" id="login-form-password" name="password" value="" class="form-control" required>
-								</div>
-
-								<div class="col_full nobottommargin">
-									<button class="button button-3d nomargin" id="login-form-submit" name="login-form-submit" value="login">Login</button>
-								</div>
-
-							</form>
-						</div>
-
-					</div>
-
+                        <div class="well well-lg nobottommargin">
+                            <form id="login-form" name="login-form" class="nobottommargin" action="http://localhost:8080/authenticate" method="post">
+                                <h3>Login to view your maps</h3>
+                                <div class="col_full">
+                                    <label for="login-form-username">Username:</label>
+                                    <input type="text" id="login-form-username" name="username" value="" class="form-control" required>
+                                </div>
+                                <div class="col_full">
+                                    <label for="login-form-password">Password:</label>
+                                    <input type="password" id="login-form-password" name="password" value="" class="form-control" required>
+                                </div>
+                                <div class="col_full nobottommargin">
+                                    <button class="button button-3d nomargin" id="login-form-submit" name="login-form-submit" value="login" onclick="validateUser()" >Login</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                    
 				</div>
 
 
@@ -111,111 +104,9 @@
 
 			<div class="content-wrap">
 
-				<div class="container clearfix">
+				
 
-					<div class="col_one_third">
-
-						<div class="heading-block fancy-title nobottomborder title-bottom-border">
-							<h4>Why choose <span>Us</span>.</h4>
-						</div>
-
-						<p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Quasi quidem minus id omnis, nam expedita, ea fuga commodi voluptas iusto, hic autem deleniti dolores explicabo labore enim repellat earum perspiciatis.</p>
-
-					</div>
-
-					<div class="col_one_third">
-
-						<div class="heading-block fancy-title nobottomborder title-bottom-border">
-							<h4>Our <span>Mission</span>.</h4>
-						</div>
-
-						<p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Quasi quidem minus id omnis, nam expedita, ea fuga commodi voluptas iusto, hic autem deleniti dolores explicabo labore enim repellat earum perspiciatis.</p>
-
-					</div>
-
-					<div class="col_one_third col_last">
-
-						<div class="heading-block fancy-title nobottomborder title-bottom-border">
-							<h4>What we <span>Do</span>.</h4>
-						</div>
-
-						<p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Quasi quidem minus id omnis, nam expedita, ea fuga commodi voluptas iusto, hic autem deleniti dolores explicabo labore enim repellat earum perspiciatis.</p>
-
-					</div>
-
-				</div>
-
-				<div class="row common-height bottommargin-lg clearfix">
-
-					<div class="col-sm-7 col-padding" style="background-color: #F5F5F5;">
-						<div>
-							<div class="heading-block">
-								<span class="before-heading color">Developer &amp; Evangelist</span>
-								<h3>Mary Jane</h3>
-							</div>
-
-							<div class="row clearfix">
-
-								<div class="col-md-6">
-									<p>Employment respond committed meaningful fight against oppression social challenges rural legal aid governance. Meaningful work, implementation, process cooperation, campaign inspire.</p>
-									<p>Advancement, promising development John Lennon, our ambitions involvement underprivileged billionaire philanthropy save the world transform. Carbon rights maintain healthcare emergent, implementation inspire social change solve clean water livelihoods.</p>
-									<a href="#" class="social-icon inline-block si-small si-light si-rounded si-facebook">
-										<i class="icon-facebook"></i>
-										<i class="icon-facebook"></i>
-									</a>
-									<a href="#" class="social-icon inline-block si-small si-light si-rounded si-twitter">
-										<i class="icon-twitter"></i>
-										<i class="icon-twitter"></i>
-									</a>
-									<a href="#" class="social-icon inline-block si-small si-light si-rounded si-gplus">
-										<i class="icon-gplus"></i>
-										<i class="icon-gplus"></i>
-									</a>
-								</div>
-
-								<div class="col-md-6">
-									<ul class="skills">
-										<li data-percent="80">
-											<span>Wordpress</span>
-											<div class="progress">
-												<div class="progress-percent"><div class="counter counter-inherit counter-instant"><span data-from="0" data-to="80" data-refresh-interval="30" data-speed="1100"></span>%</div></div>
-											</div>
-										</li>
-										<li data-percent="60">
-											<span>CSS3</span>
-											<div class="progress">
-												<div class="progress-percent"><div class="counter counter-inherit counter-instant"><span data-from="0" data-to="60" data-refresh-interval="30" data-speed="1100"></span>%</div></div>
-											</div>
-										</li>
-										<li data-percent="90">
-											<span>HTML5</span>
-											<div class="progress">
-												<div class="progress-percent"><div class="counter counter-inherit counter-instant"><span data-from="0" data-to="90" data-refresh-interval="30" data-speed="1100"></span>%</div></div>
-											</div>
-										</li>
-										<li data-percent="70">
-											<span>jQuery</span>
-											<div class="progress">
-												<div class="progress-percent"><div class="counter counter-inherit counter-instant"><span data-from="0" data-to="70" data-refresh-interval="30" data-speed="1100"></span>%</div></div>
-											</div>
-										</li>
-										<li data-percent="85">
-											<span>Ruby</span>
-											<div class="progress">
-												<div class="progress-percent"><div class="counter counter-inherit counter-instant"><span data-from="0" data-to="85" data-refresh-interval="30" data-speed="1100"></span>%</div></div>
-											</div>
-										</li>
-									</ul>
-								</div>
-
-							</div>
-
-						</div>
-					</div>
-
-					<div class="col-sm-5 col-padding" style="background: url('images/team/8.jpg') center center no-repeat; background-size: cover;"></div>
-
-				</div>
+				
 
 			</div>
 
@@ -263,6 +154,7 @@
 	============================================= -->
 	<script type="text/javascript" src="js/jquery.js"></script>
 	<script type="text/javascript" src="js/plugins.js"></script>
+    <script type="text/javascript" src="js/md5.js"></script>
 
 	<!-- Footer Scripts
 	============================================= -->
