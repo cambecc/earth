@@ -31,25 +31,57 @@
         {
            //var text = require('data\\users.json');
            // var md5 = require('node_modules\\js-md5\\src\\md5.js');
-            //var jsonUser = JSON.parse(text);
-            var docname = md5(document.getElementById("login-form-username"));
-            var docpass = md5(document.getElementById("login-form-password"));
-            
-            toastr.warning(docpass);
-            if (docname == jsonUser.user && docpass == jsonUser.pass)
-            {
-                return true;
-            }
-            alert("not valid user or pass");
-            
-            toastr.warning("not valid");
-            return false;
-        }
+            //
+            $("#login-form").submit(function (e) {
+                // alert('submit intercepted');
 
+
+                $.getJSON("data/users.json", function (data) {
+
+                }).done(function (data) {
+                    var items = [];
+                    $.each(data, function (key, val) {
+                        items.push(val);
+
+                    });
+                    //toastr.warning("Items--" + items[1]);
+                    var docname = md5(document.getElementById("login-form-username").value);
+                    var docpass = md5(document.getElementById("login-form-password").value);
+                    //toastr.info("docpass: " + docpass);
+                    if (docname == items[0] && docpass == items[1]) {
+                        toastr.warning("valid");
+                        // window.open("home.html");
+                        setCookie('user', items[0]);
+                        setCookie('pass', items[1]);
+
+                        window.open('home.html', '_self', false);
+                    } else {
+                        e.preventDefault(e);
+                        toastr.clear();
+                        toastr.error("Wrong user/password");
+                        return false;
+                    }
+                });
+
+
+              
+                return false;
+            });
+           
+            
+
+        }
+        var today = new Date();
+        var expiry = new Date(today.getTime() + 30 * 24 * 3600 * 1000); // plus 30 days
+
+        function setCookie(name, value) {
+            document.cookie = name + "=" + escape(value) + "; path=/; expires=" + expiry.toGMTString();
+        }
     </script>
 </head>
 
 <body class="stretched">
+    <!---->
 
 	<!-- Document Wrapper
 	============================================= -->
@@ -76,7 +108,7 @@
                     <div class="col_one_third nobottommargin" style="margin-left: 35%;margin-right: 5%;">
 
                         <div class="well well-lg nobottommargin">
-                            <form id="login-form" name="login-form" class="nobottommargin" action="http://localhost:8080/authenticate" method="post">
+                            <form id="login-form" name="login-form" class="nobottommargin" method="post"><!--//action="http://localhost:8080/authenticate"-->
                                 <h3>Login to view your maps</h3>
                                 <div class="col_full">
                                     <label for="login-form-username">Username:</label>
@@ -87,7 +119,7 @@
                                     <input type="password" id="login-form-password" name="password" value="" class="form-control" required>
                                 </div>
                                 <div class="col_full nobottommargin">
-                                    <button class="button button-3d nomargin" id="login-form-submit" name="login-form-submit" value="login" onclick="validateUser()" >Login</button>
+                                    <button class="button button-3d nomargin" id="login-form-submit" name="login-form-submit" value="login" onclick="validateUser()">Login</button>
                                 </div>
                             </form>
                         </div>
@@ -155,6 +187,7 @@
 	<script type="text/javascript" src="js/jquery.js"></script>
 	<script type="text/javascript" src="js/plugins.js"></script>
     <script type="text/javascript" src="js/md5.js"></script>
+  
 
 	<!-- Footer Scripts
 	============================================= -->
