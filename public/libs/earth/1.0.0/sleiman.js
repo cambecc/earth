@@ -19,7 +19,7 @@
     var FillerBefore = LocationY*360+LocationX;
     var FillerBetween = 360- GridResolutionx - Gridbuffer;
     var FillerAfter   = 360* (180 - (LocationY + GridResolutiony+ Gridbuffer)) + 360 - LocationX;// - GridResolutionx - Gridbuffer;
-    var FillerContent = 0;
+    var FillerContent = 1;
     var DistanceResolutionx = Maxx/GridResolutionx;
     var DistanceResolutiony = Maxy/GridResolutiony;
     var DistanceResolutionz = Maxz/GridResolutionz;
@@ -208,7 +208,7 @@ function setUpHeatSinks()
   // }
 }
 
-function TemperatureUpdate (Temperaturet, Temperaturet1, WindVelocity, currentSolarIrradiance){
+function TemperatureUpdate (Temperaturet, Temperaturet1, WindVelocity, currentSolarIrradiance, SourceWaterTemperature, GoalTemp, GallonsPerMinuteScaled,MonthActiveFactor){
 
 	var TempGradientSquared;
 	var Temp2ndDer;
@@ -346,17 +346,18 @@ for (var i=1; i<GridResolutionx+Gridbuffer-1; i++){
 	}
 }
 
+HeatSinkNetEnergyGapPerSec = GallonsPerMinuteScaled * 60* 60* (GoalTemp-SourceWaterTemperature) * 12/MonthActiveFactor;
 // We then Add the network sinks (also at z=0 originally)
 
 for (var k=0; k<HeatSinkNetNumX* HeatSinkNetNumY;k++)
 {
-  if (Temperaturet1[HeatSinkX[k]][HeatSinkY[k]][Gridbuffer/2] - TimeStep * HeatSinkNetEnergyGapPerSec * (Temperaturet1[HeatSinkX[k]][HeatSinkY[k]][Gridbuffer/2] - SourcewaterTemp) >SourcewaterTemp)
+  if (Temperaturet1[HeatSinkX[k]][HeatSinkY[k]][Gridbuffer/2] - TimeStep * HeatSinkNetEnergyGapPerSec * (Temperaturet1[HeatSinkX[k]][HeatSinkY[k]][Gridbuffer/2] - SourceWaterTemperature) > SourceWaterTemperature)
   {
-    Temperaturet1[HeatSinkX[k]][HeatSinkY[k]][Gridbuffer/2] = Temperaturet1[HeatSinkX[k]][HeatSinkY[k]][Gridbuffer/2] - TimeStep * HeatSinkNetEnergyGapPerSec * (Temperaturet1[HeatSinkX[k]][HeatSinkY[k]][Gridbuffer/2] - SourcewaterTemp) ;
+    Temperaturet1[HeatSinkX[k]][HeatSinkY[k]][Gridbuffer/2] = Temperaturet1[HeatSinkX[k]][HeatSinkY[k]][Gridbuffer/2] - TimeStep * HeatSinkNetEnergyGapPerSec * (Temperaturet1[HeatSinkX[k]][HeatSinkY[k]][Gridbuffer/2] - SourceWaterTemperature) ;
   }
   else
   {
-    Temperaturet1[HeatSinkX[k]][HeatSinkY[k]][Gridbuffer/2] = SourcewaterTemp;
+    Temperaturet1[HeatSinkX[k]][HeatSinkY[k]][Gridbuffer/2] = SourceWaterTemperature;
   }
 
 }
@@ -549,9 +550,12 @@ function TempSimulateClimate(){
 
 function SimulateClimate(WindxOutput, WindyOutput, TemperatureOutput, PressureOutput, MonthToSimulate, HourToSimulate, SourceWaterTemperature, Altitude, GallonsPerMinute, PrimaryWaterVolume, SecondaryWaterVolume, HillsHeight, NetworkArea, RayyanOnOFF){
 console.log("SimulateClimate");
+
+var GallonsPerMinuteScaled, PrimaryWaterVolumeScaled, SecondaryWaterVolumeScaled, SourceWaterTemperatureScaled, NetworkAreaScaled;
+
 if (MonthToSimulate === undefined)
 {
-  MonthToSimulate = 3;
+  MonthToSimulate = 7;
 }
 if (HourToSimulate === undefined)
 {
@@ -561,21 +565,33 @@ if (SourceWaterTemperature === undefined)
 {
   SourceWaterTemperature = 4;
 }
+else {
+  SourceWaterTemperature = SourceWaterTemperature/5;
+}
 if (Altitude === undefined)
 {
   Altitude = 0;
 }
 if (GallonsPerMinute === undefined)
 {
-  gallonsPerminute = 400000;
+  GallonsPerMinuteScaled = 400000;
+}
+else {
+  GallonsPerMinuteScaled= GallonsPerMinute*100;
 }
 if (PrimaryWaterVolume === undefined)
 {
-  PrimaryWaterVolume = 1000000;
+  PrimaryWaterVolumeScaled = 2000000;
+}
+else {
+  PrimaryWaterVolumeScaled = 100000*PrimaryWaterVolume;
 }
 if (SecondaryWaterVolume === undefined)
 {
-  SecondaryWaterVolume = 10000;
+  SecondaryWaterVolumeScaled = 100000;
+}
+else {
+  SecondaryWaterVolumeScaled = 10000*SecondaryWaterVolume;
 }
 if (HillsHeight === undefined)
 {
@@ -589,7 +605,6 @@ if (RayyanOnOFF === undefined)
 {
   RayyanOnOFF = 1;
 }
-
 //
 // Create all of the needed arrays.
 //
@@ -728,46 +743,101 @@ for (var i = 0; i < GridResolutionx+Gridbuffer; i++) {
   	}
   }
 }
-/*
-for(var t=0; t<NumOfSamplesToCollect; t++)
+// Set up monthly policy
+
+var MonthActive= new Array(12);
+var MonthActiveFactor = 12;
+if (5000 < GallonsPerMinute*(20-SourceWaterTemperature))
 {
+  MonthActive[0]=1;
+  MonthActive[1]=1;
+  MonthActive[2]=1;
+  MonthActive[3]=1;
+  MonthActive[4]=1;
+  MonthActive[5]=1;
+  MonthActive[6]=1;
+  MonthActive[7]=1;
+  MonthActive[8]=1;
+  MonthActive[9]=1;
+  MonthActive[10]=1;
+  MonthActive[11]=1;
+}
+else if (10000/3 < GallonsPerMinute*(26-SourceWaterTemperature)) {
 
-   TemperatureOut[t]= new Array(GridResolutionx+Gridbuffer);
-   WindOut[t] = new Array(GridResolutionx+Gridbuffer);
+    MonthActive[0]=0;
+    MonthActive[1]=0;
+    MonthActive[2]=0;
+    MonthActive[3]=1;
+    MonthActive[4]=1;
+    MonthActive[5]=1;
+    MonthActive[6]=1;
+    MonthActive[7]=1;
+    MonthActive[8]=1;
+    MonthActive[9]=1;
+    MonthActive[10]=1;
+    MonthActive[11]=0;
+    MonthActiveFactor = 8;
+}
+else {
 
-	for (var i = 0; i < GridResolutionx+Gridbuffer; i++)
-	{
-  		TemperatureOut[t][i] = new Array(GridResolutiony+Gridbuffer);
-  		WindOut[t][i] = new Array(GridResolutiony+Gridbuffer);
-  		for (var j=0; j<GridResolutiony+Gridbuffer;j++)
-  		{
-  			TemperatureOut[t][i][j]=new Array(GridResolutionz+Gridbuffer);
-  			WindOut[t][i][j]=new Array(GridResolutionz+Gridbuffer);
-  			for (var k=0; k<GridResolutionz+Gridbuffer;k++)
-  			{
-  				WindOut[t][i][j][k]=new Array(3);
-  			}
-  		}
-	}
+    MonthActive[0]=0;
+    MonthActive[1]=0;
+    MonthActive[2]=0;
+    MonthActive[3]=0;
+    MonthActive[4]=0;
+    MonthActive[5]=1;
+    MonthActive[6]=1;
+    MonthActive[7]=1;
+    MonthActive[8]=1;
+    MonthActive[9]=0;
+    MonthActive[10]=0;
+    MonthActive[11]=0;
+    MonthActiveFactor =4;
+}
 
-} */
+
 
 
 // Initial temperatures --- NEEDS TO BE CHANGED TO SOMETHING MORE APPROPRIATE
-
-for (var i = 0; i < GridResolutionx+Gridbuffer; i++) {
-	for (var j = 0; j < GridResolutiony+Gridbuffer; j++) {
-		for (var k=0; k< GridResolutionz+Gridbuffer;k++){
+if (RayyanOnOFF == 0 || MonthActive[MonthToSimulate] == 0)
+{
+  var normas=10*FillerContent/5000;
+  var WindRandX = -normas*(2*Math.random()-1);
+  var WindRandY = -normas*(2*Math.random()-1);
+  for (var i = 0; i < GridResolutionx+Gridbuffer; i++) {
+	   for (var j = 0; j < GridResolutiony+Gridbuffer; j++) {
+		     for (var k=0; k< GridResolutionz+Gridbuffer;k++){
 
  // 			InitialTemperature[i][j][k] = 30;
-  			Temperaturet[i][j][k]  = monthlyMeanMaxTemp[MonthToSimulate];
-  			Temperaturet1[i][j][k] = monthlyMeanMaxTemp[MonthToSimulate];
-		}
-	}
+            Temperaturet[i][j][k]  = monthlyMeanMaxTemp[MonthToSimulate];
+            Temperaturet1[i][j][k] = monthlyMeanMaxTemp[MonthToSimulate];
+            var WindNoiseX= normas*0.1*(2*Math.random()-1);
+            var WindNoiseY= normas*0.1*(2*Math.random()-1);
+            WindVelocity[i][j][k][0] =WindRandX + WindNoiseX;// (WindRandX + WindNoiseX)/(WindRandX + WindNoiseX+ WindRandY + WindNoiseY+0.01);
+            WindVelocity[i][j][k][1] =WindRandY + WindNoiseY;// (WindRandY + WindNoiseY)/(WindRandX + WindNoiseX+ WindRandY + WindNoiseY+0.01);
+            //console.log(WindVelocity[i][j][k][0]);
+          }
+	  }
+  }
+}
+else if (RayyanOnOFF ==1) // This assumes that the system has been running successfully
+{
+  var steadyStateTemp = Math.min(GoalTemp + 3,monthlyMeanMaxTemp[MonthToSimulate]) ;
+  for (var i = 0; i < GridResolutionx+Gridbuffer; i++) {
+	   for (var j = 0; j < GridResolutiony+Gridbuffer; j++) {
+		     for (var k=0; k< GridResolutionz+Gridbuffer;k++){
+
+ // 			InitialTemperature[i][j][k] = 30;
+            Temperaturet[i][j][k]  = steadyStateTemp;
+            Temperaturet1[i][j][k] = steadyStateTemp;
+		      }
+	  }
+  }
+
 }
 
 // Start Simulation
-if(RayyanOnOFF ==1)
+if(RayyanOnOFF ==1 && MonthActive[MonthToSimulate] ==1)
 {
 var integrationConst = 12 * 3600* (Math.PI/(monthlySunset[ChosenMonth] - monthlySunrise[ChosenMonth])); // This is the const to normalize correctly. The total should be 24*3600* monthlySolarIrradiance. The integration of the sin() function will give 2* (monthlySunset[ChosenMonth] - monthlySunrise[ChosenMonth])/PI . Note that the time difference needs to be in seconds -so it has the 3600 factor-
 
@@ -779,14 +849,13 @@ for(t=0;t<NumOfSamplesToCollect ;t++){
 
 		TempSolarIrraniance = integrationConst*monthlySolarIrradiance[ChosenMonth]*Math.sin(Math.PI * (TimeSinceSunrise/(monthlySunset[ChosenMonth] - monthlySunrise[ChosenMonth])));
 
-    TemperatureUpdate(Temperaturet, Temperaturet1, WindVelocity,TempSolarIrraniance);
+    TemperatureUpdate(Temperaturet, Temperaturet1, WindVelocity,TempSolarIrraniance, SourceWaterTemperature, GoalTemp, GallonsPerMinuteScaled,MonthActiveFactor);
 
     //console.log(GridResolutionx);
 		for (var i = 0; i < GridResolutionx+Gridbuffer; i++){
 			for (var j = 0; j < GridResolutiony+Gridbuffer; j++){
 				for (var k = 0; k < GridResolutionz+Gridbuffer; k++){
-					var temp_val = Temperaturet1[i][j][k];
-  					Temperaturet[i][j][k] =temp_val;
+					Temperaturet[i][j][k] = Temperaturet1[i][j][k];
   					//console.log(temp_val);
 				}
 			}
@@ -836,8 +905,8 @@ for (var j = 0; j < GridResolutiony+Gridbuffer; j++){
     for (var i = 0; i < GridResolutionx+Gridbuffer; i++){
           var temp_val = Temperaturet1[i][j][ZtoSample];
           TemperatureOutput[(currentTimeStepIndex * arraySize) +FillerBefore+i+j*360] = temp_val +273.15;
-          WindxOutput[(currentTimeStepIndex * arraySize) + FillerBefore+i+j*360] 	    = 5000*WindVelocity[i][j][ZtoSample][0] + 1;
-          WindyOutput[(currentTimeStepIndex * arraySize) + FillerBefore+i+j*360] 	    = 5000*WindVelocity[i][j][ZtoSample][1] + 1;
+          WindxOutput[(currentTimeStepIndex * arraySize) + FillerBefore+i+j*360] 	    = 5000*WindVelocity[i][j][ZtoSample][0] ;
+          WindyOutput[(currentTimeStepIndex * arraySize) + FillerBefore+i+j*360] 	    = 5000*WindVelocity[i][j][ZtoSample][1] ;
           PressureOutput[(currentTimeStepIndex * arraySize) + FillerBefore+i+j*360]    = 50-temp_val + 273.15;
           //console.log(TemperatureOutput[FillerBefore+i+j*360]);
           //console.log(TemperatureOutput[(currentTimeStepIndex * arraySize) +FillerBefore+i+j*360]);

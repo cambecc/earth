@@ -1132,6 +1132,7 @@
           var param = event.target.id,
               value = ui.value;
               glGallonsPerMinute = ui.value;
+              console.log(glGallonsPerMinute);
               gridAgent.submit(buildGrids);
         });
 
