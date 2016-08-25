@@ -1,0 +1,180 @@
+﻿<!DOCTYPE html>
+<html itemscope itemtype="http://schema.org/Map" prefix="og: http://ogp.me/ns# fb: http://ogp.me/ns/fb#" style="background-color:white;">
+<head>
+    <meta charset="utf-8"/>
+    <title>Rayyan - Dubai Creek Harbor</title>
+    <meta itemprop="name"                                      content="earth"/>
+    <meta itemprop="description"     name="description"        content="an animated map of global wind and weather"/>
+    <meta itemprop="author"          name="author"             content="Cameron Beccario"/>
+
+    <meta property="og:type"        content="website"/>
+    <meta property="og:title"       content="earth"/>
+    <meta property="og:description" content="An animated map of global wind and weather. Visit the community at https://www.facebook.com/EarthWindMap"/>
+    <meta property="og:url"         content="http://earth.nullschool.net"/>
+    <meta property="og:image"       content="http://earth.nullschool.net/preview.jpg"/>
+
+    <link rel="shortcut icon" href="/favicon.ico"/>
+    <link rel="apple-touch-icon" sizes="120x120" href="/iphone-icon.png"/>
+    <link rel="apple-touch-icon" sizes="152x152" href="/ipad-icon.png"/>
+    <link rel="stylesheet" type="text/css" href="/styles/styles.css"/>
+
+    <link rel="alternate" hreflang="x-default" href="http://earth.nullschool.net/"/>
+    <link rel="alternate" hreflang="ja" href="http://earth.nullschool.net/jp/"/>
+
+    <link href="assets/jquery-ui-1.11.4.custom/jquery-ui.css" rel="stylesheet">
+    <link href="css/index.css" rel="stylesheet">
+</head>
+<body data-lang="en" class="fill-screen">
+
+    <!--[if lte IE 8]><p id="warn">This site requires IE9 or newer.</p><![endif]-->
+
+
+    <div id="display" class="fill-screen" style="background-color:white;">
+        <img id="simulationBGImage" class="fill-screen-semi-transparent" src="" width=770 height=700/>
+        <canvas id="animation" class="fill-screen"></canvas>
+        <canvas id="overlay" class="fill-screen"></canvas>
+        <svg id="foreground" class="fill-screen" xmlns="http://www.w3.org/2000/svg" version="1.1"></svg>
+    </div>
+<!--
+<div id="display">
+    <svg id="map" class="fill-screen" xmlns="http://www.w3.org/2000/svg" version="1.1" style="display:none"></svg>
+
+    <svg id="foreground" class="fill-screen" xmlns="http://www.w3.org/2000/svg" version="1.1" style="display:none"></svg>
+</div>
+
+<div style="width:100%; height=:100%">
+
+    <canvas  style="width:100%;height:100% !important;z-index:90" id="animation" class="fill-screen"></canvas>
+ <canvas  style="width:100%;height:100%;z-index:91" id="overlay" class="fill-screen"  ></canvas>
+ <img width="100%" height="100%" style="position:absolute" src="map.jpg" />
+
+</div>
+-->
+    <div id="sponsor" class="invisible">
+        <p><span id="sponsor-hide" class="text-button invisible"> ✕ </span>community</p>
+        <a id="sponsor-link" href="https://www.facebook.com/EarthWindMap">EarthWindMap</a>
+    </div>
+
+    <div id="details">
+        <p id="status"></p>
+        <div id="location">
+            <p>
+                <span id="location-coord"></span>
+                <span id="location-close" class="invisible text-button"> ✕ </span>
+            </p>
+            <p>
+                <span id="location-wind"></span>
+                <span id="location-wind-units" class="text-button"></span>
+            </p>
+            <p>
+                <span id="location-value"></span>
+                <span id="location-value-units" class="text-button"></span>
+            </p>
+        </div>
+
+        <p id="earth">
+            <span id="show-menu" class="text-button" title="menu">DCH North Park</span>
+            <span id="progress" class="invisible"></span>
+        </p>
+
+        <div id="menu" class="invisible">
+            <p>Date | <span
+                id="data-date" class="local"></span> <span
+                id="toggle-zone" class="text-button"></span>
+            </p>
+            <p>Data | <span id="data-layer"></span></p>
+            <p><span id="scale-label">Scale | </span><canvas id="scale"></canvas></p>
+            <p>Control | <span
+                class="text-button" id="nav-now" title="Current Conditions">Now</span><span
+                class="text-button" id="nav-backward-more"> « </span> – <span
+                class="text-button" id="nav-backward"> ‹ </span> – <span
+                class="text-button" id="nav-forward"> › </span> – <span
+                class="text-button" id="nav-forward-more"> » </span>
+            </p>
+            <p class="wind-mode">Height | <span
+                class="surface text-button" id="level-0" title="Surface">Sfc</span> – <span
+                class="surface text-button" id="level-10">10m</span> – <span
+                class="surface text-button" id="level-20">20m</span> – <span
+                class="surface text-button" id="level-50">50m</span> – <span
+                class="surface text-button" id="level-100">100m</span> – <span
+                class="surface text-button" id="level-200">200m</span> – <span
+                class="surface text-button" id="level-500">500m</span>
+            </p>
+            <p class="wind-mode">MicroClimate Control | <span
+                class="surface text-button" id="MicroClimate-On">ON</span> – <span
+                class="surface text-button" id="MicroClimate-Off">OFF</span>
+            </p>
+
+            <p class="wind-mode">Overlay | <span
+                class="text-button" id="overlay-off">None</span> – <span
+                class="text-button" id="overlay-wind" title="Wind Speed">Wind</span> – <span
+                class="text-button" id="overlay-temp" title="Temperature">Temperature</span> – <span
+                class="text-button" id="overlay-Pressure" title="Pressure">Pressure</span>
+            </p>
+            <p class="wind-mode">Hills Height | <span
+
+            <span class="surface text-button" id="Hills-0">0m</span> – <span
+            class="surface text-button" id="Hills-50">50m</span> – <span
+            class="surface text-button" id="Hills-100">100m</span> – <span
+            class="surface text-button" id="Hills-150">150m</span> – <span
+            class="surface text-button" id="Hills-200">200m</span> – <span
+            class="surface text-button" id="Hills-250">250m</span>
+        </p>
+            <p>
+              <div id="scale-label" style="clear:left;float:left">Source water temperature | </div>
+              <div id="water-temperature" class="slider slider-blue"></div>
+            </p>
+
+             <p>
+               <div id="scale-label" style="clear:left;float:left">GPM | </div>
+               <div id="gpm" class="slider slider-purple"></div>
+             </p>
+
+             <p>
+               <div id="scale-label" style="clear:left;float:left">Primary Chilled Water Storage Volume | </div>
+               <div id="primary-water-volume" class="slider slider-cyan"></div>
+             </p>
+
+             <p>
+               <div id="scale-label" style="clear:left;float:left">Secondary Chilled Water Storage Volume | </div>
+               <div id="secondary-water-volume" class="slider slider-dark-blue"></div> 
+             </p>
+
+            <p>
+              <div id="scale-label" style="clear:left;float:left">Size of Heat Network  | </div>
+              <div id="heat-network-area" class="slider slider-red"></div>
+            </p>
+
+        </div>
+    </div>
+
+    <script src="/libs/underscore.js/1.6.0/underscore.js" charset="utf-8"></script>
+    <script src="/libs/backbone.js/1.1.0/backbone.js" charset="utf-8"></script>
+    <script src="/libs/topojson/1.1.0/topojson.js" charset="utf-8"></script>
+    <script src="/libs/d3/3.3.10/d3.js" charset="utf-8"></script>
+
+<!--
+    <script src="/libs/underscore.js/1.6.0/underscore.js" charset="utf-8"></script>
+    <script src="/libs/backbone.js/1.1.0/backbone.js" charset="utf-8"></script>
+    <script src="/libs/topojson/1.1.0/topojson.js" charset="utf-8"></script>
+    <script src="/libs/d3/3.3.10/d3.js" charset="utf-8"></script>
+-->
+
+    <script src="/libs/d3.geo/0.0.0/d3.geo.projection.v0.min.js" charset="utf-8"></script>
+    <script src="/libs/d3.geo/0.0.0/d3.geo.polyhedron.v0.min.js" charset="utf-8"></script>
+    <script src="/libs/when/2.6.0/when.js" charset="utf-8"></script>
+
+    <script src="assets/jquery-ui-1.11.4.custom/external/jquery/jquery.js"></script>
+    <script src="assets/jquery-ui-1.11.4.custom/jquery-ui.js"></script>
+    <script> $(function() {
+        $( ".slider" ).slider();
+      });</script>
+
+    <script src="/libs/earth/1.0.0/HeatSinkFromImageData.js" charset="utf-8"></script>
+    <script src="/libs/earth/1.0.0/sleiman.js" charset="utf-8"></script>
+    <script src="/libs/earth/1.0.0/micro.js" charset="utf-8"></script>
+    <script src="/libs/earth/1.0.0/globes.js" charset="utf-8"></script>
+    <script src="/libs/earth/1.0.0/products.js" charset="utf-8"></script>
+    <script src="/libs/earth/1.0.0/earth.js" charset="utf-8"></script>
+</body>
+</html>

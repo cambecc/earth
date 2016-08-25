@@ -1,21 +1,5 @@
-<!DOCTYPE html>
-<script>
-function readCookie(name) {
-    var nameEQ = name + "=";
-    var ca = document.cookie.split(';');
-    for(var i=0;i < ca.length;i++) {
-        var c = ca[i];
-        while (c.charAt(0)==' ') c = c.substring(1,c.length);
-        if (c.indexOf(nameEQ) == 0) return c.substring(nameEQ.length,c.length);
-    }
-    return null;
-}
+﻿<!DOCTYPE html>
 
-var value = readCookie('user');
-if(value == "null") {
-window.location="/index.html";
-}
-</script>
 <html dir="ltr" lang="en-US">
 <head>
 
@@ -50,7 +34,26 @@ window.location="/index.html";
 </head>
 
 <body class="stretched">
+    <script>
+    function readCookie(name) {
 
+    var nameEQ = name + "=";
+    var ca = document.cookie.split(';');
+    for(var i=0;i < ca.length;i++) {
+        var c = ca[i];
+        while (c.charAt(0)==' ') c = c.substring(1,c.length);
+        if (c.indexOf(nameEQ) == 0) return c.substring(nameEQ.length,c.length);
+    }
+    return null;
+}
+
+var value = readCookie('user');
+//toastr.warning("cookie.user: "  +value);
+if(value == null) {
+    window.location = "/index.html";
+    
+}
+    </script>
 	<!-- Document Wrapper
 	============================================= -->
 	<div id="wrapper" class="clearfix">
@@ -90,22 +93,24 @@ window.location="/index.html";
 							 <li class="current"><a href="#" onclick ="changeLinkToNorth()"><div>North View</div></a>
 							</li>
 							 <li class="current"><a href="#" onclick ="changeLinkToSouth()"><div>South View</div></a>
+                            <li class="current"><a href="#" onclick="logout()">LogOut</a>
 							</li>
 						</ul>
 
 						<!-- Top Search
 						============================================= -->
-						<div id="top-search">
+						<!--<div id="top-search">
 							<a href="#" id="top-search-trigger"><i class="icon-search3"></i><i class="icon-line-cross"></i></a>
 							<form action="search.html" method="get">
 								<input type="text" name="q" class="form-control" value="" placeholder="Type &amp; Hit Enter..">
 							</form>
-						</div><!-- #top-search end -->
+						</div>-->
+                        <!-- #top-search end -->
 
 					</div>
 
 				</nav><!-- #primary-menu end -->
-
+                
 			</div>
 
 		</header><!-- #header end -->
@@ -205,7 +210,7 @@ window.location="/index.html";
 
 				<div class="clear"></div>
 			</div>
-			<div id="frameDiv" >
+			<div id="frameDiv" style="display: block;text-align: center; background-color:white;" >
 				<iframe id="iframe"  width="100%" height="1000px"></iframe>
 			</div>
 		</section><!-- #content end -->
@@ -252,14 +257,14 @@ window.location="/index.html";
 	<!-- Footer Scripts
 	============================================= -->
 	<script type="text/javascript" src="js/functions.js"></script>
-	<script>
+    <script>
 
 	document.getElementById("frameDiv").style.display = "none";
 	var height = 0;
 
 	document.addEventListener('DOMContentLoaded', function() {
 		height = document.getElementById("carousel").offsetHeight;
-		document.getElementById('iframe').setAttribute("style","height:700px");
+		document.getElementById('iframe').setAttribute("style","height:715px; width:780px;");
 	}, false);
 
     function hideCarouselAndShowIframe() {
@@ -272,21 +277,29 @@ window.location="/index.html";
                 }
 	function changeLinkToSouth() {
 	hideCarouselAndShowIframe();
-	document.getElementById("iframe").src = "http://localhost:8080/simulation.html?SimulationType=SouthPark";
+	document.getElementById("iframe").src = "simulation.html?SimulationType=SouthPark";
 	}
 
 	function changeLinkToNorth() {
 	hideCarouselAndShowIframe();
-	document.getElementById("iframe").src = "http://localhost:8080/simulation.html?SimulationType=NorthPark";
+	document.getElementById("iframe").src = "simulation.html?SimulationType=NorthPark";
 	}
 	function changeLinkToCentral() {
 	hideCarouselAndShowIframe();
-	document.getElementById("iframe").src = "http://localhost:8080/simulation.html?SimulationType=CentralPark";
+	document.getElementById("iframe").src = "simulation.html?SimulationType=CentralPark";
 	}
 	function changeLinkToFull() {
 	hideCarouselAndShowIframe();
-	document.getElementById("iframe").src = "http://localhost:8080/simulation.html?SimulationType=Full";
+	document.location = "simulation.html?SimulationType=Full";
+	}
+	function logout() {
+          
+        document.cookie = 'user' + '=; path=/; expires=Thu, 01 Jan 1970 00:00:01 GMT;';
+        window.location = '/index.html';
 	}
     </script>
+
+
+   
 </body>
 </html>

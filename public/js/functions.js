@@ -2539,7 +2539,7 @@ var SEMICOLON = SEMICOLON || {};
 				pageMenuOffset = 0;
 
 			if( $header.length > 0 ) { headerOffset = $header.offset().top; }
-			if( $header.length > 0 ) { headerWrapOffset = $headerWrap.offset().top; }
+			//if( $header.length > 0 ) { headerWrapOffset = $headerWrap.offset().top; }
 			if( $pagemenu.length > 0 ) {
 				if( $header.length > 0 && !$header.hasClass('no-sticky') ) {
 					if( $header.hasClass('sticky-style-2') || $header.hasClass('sticky-style-3') ) {
