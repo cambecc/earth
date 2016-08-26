@@ -49,7 +49,7 @@
                     var docpass = md5(document.getElementById("login-form-password").value);
                     //toastr.info("docpass: " + docpass);
                     if (docname == items[0] && docpass == items[1]) {
-                        toastr.warning("valid");
+                       // toastr.warning("valid");
                         // window.open("home.html");
                         setCookie('user', items[0]);
                         setCookie('pass', items[1]);
@@ -87,66 +87,65 @@
 	============================================= -->
 	<div id="wrapper" class="clearfix">
 
-		<header id="header" class="sticky-style-1">
 
-			<div class="container clearfix">
 
-				<div id="logo">
-					<img src="images/rayyan_logo.png">Rayyan</p>
+
+
+				<div id="logo" style="position: absolute !IMPORTANT;z-index: 9999;left: 0;top: 0;">
+					<img src="images/rayyan_logo.png">
 				</div>
-			</div>
-		</header>
-		
-		<font color="white">
-		
-		<section id="page-title" style="padding: 150px 0; background-image: url('images/about/parallax.jpg'); background-size: cover;" data-stellar-background-ratio="0.4">
 
-				<div class="container clearfix">
+
+		
+
+		
+		<section id="page-title" style=" background-image: url('images/about/parallax.jpg');
+		 background-size: cover;" data-stellar-background-ratio="0.4">
+
+				<div class="container clearfix" style="vertical-align: middle">
 
 					
 					
-                    <div class="col_one_third nobottommargin" ><!--style="margin-left: 35%;margin-right: 5%;"-->
 
-                        <div class="well well-lg nobottommargin">
+
+
                             <form id="login-form" name="login-form" class="nobottommargin" method="post"><!--//action="http://localhost:8080/authenticate"-->
-                                <h3>Login to view your maps</h3>
-                                <div class="col_full">
-                                    <label for="login-form-username">Username:</label>
-                                    <input type="text" id="login-form-username" name="username" value="" class="form-control" required>
+
+                                <h2 align="center" style="margin-bottom: 0;">VIEW YOUR PROJECTS</h2>
+
+                                <div align="center">
+                                    <div class="row" style="width: 410px;">
+                                <div class="col-md-5">
+                                    <!--<label for="login-form-username">Username:</label>-->
+                                    <input type="text"  value="USERNAME" id="login-form-username" name="username" value="" class="form-control"  onblur="if(this.value==''){this.value='USERNAME';this.type='text'}" onfocus="this.value='';" required>
+
                                 </div>
-                                <div class="col_full">
-                                    <label for="login-form-password">Password:</label>
-                                    <input type="password" id="login-form-password" name="password" value="" class="form-control" required>
+                                <div class="col-md-5">
+                                    <!--<label for="login-form-password">Password:</label>-->
+                                    <input type="text" value="PASSWORD" id="login-form-password" name="password" value="" class="form-control" onblur="if(this.value==''){this.value='PASSWORD';this.type='text'}" onfocus="this.value='';this.type='password';" required>
+
                                 </div>
-                                <div class="col_full nobottommargin">
-                                    <button class="button button-3d nomargin" id="login-form-submit" name="login-form-submit" value="login" onclick="validateUser()">Login</button>
+                                <div class="col-md-2">
+                                    <button class="button" id="login-form-submit" name="login-form-submit" value="login" style="background-color: transparent; border:1px solid;border-radius: 3px;" onclick="validateUser()">GO</button>
+                                </div>
+                                </div>
                                 </div>
                             </form>
-                        </div>
-                    </div>
+
+
                     
 				</div>
 
 
 
 		</section>
-        </font>
+
 		
-		<section id="content">
 
-			<div class="content-wrap">
-
-				
-
-				
-
-			</div>
-
-		</section><!-- #content end -->
 
 		<!-- Footer
 		============================================= -->
-		<footer id="footer" class="dark">
+		<footer id="footer" class="hidden">
 
 
 

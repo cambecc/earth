@@ -11,8 +11,8 @@
     <meta property="og:description" content="An animated map of global wind and weather. Visit the community at https://www.facebook.com/EarthWindMap" />
     <meta property="og:url" content="http://earth.nullschool.net" />
     <meta property="og:image" content="http://earth.nullschool.net/preview.jpg" />
-   
-     <link rel="shortcut icon" href="/favicon.ico" />
+
+    <link rel="shortcut icon" href="/favicon.ico" />
     <link rel="apple-touch-icon" sizes="120x120" href="/iphone-icon.png" />
     <link rel="apple-touch-icon" sizes="152x152" href="/ipad-icon.png" />
     <link rel="stylesheet" href="/styles/styles.css" type="text/css" />
@@ -25,302 +25,302 @@
     ============================================= -->
     <link href="http://fonts.googleapis.com/css?family=Lato:300,400,400italic,600,700|Raleway:300,400,500,600,700|Crete+Round:400italic" rel="stylesheet" type="text/css" />
     <link rel="stylesheet" href="css/bootstrap.css" type="text/css" />
-   
+
     <link rel="stylesheet" href="css/dark.css" type="text/css" />
     <link rel="stylesheet" href="css/font-icons.css" type="text/css" />
     <link rel="stylesheet" href="css/animate.css" type="text/css" />
     <link rel="stylesheet" href="css/magnific-popup.css" type="text/css" />
     <link rel="stylesheet" href="css/responsive.css" type="text/css" />
     <!--[if lt IE 9]>
-        <script src="http://css3-mediaqueries-js.googlecode.com/svn/trunk/css3-mediaqueries.js"></script>
+    <script src="http://css3-mediaqueries-js.googlecode.com/svn/trunk/css3-mediaqueries.js"></script>
     <![endif]-->
     <!-- External JavaScripts
      ============================================= -->
     <script type="text/javascript" src="js/jquery.js"></script>
-    <script type="text/javascript" src="js/plugins.js"></script> 
-   
+    <script type="text/javascript" src="js/plugins.js"></script>
+
 </head>
 <body  class="stretched">
-    <script>
+<script>
     function readCookie(name) {
 
-    var nameEQ = name + "=";
-    var ca = document.cookie.split(';');
-    for(var i=0;i < ca.length;i++) {
-        var c = ca[i];
-        while (c.charAt(0)==' ') c = c.substring(1,c.length);
-        if (c.indexOf(nameEQ) == 0) return c.substring(nameEQ.length,c.length);
+        var nameEQ = name + "=";
+        var ca = document.cookie.split(';');
+        for(var i=0;i < ca.length;i++) {
+            var c = ca[i];
+            while (c.charAt(0)==' ') c = c.substring(1,c.length);
+            if (c.indexOf(nameEQ) == 0) return c.substring(nameEQ.length,c.length);
+        }
+        return null;
     }
-    return null;
-}
 
-var value = readCookie('user');
-//toastr.warning("cookie.user: "  +value);
-if(value == null) {
-    window.location = "/index.html";
+    var value = readCookie('user');
+    //toastr.warning("cookie.user: "  +value);
+    if(value == null) {
+        window.location = "/index.html";
 
-}
-    </script>
+    }
+</script>
 
-    <!-- Document Wrapper
+<!-- Document Wrapper
+============================================= -->
+<div id="wrapper" class="clearfix">
+
+
+    <!-- Top Bar
     ============================================= -->
-    <div id="wrapper" class="clearfix">
-      
-
-        <!-- Top Bar
-        ============================================= -->
-        <!-- Header
-        ============================================= -->
-        <header id="header" class="sticky-style-2">
-            <div class="container clearfix">
-                <div id="logo">
-                    <img src="images/rayyan_logo.png" />
-                </div>
+    <!-- Header
+    ============================================= -->
+    <header id="header" class="sticky-style-2">
+        <div class="container clearfix">
+            <div id="logo">
+                <img src="images/rayyan_logo.png" />
             </div>
-            <div id="header-wrap">
-                <!-- Primary Navigation
-                ============================================= -->
-                <nav id="primary-menu"  class="style-2">
-                    <div class="container clearfix">
-                        <div id="primary-menu-trigger"><i class="icon-reorder"></i></div>
-                        <ul>
-                            <li class="current">
-                                <a href="#" onclick="changeToHome()"><div>Home</div></a>
-                            </li>
-                            <li class="current">
-                                <a href="#" onclick="changeLinkToFull()"><div>Full View</div></a>
-                            </li>
-                            <li class="current">
-                                <a href="#" onclick="changeLinkToCentral()"><div>Central View</div></a>
-                            </li>
-                            <li class="current">
-                                <a href="#" onclick="changeLinkToNorth()"><div>North View</div></a>
-                            </li>
-                            <li class="current"><a href="#" onclick="changeLinkToSouth()"><div>South View</div></a>
-                            <li class="current">
-                                <a href="#" onclick="logout()"><div>LogOut</div></a>
-                            </li>
-                        </ul>
-                        <!-- Top Search
-                        ============================================= -->
-                        <!--<div id="top-search">
-                            <a href="#" id="top-search-trigger"><i class="icon-search3"></i><i class="icon-line-cross"></i></a>
-                            <form action="search.html" method="get">
-                                <input type="text" name="q" class="form-control" value="" placeholder="Type &amp; Hit Enter..">
-                            </form>
-                        </div>-->
-                        <!-- #top-search end -->
-                    </div>
-                </nav><!-- #primary-menu end -->
-
-            </div>
-
-        </header><!-- #header end -->
-        <!-- Content
-        ============================================= -->
-        
-        <section id="content" style="align-content:center">
-           
-                <!--[if lte IE 8]><p id="warn">This site requires IE9 or newer.</p><![endif]-->
-
-                <div id="display" class="fill-screen" style="background-color:white;">
-                  <img id="simulationBGImage" class="fill-screen-semi-transparent" src="" width="770" height="700" />
-                    <canvas id="animation" class="fill-screen"></canvas>
-                    <canvas id="overlay" class="fill-screen"></canvas>
-                    <svg id="foreground" class="fill-screen" xmlns="http://www.w3.org/2000/svg" version="1.1"></svg>
-                    <div id="sponsor" class="invisible">
-                        <p><span id="sponsor-hide" class="text-button invisible"> ✕ </span>community</p>
-                        <a id="sponsor-link" href="https://www.facebook.com/EarthWindMap">EarthWindMap</a>
-                    </div>
-                    <div id="details">
-                        <p id="status" style="color:white;"></p>
-                        <div id="location" class="invisible">
-                            <p>
-                                <span id="location-coord"></span>
-                                <span id="location-close" class="invisible text-button"> ✕ </span>
-                            </p>
-                            <p>
-                                <span id="location-wind"></span>
-                                <span id="location-wind-units" class="text-button"></span>
-                            </p>
-                            <p>
-                                <span id="location-value"></span>
-                                <span id="location-value-units" class="text-button"></span>
-                            </p>
-                        </div>
-                        <p id="earth">
-                            <span id="show-menu" class="text-button" title="menu">DCH North Park</span>
-                            <span id="progress" class="invisible"></span>
-                        </p>
-                        <div id="menu" class="invisible">
-                            <p>
-                                Date | <span id="data-date" class="local"></span> <span id="toggle-zone" class="text-button"></span>
-                            </p>
-                            <p>Data | <span id="data-layer"></span></p>
-                            <p><span id="scale-label">Scale | </span><canvas id="scale"></canvas></p>
-                            <p>
-                                Control | <span class="text-button" id="nav-now" title="Current Conditions">Now</span><span class="text-button" id="nav-backward-more">«</span> – <span class="text-button" id="nav-backward">‹</span> – <span class="text-button" id="nav-forward">›</span> – <span class="text-button" id="nav-forward-more">»</span>
-                            </p>
-                            <p class="wind-mode">
-                                Height | <span class="surface text-button" id="level-0" title="Surface">Sfc</span> – <span class="surface text-button" id="level-10">10m</span> – <span class="surface text-button" id="level-20">20m</span> – <span class="surface text-button" id="level-50">50m</span> – <span class="surface text-button" id="level-100">100m</span> – <span class="surface text-button" id="level-200">200m</span> – <span class="surface text-button" id="level-500">500m</span>
-                            </p>
-                            <p class="wind-mode">
-                                MicroClimate Control | <span class="surface text-button" id="MicroClimate-On">ON</span> – <span class="surface text-button" id="MicroClimate-Off">OFF</span>
-                            </p>
-                            <p class="wind-mode">
-                                Overlay | <span class="text-button" id="overlay-off">None</span> – <span class="text-button" id="overlay-wind" title="Wind Speed">Wind</span> – <span class="text-button" id="overlay-temp" title="Temperature">Temperature</span> – <span class="text-button" id="overlay-Pressure" title="Pressure">Pressure</span>
-                            </p>
-                            <p class="wind-mode">
-                                Hills Height | <span
-
-            <span class="surface text-button" id="Hills-0">0m</span> – <span
-            class="surface text-button" id="Hills-50">50m</span> – <span
-            class="surface text-button" id="Hills-100">100m</span> – <span
-            class="surface text-button" id="Hills-150">150m</span> – <span
-            class="surface text-button" id="Hills-200">200m</span> – <span
-            class="surface text-button" id="Hills-250">250m</span>
-                            </p>
-                            <p>
-                                <div id="scale-label" style="clear:left;float:left">Source water temperature | </div>
-                                <div style="height:25px;">&nbsp;</div>
-                                <div id="water-temperature" class="slider slider-blue"></div>
-                            </p>
-                            <p>
-                                <div id="scale-label" style="clear:left;float:left">GPM | </div>
-                                <div style="height:25px;">&nbsp;</div>
-                                <div id="gpm" class="slider slider-purple"></div>
-                            </p>
-                            <p>
-                                <div id="scale-label" style="clear:left;float:left">Primary Chilled Water Storage Volume | </div>
-                                <div style="height:25px;">&nbsp;</div>
-                                <div id="primary-water-volume" class="slider slider-cyan"></div>
-                            </p>
-                            <p>
-                                <div id="scale-label" style="clear:left;float:left">Secondary Chilled Water Storage Volume | </div>
-                                <div style="height:25px;">&nbsp;</div>
-                                <div id="secondary-water-volume" class="slider slider-dark-blue"></div>
-                            </p>
-                            <p>
-                                <div id="scale-label" style="clear:left;float:left">Size of Heat Network  | </div>
-                                <div style="height:25px;">&nbsp;</div>
-                                <div id="heat-network-area" class="slider slider-red"></div>
-                            </p>
-                        </div>
-                    </div>
-                </div>
-
-               
-            
-</section>
-   
-            <!-- Footer
-        ============================================= -->
-            <footer id="footer" class="dark">
-
-                <!-- Copyrights
+        </div>
+        <div id="header-wrap">
+            <!-- Primary Navigation
             ============================================= -->
-                <div id="copyrights">
-                    <div class="container clearfix">
-                        <div class="col_half">
-                            Copyrights &copy; 2016 All Rights Reserved by RayyanSystems.<br>
-                            <div class="copyright-links"><a href="#">Terms of Use</a> / <a href="#">Privacy Policy</a></div>
-                        </div>
-                        <div class="col_half col_last tright">
-                            <div class="fright clearfix">
-                            </div>
-                            <div class="clear"></div>
-                            <i class="icon-envelope2"></i> info@rayyansystems.com <span class="middot">&middot;</span> <i class="icon-headphones"></i> +1 650 305 1916 <span class="middot">&middot;</span> <i class="icon-skype2"></i> RayyanOnSkype
-                        </div>
-                    </div>
+            <nav id="primary-menu"  class="style-2">
+                <div class="container clearfix">
+                    <div id="primary-menu-trigger"><i class="icon-reorder"></i></div>
+                    <ul>
+                        <li class="current">
+                            <a href="#" onclick="changeToHome()"><div>Home</div></a>
+                        </li>
+                        <li class="current">
+                            <a href="#" onclick="changeLinkToFull()"><div>Full View</div></a>
+                        </li>
+                        <li class="current">
+                            <a href="#" onclick="changeLinkToCentral()"><div>Central View</div></a>
+                        </li>
+                        <li class="current">
+                            <a href="#" onclick="changeLinkToNorth()"><div>North View</div></a>
+                        </li>
+                        <li class="current"><a href="#" onclick="changeLinkToSouth()"><div>South View</div></a>
+                        <li class="current">
+                            <a href="#" onclick="logout()"><div>LogOut</div></a>
+                        </li>
+                    </ul>
+                    <!-- Top Search
+                    ============================================= -->
+                    <!--<div id="top-search">
+                        <a href="#" id="top-search-trigger"><i class="icon-search3"></i><i class="icon-line-cross"></i></a>
+                        <form action="search.html" method="get">
+                            <input type="text" name="q" class="form-control" value="" placeholder="Type &amp; Hit Enter..">
+                        </form>
+                    </div>-->
+                    <!-- #top-search end -->
+                </div>
+            </nav><!-- #primary-menu end -->
 
-                </div><!-- #copyrights end -->
-            </footer><!-- #footer end -->
-        <script type="text/javascript" src="js/functions.js"></script>
+        </div>
+
+    </header><!-- #header end -->
+    <!-- Content
+    ============================================= -->
+
+    <section id="content" style="align-content:center">
+
+        <!--[if lte IE 8]><p id="warn">This site requires IE9 or newer.</p><![endif]-->
+
+        <div id="display" class="fill-screen" style="background-color:white;">
+            <img id="simulationBGImage" class="fill-screen-semi-transparent" src="" width="770" height="700" />
+            <canvas id="animation" class="fill-screen"></canvas>
+            <canvas id="overlay" class="fill-screen"></canvas>
+            <svg id="foreground" class="fill-screen" xmlns="http://www.w3.org/2000/svg" version="1.1"></svg>
+            <div id="sponsor" class="invisible">
+                <p><span id="sponsor-hide" class="text-button invisible"> ✕ </span>community</p>
+                <a id="sponsor-link" href="https://www.facebook.com/EarthWindMap">EarthWindMap</a>
+            </div>
+            <div id="details">
+                <p id="status" style="color:white;"></p>
+                <div id="location" class="invisible">
+                    <p>
+                        <span id="location-coord"></span>
+                        <span id="location-close" class="invisible text-button"> ✕ </span>
+                    </p>
+                    <p>
+                        <span id="location-wind"></span>
+                        <span id="location-wind-units" class="text-button"></span>
+                    </p>
+                    <p>
+                        <span id="location-value"></span>
+                        <span id="location-value-units" class="text-button"></span>
+                    </p>
+                </div>
+                <p id="earth">
+                    <span id="show-menu" class="text-button" title="menu">DCH North Park</span>
+                    <span id="progress" class="invisible"></span>
+                </p>
+                <div id="menu" class="invisible">
+                    <p>
+                        Date | <span id="data-date" class="local"></span> <span id="toggle-zone" class="text-button"></span>
+                    </p>
+                    <p>Data | <span id="data-layer"></span></p>
+                    <p><span id="scale-label">Scale | </span><canvas id="scale"></canvas></p>
+                    <p>
+                        Control | <span class="text-button" id="nav-now" title="Current Conditions">Now</span><span class="text-button" id="nav-backward-more">«</span> – <span class="text-button" id="nav-backward">‹</span> – <span class="text-button" id="nav-forward">›</span> – <span class="text-button" id="nav-forward-more">»</span>
+                    </p>
+                    <p class="wind-mode">
+                        Height | <span class="surface text-button" id="level-0" title="Surface">Sfc</span> – <span class="surface text-button" id="level-10">10m</span> – <span class="surface text-button" id="level-20">20m</span> – <span class="surface text-button" id="level-50">50m</span> – <span class="surface text-button" id="level-100">100m</span> – <span class="surface text-button" id="level-200">200m</span> – <span class="surface text-button" id="level-500">500m</span>
+                    </p>
+                    <p class="wind-mode">
+                        MicroClimate Control | <span class="surface text-button" id="MicroClimate-On">ON</span> – <span class="surface text-button" id="MicroClimate-Off">OFF</span>
+                    </p>
+                    <p class="wind-mode">
+                        Overlay | <span class="text-button" id="overlay-off">None</span> – <span class="text-button" id="overlay-wind" title="Wind Speed">Wind</span> – <span class="text-button" id="overlay-temp" title="Temperature">Temperature</span> – <span class="text-button" id="overlay-Pressure" title="Pressure">Pressure</span>
+                    </p>
+                    <p class="wind-mode">
+                        Hills Height | <span
+
+                        <span class="surface text-button" id="Hills-0">0m</span> – <span
+                            class="surface text-button" id="Hills-50">50m</span> – <span
+                            class="surface text-button" id="Hills-100">100m</span> – <span
+                            class="surface text-button" id="Hills-150">150m</span> – <span
+                            class="surface text-button" id="Hills-200">200m</span> – <span
+                            class="surface text-button" id="Hills-250">250m</span>
+                    </p>
+                    <p>
+                    <div id="scale-label" style="clear:left;float:left">Source water temperature | </div>
+                    <div style="height:25px;">&nbsp;</div>
+                    <div id="water-temperature" class="slider slider-blue"></div>
+                    </p>
+                    <p>
+                    <div id="scale-label" style="clear:left;float:left">GPM | </div>
+                    <div style="height:25px;">&nbsp;</div>
+                    <div id="gpm" class="slider slider-purple"></div>
+                    </p>
+                    <p>
+                    <div id="scale-label" style="clear:left;float:left">Primary Chilled Water Storage Volume | </div>
+                    <div style="height:25px;">&nbsp;</div>
+                    <div id="primary-water-volume" class="slider slider-cyan"></div>
+                    </p>
+                    <p>
+                    <div id="scale-label" style="clear:left;float:left">Secondary Chilled Water Storage Volume | </div>
+                    <div style="height:25px;">&nbsp;</div>
+                    <div id="secondary-water-volume" class="slider slider-dark-blue"></div>
+                    </p>
+                    <p>
+                    <div id="scale-label" style="clear:left;float:left">Size of Heat Network  | </div>
+                    <div style="height:25px;">&nbsp;</div>
+                    <div id="heat-network-area" class="slider slider-red"></div>
+                    </p>
+                </div>
+            </div>
+        </div>
+
+
+
+    </section>
+
+    <!-- Footer
+============================================= -->
+    <footer id="footer" class="dark">
+
+        <!-- Copyrights
+    ============================================= -->
+        <div id="copyrights">
+            <div class="container clearfix">
+                <div class="col_half">
+                    Copyrights &copy; 2016 All Rights Reserved by RayyanSystems.<br>
+                    <div class="copyright-links"><a href="#">Terms of Use</a> / <a href="#">Privacy Policy</a></div>
+                </div>
+                <div class="col_half col_last tright">
+                    <div class="fright clearfix">
+                    </div>
+                    <div class="clear"></div>
+                    <i class="icon-envelope2"></i> info@rayyansystems.com <span class="middot">&middot;</span> <i class="icon-headphones"></i> +1 650 305 1916 <span class="middot">&middot;</span> <i class="icon-skype2"></i> RayyanOnSkype
+                </div>
+            </div>
+
+        </div><!-- #copyrights end -->
+    </footer><!-- #footer end -->
+    <script type="text/javascript" src="js/functions.js"></script>
 </div><!-- #wrapper end -->
-    
+
+<script src="/libs/underscore.js/1.6.0/underscore.js" charset="utf-8"></script>
+<script src="/libs/backbone.js/1.1.0/backbone.js" charset="utf-8"></script>
+<script src="/libs/topojson/1.1.0/topojson.js" charset="utf-8"></script>
+<script src="/libs/d3/3.3.10/d3.js" charset="utf-8"></script>
+
+<!--
     <script src="/libs/underscore.js/1.6.0/underscore.js" charset="utf-8"></script>
     <script src="/libs/backbone.js/1.1.0/backbone.js" charset="utf-8"></script>
     <script src="/libs/topojson/1.1.0/topojson.js" charset="utf-8"></script>
     <script src="/libs/d3/3.3.10/d3.js" charset="utf-8"></script>
+-->
+<script src="/libs/d3.geo/0.0.0/d3.geo.projection.v0.min.js" charset="utf-8"></script>
+<script src="/libs/d3.geo/0.0.0/d3.geo.polyhedron.v0.min.js" charset="utf-8"></script>
+<script src="/libs/when/2.6.0/when.js" charset="utf-8"></script>
+<script src="assets/jquery-ui-1.11.4.custom/external/jquery/jquery.js"></script>
+<script src="assets/jquery-ui-1.11.4.custom/jquery-ui.js"></script>
+<script> $(function() {
+    $( ".slider" ).slider();
+});</script>
+<script src="/libs/earth/1.0.0/HeatSinkFromImageData.js" charset="utf-8"></script>
+<script src="/libs/earth/1.0.0/sleiman.js" charset="utf-8"></script>
+<script src="/libs/earth/1.0.0/micro.js" charset="utf-8"></script>
+<script src="/libs/earth/1.0.0/globes.js" charset="utf-8"></script>
+<script src="/libs/earth/1.0.0/products.js" charset="utf-8"></script>
+<script src="/libs/earth/1.0.0/earth.js" charset="utf-8"></script>
 
-    <!--
-        <script src="/libs/underscore.js/1.6.0/underscore.js" charset="utf-8"></script>
-        <script src="/libs/backbone.js/1.1.0/backbone.js" charset="utf-8"></script>
-        <script src="/libs/topojson/1.1.0/topojson.js" charset="utf-8"></script>
-        <script src="/libs/d3/3.3.10/d3.js" charset="utf-8"></script>
-    -->
-    <script src="/libs/d3.geo/0.0.0/d3.geo.projection.v0.min.js" charset="utf-8"></script>
-    <script src="/libs/d3.geo/0.0.0/d3.geo.polyhedron.v0.min.js" charset="utf-8"></script>
-    <script src="/libs/when/2.6.0/when.js" charset="utf-8"></script>
-    <script src="assets/jquery-ui-1.11.4.custom/external/jquery/jquery.js"></script>
-    <script src="assets/jquery-ui-1.11.4.custom/jquery-ui.js"></script>
-    <script> $(function() {
-        $( ".slider" ).slider();
-      });</script>
-    <script src="/libs/earth/1.0.0/HeatSinkFromImageData.js" charset="utf-8"></script>
-    <script src="/libs/earth/1.0.0/sleiman.js" charset="utf-8"></script>
-    <script src="/libs/earth/1.0.0/micro.js" charset="utf-8"></script>
-    <script src="/libs/earth/1.0.0/globes.js" charset="utf-8"></script>
-    <script src="/libs/earth/1.0.0/products.js" charset="utf-8"></script>
-    <script src="/libs/earth/1.0.0/earth.js" charset="utf-8"></script>
-    
-    <script>
-        
-	function changeLinkToSouth() {
-	document.location = "simulation.html?SimulationType=SouthPark";
-	}
+<script>
 
-	function changeLinkToNorth() {
-	document.location = "simulation.html?SimulationType=NorthPark";
-	}
-	function changeLinkToCentral() {
-	
-	document.location = "simulation.html?SimulationType=CentralPark";
-	}
-	function changeLinkToFull() {
-	window.location = "simulation.html?SimulationType=Full";
-	}
-	function changeToHome() {
-	    document.location = "home.html";
-	}
-	function logout() {
+    function changeLinkToSouth() {
+        document.location = "simulation.html?SimulationType=SouthPark";
+    }
+
+    function changeLinkToNorth() {
+        document.location = "simulation.html?SimulationType=NorthPark";
+    }
+    function changeLinkToCentral() {
+
+        document.location = "simulation.html?SimulationType=CentralPark";
+    }
+    function changeLinkToFull() {
+        window.location = "simulation.html?SimulationType=Full";
+    }
+    function changeToHome() {
+        document.location = "home.html";
+    }
+    function logout() {
 
         document.cookie = 'user' + '=; path=/; expires=Thu, 01 Jan 1970 00:00:01 GMT;';
         window.location = '/index.html';
-	}
+    }
 
-	/*window.onload = function () {
-	    
-	    var simulationBGImage = document.getElementById("simulationBGImage");
-	    var animation = document.getElementById("animation");
-	    var overlay = document.getElementById("overlay");
-	    var foreground = document.getElementById("foreground");
-	    var centerDiv = document.getElementById("center-map");
+    /*window.onload = function () {
 
-	    if (simulationBGImage && simulationBGImage.style) {
-	        simulationBGImage.style.height = '770';
-	        simulationBGImage.style.width = '700';
-	    }
-	    var simulationBGImageStyle = simulationBGImage.currentStyle || window.getComputedStyle(simulationBGImage);
+     var simulationBGImage = document.getElementById("simulationBGImage");
+     var animation = document.getElementById("animation");
+     var overlay = document.getElementById("overlay");
+     var foreground = document.getElementById("foreground");
+     var centerDiv = document.getElementById("center-map");
 
-	    if (animation && animation.style) {
-	        animation.style = simulationBGImageStyle;
-	       
-	       
-	    }
+     if (simulationBGImage && simulationBGImage.style) {
+     simulationBGImage.style.height = '770';
+     simulationBGImage.style.width = '700';
+     }
+     var simulationBGImageStyle = simulationBGImage.currentStyle || window.getComputedStyle(simulationBGImage);
 
-	    if (overlay && overlay.style) {
-	        overlay.style = simulationBGImageStyle; 
-	    }
-	    if (foreground && foreground.style) {
-	        foreground.style = simulationBGImageStyle;
-	       
-	       
-	         
+     if (animation && animation.style) {
+     animation.style = simulationBGImageStyle;
 
-	    }
-	}
-    */
-    </script>
+
+     }
+
+     if (overlay && overlay.style) {
+     overlay.style = simulationBGImageStyle;
+     }
+     if (foreground && foreground.style) {
+     foreground.style = simulationBGImageStyle;
+
+
+
+
+     }
+     }
+     */
+</script>
 </body>
 </html>

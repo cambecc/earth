@@ -76,9 +76,14 @@ iframe { border: none !important; }
 	Basic Layout Styles
 -----------------------------------------------------------------*/
 
-
+h2{
+	color:white;
+	font-weight: 600;
+	line-height: 1.5;
+	margin: 0 0 30px 0;
+	font-family: 'Raleway', sans-serif;
+}
 h1,
-h2,
 h3,
 h4,
 h5,
@@ -4848,7 +4853,16 @@ body.device-touch.device-xxs .portfolio-notitle .portfolio-overlay { display: no
 	margin-right: 7px;
 }
 
-.well .line {
+.well {
+	background-color: transparent;
+	border-color: transparent;
+	color:white;
+}
+.well well-lg{
+	background-color: transparent;
+	border-color: transparent;
+}
+.line {
 	margin: 20px 0;
 	border-color: #E5E5E5;
 }
@@ -10649,7 +10663,14 @@ fieldset[disabled] .sm-form-control {
 
 .sm-form-control { height: auto; }
 
-.form-control { border-radius: 3px; }
+.form-control {
+	border-radius: 3px;
+	border-color: white;
+	background-color: transparent;
+	color:white;
+	text-align: center;
+
+}
 
 .form-control:active,
 .form-control:focus {
@@ -11665,7 +11686,7 @@ button.toast-close-button {
 .footer-widgets-wrap .col_five_sixth { margin-bottom: 0; }
 
 #copyrights {
-	padding: 40px 0;
+	padding: 10px 0;
 	background-color: #DDD;
 	font-size: 14px;
 	line-height: 1.8;
@@ -13229,4 +13250,20 @@ body:not(.no-transition) #wrapper,
 	transform: none!important;
 	margin:0!important;
 	padding:0!important
+}
+
+.col-md-5, .col-md-2{
+	padding-right:10px;
+	padding-left:0px;
+
+}
+.button{
+	height:35px;
+margin: 0;
+	line-height: 0px;
+	border-color: #00c4ff !important;
+}
+#page-title{
+	padding: 250px 50px;
+	height: 100vh;
 }
