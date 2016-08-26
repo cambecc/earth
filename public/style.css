@@ -13245,7 +13245,6 @@ body:not(.no-transition) #wrapper,
 .inline_YTPlayer img {
 	border: none!important;
 	-moz-transform: none!important;
-	-webkit-transform: none!important;
 	-o-transform: none!important;
 	transform: none!important;
 	margin:0!important;
@@ -13266,4 +13265,9 @@ margin: 0;
 #page-title{
 	padding: 50px;
 	height: 100vh;
+}
+.padder-s
+{
+	padding: 5px;
+
 }

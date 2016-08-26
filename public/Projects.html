@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <meta name="author" content="SemiColonWeb" />
+
+    <!-- Stylesheets
+    ============================================= -->
+    <link href="http://fonts.googleapis.com/css?family=Lato:300,400,400italic,600,700|Raleway:300,400,500,600,700|Crete+Round:400italic" rel="stylesheet" type="text/css" />
+    <link rel="stylesheet" href="css/bootstrap.css" type="text/css" />
+    <link rel="stylesheet" href="style.css" type="text/css" />
+    <link rel="stylesheet" href="css/dark.css" type="text/css" />
+    <link rel="stylesheet" href="css/font-icons.css" type="text/css" />
+    <link rel="stylesheet" href="css/animate.css" type="text/css" />
+    <link rel="stylesheet" href="css/magnific-popup.css" type="text/css" />
+
+    <link rel="stylesheet" href="css/responsive.css" type="text/css" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <!--[if lt IE 9]>
+    <script src="http://css3-mediaqueries-js.googlecode.com/svn/trunk/css3-mediaqueries.js"></script>
+    <![endif]-->
+
+    <!-- External JavaScripts
+    ============================================= -->
+    <script type="text/javascript" src="js/jquery.js"></script>
+    <script type="text/javascript" src="js/plugins.js"></script>
+
+    <!-- Document Title
+    ============================================= -->
+    <title>Rayyan</title>
+
+</head>
+<body class="stretched">
+<script>
+    function readCookie(name) {
+
+        var nameEQ = name + "=";
+        var ca = document.cookie.split(';');
+        for(var i=0;i < ca.length;i++) {
+            var c = ca[i];
+            while (c.charAt(0)==' ') c = c.substring(1,c.length);
+            if (c.indexOf(nameEQ) == 0) return c.substring(nameEQ.length,c.length);
+        }
+        return null;
+    }
+
+    var value = readCookie('user');
+    //toastr.warning("cookie.user: "  +value);
+    if(value == null) {
+        window.location = "/index.html";
+
+    }
+</script>
+<!-- Page Header -->
+<div id="header" style="width: 100%; height: 64px;">
+    <div id="logo" style="position: absolute !IMPORTANT;z-index: 9999;left: 15px;top: 5px;">
+        <img src="images/rayyan_logo.png" style="width: 40px; height: 50px;">
+    </div>
+</div>
+
+    <div style="width: 100%; height: calc(100vh - 64px);">
+        <div class="row" style="height: 100%">
+            <div class="col-md-6 padder-s" style="height: 50%; " >
+<img src="images/magazine/carousel/Full.png" style="width: 100%; height:100%" />
+            </div>
+            <div class="col-md-6 padder-s" style="height: 50%; ">
+                <img src="images/magazine/carousel/Central.png" style="width: 100%; height:100%" />
+            </div>
+            <div class="col-md-6 padder-s" style="height: 50%; ">
+                <img src="images/magazine/carousel/North.png" style="width: 100%; height:100%" />
+            </div>
+            <div class="col-md-6 padder-s" style="height: 50%; ">
+                <img src="images/magazine/carousel/South.png" style="width: 100%; height:100%" />
+            </div>
+        </div>
+
+    </div>
+
+</body>
+</html>
