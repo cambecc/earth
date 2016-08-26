@@ -80,106 +80,38 @@
     </script>
 </head>
 
-<body class="stretched">
+<body class="stretched"  style=" background-image: url('images/about/parallax.jpg');
+		 background-size: cover;">
     <!---->
+    <div id="logo" style="position: absolute !IMPORTANT;z-index: 9999;left: 0;top: 0;">
+        <img src="images/rayyan_logo.png">
+    </div>
+    <div style="display: flex; align-items: center; height: 100vh">
+        <div style="width: 100%;text-align: center;">
+    <form id="login-form" name="login-form" class="nobottommargin" method="post"><!--//action="http://localhost:8080/authenticate"-->
 
-	<!-- Document Wrapper
-	============================================= -->
-	<div id="wrapper" class="clearfix">
+        <h2 align="center" style="margin-bottom: 0;">VIEW YOUR PROJECTS</h2>
 
+        <div align="center">
+            <div class="row" style="width: 410px;">
+                <div class="col-md-5">
+                    <!--<label for="login-form-username">Username:</label>-->
+                    <input type="text"  value="USERNAME" id="login-form-username" name="username" value="" class="form-control"  onblur="if(this.value==''){this.value='USERNAME';this.type='text'}" onfocus="this.value='';" required>
 
+                </div>
+                <div class="col-md-5">
+                    <!--<label for="login-form-password">Password:</label>-->
+                    <input type="text" value="PASSWORD" id="login-form-password" name="password" value="" class="form-control" onblur="if(this.value==''){this.value='PASSWORD';this.type='text'}" onfocus="this.value='';this.type='password';" required>
 
-
-
-				<div id="logo" style="position: absolute !IMPORTANT;z-index: 9999;left: 0;top: 0;">
-					<img src="images/rayyan_logo.png">
-				</div>
-
-
-		
-
-		
-		<section id="page-title" style=" background-image: url('images/about/parallax.jpg');
-		 background-size: cover;" data-stellar-background-ratio="0.4">
-
-				<div class="container clearfix" style="vertical-align: middle">
-
-					
-					
-
-
-
-                            <form id="login-form" name="login-form" class="nobottommargin" method="post"><!--//action="http://localhost:8080/authenticate"-->
-
-                                <h2 align="center" style="margin-bottom: 0;">VIEW YOUR PROJECTS</h2>
-
-                                <div align="center">
-                                    <div class="row" style="width: 410px;">
-                                <div class="col-md-5">
-                                    <!--<label for="login-form-username">Username:</label>-->
-                                    <input type="text"  value="USERNAME" id="login-form-username" name="username" value="" class="form-control"  onblur="if(this.value==''){this.value='USERNAME';this.type='text'}" onfocus="this.value='';" required>
-
-                                </div>
-                                <div class="col-md-5">
-                                    <!--<label for="login-form-password">Password:</label>-->
-                                    <input type="text" value="PASSWORD" id="login-form-password" name="password" value="" class="form-control" onblur="if(this.value==''){this.value='PASSWORD';this.type='text'}" onfocus="this.value='';this.type='password';" required>
-
-                                </div>
-                                <div class="col-md-2">
-                                    <button class="button" id="login-form-submit" name="login-form-submit" value="login" style="background-color: transparent; border:1px solid;border-radius: 3px;" onclick="validateUser()">GO</button>
-                                </div>
-                                </div>
-                                </div>
-                            </form>
-
-
-                    
-				</div>
-
-
-
-		</section>
-
-		
-
-
-		<!-- Footer
-		============================================= -->
-		<footer id="footer" class="hidden">
-
-
-
-			<!-- Copyrights
-			============================================= -->
-			<div id="copyrights">
-
-				<div class="container clearfix">
-
-					<div class="col_half">
-						Copyrights &copy; 2016 All Rights Reserved by RayyanSystems.<br>
-						<div class="copyright-links"><a href="#">Terms of Use</a> / <a href="#">Privacy Policy</a></div>
-					</div>
-
-					<div class="col_half col_last tright">
-						<div class="fright clearfix">
-
-						</div>
-
-						<div class="clear"></div>
-
-						<i class="icon-envelope2"></i> info@rayyansystems.com <span class="middot">&middot;</span> <i class="icon-headphones"></i> +1 650 305 1916 <span class="middot">&middot;</span> <i class="icon-skype2"></i> RayyanOnSkype
-					</div>
-				</div>
-
-
-			</div><!-- #copyrights end -->
-
-		</footer><!-- #footer end -->
-	</div><!-- #wrapper end -->
-
-	<!-- Go To Top
-	============================================= -->
-	<div id="gotoTop" class="icon-angle-up"></div>
+                </div>
+                <div class="col-md-2">
+                    <button class="button" id="login-form-submit" name="login-form-submit" value="login" style="background-color: transparent; border:1px solid;border-radius: 3px;" onclick="validateUser()">GO</button>
+                </div>
+            </div>
+        </div>
+    </form>
+        </div>
+    </div>
 
 	<!-- External JavaScripts
 	============================================= -->
