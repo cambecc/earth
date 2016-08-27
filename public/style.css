@@ -13266,8 +13266,53 @@ margin: 0;
 	padding: 50px;
 	height: 100vh;
 }
+
 .padder-s
 {
-	padding: 5px;
+	padding: 0px 0px 5px 5px;
+}
+.btn-primary.gradient {
+	background: -moz-linear-gradient(top,  #d4dce0 80%, transparent 20%); /* FF3.6+ */
+	background: -webkit-gradient(linear, left top, left bottom, color-stop(80%,gray), color-stop(20%,white)); /* Chrome,Safari4+ */
+	background: -webkit-linear-gradient(top,  #d4dce0 80%,transparent 20%); /* Chrome10+,Safari5.1+ */
+	background: -o-linear-gradient(top,  #d4dce0 80%,transparent 20%); /* Opera 11.10+ */
+	background: -ms-linear-gradient(top,  #d4dce0 80%,transparent 20%); /* IE10+ */
+	background: linear-gradient(to bottom,  #d4dce0 80%,transparent 20%); /* W3C */
+	filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#d4dce0', endColorstr='transparent',GradientType=0 ); /* IE6-9 */
+}
 
+.btn-custom-lighten.active {
+	color: rgba(255, 255, 255, 0.75);
+}
+.btn-custom-lighten {
+	color: #ffffff;
+	text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.25);
+	background-color: #e0e6e9;
+	background-image: -moz-linear-gradient(top, #d4dce0, #f2f4f5);
+	background-image: -webkit-gradient(linear, 0 0, 0 100%, from(#d4dce0), to(#f2f4f5));
+	background-image: -webkit-linear-gradient(top, #d4dce0, #f2f4f5);
+	background-image: -o-linear-gradient(top, #d4dce0, #f2f4f5);
+	background-image: linear-gradient(to bottom, #d4dce0, #f2f4f5);
+	background-repeat: repeat-x;
+	filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#ffd4dce0', endColorstr='#fff2f4f5', GradientType=0);
+	border-color: #f2f4f5 #f2f4f5 #c5d0d5;
+	border-color: rgba(0, 0, 0, 0.1) rgba(0, 0, 0, 0.1) rgba(0, 0, 0, 0.25);
+	*background-color: #f2f4f5;
+	/* Darken IE7 buttons by default so they stand out more given they won't have borders */
+
+	filter: progid:DXImageTransform.Microsoft.gradient(enabled = false);
+}
+.btn-custom-lighten:hover,
+.btn-custom-lighten:focus,
+.btn-custom-lighten:active,
+.btn-custom-lighten.active,
+.btn-custom-lighten.disabled,
+.btn-custom-lighten[disabled] {
+	color: #ffffff;
+	background-color: #f2f4f5;
+	*background-color: #e3e8eb;
+}
+.btn-custom-lighten:active,
+.btn-custom-lighten.active {
+	background-color: #d4dce0 ;
 }

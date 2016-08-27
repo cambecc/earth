@@ -32,6 +32,7 @@
 
 </head>
 <body class="stretched">
+<!--
 <script>
     function readCookie(name) {
 
@@ -51,27 +52,126 @@
         window.location = "/index.html";
 
     }
-</script>
+</script>-->
 <!-- Page Header -->
 <div id="header" style="width: 100%; height: 64px;">
     <div id="logo" style="position: absolute !IMPORTANT;z-index: 9999;left: 15px;top: 5px;">
         <img src="images/rayyan_logo.png" style="width: 40px; height: 50px;">
     </div>
+    <div class="pull-right" style="margin-right: 10px;">
+        <div class="btn-group"  style="height: 64px;">
+        <input type="button"   class="btn btn-primary" value="ALL VIEWS"
+               style="color:black;  height: 64px; border-radius:0px; border:0px solid;background-image: url('images/menu-btn-bg.PNG');" />
+        <input type="button"  class="btn btn-primary" value="LOGOUT"
+               style="color:black;  height: 64px; border-radius:0px; border:0px solid; background-image: url('images/menu-btn-bg.PNG');" />
+        </div>
+    </div>
+
 </div>
 
     <div style="width: 100%; height: calc(100vh - 64px);">
-        <div class="row" style="height: 100%">
-            <div class="col-md-6 padder-s" style="height: 50%; " >
-<img src="images/magazine/carousel/Full.png" style="width: 100%; height:100%" />
+        <div class="row" >
+            <div class="col-md-6 padder-s" >
+                <img class="img-responsive" src="images/magazine/carousel/Full.png"  style="position:absolute;"/>
+                <div style="display: flex; align-items: center; height: 100vh">
+                    <div style="width: 100%;text-align: center;">
+                        <form id="login-form" name="login-form" class="nobottommargin" method="post"><!--//action="http://localhost:8080/authenticate"-->
+
+
+
+                            <div align="center">
+
+                                <div class="row" style="width: 410px;">
+                                    <div class="col-md-12">
+                                        <h2 align="center" style="margin-bottom: 0;">FULL VIEW</h2>
+                                    </div>
+
+                                    <div class="col-md-12">
+                                        <button class="button" id="login-form-submit" name="login-form-submit" value="login"
+                                                style="border-color:white !important; background-color: transparent;  border:1px solid;border-radius: 3px;" onclick="validateUser()">RUN SIMULATION</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+
             </div>
-            <div class="col-md-6 padder-s" style="height: 50%; ">
-                <img src="images/magazine/carousel/Central.png" style="width: 100%; height:100%" />
+            <div class="col-md-6 padder-s"  >
+                <img class="img-responsive" src="images/magazine/carousel/Central.png"  style="position:absolute;" />
+                <div style="display: flex; align-items: center; height: 100vh">
+                    <div style="width: 100%;text-align: center;">
+                        <form id="login-form" name="login-form" class="nobottommargin" method="post"><!--//action="http://localhost:8080/authenticate"-->
+
+
+
+                            <div align="center">
+
+                                <div class="row" style="width: 410px;">
+                                    <div class="col-md-12">
+                                        <h2 align="center" style="margin-bottom: 0;">CENTRAL VIEW</h2>
+                                    </div>
+
+                                    <div class="col-md-12">
+                                        <button class="button" id="login-form-submit" name="login-form-submit" value="login"
+                                                style="border-color:white !important; background-color: transparent;  border:1px solid;border-radius: 3px;" onclick="validateUser()">RUN SIMULATION</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
             </div>
-            <div class="col-md-6 padder-s" style="height: 50%; ">
-                <img src="images/magazine/carousel/North.png" style="width: 100%; height:100%" />
+            <div class="col-md-6 padder-s"  >
+                <img class="img-responsive" src="images/magazine/carousel/North.png"   style="position:absolute;"/>
+                <div style="display: flex; align-items: center; height: 100vh">
+                    <div style="width: 100%;text-align: center;">
+                        <form id="login-form" name="login-form" class="nobottommargin" method="post"><!--//action="http://localhost:8080/authenticate"-->
+
+
+
+                            <div align="center">
+
+                                <div class="row" style="width: 410px;">
+                                    <div class="col-md-12">
+                                        <h2 align="center" style="margin-bottom: 0;">NORTH VIEW</h2>
+                                    </div>
+
+                                    <div class="col-md-12">
+                                        <button class="button" id="login-form-submit" name="login-form-submit" value="login"
+                                                style="border-color:white !important; background-color: transparent;  border:1px solid;border-radius: 3px;" onclick="validateUser()">RUN SIMULATION</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
             </div>
-            <div class="col-md-6 padder-s" style="height: 50%; ">
-                <img src="images/magazine/carousel/South.png" style="width: 100%; height:100%" />
+            <div class="col-md-6 padder-s"  >
+                <img class="img-responsive" src="images/magazine/carousel/South.png"   style="position:absolute;"/>
+                <div style="display: flex; align-items: center; height: 100vh">
+                    <div style="width: 100%;text-align: center;">
+                        <form id="login-form" name="login-form" class="nobottommargin" method="post"><!--//action="http://localhost:8080/authenticate"-->
+
+
+
+                            <div align="center">
+
+                                <div class="row" style="width: 410px;">
+                                    <div class="col-md-12">
+                                        <h2 align="center" style="margin-bottom: 0;">SOUTH VIEW</h2>
+                                    </div>
+
+                                    <div class="col-md-12">
+                                        <button class="button" id="login-form-submit" name="login-form-submit" value="login"
+                                                style="border-color:white !important; background-color: transparent;  border:1px solid;border-radius: 3px;" onclick="validateUser()">RUN SIMULATION</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
             </div>
         </div>
 
