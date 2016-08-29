@@ -2,13 +2,22 @@
 /**************************************************************************************************
  * Page Styling
  **************************************************************************************************/
+.text-button {
+    color: #fff;
+    background-color: #007fff;
 
-a, .text-button {
+    border-width: .0em;
+    border-color: transparent;
+    border-radius: 0.5rem/0.5rem;
+    padding: 2.25px;
+    margin: 0 1px;
+}
+a {
     color: #888888;
 }
 
 .text-button.highlighted {
-    color: #e2b42e;
+     background-color: #4E4E4E;
 }
 
 .text-button.disabled {
@@ -46,7 +55,7 @@ body {
 #display {
     cursor: default;
         width: 770px;
-    margin: 0 auto;
+
     position: relative;
 }
 
@@ -83,16 +92,16 @@ body {
 }
 
 #earth {
-    font-size: 2.4rem;
+    font-size: 2.25rem;
 }
 
 #status, #location, #menu {
-    font-size: 1.75rem;
-    color:white;
+    font-size: 1.3rem;
+
 }
 
 #status, #location, #earth {
-    background-color: rgba(0, 0, 5, 0.6);
+
     border-radius: 0.5rem/0.5rem;
     display: table;
     margin-top: 1rem;
@@ -101,7 +110,7 @@ body {
 }
 
 #menu {
-    background-color: rgba(5, 10, 30, 0.85);
+
     border-radius: 0.5rem/0.5rem;
     overflow: hidden;
     pointer-events: all;

@@ -38,10 +38,15 @@
      ============================================= -->
     <script type="text/javascript" src="js/jquery.js"></script>
     <script type="text/javascript" src="js/plugins.js"></script>
-
+    <style type="text/css">
+        p {
+           margin: 0 0 1px;
+        }
+    </style>
 </head>
 <body  class="stretched">
 <script>
+
     function readCookie(name) {
 
         var nameEQ = name + "=";
@@ -79,7 +84,7 @@
         <div class="pull-right" style="margin-right: 10px;">
             <div class="btn-group"  style="height: 64px;">
                 <input type="button"   class="btn btn-primary" value="ALL VIEWS"
-                       style="color:black;  height: 64px; border-radius:0px; border:0px solid;background-image: url('images/menu-btn-bg.PNG');" />
+                       style="color:black;  height: 64px; border-radius:0px; border:0px solid;background-image: url('images/menu-btn-bg.PNG');" onclick="changeToHome()" />
                 <input type="button"  class="btn btn-primary" value="LOGOUT"
                        style="color:black;  height: 64px; border-radius:0px; border:0px solid; background-image: url('images/menu-btn-bg.PNG');" onclick="logout()" />
             </div>
@@ -90,16 +95,18 @@
     <!-- Content
     ============================================= -->
 
-   <div id="row" style="height: calc(100vh - 64px);")>
-       <div class="col-md-6" style="top:0; margin: 0;">
+   <div id="row" style="height: calc(100vh - 64px); " )>
 
+       <div class="col-md-4" style="height:700px ;top:0; margin: 0;padding-left: 50px; background-color: #B9DFF4">
+<h2>SIMULATION VIEW</h2>
            <div id="sponsor" class="invisible">
                <p><span id="sponsor-hide" class="text-button invisible"> ✕ </span>community</p>
                <a id="sponsor-link" href="https://www.facebook.com/EarthWindMap">EarthWindMap</a>
            </div>
 
-           <div id="details" style="position: absolute; top:0;">
-               <p id="status" style="color:white;"></p>
+           <div id="details" style="position: relative; top:0;">
+
+               <p id="status" ></p>
                <div id="location" class="invisible">
                    <p>
                        <span id="location-coord"></span>
@@ -114,60 +121,65 @@
                        <span id="location-value-units" class="text-button"></span>
                    </p>
                </div>
-               <p id="earth" class="invisible" >
+               <p id="earth"  >
                    <span id="show-menu" class="text-button" title="menu">DCH North Park</span>
                    <span id="progress" class="invisible"></span>
                </p>
                <div id="menu" >
                    <p>
-                       Date | <span id="data-date" class="local"></span> <span id="toggle-zone" class="text-button"></span>
+                       Date
+                      <p> <span id="data-date" class="local"></span> <span id="toggle-zone" class="text-button"></span></p>
                    </p>
-                   <p>Data | <span id="data-layer"></span></p>
-                   <p><span id="scale-label">Scale | </span><canvas id="scale"></canvas></p>
+                   <p>Data
+                       <p><span id="data-layer"></span></p>
+                  <span id="scale-label">Scale  <p> </span><canvas id="scale"></canvas></p>
+                   </p>
                    <p>
-                       Control | <span class="text-button" id="nav-now" title="Current Conditions">Now</span><span class="text-button" id="nav-backward-more">«</span> – <span class="text-button" id="nav-backward">‹</span> – <span class="text-button" id="nav-forward">›</span> – <span class="text-button" id="nav-forward-more">»</span>
+                       Control
+                   <p><span class="text-button" id="nav-now" title="Current Conditions">Now</span><span class="text-button" id="nav-backward-more">«</span>  <span class="text-button" id="nav-backward">‹</span>  <span class="text-button" id="nav-forward">›</span>  <span class="text-button" id="nav-forward-more">»</span>
+                   </p>
                    </p>
                    <p class="wind-mode">
-                       Height | <span class="surface text-button" id="level-0" title="Surface">Sfc</span> – <span class="surface text-button" id="level-10">10m</span> – <span class="surface text-button" id="level-20">20m</span> – <span class="surface text-button" id="level-50">50m</span> – <span class="surface text-button" id="level-100">100m</span> – <span class="surface text-button" id="level-200">200m</span> – <span class="surface text-button" id="level-500">500m</span>
-                   </p>
+                       Height <p> <span class="surface text-button" id="level-0" title="Surface">Sfc</span>  <span class="surface text-button" id="level-10">10m</span>  <span class="surface text-button" id="level-20">20m</span>  <span class="surface text-button" id="level-50">50m</span>  <span class="surface text-button" id="level-100">100m</span>  <span class="surface text-button" id="level-200">200m</span>  <span class="surface text-button" id="level-500">500m</span>
+                   </p></p>
                    <p class="wind-mode">
-                       MicroClimate Control | <span class="surface text-button" id="MicroClimate-On">ON</span> – <span class="surface text-button" id="MicroClimate-Off">OFF</span>
-                   </p>
+                       MicroClimate Control <p> <span class="surface text-button" id="MicroClimate-On">ON</span>  <span class="surface text-button" id="MicroClimate-Off">OFF</span>
+                   </p></p>
                    <p class="wind-mode">
-                       Overlay | <span class="text-button" id="overlay-off">None</span> – <span class="text-button" id="overlay-wind" title="Wind Speed">Wind</span> – <span class="text-button" id="overlay-temp" title="Temperature">Temperature</span> – <span class="text-button" id="overlay-Pressure" title="Pressure">Pressure</span>
-                   </p>
+                       Overlay <p> <span class="text-button" id="overlay-off">None</span> <span class="text-button" id="overlay-wind" title="Wind Speed">Wind</span>  <span class="text-button" id="overlay-temp" title="Temperature">Temperature</span>  <span class="text-button" id="overlay-Pressure" title="Pressure">Pressure</span>
+                  </p> </p>
                    <p class="wind-mode">
-                       Hills Height | <span
+                       Hills Height <p> <span
 
-                       <span class="surface text-button" id="Hills-0">0m</span> – <span
-                           class="surface text-button" id="Hills-50">50m</span> – <span
-                           class="surface text-button" id="Hills-100">100m</span> – <span
-                           class="surface text-button" id="Hills-150">150m</span> – <span
-                           class="surface text-button" id="Hills-200">200m</span> – <span
+                       <span class="surface text-button" id="Hills-0">0m</span>  <span
+                           class="surface text-button" id="Hills-50">50m</span>  <span
+                           class="surface text-button" id="Hills-100">100m</span>  <span
+                           class="surface text-button" id="Hills-150">150m</span>  <span
+                           class="surface text-button" id="Hills-200">200m</span>  <span
                            class="surface text-button" id="Hills-250">250m</span>
-                   </p>
+                  </p> </p>
                    <p>
-                   <div id="scale-label" style="clear:left;float:left">Source water temperature | </div>
+                   <div id="scale-label" style="clear:left;float:left">Source water temperature </div>
                    <div style="height:25px;">&nbsp;</div>
                    <div id="water-temperature" class="slider slider-blue"></div>
                    </p>
                    <p>
-                   <div id="scale-label" style="clear:left;float:left">GPM | </div>
+                   <div id="scale-label" style="clear:left;float:left">GPM </div>
                    <div style="height:25px;">&nbsp;</div>
                    <div id="gpm" class="slider slider-purple"></div>
                    </p>
                    <p>
-                   <div id="scale-label" style="clear:left;float:left">Primary Chilled Water Storage Volume | </div>
+                   <div id="scale-label" style="clear:left;float:left">Primary Chilled Water Storage Volume </div>
                    <div style="height:25px;">&nbsp;</div>
                    <div id="primary-water-volume" class="slider slider-cyan"></div>
                    </p>
                    <p>
-                   <div id="scale-label" style="clear:left;float:left">Secondary Chilled Water Storage Volume | </div>
+                   <div id="scale-label" style="clear:left;float:left">Secondary Chilled Water Storage Volume </div>
                    <div style="height:25px;">&nbsp;</div>
                    <div id="secondary-water-volume" class="slider slider-dark-blue"></div>
                    </p>
                    <p>
-                   <div id="scale-label" style="clear:left;float:left">Size of Heat Network  | </div>
+                   <div id="scale-label" style="clear:left;float:left">Size of Heat Network </div>
                    <div style="height:25px;">&nbsp;</div>
                    <div id="heat-network-area" class="slider slider-red"></div>
                    </p>
@@ -175,7 +187,7 @@
            </div>
 
        </div>
-       <div class="col-md-6">
+       <div class="col-md-8"  style="padding: 0px;">
 
 
                <!--[if lte IE 8]><p id="warn">This site requires IE9 or newer.</p><![endif]-->
@@ -192,6 +204,7 @@
 
 
        </div>
+
    </div>
 
 
@@ -241,13 +254,15 @@
         window.location = "simulation.html?SimulationType=Full";
     }
     function changeToHome() {
-        document.location = "home.html";
+        document.location = "projects.html";
     }
     function logout() {
 
         document.cookie = 'user' + '=; path=/; expires=Thu, 01 Jan 1970 00:00:01 GMT;';
         window.location = '/index.html';
     }
+
+
 
     /*window.onload = function () {
 
