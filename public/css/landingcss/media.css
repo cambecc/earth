@@ -1,0 +1,357 @@
+/*--------------------------------------------------------
+MEDIA QUERIES
+--------------------------------------------------------*/
+@media only screen and (max-width: 960px) {
+#portfolio-wrap .one-third {
+	width:33.33%;
+}
+
+.home-quote {
+	margin:0 10px;
+}
+
+.rnr-icon-middle h3 {
+	font-size:24px;
+}
+
+}
+@media only screen 
+and (min-device-width : 768px) 
+and (max-device-width : 1024px) 
+and (orientation : landscape) {
+.parallax-bg, .home-parallax {
+	background-attachment: scroll;
+	background-position:top center !important;
+	background-size: cover;
+}
+}
+
+
+@media only screen 
+and (min-device-width : 768px) 
+and (max-device-width : 1024px) 
+and (orientation : portrait) {
+.parallax-bg, .home-parallax {
+	background-attachment: scroll;
+	background-position:top center !important;
+	background-size: cover;
+}
+}
+
+
+
+@media only screen and (min-width: 768px) and (max-width: 959px) {
+h1 {
+	font-size: 80px;
+}
+.main-menu li, .main-menu.iconic li {
+	margin-left:20px;
+}
+
+.main-menu a {
+	font-size:18px;
+}
+
+
+.testimonial-slider .flex-direction-nav li .flex-next, .twitter-slider .flex-direction-nav li .flex-next {
+	right:44%;
+}
+
+.testimonial-slider .flex-direction-nav li .flex-prev, .twitter-slider .flex-direction-nav li .flex-prev {
+	left:44%;	
+}
+
+.team-member.team-two, .team-member.team-four {
+	width: 50%;
+}
+
+
+}
+ @media only screen and (max-width: 767px) {
+h1 {
+	font-size: 54px;
+	line-height: 1;
+}
+
+.title h1 {
+	font-size:40px;
+}
+
+.subtitle {
+	font-size:18px;
+	margin-bottom:0;
+}
+.modal {
+	position:absolute;
+	top:0px;
+}
+
+.home-logo, .home-logo-text {
+	margin:40px 0 50px;
+}
+
+.main-menu {
+	display: none;
+}
+
+.main-menu.large, .logo.large {
+    height: 60px;
+}
+
+.selectnav {
+	display: block;
+	font-family: 'BebasNeueRegular', sans-serif;
+	text-transform: uppercase;
+	-webkit-appearance: none;
+	background-color: transparent;
+	border: 1px solid transparent;
+	-webkit-border-radius: 0;
+	-moz-border-radius: 0;
+	border-radius: 0;
+	-webkit-box-shadow: none;
+	-moz-box-shadow: none;
+	box-shadow: none;
+	line-height: 1;
+	padding: 0px 10px;
+	border-radius: 0;
+	background-image: url(../images/selectmenu.png);
+	background-position: center right;
+	background-repeat: no-repeat;
+	color: #3d3d3d;
+	outline: none;
+	width:150px;
+	background-size:30px;
+	margin-top: 13px;
+	font-size:24px;
+	min-width:auto;
+}
+
+#home {
+	height: auto !important;
+	padding: 60px 0;
+}
+
+.page {
+	padding-top: 90px;
+	padding-bottom: 40px;
+}
+
+#slidecaption {
+	display:none;
+}
+#prevslide {
+	left:34%;
+}
+#nextslide {
+	right:34%;
+}
+
+
+.container .columns, .container .column {
+	margin-bottom:40px;
+}
+
+nav .container .columns, nav .cotainer .column, #ajaxpage .columns, #ajaxpage .column, .project-media {
+	margin:0;
+}
+.caption {
+	position:relative;
+	left:0;
+	bottom:5px;
+	margin:0;
+}
+
+.testimonial-slider .flex-direction-nav li .flex-next, .twitter-slider .flex-direction-nav li .flex-next {
+	right:36%;
+}
+
+.testimonial-slider .flex-direction-nav li .flex-prev, .twitter-slider .flex-direction-nav li .flex-prev {
+	left:36%;	
+}
+
+.testimonial-slider, .twitter-slider, .contact-details, #contact-input {
+	width:100%;
+}
+
+#contact-textarea {
+	width: 93%;
+	float: left;
+	margin: 0 1%;
+}
+
+#contact-submit input[type="submit"] {
+	width:94%;
+	margin:1%;
+	float:left;
+}
+
+.copyright .social-icons .social-icon {
+	margin-bottom:10px;
+}
+
+.copyright p {
+	margin-top:20px;
+	font-size:11px;
+}
+.parallax, .parallax-content, .parallax .overlay, .color-block, .color-block-content {
+	height:400px;
+}
+
+.team-member {
+	width:100%;
+	float:none;
+	margin-bottom:40px;
+}
+
+.testimonial-icon,
+.twitter-feed-icon {
+	display:none;
+}
+
+#filters {
+	margin-top:40px;
+}
+
+#filters ul li a {
+	padding:0;
+	margin:0;
+}
+
+#portfolio-wrap .one-third {
+    width: 50%;
+}
+
+.project-media {
+    margin-top: 70px !important;
+}
+
+#filters ul li a h3 {
+	margin-bottom:5px;
+}
+
+.home3 .home-text-wrapper .container {
+	width:440px;
+	height:440px;
+}
+
+.one_half,
+.one_third,
+.two_third,
+.one_fourth,
+.three_fourth,
+.one_fifth,
+.two_fifth,
+.three_fifth,
+.four_fifth,
+.one_sixth,
+.five_sixth { 
+   width: 100%;
+   margin:0;
+   margin-bottom:40px;
+   float:none;
+}
+
+.parallax-bg, .home-parallax {
+	background-attachment: scroll;
+	background-position:top center !important;
+	background-size: cover;
+}
+
+p.quote, .contact-details h2 {
+	font-size:30px;
+}
+
+#twitter-feed ul.slides > li {
+	font-size:16px;
+	margin-bottom:25px;
+}
+
+a#button-newsletter {
+    width: 66%;
+}
+.home-newsletter .home-quote h3 {
+	font-size:20px;
+}
+
+}
+ @media only screen and (max-width: 479px) {
+	 
+.home-logo-text a {
+	font-size:32px;
+}
+.main-menu.large, .logo.large {
+    height: 60px;
+}
+.selectnav {
+	width:150px;
+	background-size:30px;
+	margin-top: 13px;
+	font-size:24px;
+	min-width:auto;
+}
+#portfolio-wrap .one-third {
+    width: 100%;
+}
+.home3 .home-text-wrapper .container {
+	width:280px;
+	height:280px;
+}
+.home3#home h1 {
+	font-size:15px;
+	margin:0 20px;
+}
+#prevslide {
+	left:30%;
+}
+#nextslide {
+	right:30%;
+}
+a#button-newsletter {
+    width: 92%;
+}
+}
+ @media only screen and (min-width: 1200px) {
+nav .container {
+	width: 96%;
+	display:block;
+}
+.home-logo-text a {
+	font-size:90px;
+}
+.slider-text {
+	width: 100%;
+}
+.parallax,  
+.parallax .parallax-content,  
+.parallax .overlay {
+	height: 580px;
+}
+
+#project-navigation {
+	width: 1040px;
+	height: 40px;
+	top: 50%;
+	left: 0;
+	margin: -20px -40px 0px;
+	z-index:0;
+}
+
+#project-navigation ul li#prevProject a {
+	float: left;
+	margin-right:0;
+}
+#project-navigation ul li#nextProject a {
+	float: right;
+	margin-right:0;
+}
+
+#closeProject {
+	top: 10px;
+	right:-40px;
+}
+
+.home4 .home-text-wrapper .container {
+    width: 65%;
+}
+
+}
