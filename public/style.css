@@ -13286,3 +13286,16 @@ margin: 0;
 	color: #fff;
 
 }
+@font-face {
+	font-family: Dosis-Medium;
+	src: url('fonts/Dosis-Medium.ttf');
+}
+#full-img {
+
+	background:url('images/magazine/carousel/Full.png');
+
+}
+
+#full-img:hover {
+	background: url('images/magazine/carousel/Full-layer.png');
+}

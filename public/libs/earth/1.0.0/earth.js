@@ -1137,9 +1137,12 @@
         });
 
         $( "#primary-water-volume" ).on( "slidechange", function( event, ui ) {
+
           var param = event.target.id,
               glPrmiaryWaterVolume = ui.value;
+
               gridAgent.submit(buildGrids);
+
         });
 
         $( "#secondary-water-volume" ).on( "slidechange", function( event, ui ) {

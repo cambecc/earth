@@ -82,6 +82,26 @@ return false;
         document.cookie = 'user' + '=; path=/; expires=Thu, 01 Jan 1970 00:00:01 GMT;';
         window.location = '/index.html';
     }
+
+
+   function btnOnMouseOver( idElement){
+
+       document.getElementById(idElement).style.backgroundImage = "linear-gradient( rgba(255, 255, 255, 0.5), rgba(255, 255, 255, 1) ),url('images/menu-btn-bg.png')";
+    };
+    function btnOnMouseOut(idElement){
+        document.getElementById(idElement).style.backgroundImage = "none";
+
+    };
+
+    function fullImgLayer_OnMouseOver(element){
+
+        document.getElementById(element).style.visibility="hidden";
+    };
+
+    function fullImgLayer_OnMouseOut(element){
+        document.getElementById(element).style.visibility="visible";
+    };
+
 </script>
 <!-- Page Header -->
 <div id="header" style=" height: 92px;">
@@ -91,22 +111,33 @@ return false;
     </div>
     <div class="pull-right" style="margin-right: 0px;">
         <div class="btn-group"  style="height: 92px;">
-            <img src="images/menu-sep.png" />
-        <input type="button"   class="btn" value="ALL VIEWS"
-               style="font-family: 'Dosis'; font-weight: normal; color:black;  height: 100%;width: 116px; border-radius:0px; border:0px solid;background-image: linear-gradient( rgba(255, 255, 255, 0.5), rgba(255, 255, 255, 1) ),url('images/menu-btn-bg.png');" />
-        <input type="button"  class="btn" value="LOGOUT"
-               style="font-family: 'Dosis'; font-weight: normal; color:black;  height: 100%;width: 116px; border-radius:0px; border:0px solid; background-color: transparent;" onclick="logout()" />
+
+            <div class="pull-left" style="display: inline-block; height: 92px; width: 1px; background: linear-gradient(rgba(0, 0, 0, 0.33), rgba(255, 255, 255, 1));"></div>
+            <input type="button"  id="btn-allviews" class="btn" value="ALL VIEWS" onmouseover="btnOnMouseOver('btn-allviews')" onmouseout="btnOnMouseOut('btn-allviews')"
+                   style="border-left:1px gray solid; font-family: Dosis-Medium; font-weight: normal; color:black;  height: 100%;width: 116px; border-radius:0px; border:0px solid;  background-color: transparent;"/><!--background-image: linear-gradient( rgba(255, 255, 255, 0.5), rgba(255, 255, 255, 1) ),url('images/menu-btn-bg.png');-->
+            <div class="pull-left" style="display: inline-block; height: 92px; width: 1px; background: linear-gradient(rgba(0, 0, 0, 0.33), rgba(255, 255, 255, 1));"></div>
+
+            <input type="button" id="btn-logout"  class="btn" value="LOGOUT" onmouseover="btnOnMouseOver('btn-logout')" onmouseout="btnOnMouseOut('btn-logout')"
+                   style="font-family: Dosis-Medium; font-weight: normal; color:black;  height: 100%;width: 116px; border-radius:0px; border:0px solid; background-color: transparent;" onclick="logout()" />
+
+
         </div>
     </div>
 
 </div>
 
-    <div style="width: 100%; height: calc(50vh - 46px);">
+    <div style="width: 100%; height: calc(100vh - 64px);">
         <div class="row" style="width:100%";>
             <div class="col-md-6 padder-s"  >
                 <div class="img-overlay">
-                <img class="img-responsive" src="images/magazine/carousel/Full.png"  />
-                <div class="project-overlay" style="display: flex; align-items: center; height: 100%"  >
+                    <div id="full-img-layer" style=" position: absolute;" >
+                        <img  class="img-responsive" src="images/magazine/carousel/Full-layer.png" />
+                    </div>
+                    <div id="full-img" >
+                        <img  class="img-responsive" src="images/magazine/carousel/Full.png" />
+                    </div>
+
+                    <div class="project-overlay" style="display: flex; align-items: center; height: 100%" onmouseout="fullImgLayer_OnMouseOut('full-img-layer')" onmouseover="fullImgLayer_OnMouseOver('full-img-layer')" >
                     <div style="width: 100%;text-align: center;">
                         <form  id="form-full" class="nobottommargin"   method="POST"><!--//action="http://localhost:8080/authenticate"-->
 
@@ -133,8 +164,13 @@ return false;
             </div>
             <div class="col-md-6 padder-s"   >
                 <div class="img-overlay">
+                    <div id="central-img-layer" style=" position: absolute;" >
+                        <img  class="img-responsive" src="images/magazine/carousel/Central-layer.png" />
+                    </div>
+                    <div>
                  <img class="img-responsive" src="images/magazine/carousel/Central.png"  />
-                 <div class="project-overlay" style="display: flex; align-items: center; height: 100%"  >
+                    </div>
+                 <div class="project-overlay" style="display: flex; align-items: center; height: 100%" onmouseout="fullImgLayer_OnMouseOut('central-img-layer')" onmouseover="fullImgLayer_OnMouseOver('central-img-layer')" >
                     <div style="width: 100%;text-align: center;">
                         <form id="form-central"  class="nobottommargin"   method="POST"><!--//action="http://localhost:8080/authenticate"-->
 
@@ -163,8 +199,13 @@ return false;
         <div class="row" style="width: 100%">
             <div class="col-md-6 padder-s"  >
                 <div class="img-overlay">
-                <img class="img-responsive" src="images/magazine/carousel/North.png"   />
-                <div class="project-overlay" style="display: flex; align-items: center; height: 100%"  >
+                    <div id="north-img-layer" style=" position: absolute;" >
+                        <img  class="img-responsive" src="images/magazine/carousel/North-layer.png" />
+                    </div>
+                    <div>
+                        <img class="img-responsive" src="images/magazine/carousel/North.png"  />
+                    </div>
+                <div class="project-overlay" style="display: flex; align-items: center; height: 100%"  onmouseout="fullImgLayer_OnMouseOut('north-img-layer')" onmouseover="fullImgLayer_OnMouseOver('north-img-layer')">
                     <div style="width: 100%;text-align: center;">
                         <form id="form-north"  class="nobottommargin"  method="POST"><!--//action="http://localhost:8080/authenticate"-->
                             <div align="center">
@@ -186,8 +227,13 @@ return false;
             </div>
             <div class="col-md-6 padder-s"   >
                 <div class="img-overlay">
-                <img class="img-responsive" src="images/magazine/carousel/South.png"   />
-                <div class="project-overlay" style="display: flex; align-items: center; height: 100%"  >
+                    <div id="south-img-layer" style=" position: absolute;" >
+                        <img  class="img-responsive" src="images/magazine/carousel/South-layer.png" />
+                    </div>
+                    <div>
+                        <img class="img-responsive" src="images/magazine/carousel/South.png"  />
+                    </div>
+                <div class="project-overlay" style="display: flex; align-items: center; height: 100%"  onmouseout="fullImgLayer_OnMouseOut('south-img-layer')" onmouseover="fullImgLayer_OnMouseOver('south-img-layer')" >
                     <div style="width: 100%;text-align: center;">
                         <form  id="form-south" class="nobottommargin"   method="POST"><!--//action="http://localhost:8080/authenticate"-->
 

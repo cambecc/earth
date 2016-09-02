@@ -42,9 +42,35 @@
         p {
            margin: 0 0 1px;
         }
+        .loader {
+            border: 16px solid #f3f3f3;
+            border-radius: 50%;
+            border-top: 16px solid #3498db;
+            width: 120px;
+            height: 120px;
+            -webkit-animation: spin 2s linear infinite;
+            animation: spin 2s linear infinite;
+        }
+
+        @-webkit-keyframes spin {
+            0% { -webkit-transform: rotate(0deg); }
+            100% { -webkit-transform: rotate(360deg); }
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
     </style>
+    <script type="text/javascript">
+        function hiddeloader()
+        {
+            document.getElementById('loading').style.visibility="hidden";
+        }
+
+    </script>
 </head>
-<body  class="stretched">
+<body  class="stretched" onload="hiddeloader()">
 <script>
 
     function readCookie(name) {
@@ -65,6 +91,17 @@
         window.location = "/index.html";
 
     }
+
+
+    function btnOnMouseOver( idElement){
+
+        document.getElementById(idElement).style.backgroundImage = "linear-gradient( rgba(255, 255, 255, 0.5), rgba(255, 255, 255, 1) ),url('images/menu-btn-bg.png')";
+    };
+    function btnOnMouseOut(idElement){
+        document.getElementById(idElement).style.backgroundImage = "none";
+
+    };
+
 </script>
 
 <!-- Document Wrapper
@@ -77,16 +114,23 @@
     <!-- Header
     ============================================= -->
 
-    <div id="header" style="width: 100%; height: 64px;">
-        <div id="logo" style="position: absolute !IMPORTANT;z-index: 9999;left: 15px;top: 5px;">
-            <img src="images/rayyan_logo.png" style="width: 40px; height: 50px;">
+    <div id="header" style=" height: 92px;">
+        <div id="logo" style="position: absolute !IMPORTANT;z-index: 9999;margin: 20px 10px;">
+
+            <img src="images/rayyan_logo.png" style="width: 75%; height: 25%;">
+
         </div>
-        <div class="pull-right" style="margin-right: 10px;">
-            <div class="btn-group"  style="height: 64px;">
-                <input type="button"   class="btn" value="ALL VIEWS"
-                       style="color:black;  height: 64px; border-radius:0px; border:0px solid;background-image: url('images/menu-btn-bg.PNG');" onclick="changeToHome()" />
-                <input type="button"  class="btn" value="LOGOUT"
-                       style="color:black;  height: 64px; border-radius:0px; border:0px solid; background-image: url('images/menu-btn-bg.PNG');" onclick="logout()" />
+        <div class="pull-right" style="margin-right: 0px;">
+            <div class="btn-group"  style="height: 92px;">
+
+                <div class="pull-left" style="display: inline-block; height: 92px; width: 1px; background: linear-gradient(rgba(0, 0, 0, 0.33), rgba(255, 255, 255, 1));"></div>
+                <input type="button"  id="btn-allviews" class="btn" value="ALL VIEWS" onclick="document.location='projects.html';" onmouseover="btnOnMouseOver('btn-allviews')" onmouseout="btnOnMouseOut('btn-allviews')"
+                       style="border-left:1px gray solid; font-family: Dosis-Medium; font-weight: normal; color:black;  height: 100%;width: 116px; border-radius:0px; border:0px solid;  background-color: transparent;"/><!--background-image: linear-gradient( rgba(255, 255, 255, 0.5), rgba(255, 255, 255, 1) ),url('images/menu-btn-bg.png');-->
+                <div class="pull-left" style="display: inline-block; height: 92px; width: 1px; background: linear-gradient(rgba(0, 0, 0, 0.33), rgba(255, 255, 255, 1));"></div>
+
+                <input type="button" id="btn-logout"  class="btn" value="LOGOUT" onmouseover="btnOnMouseOver('btn-logout')" onmouseout="btnOnMouseOut('btn-logout')"
+                       style="font-family: Dosis-Medium; font-weight: normal; color:black;  height: 100%;width: 116px; border-radius:0px; border:0px solid; background-color: transparent;" onclick="logout()" />
+
             </div>
         </div>
 
@@ -95,119 +139,158 @@
     <!-- Content
     ============================================= -->
 
-   <div id="row" style="height: calc(100vh - 64px); " )>
+<div class="pull-right" style="height: calc(100vh - 64px);">
+    <div id="loading"  class="loader" style=" align-content: center; z-index: 10000; position: absolute"></div>
+    <div id="display" class="fill-screen" style="background-color:white;">
 
-       <div class="col-md-4" style="height:700px ;top:0; margin: 0;padding-left: 50px; background-color: #B9DFF4">
-<h2>SIMULATION VIEW</h2>
-           <div id="sponsor" class="invisible">
-               <p><span id="sponsor-hide" class="text-button invisible"> ✕ </span>community</p>
-               <a id="sponsor-link" href="https://www.facebook.com/EarthWindMap">EarthWindMap</a>
-           </div>
+        <img id="simulationBGImage" class="fill-screen-semi-transparent" src="" width="770" height="700" />
+        <canvas id="animation" class="fill-screen"></canvas>
+        <canvas id="overlay" class="fill-screen"></canvas>
+        <svg id="foreground" class="fill-screen" xmlns="http://www.w3.org/2000/svg" version="1.1"></svg>
 
-           <div id="details" style="position: relative; top:0;">
+    </div>
+</div>
 
-               <p id="status" ></p>
-               <div id="location" class="invisible">
-                   <p>
-                       <span id="location-coord"></span>
-                       <span id="location-close" class="invisible text-button"> ✕ </span>
-                   </p>
-                   <p>
-                       <span id="location-wind"></span>
-                       <span id="location-wind-units" class="text-button"></span>
-                   </p>
-                   <p>
-                       <span id="location-value"></span>
-                       <span id="location-value-units" class="text-button"></span>
-                   </p>
-               </div>
-               <p id="earth"  >
-                   <span id="show-menu" class="text-button" title="menu">DCH North Park</span>
-                   <span id="progress" class="invisible"></span>
-               </p>
-               <div id="menu" >
-                   <p>
-                       Date
-                      <p> <span id="data-date" class="local"></span> <span id="toggle-zone" class="text-button"></span></p>
-                   </p>
-                   <p>Data
-                       <p><span id="data-layer"></span></p>
-                  <span id="scale-label">Scale  <p> </span><canvas id="scale"></canvas></p>
-                   </p>
-                   <p>
-                       Control
-                   <p><span class="text-button" id="nav-now" title="Current Conditions">Now</span><span class="text-button" id="nav-backward-more">«</span>  <span class="text-button" id="nav-backward">‹</span>  <span class="text-button" id="nav-forward">›</span>  <span class="text-button" id="nav-forward-more">»</span>
-                   </p>
-                   </p>
-                   <p class="wind-mode">
-                       Height <p> <span class="surface text-button" id="level-0" title="Surface">Sfc</span>  <span class="surface text-button" id="level-10">10m</span>  <span class="surface text-button" id="level-20">20m</span>  <span class="surface text-button" id="level-50">50m</span>  <span class="surface text-button" id="level-100">100m</span>  <span class="surface text-button" id="level-200">200m</span>  <span class="surface text-button" id="level-500">500m</span>
-                   </p></p>
-                   <p class="wind-mode">
-                       MicroClimate Control <p> <span class="surface text-button" id="MicroClimate-On">ON</span>  <span class="surface text-button" id="MicroClimate-Off">OFF</span>
-                   </p></p>
-                   <p class="wind-mode">
-                       Overlay <p> <span class="text-button" id="overlay-off">None</span> <span class="text-button" id="overlay-wind" title="Wind Speed">Wind</span>  <span class="text-button" id="overlay-temp" title="Temperature">Temperature</span>  <span class="text-button" id="overlay-Pressure" title="Pressure">Pressure</span>
-                  </p> </p>
-                   <p class="wind-mode">
-                       Hills Height <p> <span
+    <div  class="pull-right" style="background: url('images/men-map-bg.png') no-repeat; height:700px; ">
+        <div style="margin: 0 50px 0 0;">
+        <div id="sponsor" class="invisible">
+            <p><span id="sponsor-hide" class="text-button invisible"> ✕ </span>community</p>
+            <a id="sponsor-link" href="https://www.facebook.com/EarthWindMap">EarthWindMap</a>
+        </div>
 
-                       <span class="surface text-button" id="Hills-0">0m</span>  <span
-                           class="surface text-button" id="Hills-50">50m</span>  <span
-                           class="surface text-button" id="Hills-100">100m</span>  <span
-                           class="surface text-button" id="Hills-150">150m</span>  <span
-                           class="surface text-button" id="Hills-200">200m</span>  <span
-                           class="surface text-button" id="Hills-250">250m</span>
-                  </p> </p>
-                   <p>
-                   <div id="scale-label" style="clear:left;float:left">Source water temperature </div>
-                   <div style="height:25px;">&nbsp;</div>
-                   <div id="water-temperature" class="slider slider-blue"></div>
-                   </p>
-                   <p>
-                   <div id="scale-label" style="clear:left;float:left">GPM </div>
-                   <div style="height:25px;">&nbsp;</div>
-                   <div id="gpm" class="slider slider-purple"></div>
-                   </p>
-                   <p>
-                   <div id="scale-label" style="clear:left;float:left">Primary Chilled Water Storage Volume </div>
-                   <div style="height:25px;">&nbsp;</div>
-                   <div id="primary-water-volume" class="slider slider-cyan"></div>
-                   </p>
-                   <p>
-                   <div id="scale-label" style="clear:left;float:left">Secondary Chilled Water Storage Volume </div>
-                   <div style="height:25px;">&nbsp;</div>
-                   <div id="secondary-water-volume" class="slider slider-dark-blue"></div>
-                   </p>
-                   <p>
-                   <div id="scale-label" style="clear:left;float:left">Size of Heat Network </div>
-                   <div style="height:25px;">&nbsp;</div>
-                   <div id="heat-network-area" class="slider slider-red"></div>
-                   </p>
-               </div>
-           </div>
+        <div id="details" style="position: relative; top:0;">
+            <p id="status" ></p>
+            <div id="location" class="invisible">
+                <p>
+                    <span id="location-coord"></span>
+                    <span id="location-close" class="invisible text-button"> ✕ </span>
+                </p>
+                <p>
+                    <span id="location-wind"></span>
+                    <span id="location-wind-units" class="text-button"></span>
+                </p>
+                <p>
+                    <span id="location-value"></span>
+                    <span id="location-value-units" class="text-button"></span>
+                </p>
+            </div>
+            <p style="font-family: 'Gotham Black'; font-size: 28pt;">SIMULATION VIEW</p>
 
-       </div>
-       <div class="col-md-8"  style="padding: 0px;">
+            <p id="earth"  >
+                <span id="show-menu" class="text-button" title="menu" style="color:black; background-color: transparent;">DCH North Park</span>
+                <span id="progress" class="invisible"></span>
+            <div  style="display: inline-block;height: 1px; width: 80%; margin: 0 10px 0 10px; background: linear-gradient(rgba(0, 0, 0, 0.33), rgba(255, 255, 255, 1));"></div>
+            </p>
+
+            <div id="menu" >
+                <p style="font-family: 'Gotham Medium';  font-size: 8pt;">
+                    Date
+                <p style="font-family: 'Gotham Light';  font-size: 10pt;"> <span id="data-date" class="local"></span> <span id="toggle-zone" class="text-button"></span></p>
+                </p>
+                <div   style="display: inline-block; height: 1px; width: 90%; background: linear-gradient(rgba(0, 0, 0, 0.33), rgba(255, 255, 255, 1));"></div>
+
+                <p style="font-family: 'Gotham Medium';   font-size: 8pt;">Data
+                <p style="font-family: 'Gotham Light';  font-size: 10pt;"><span id="data-layer"></span></p>
+                <div   style="display: inline-block; height: 1px; width: 90%; background: linear-gradient(rgba(0, 0, 0, 0.33), rgba(255, 255, 255, 1));"></div>
+
+                <p style="font-family: 'Gotham Medium';   font-size: 8pt;"><span id="scale-label" >Scale  <p> </span><canvas id="scale"></canvas></p>
+                </p>
+                <div   style="display: inline-block; height: 1px; width: 90%; background: linear-gradient(rgba(0, 0, 0, 0.33), rgba(255, 255, 255, 1));"></div>
+
+                <p style="font-family: 'Gotham Medium';   font-size: 8pt;">
+                    Control
+                <p style="font-family: 'Gotham Light';  font-size: 10pt;"><span class="text-button" id="nav-now" title="Current Conditions">Now</span><span class="text-button" id="nav-backward-more">«</span>  <span class="text-button" id="nav-backward">‹</span>  <span class="text-button" id="nav-forward">›</span>  <span class="text-button" id="nav-forward-more">»</span>
+                </p>
+                </p>
+                <div   style="display: inline-block; height: 1px; width: 90%; background: linear-gradient(rgba(0, 0, 0, 0.33), rgba(255, 255, 255, 1));"></div>
+
+                <p  class="wind-mode" style="font-family: 'Gotham Medium';   font-size: 8pt;">
+                    Height <p style="font-family: 'Gotham Light';  font-size: 10pt;"> <span class="surface text-button" id="level-0" title="Surface">Sfc</span>  <span class="surface text-button" id="level-10">10m</span>  <span class="surface text-button" id="level-20">20m</span>  <span class="surface text-button" id="level-50">50m</span>  <span class="surface text-button" id="level-100">100m</span>  <span class="surface text-button" id="level-200">200m</span>  <span class="surface text-button" id="level-500">500m</span>
+            </p></p>
+                <div   style="display: inline-block; height: 1px; width: 90%; background: linear-gradient(rgba(0, 0, 0, 0.33), rgba(255, 255, 255, 1));"></div>
+
+                <p class="wind-mode"  style="font-family: 'Gotham Medium';   font-size: 8pt;">
+                    MicroClimate Control <p style="font-family: 'Gotham Light';  font-size: 10pt;"> <span class="surface text-button" id="MicroClimate-On">ON</span>  <span class="surface text-button" id="MicroClimate-Off">OFF</span>
+            </p></p>
+                <div   style="display: inline-block; height: 1px; width: 90%; background: linear-gradient(rgba(0, 0, 0, 0.33), rgba(255, 255, 255, 1));"></div>
+
+                <p class="wind-mode"  style="font-family: 'Gotham Medium';   font-size: 8pt;">
+                    Overlay <p style="font-family: 'Gotham Light';  font-size: 10pt;"> <span class="text-button" id="overlay-off">None</span> <span class="text-button" id="overlay-wind" title="Wind Speed">Wind</span>  <span class="text-button" id="overlay-temp" title="Temperature">Temperature</span>  <span class="text-button" id="overlay-Pressure" title="Pressure">Pressure</span>
+            </p> </p>
+                <div   style="display: inline-block; height: 1px; width: 90%; background: linear-gradient(rgba(0, 0, 0, 0.33), rgba(255, 255, 255, 1));"></div>
+
+                <p class="wind-mode"  style="font-family: 'Gotham Medium';   font-size: 8pt;">
+                    Hills Height <p style="font-family: 'Gotham Light';  font-size: 10pt;"> <span
+
+                <span class="surface text-button" id="Hills-0">0m</span>  <span
+                        class="surface text-button" id="Hills-50">50m</span>  <span
+                        class="surface text-button" id="Hills-100">100m</span>  <span
+                        class="surface text-button" id="Hills-150">150m</span>  <span
+                        class="surface text-button" id="Hills-200">200m</span>  <span
+                        class="surface text-button" id="Hills-250">250m</span>
+            </p> </p>
+                <div   style="display: inline-block; height: 1px; width: 90%; background: linear-gradient(rgba(0, 0, 0, 0.33), rgba(255, 255, 255, 1));"></div>
+
+                <p>
+                <div id="scale-label" style="clear:left;float:left; font-family: 'Gotham Medium';   font-size: 8pt; ">Source water temperature </div>
+                <div style="height:25px;">&nbsp;</div>
+                <div id="water-temperature" class="slider slider-blue"></div>
+                </p>
+                <div   style="display: inline-block; height: 1px; width: 90%; background: linear-gradient(rgba(0, 0, 0, 0.33), rgba(255, 255, 255, 1));"></div>
+
+                <p>
+                <div id="scale-label" style="clear:left;float:left; font-family: 'Gotham Medium';   font-size: 8pt;">GPM </div>
+                <div style="height:25px;">&nbsp;</div>
+                <div id="gpm" class="slider slider-purple"></div>
+                </p>
+                <div   style="display: inline-block; height: 1px; width: 90%; background: linear-gradient(rgba(0, 0, 0, 0.33), rgba(255, 255, 255, 1));"></div>
+
+                <p>
+                <div id="scale-label" style="clear:left;float:left; font-family: 'Gotham Medium';   font-size: 8pt;">Primary Chilled Water Storage Volume </div>
+                <div style="height:25px;">&nbsp;</div>
+                <div id="primary-water-volume" class="slider slider-cyan"></div>
+                </p>
+                <div   style="display: inline-block; height: 1px; width: 90%; background: linear-gradient(rgba(0, 0, 0, 0.33), rgba(255, 255, 255, 1));"></div>
+
+                <p>
+                <div id="scale-label" style="clear:left;float:left; font-family: 'Gotham Medium';   font-size: 8pt;">Secondary Chilled Water Storage Volume </div>
+                <div style="height:25px;">&nbsp;</div>
+                <div id="secondary-water-volume" class="slider slider-dark-blue"></div>
+                </p>
+                <div   style="display: inline-block; height: 1px; width: 90%; background: linear-gradient(rgba(0, 0, 0, 0.33), rgba(255, 255, 255, 1));"></div>
+
+                <p>
+                <div id="scale-label" style="clear:left;float:left; font-family: 'Gotham Medium';   font-size: 8pt;">Size of Heat Network </div>
+                <div style="height:25px;">&nbsp;</div>
+                <div id="heat-network-area" class="slider slider-red"></div>
+                </p>
+                <div   style="display: inline-block; height: 1px; width: 90%; background: linear-gradient(rgba(0, 0, 0, 0.33), rgba(255, 255, 255, 1));"></div>
+
+            </div>
+        </div>
+        </div>
+    </div>
+   <!-- <div id="row" style="height: calc(100vh - 64px); position: absolute;">
+
+        <div class="col-md-4" style="height:700px ; top:0; margin: 0;padding-left: 50px; background: url('images/men-map-bg.png') no-repeat;">
 
 
-               <!--[if lte IE 8]><p id="warn">This site requires IE9 or newer.</p><![endif]-->
 
-               <div id="display" class="fill-screen" style="background-color:white;">
-                   <img id="simulationBGImage" class="fill-screen-semi-transparent" src="" width="770" height="700" />
-                   <canvas id="animation" class="fill-screen"></canvas>
-                   <canvas id="overlay" class="fill-screen"></canvas>
-                   <svg id="foreground" class="fill-screen" xmlns="http://www.w3.org/2000/svg" version="1.1"></svg>
 
-               </div>
+        </div>
+        <div class="col-md-8"  style="padding: 0px;">
+            <![if lte IE 8]><p id="warn">This site requires IE9 or newer.</p><![endif]
 
 
 
 
-       </div>
-
-   </div>
 
 
+        </div>
+
+    </div>
+
+-->
     <script type="text/javascript" src="js/functions.js"></script>
 </div><!-- #wrapper end -->
 
