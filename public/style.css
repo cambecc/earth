@@ -13290,6 +13290,10 @@ margin: 0;
 	font-family: Dosis-Medium;
 	src: url('fonts/Dosis-Medium.ttf');
 }
+@font-face {
+	font-family: Gotham-Bold-Regular;
+	src: url('fonts/Gotham%20Bold.ttf');
+}
 #full-img {
 
 	background:url('images/magazine/carousel/Full.png');

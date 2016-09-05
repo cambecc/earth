@@ -106,7 +106,7 @@
 
 <!-- Document Wrapper
 ============================================= -->
-<div id="wrapper" class="clearfix">
+<div id="wrapper" class="clearfix" style="background: linear-gradient(to bottom, #C9E9E9,white) no-repeat;">
 
 
     <!-- Top Bar
@@ -144,8 +144,8 @@
         <div class="loader" style="display: inline-block;  z-index: 10005;"></div>
         </div>
     </div>
-
-<div class="pull-right" style="height: calc(100vh - 64px);">
+<div id="main" class="pull-right" style="display: inline-block; text-align: center;">
+    <div class="pull-right" >
     <div id="display" class="fill-screen" style="background-color:white;">
 
         <img id="simulationBGImage" class="fill-screen-semi-transparent" src="" width="770" height="700" />
@@ -156,16 +156,16 @@
     </div>
 </div>
 
-    <div  class="pull-left" style="background: linear-gradient(to bottom,white, #C9E9E9 50%,white) no-repeat;width: calc(100vw - 788px); height:700px; ">
-        <div style="margin: 0 50px 0 0;">
+    <div  class="pull-left">
+        <div style="width:500px;height: 700px;margin-right: 25px;">
         <div id="sponsor" class="invisible">
             <p><span id="sponsor-hide" class="text-button invisible"> ✕ </span>community</p>
             <a id="sponsor-link" href="https://www.facebook.com/EarthWindMap">EarthWindMap</a>
         </div>
 
-        <div id="details" style="position: relative; top:0;">
+        <div id="details" style="position: relative; top:0; text-align: left;">
             <p id="status" ></p>
-            <div id="location" class="invisible">
+            <div id="location" class="invisible" style="display: none;">
                 <p>
                     <span id="location-coord"></span>
                     <span id="location-close" class="invisible text-button"> ✕ </span>
@@ -179,7 +179,7 @@
                     <span id="location-value-units" class="text-button"></span>
                 </p>
             </div>
-            <p style="font-family: 'Gotham Black'; font-size: 28pt;    padding: 0.5rem 1rem 0.5rem 10rem;margin-left: 5rem;">SIMULATION VIEW</p>
+            <p style="font-family: 'Gotham Black'; font-size: 25pt;    padding: 0.5rem 1rem 0.5rem 10rem;margin-left: 5rem;">SIMULATION VIEW</p>
 
            <!-- <p id="earth" style="font-family: Gotham-Bold-Regular; font-size: 12pt" >
                 <span id="show-menu" class="text-button" title="menu" style="color:black; background-color: transparent;">DCH North Park</span>
@@ -280,7 +280,7 @@
         </div>
         </div>
     </div>
-
+</div>
     <script type="text/javascript" src="js/functions.js"></script>
 </div><!-- #wrapper end -->
 

@@ -9,8 +9,8 @@
          /*   #007fff;*/
 
     border-color: transparent;
-    border-radius: 0.2rem/0.2rem;
-    padding: 2.5px;
+    border-radius: 0.5rem/0.5rem;
+    padding: 4px;
     margin: 0 1px;
 }
 a {
@@ -19,6 +19,7 @@ a {
 
 .text-button.highlighted {
      background-color: #9CA6A9;
+    color: black;
 }
 
 .text-button.disabled {
@@ -120,10 +121,11 @@ margin-left: 0 !important;
 
     border-radius: 0.5rem/0.5rem;
     overflow: auto;
-
+text-align: left;
     pointer-events: all;
 
-    height: calc(100vh - 64px);
+    height: 632px;
+    max-width: 500px;
     padding: 0.5rem 1rem 0.5rem 10rem;
     margin-left: 5rem;
     opacity: 1;
