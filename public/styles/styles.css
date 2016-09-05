@@ -108,7 +108,7 @@ body {
     pointer-events: all;
 }
 #earth{
-    padding: 0.5rem 1rem 0.5rem 1rem;
+    padding: 0.5rem 1rem 0.5rem 10rem;
     font-family: "Gotham Bold";
     font-size:20px;
 }
@@ -119,7 +119,7 @@ body {
     pointer-events: all;
 
     height: 500px;
-    padding: 0.5rem 1rem 0.5rem 1rem;
+    padding: 0.5rem 1rem 0.5rem 10rem;
     opacity: 1;
 
     transition: opacity 250ms ease, max-height 250ms ease, margin-top 250ms ease;
