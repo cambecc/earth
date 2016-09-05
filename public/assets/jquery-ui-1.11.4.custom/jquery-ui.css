@@ -93,8 +93,8 @@
 .ui-slider .ui-slider-handle {
 	position: absolute;
 	z-index: 2;
-	width: 1.2em;
-	height: 1.2em;
+	width: 3.2em;
+	height: 1.5rem;
 	cursor: default;
 	-ms-touch-action: none;
 	touch-action: none;
@@ -115,10 +115,10 @@
 }
 
 .ui-slider-horizontal {
-	height: .8em;
+	height: 1.5rem;
 }
 .ui-slider-horizontal .ui-slider-handle {
-	top: -.3em;
+	top: -0.1em;
 	margin-left: -.6em;
 }
 .ui-slider-horizontal .ui-slider-range {
@@ -156,7 +156,7 @@
 ----------------------------------*/
 .ui-widget {
 	font-family: Arial,Helvetica,sans-serif;
-	font-size: 1em;
+	font-size: 1.5rem;
 }
 .ui-widget .ui-widget {
 	font-size: 1em;
@@ -192,7 +192,7 @@
 .ui-widget-content .ui-state-default,
 .ui-widget-header .ui-state-default {
 	border: 1px solid #c5c5c5;
-	background: #f6f6f6;
+	background: #1590BD;
 	font-weight: normal;
 	color: #454545;
 }
@@ -209,7 +209,7 @@
 .ui-widget-content .ui-state-focus,
 .ui-widget-header .ui-state-focus {
 	border: 1px solid #cccccc;
-	background: #ededed;
+	background: #1590BD;
 	font-weight: normal;
 	color: #2b2b2b;
 }
@@ -221,7 +221,7 @@
 .ui-state-focus a:hover,
 .ui-state-focus a:link,
 .ui-state-focus a:visited {
-	color: #2b2b2b;
+	color: #1590BD;
 	text-decoration: none;
 }
 .ui-state-active,

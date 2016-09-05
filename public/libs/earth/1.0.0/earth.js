@@ -891,7 +891,7 @@
         d3.select("#scale")
             .attr("width", (d3.select("#menu").node().offsetWidth - label.offsetWidth) * 0.97)
             .attr("height", label.offsetHeight / 2);
-
+/*Removed for the new design
         d3.select("#show-menu").on("click", function() {
             // if (µ.isEmbeddedInIFrame()) {
             //     window.open("http://earth.nullschool.net/" + window.location.hash, "_blank");
@@ -900,7 +900,7 @@
                 d3.select("#menu").classed("invisible", !d3.select("#menu").classed("invisible"));
             // }
         });
-
+*/
         if (µ.isFF()) {
             // Workaround FF performance issue of slow click behavior on map having thick coastlines.
             d3.select("#display").classed("firefox", true);

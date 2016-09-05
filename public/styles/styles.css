@@ -4,11 +4,13 @@
  **************************************************************************************************/
 .text-button {
     color: #fff;
-    background-color: #007fff;
+    background-color: #1590BD;
+
+         /*   #007fff;*/
 
     border-color: transparent;
     border-radius: 0.2rem/0.2rem;
-    padding: 1.5px;
+    padding: 2.5px;
     margin: 0 1px;
 }
 a {
@@ -111,17 +113,22 @@ body {
     padding: 0.5rem 1rem 0.5rem 10rem;
     font-family: "Gotham Bold";
     font-size:20px;
+    padding: 0 .3rem 0 .3rem;
+margin-left: 0 !important;
 }
 #menu {
 
     border-radius: 0.5rem/0.5rem;
     overflow: auto;
+
     pointer-events: all;
 
-    height: 500px;
+    height: calc(100vh - 64px);
     padding: 0.5rem 1rem 0.5rem 10rem;
+    margin-left: 5rem;
     opacity: 1;
-
+    font-family: "Gotham Medium";
+    text-transform: uppercase;
     transition: opacity 250ms ease, max-height 250ms ease, margin-top 250ms ease;
     -webkit-transition: opacity 250ms ease, max-height 250ms ease, margin-top 250ms ease;
 }
@@ -7354,6 +7361,11 @@ body:not(.device-touch) .button.button-full strong {
     src: url('../fonts/Dosis-Medium.ttf');
 
 
+
+}
+@font-face {
+    font-family: Gotham-Bold-Regular;
+    src: url('../fonts/Gotham%20Bold.ttf');
 }
 #cover {
     background: url("http://www.aveva.com/Images/ajax-loader.gif") no-repeat scroll center center #ff0000;

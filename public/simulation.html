@@ -65,7 +65,7 @@
     <script type="text/javascript">
         function hiddeloader()
         {
-            document.getElementById('loading').style.visibility="hidden";
+            document.getElementById('loading').style.display = "none";//to view chasnge to block
         }
 
     </script>
@@ -139,8 +139,13 @@
     <!-- Content
     ============================================= -->
 
+    <div id="loading" style="display: flex; align-items: center; height: 100%;width: 100vw;z-index: 1000; background:white; position: absolute; opacity: 0.5;">
+        <div style="width: 100%; text-align: center; z-index: 10001">
+        <div class="loader" style="display: inline-block;  z-index: 10005;"></div>
+        </div>
+    </div>
+
 <div class="pull-right" style="height: calc(100vh - 64px);">
-    <div id="loading"  class="loader" style=" align-content: center; z-index: 10000; position: absolute"></div>
     <div id="display" class="fill-screen" style="background-color:white;">
 
         <img id="simulationBGImage" class="fill-screen-semi-transparent" src="" width="770" height="700" />
@@ -151,7 +156,7 @@
     </div>
 </div>
 
-    <div  class="pull-left" style="background: linear-gradient(to bottom, #C9E9E9,white) no-repeat;width: calc(100vw - 788px); height:700px; ">
+    <div  class="pull-left" style="background: linear-gradient(to bottom,white, #C9E9E9 50%,white) no-repeat;width: calc(100vw - 788px); height:700px; ">
         <div style="margin: 0 50px 0 0;">
         <div id="sponsor" class="invisible">
             <p><span id="sponsor-hide" class="text-button invisible"> ✕ </span>community</p>
@@ -174,15 +179,20 @@
                     <span id="location-value-units" class="text-button"></span>
                 </p>
             </div>
-            <p style="font-family: 'Gotham Black'; font-size: 28pt;">SIMULATION VIEW</p>
+            <p style="font-family: 'Gotham Black'; font-size: 28pt;    padding: 0.5rem 1rem 0.5rem 10rem;margin-left: 5rem;">SIMULATION VIEW</p>
 
-            <p id="earth"  >
+           <!-- <p id="earth" style="font-family: Gotham-Bold-Regular; font-size: 12pt" >
                 <span id="show-menu" class="text-button" title="menu" style="color:black; background-color: transparent;">DCH North Park</span>
                 <span id="progress" class="invisible"></span>
-            <div  style="display: inline-block;height: 1px; width: 80%; margin: 0 10px 0 10px; background: linear-gradient(rgba(0, 0, 0, 0.33), rgba(255, 255, 255, 1));"></div>
-            </p>
+            <div  style="display: inline-block;height: 1px; width: 69%; margin: 0 10px 0 100px; background: linear-gradient(rgba(0, 0, 0, 0.33), rgba(255, 255, 255, 1));"></div>
+            </p>-->
 
             <div id="menu" >
+                <p id="earth" style="font-family: Gotham-Bold-Regular; font-size: 12pt" >
+                    <span id="show-menu" class="text-button" title="menu" style="color:black; background-color: transparent; padding: 0; margin: 0;">DCH North Park</span>
+                    <span id="progress" class="invisible"></span>
+                <div   style="display: inline-block; height: 1px; width: 90%; background: linear-gradient(rgba(0, 0, 0, 0.33), rgba(255, 255, 255, 1));"></div>
+                </p>
                 <p style="font-family: 'Gotham Medium';  font-size: 8pt;">
                     Date
                 <p style="font-family: 'Gotham Light';  font-size: 10pt;"> <span id="data-date" class="local"></span> <span id="toggle-zone" class="text-button"></span></p>
@@ -193,7 +203,7 @@
                 <p style="font-family: 'Gotham Light';  font-size: 10pt;"><span id="data-layer"></span></p>
                 <div   style="display: inline-block; height: 1px; width: 90%; background: linear-gradient(rgba(0, 0, 0, 0.33), rgba(255, 255, 255, 1));"></div>
 
-                <p style="font-family: 'Gotham Medium';   font-size: 8pt;"><span id="scale-label" >Scale  <p> </span><canvas id="scale"></canvas></p>
+                <p style="font-family: 'Gotham Medium';   font-size: 8pt;"><span id="scale-label" >Scale  <p> </span><canvas id="scale" style=" width: 90%"></canvas></p>
                 </p>
                 <div   style="display: inline-block; height: 1px; width: 90%; background: linear-gradient(rgba(0, 0, 0, 0.33), rgba(255, 255, 255, 1));"></div>
 
