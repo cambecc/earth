@@ -13308,7 +13308,7 @@ margin: 0;
 }
 @font-face {
 	font-family: Gotham-Black;
-	src: url('../../fonts/Gotham%20Black.ttf') format('truetype');
+	src: url('fonts/Gotham%20Black.ttf') format('truetype');
 }
 #full-img {
 

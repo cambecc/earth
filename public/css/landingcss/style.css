@@ -522,7 +522,7 @@ nav.light .main-menu li.active a, nav.dark .main-menu li.active a {
 /*-----------------------------------------------------------------------------------*/
 
 #home.home-fullscreenslider {
-	background: url(../images/pattern.png);
+	background: url(../../images/pattern.png);
 	position: relative;
 	overflow: hidden;
 	height: 100%;
@@ -556,7 +556,7 @@ nav.light .main-menu li.active a, nav.dark .main-menu li.active a {
 	overflow:hidden;
 }
 .overlay {
-	background: url(../images/pattern.png);
+	background: url(../../images/pattern.png);
 	width: 100%;
 	position: absolute;
 	overflow:hidden;
@@ -581,7 +581,6 @@ p.quote {
 	font-family: 'BebasNeueRegular', sans-serif;
 	font-size: 48px;
 	line-height: 1;
-	margin-bottom: 20px;
 	color: white;
 	text-align: center;
 	text-transform: uppercase;
@@ -769,12 +768,14 @@ p.quote {
 --------------------------------------------------------*/
 
 .page {
-	padding: 3px 0;
+	padding: 0 auto;
 	position: relative;
 	background: #ffffff;
 	text-align:center;
 	z-index:6;
 	overflow:hidden;
+	width: 100%;
+	height:100%;
 }
 .page.multipage {
 	text-align: left;
@@ -838,7 +839,7 @@ p.quote {
 	background: radial-gradient(center center, circle cover, #FFD600 0%, #E2BE01 100%);
 }
 .home-parallax {
-	background: url(../images/parallax/parallax4.jpg) fixed;
+	background: url(../../images/parallax/parallax4.jpg) fixed;
 	background-size: cover;
 	background-position: center top;
 	background-color: #FFD600;
