@@ -769,7 +769,7 @@ p.quote {
 --------------------------------------------------------*/
 
 .page {
-	padding: 60px 0;
+	padding: 3px 0;
 	position: relative;
 	background: #ffffff;
 	text-align:center;
@@ -1823,17 +1823,17 @@ input[type="text"]:focus, input[type="password"]:focus, input[type="email"]:focu
 
 
 .home-parallax2{
-     background: url(../images/parallax/parallax5.jpg) fixed;
+     background: url(../../images/parallax/parallax2.jpg) fixed;
      background-size: cover;
 }
 
 .home-parallax3{
-     background: url(../images/parallax/parallax6.jpg) fixed;
+	background: url(../../images/parallax/parallax3.jpg) fixed;
      background-size: cover;
 }
 
 .home-parallax4{
-     background: url(../images/parallax/parallax7.jpg) fixed;
+	background: url(../../images/parallax/parallax4.jpg) fixed;
      background-size: cover;
 }
 
@@ -1931,3 +1931,19 @@ a#button-newsletter {
 	font: 16px Arial, sans-serif;
 }
 
+@font-face {
+	font-family: Gotham-Medium-Regular;
+	src: url('../../fonts/Gotham%20Medium.ttf') format('truetype');
+}
+@font-face {
+	font-family: Gotham-Bold-Regular;
+	src: url('../../fonts/Gotham%20Bold.ttf') format('truetype');
+}
+@font-face {
+	font-family: Gotham-Light;
+	src: url('../../fonts/Gotham%20Light.ttf') format('truetype');
+}
+@font-face {
+	font-family: Gotham-Black;
+	src: url('../../fonts/Gotham%20Black.ttf') format('truetype');
+}

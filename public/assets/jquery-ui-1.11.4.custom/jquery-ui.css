@@ -116,6 +116,7 @@
 
 .ui-slider-horizontal {
 	height: 1.5rem;
+	width: 95%;
 }
 .ui-slider-horizontal .ui-slider-handle {
 	top: -0.1em;

@@ -132,10 +132,12 @@ h1 {
 }
 
 .page {
-	padding-top: 90px;
-	padding-bottom: 40px;
+	padding-top: 4px;
+	padding-bottom: 4px;
 }
-
+.page p{
+	font-size: 95% !important;
+}
 #slidecaption {
 	display:none;
 }

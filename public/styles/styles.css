@@ -2,6 +2,39 @@
 /**************************************************************************************************
  * Page Styling
  **************************************************************************************************/
+.flexcroll{
+    overflow:scroll;
+}
+.flexcroll{
+    scrollbar-face-color: #367CD2;
+    scrollbar-shadow-color: #FFFFFF;
+    scrollbar-highlight-color: #FFFFFF;
+    scrollbar-3dlight-color: #FFFFFF;
+    scrollbar-darkshadow-color: #FFFFFF;
+    scrollbar-track-color: #FFFFFF;
+    scrollbar-arrow-color: #FFFFFF;
+}
+
+/* Let's get this party started */
+.flexcroll::-webkit-scrollbar {
+    width: 9px;
+}
+
+/* Track */
+.flexcroll::-webkit-scrollbar-track {
+    -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.3);
+    -webkit-border-radius: 10px;
+    border-radius: 10px;
+}
+
+/* Handle */
+.flexcroll::-webkit-scrollbar-thumb {
+    -webkit-border-radius: 10px;
+    border-radius: 10px;
+    background: #1590BD;
+    -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.5);
+}
+
 .text-button {
     color: #fff;
     background-color: #1590BD;
@@ -12,6 +45,7 @@
     border-radius: 0.5rem/0.5rem;
     padding: 4px;
     margin: 0 1px;
+    font-family: Gotham-Medium-Regular !important;
 }
 a {
     color: #888888;
@@ -111,9 +145,7 @@ body {
     pointer-events: all;
 }
 #earth{
-    padding: 0.5rem 1rem 0.5rem 10rem;
-    font-family: "Gotham Bold";
-    font-size:20px;
+      font-size:20px;
     padding: 0 .3rem 0 .3rem;
 margin-left: 0 !important;
 }
@@ -7360,14 +7392,26 @@ body:not(.device-touch) .button.button-full strong {
 }
 @font-face {
     font-family: Dosis-Medium;
-    src: url('../fonts/Dosis-Medium.ttf');
+    src: url('../fonts/Dosis-Medium.ttf') format('truetype');
 
 
 
 }
 @font-face {
+    font-family: Gotham-Medium-Regular;
+    src: url('../fonts/Gotham%20Medium.ttf') format('truetype');
+}
+@font-face {
     font-family: Gotham-Bold-Regular;
-    src: url('../fonts/Gotham%20Bold.ttf');
+    src: url('../fonts/Gotham%20Bold.ttf') format('truetype');
+}
+@font-face {
+    font-family: Gotham-Light;
+    src: url('../fonts/Gotham%20Light.ttf') format('truetype');
+}
+@font-face {
+    font-family: Gotham-Black;
+    src: url('../../fonts/Gotham%20Black.ttf') format('truetype');
 }
 #cover {
     background: url("http://www.aveva.com/Images/ajax-loader.gif") no-repeat scroll center center #ff0000;

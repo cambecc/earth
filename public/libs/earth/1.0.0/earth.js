@@ -1124,11 +1124,15 @@
         // });
 
         $( "#water-temperature" ).on( "slidechange", function( event, ui ) {
-          var param = event.target.id,
-              glSourceWaterTemperature = ui.value;
-              gridAgent.submit(buildGrids);
+            document.getElementById('loading').style.display = "Block";//to view chasnge to block
+            setTimeout(function() {
+                var param = event.target.id,
+                    glSourceWaterTemperature = ui.value;
+                gridAgent.submit(buildGrids);
+            },500);
         });
         $( "#gpm" ).on( "slidechange", function( event, ui ) {
+            document.getElementById('loading').style.display = "Block";//to view chasnge to block
           var param = event.target.id,
               value = ui.value;
               glGallonsPerMinute = ui.value;
@@ -1137,7 +1141,7 @@
         });
 
         $( "#primary-water-volume" ).on( "slidechange", function( event, ui ) {
-
+            document.getElementById('loading').style.display = "Block";//to view chasnge to block
           var param = event.target.id,
               glPrmiaryWaterVolume = ui.value;
 
@@ -1146,11 +1150,13 @@
         });
 
         $( "#secondary-water-volume" ).on( "slidechange", function( event, ui ) {
+            document.getElementById('loading').style.display = "Block";//to view chasnge to block
           var param = event.target.id,
               glSecondaryWaterVolume = ui.value;
               gridAgent.submit(buildGrids);
         });
         $( "#heat-network-area" ).on( "slidechange", function( event, ui ) {
+            document.getElementById('loading').style.display = "Block";//to view chasnge to block
           var param = event.target.id,
               glNetworkArea = ui.value;
               gridAgent.submit(buildGrids);

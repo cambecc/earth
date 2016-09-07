@@ -2387,7 +2387,9 @@ for ( i in { radio: true, checkbox: true, file: true, password: true, image: tru
 	Expr.pseudos[ i ] = createInputPseudo( i );
 }
 for ( i in { submit: true, reset: true } ) {
-	Expr.pseudos[ i ] = createButtonPseudo( i );
+	Expr.pseudos[i] = createButtonPseudo(i);
+	console.log('submited by map');
+	//hide loader from map
 }
 
 // Easy API for creating new setFilters

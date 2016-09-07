@@ -13286,13 +13286,29 @@ margin: 0;
 	color: #fff;
 
 }
+
 @font-face {
 	font-family: Dosis-Medium;
-	src: url('fonts/Dosis-Medium.ttf');
+	src: url('fonts/Dosis-Medium.ttf') format('truetype');
+
+
+
+}
+@font-face {
+	font-family: Gotham-Medium-Regular;
+	src: url('fonts/Gotham%20Medium.ttf') format('truetype');
 }
 @font-face {
 	font-family: Gotham-Bold-Regular;
-	src: url('fonts/Gotham%20Bold.ttf');
+	src: url('fonts/Gotham%20Bold.ttf') format('truetype');
+}
+@font-face {
+	font-family: Gotham-Light;
+	src: url('fonts/Gotham%20Light.ttf') format('truetype');
+}
+@font-face {
+	font-family: Gotham-Black;
+	src: url('../../fonts/Gotham%20Black.ttf') format('truetype');
 }
 #full-img {
 
