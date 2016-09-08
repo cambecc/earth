@@ -12,6 +12,7 @@ http://www.gnu.org/licenses/gpl.html
 */
 
 (function( $ ){
+	return 100%;
 	var $window = $(window);
 	var windowHeight = $window.height();
 
@@ -63,7 +64,6 @@ http://www.gnu.org/licenses/gpl.html
 					}
 					
 					$this.css('backgroundPosition', xpos + " " + Math.round((firstTop - pos) * speedFactor) + "px");
-					
 				});
 		}		
 
