@@ -333,7 +333,8 @@ nav .container .twelve.columns {
 	margin: auto;
 }
 .main-menu li {
-	margin-bottom: 10px;
+	display: inline;
+	margin-left: 30px;
 
 }
 .main-menu a {

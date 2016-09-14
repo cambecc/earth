@@ -417,12 +417,25 @@ var µ = function() {
          * @returns {Function} a cancel function for a task.
          */
         function cancelFactory() {
+
             return function cancel() {
                 cancel.requested = true;
+
                 return agent;
             };
         }
 
+        /**
+         *
+         */
+        function showLoader()
+        {
+            document.getElementById('loading').style.display = "flex";
+        }
+        function hideLoader()
+        {
+            document.getElementById('loading').style.display = "none";
+        }
         /**
          * Invokes the specified task.
          * @param cancel the task's cancel function.
@@ -431,6 +444,7 @@ var µ = function() {
         function runTask(cancel, taskAndArguments) {
 
             function run(args) {
+
                 return cancel.requested ? null : _.isFunction(task) ? task.apply(agent, args) : task;
             }
 
@@ -452,6 +466,7 @@ var µ = function() {
             }
 
             try {
+
                 // When all arguments are resolved, invoke the task then either accept or reject the result.
                 var task = taskAndArguments[0];
                 when.all(_.rest(taskAndArguments)).then(run).then(accept, reject).done(undefined, fail);
@@ -469,6 +484,7 @@ var µ = function() {
              * @returns {Object} this agent's current value.
              */
             value: function() {
+                hideLoader();
                 return value;
             },
 
@@ -484,10 +500,13 @@ var µ = function() {
              * @returns this agent.
              */
             submit: function(task, arg0, arg1, and_so_on) {
+
                 // immediately cancel the previous task
                 this.cancel();
+
                 // schedule the new task and update the agent with its associated cancel function
                 runTask_debounced(this.cancel = cancelFactory(), arguments);
+
                 return this;
             }
         };

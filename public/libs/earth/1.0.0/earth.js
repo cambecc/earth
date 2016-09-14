@@ -67,9 +67,15 @@
     }();
 
     function newAgent() {
-        return µ.newAgent().on({"reject": report.error, "fail": report.error});
+        return µ.newAgent().on({"run":showLoader(),"accept": removeLoader(),"reject": report.error, "fail": report.error});
     }
-
+    function showLoader()
+    {
+        document.getElementById('loading').style.display = "flex";
+    }
+    function removeLoader(){
+        document.getElementById('loading').style.display = "none";
+    }
     // Construct the page's main internal components:
 
     var configuration =
@@ -991,16 +997,27 @@
         animatorAgent.listenTo(fieldAgent, "submit", stopCurrentAnimation.bind(null, false));
 
         overlayAgent.listenTo(fieldAgent, "update", function() {
-            overlayAgent.submit(drawOverlay, fieldAgent.value(), configuration.get("overlayType"));
+            showLoader();
+            setTimeout(function(){
+                overlayAgent.submit(drawOverlay, fieldAgent.value(), configuration.get("overlayType"));
+
+            },500);
         });
         overlayAgent.listenTo(rendererAgent, "start", function() {
-            overlayAgent.submit(drawOverlay, fieldAgent.value(), null);
+            showLoader();
+            setTimeout(function(){
+                overlayAgent.submit(drawOverlay, fieldAgent.value(), null);
+
+            },500);
         });
         overlayAgent.listenTo(configuration, "change", function() {
             var changed = _.keys(configuration.changedAttributes())
             // if only overlay relevant flags have changed...
             if (_.intersection(changed, ["overlayType", "showGridPoints"]).length > 0) {
-                overlayAgent.submit(drawOverlay, fieldAgent.value(), configuration.get("overlayType"));
+                showLoader();
+                setTimeout(function(){
+                    overlayAgent.submit(drawOverlay, fieldAgent.value(), configuration.get("overlayType"));
+                },500);
             }
         });
 
@@ -1124,7 +1141,7 @@
         // });
 
         $( "#water-temperature" ).on( "slidechange", function( event, ui ) {
-            document.getElementById('loading').style.display = "Block";//to view chasnge to block
+           showLoader();
             setTimeout(function() {
                 var param = event.target.id,
                     glSourceWaterTemperature = ui.value;
@@ -1132,109 +1149,184 @@
             },500);
         });
         $( "#gpm" ).on( "slidechange", function( event, ui ) {
-            document.getElementById('loading').style.display = "Block";//to view chasnge to block
-          var param = event.target.id,
-              value = ui.value;
-              glGallonsPerMinute = ui.value;
-              console.log(glGallonsPerMinute);
-              gridAgent.submit(buildGrids);
+            showLoader();
+            setTimeout(function(){
+                var param = event.target.id,
+                    value = ui.value;
+                glGallonsPerMinute = ui.value;
+                console.log(glGallonsPerMinute);
+                gridAgent.submit(buildGrids);
+            },500);
+
         });
 
         $( "#primary-water-volume" ).on( "slidechange", function( event, ui ) {
-            document.getElementById('loading').style.display = "Block";//to view chasnge to block
-          var param = event.target.id,
-              glPrmiaryWaterVolume = ui.value;
+            showLoader();
+            setTimeout(function () {
+                var param = event.target.id,
+                    glPrmiaryWaterVolume = ui.value;
 
-              gridAgent.submit(buildGrids);
+                gridAgent.submit(buildGrids);
+            },500);
+
 
         });
 
         $( "#secondary-water-volume" ).on( "slidechange", function( event, ui ) {
-            document.getElementById('loading').style.display = "Block";//to view chasnge to block
-          var param = event.target.id,
-              glSecondaryWaterVolume = ui.value;
-              gridAgent.submit(buildGrids);
+            //document.getElementById('loading').style.display = "flex";//to view chasnge to block
+            showLoader();
+            setTimeout(function(){
+                var param = event.target.id,
+                    glSecondaryWaterVolume = ui.value;
+                gridAgent.submit(buildGrids);
+            },500);
+
         });
         $( "#heat-network-area" ).on( "slidechange", function( event, ui ) {
-            document.getElementById('loading').style.display = "Block";//to view chasnge to block
-          var param = event.target.id,
-              glNetworkArea = ui.value;
-              gridAgent.submit(buildGrids);
+           // document.getElementById('loading').style.display = "flex";//to view chasnge to block
+            showLoader();
+            setTimeout(function(){
+                var param = event.target.id,
+                    glNetworkArea = ui.value;
+                gridAgent.submit(buildGrids);
+            },500);
+
         });
 
         $( "#MicroClimate-On" ).on( "click", function() {
               glRayyanOnOFF = 1;
-              gridAgent.submit(buildGrids);
+            showLoader();
+            setTimeout(function(){
+                gridAgent.submit(buildGrids);
+
+            },500);
         });
 
         $( "#MicroClimate-Off" ).on( "click", function() {
               glRayyanOnOFF = 0;
-              gridAgent.submit(buildGrids);
+            showLoader();
+            setTimeout(function(){
+                gridAgent.submit(buildGrids);
+
+            },500);
         });
 
         $( "#level-0" ).on( "click", function() {
               glAltitude= 0;
-              gridAgent.submit(buildGrids);
+            showLoader();
+            setTimeout(function(){
+                gridAgent.submit(buildGrids);
+
+            },500);
+
         });
 
         $( "#level-10" ).on( "click", function() {
               glAltitude = 10;
-              gridAgent.submit(buildGrids);
+            showLoader();
+            setTimeout(function(){
+                gridAgent.submit(buildGrids);
+
+            },500);
         });
 
         $( "#level-20" ).on( "click", function() {
               glAltitude = 20;
-              gridAgent.submit(buildGrids);
+            showLoader();
+            setTimeout(function(){
+                gridAgent.submit(buildGrids);
+
+            },500);
         });
 
         $( "#level-50" ).on( "click", function() {
               glAltitude = 50;
-              gridAgent.submit(buildGrids);
+            showLoader();
+            setTimeout(function(){
+                gridAgent.submit(buildGrids);
+
+            },500);
         });
 
         $( "#level-100" ).on( "click", function() {
               glAltitude = 100;
-              gridAgent.submit(buildGrids);
+            showLoader();
+            setTimeout(function(){
+                gridAgent.submit(buildGrids);
+
+            },500);
         });
 
         $( "#level-200" ).on( "click", function() {
               glAltitude = 200;
-              gridAgent.submit(buildGrids);
+            showLoader();
+            setTimeout(function(){
+                gridAgent.submit(buildGrids);
+
+            },500);;
         });
 
         $( "#level-500" ).on( "click", function() {
               glAltitude = 500;
-              gridAgent.submit(buildGrids);
+            showLoader();
+            setTimeout(function(){
+                gridAgent.submit(buildGrids);
+
+            },500);
         });
 
         $( "#Hills-0" ).on( "click", function() {
               glHillsHeight = 0;
-              gridAgent.submit(buildGrids);
+            showLoader();
+            setTimeout(function(){
+                gridAgent.submit(buildGrids);
+
+            },500);
         });
 
         $( "#Hills-50" ).on( "click", function() {
               glHillsHeight = 50;
-              gridAgent.submit(buildGrids);
+            showLoader();
+            setTimeout(function(){
+                gridAgent.submit(buildGrids);
+
+            },500);
         });
 
         $( "#Hills-100" ).on( "click", function() {
               glHillsHeight = 100;
-              gridAgent.submit(buildGrids);
+            showLoader();
+            setTimeout(function(){
+                gridAgent.submit(buildGrids);
+
+            },500);
         });
 
         $( "#Hills-150" ).on( "click", function() {
               glHillsHeight = 150;
-              gridAgent.submit(buildGrids);
+            showLoader();
+            setTimeout(function(){
+                gridAgent.submit(buildGrids);
+
+            },500);
         });
 
         $( "#Hills-200" ).on( "click", function() {
               glHillsHeight = 200;
-              gridAgent.submit(buildGrids);
+            showLoader();
+            setTimeout(function(){
+                gridAgent.submit(buildGrids);
+
+            },500);
         });
 
         $( "#Hills-250" ).on( "click", function() {
               glHillsHeight = 250;
-              gridAgent.submit(buildGrids);
+            showLoader();
+            setTimeout(function(){
+                gridAgent.submit(buildGrids);
+
+            },500);
         });
 
     }
