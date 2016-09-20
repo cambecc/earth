@@ -861,6 +861,7 @@
     function bindButtonToConfiguration(elementId, newAttr, keys) {
         keys = keys || _.keys(newAttr);
         d3.select(elementId).on("click", function() {
+            showLoader();
             if (d3.select(elementId).classed("disabled")) return;
             configuration.save(newAttr);
         });

@@ -274,7 +274,9 @@ nav.dark {
 }
 /*== LIGHT NAVIGATION ==*/
 nav.light {
-	background-color: transparent;
+	background: rgba(173,216,230,0.9);
+
+	opacity: 0.9;
 	/*background: #ffffff;
 	box-shadow: 0px 4px 15px rgba(0,0,0,0.07);*/
 	/*border-bottom: 1px solid #f0f0f0;*/
@@ -286,6 +288,7 @@ nav.light {
 nav.light.sticky {
 	/*background: #ffffff;
 	background: rgba(255,255,255,0.95);*/
+	opacity: 0.9;
 }
 
 
