@@ -40,27 +40,36 @@
 
                 }).done(function (data) {
                     var items = [];
+                    //toastr.warning("Items--" + items[1]);
+                    var docname = md5(document.getElementById("login-form-username").value);
+                    var docpass = md5(document.getElementById("login-form-password").value);
+                    var valid = false;
                     $.each(data, function (key, val) {
                         items.push(val);
 
                     });
-                    //toastr.warning("Items--" + items[1]);
-                    var docname = md5(document.getElementById("login-form-username").value);
-                    var docpass = md5(document.getElementById("login-form-password").value);
-                    //toastr.info("docpass: " + docpass);
-                    if (docname == items[0] && docpass == items[1]) {
-                       // toastr.warning("valid");
-                        // window.open("home.html");
-                        setCookie('user', items[0]);
-                        setCookie('pass', items[1]);
+                    $.each(items, function(key,val){
+                        console.log(val.user);
+                        //toastr.info("docpass: " + docpass);
+                        if (docname == val.user && docpass == val.pass) {
+                            // toastr.warning("valid");
+                            // window.open("home.html");
+                            setCookie('user', val.user);
+                            setCookie('pass', val.pass);
+valid = true;
+                            window.open(val.url, '_self', false);
+                        } else {
+                          valid=false;
+                        }
+                    });
+                   if(!valid)
+                   {
+                       e.preventDefault(e);
+                       toastr.clear();
+                       toastr.error("Wrong user/password");
+                       return false;
+                   }
 
-                        window.open('projects.html', '_self', false);
-                    } else {
-                        e.preventDefault(e);
-                        toastr.clear();
-                        toastr.error("Wrong user/password");
-                        return false;
-                    }
                 });
 
 

@@ -1,0 +1,381 @@
+﻿<!DOCTYPE html>
+<html itemscope itemtype="http://schema.org/Map" prefix="og: http://ogp.me/ns# fb: http://ogp.me/ns/fb#" style="background-color:white;">
+<head>
+    <meta charset="utf-8" />
+    <title>Rayyan - Dubai Creek Harbor</title>
+    <meta itemprop="name" content="earth" />
+    <meta itemprop="description" name="description" content="an animated map of global wind and weather" />
+    <meta itemprop="author" name="author" content="Cameron Beccario" />
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="earth" />
+    <meta property="og:description" content="An animated map of global wind and weather. Visit the community at https://www.facebook.com/EarthWindMap" />
+    <meta property="og:url" content="http://earth.nullschool.net" />
+    <meta property="og:image" content="http://earth.nullschool.net/preview.jpg" />
+
+    <link rel="shortcut icon" href="/favicon.ico" />
+    <link rel="apple-touch-icon" sizes="120x120" href="/iphone-icon.png" />
+    <link rel="apple-touch-icon" sizes="152x152" href="/ipad-icon.png" />
+    <link rel="stylesheet" href="/styles/styles.css" type="text/css" />
+    <link rel="alternate" hreflang="x-default" href="http://earth.nullschool.net/" />
+    <link rel="alternate" hreflang="ja" href="http://earth.nullschool.net/jp/" />
+    <link href="assets/jquery-ui-1.11.4.custom/jquery-ui.css" rel="stylesheet">
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <meta name="author" content="SemiColonWeb" />
+    <!-- Stylesheets
+    ============================================= -->
+    <link href="http://fonts.googleapis.com/css?family=Lato:300,400,400italic,600,700|Raleway:300,400,500,600,700|Crete+Round:400italic" rel="stylesheet" type="text/css" />
+    <link rel="stylesheet" href="css/bootstrap.css" type="text/css" />
+
+    <link rel="stylesheet" href="css/dark.css" type="text/css" />
+    <link rel="stylesheet" href="css/font-icons.css" type="text/css" />
+    <link rel="stylesheet" href="css/animate.css" type="text/css" />
+    <link rel="stylesheet" href="css/magnific-popup.css" type="text/css" />
+    <link rel="stylesheet" href="css/responsive.css" type="text/css" />
+    <!--[if lt IE 9]>
+    <script src="http://css3-mediaqueries-js.googlecode.com/svn/trunk/css3-mediaqueries.js"></script>
+    <![endif]-->
+    <!-- External JavaScripts
+     ============================================= -->
+    <script type="text/javascript" src="js/jquery.js"></script>
+    <script type="text/javascript" src="js/plugins.js"></script>
+    <style type="text/css">
+        p {
+           margin: 0 0 1px;
+        }
+        .loader {
+            border: 16px solid #f3f3f3;
+            border-radius: 50%;
+            border-top: 16px solid #3498db;
+            width: 120px;
+            height: 120px;
+            -webkit-animation: spin 2s linear infinite;
+            animation: spin 2s linear infinite;
+        }
+
+        @-webkit-keyframes spin {
+            0% { -webkit-transform: rotate(0deg); }
+            100% { -webkit-transform: rotate(360deg); }
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+    <script type="text/javascript">
+        function hiddeloader()
+        {
+            document.getElementById('loading').style.display = "none";//to view chasnge to block
+        }
+
+
+    </script>
+</head>
+<body  class="stretched" onload="hiddeloader()" onsuspend="hiddeloader()" >
+<script>
+
+    function readCookie(name) {
+
+        var nameEQ = name + "=";
+        var ca = document.cookie.split(';');
+        for(var i=0;i < ca.length;i++) {
+            var c = ca[i];
+            while (c.charAt(0)==' ') c = c.substring(1,c.length);
+            if (c.indexOf(nameEQ) == 0) return c.substring(nameEQ.length,c.length);
+        }
+        return null;
+    }
+
+    var value = readCookie('user');
+    //toastr.warning("cookie.user: "  +value);
+    if(value == null) {
+        window.location = "/index.html";
+
+    }
+
+
+    function btnOnMouseOver( idElement){
+
+        document.getElementById(idElement).style.backgroundImage = "linear-gradient( rgba(255, 255, 255, 0.5), rgba(255, 255, 255, 1) ),url('images/menu-btn-bg.png')";
+    };
+    function btnOnMouseOut(idElement){
+        document.getElementById(idElement).style.backgroundImage = "none";
+
+    };
+
+</script>
+
+<!-- Document Wrapper
+============================================= -->
+<div id="wrapper" class="clearfix" >
+
+
+    <!-- Top Bar
+    ============================================= -->
+    <!-- Header
+    ============================================= -->
+
+    <div id="header" style=" height: 92px;">
+        <div id="logo" style="position: absolute !IMPORTANT;z-index: 9999;margin: 20px 10px;">
+
+           <a href="index.html"> <img src="images/rayyan_logo.png" style="width: 75%; height: 25%;"></a>
+
+        </div>
+        <div class="pull-right" style="margin-right: 0px;">
+            <div class="btn-group"  style="height: 92px;">
+
+                <div class="pull-left" style="display: inline-block; height: 92px; width: 1px; background: linear-gradient(rgba(0, 0, 0, 0.33), rgba(255, 255, 255, 1));"></div>
+                <input type="button"  id="btn-allviews" class="btn" value="ALL VIEWS" onclick="document.location='projects1.html';" onmouseover="btnOnMouseOver('btn-allviews')" onmouseout="btnOnMouseOut('btn-allviews')"
+                       style="border-left:1px gray solid; font-family: Dosis-Medium; font-weight: normal; color:black;  height: 100%;width: 116px; border-radius:0px; border:0px solid;  background-color: transparent;"/><!--background-image: linear-gradient( rgba(255, 255, 255, 0.5), rgba(255, 255, 255, 1) ),url('images/menu-btn-bg.png');-->
+                <div class="pull-left" style="display: inline-block; height: 92px; width: 1px; background: linear-gradient(rgba(0, 0, 0, 0.33), rgba(255, 255, 255, 1));"></div>
+
+                <input type="button" id="btn-logout"  class="btn" value="LOGOUT" onmouseover="btnOnMouseOver('btn-logout')" onmouseout="btnOnMouseOut('btn-logout')"
+                       style="font-family: Dosis-Medium; font-weight: normal; color:black;  height: 100%;width: 116px; border-radius:0px; border:0px solid; background-color: transparent;" onclick="logout()" />
+
+            </div>
+        </div>
+
+    </div>
+    <!-- #header end -->
+    <!-- Content
+    ============================================= -->
+
+    <div id="loading" style="display: flex; align-items: center; height: 100%;width: 100vw;z-index: 1000; background:white; position: absolute; opacity: 0.5;">
+        <div style="width: 100%; text-align: center; z-index: 10001">
+        <div class="loader" style="display: inline-block;  z-index: 10005;"></div>
+        </div>
+    </div>
+    <div id="main"  style=" width: 100%;text-align: center; align-content: center;">
+   <div class="row" style="display: inline-block;  height: 700px;">
+
+   <div class="col-md-6" style="background: linear-gradient(to bottom, #C9E9E9,white) no-repeat;">
+       <div  class="pull-left">
+           <div style="width:500px;height: 700px;margin-right: 25px;">
+               <div id="sponsor" class="invisible">
+                   <p><span id="sponsor-hide" class="text-button invisible"> ✕ </span>community</p>
+                   <a id="sponsor-link" href="https://www.facebook.com/EarthWindMap">EarthWindMap</a>
+               </div>
+
+               <div id="details" style="position: relative; top:0; text-align: left;">
+                   <p id="status" style="display: none;" ></p>
+                   <div id="location" class="invisible" style="display: none;">
+                       <p>
+                           <span id="location-coord"></span>
+                           <span id="location-close" class="invisible text-button"> ✕ </span>
+                       </p>
+                       <p>
+                           <span id="location-wind"></span>
+                           <span id="location-wind-units" class="text-button"></span>
+                       </p>
+                       <p>
+                           <span id="location-value"></span>
+                           <span id="location-value-units" class="text-button"></span>
+                       </p>
+                   </div>
+                   <p style="font-family: Gotham-Black; font-size: 25pt;    padding: 0.5rem 1rem 0.5rem 10rem;margin-left: 5rem;">SIMULATION VIEW</p>
+
+                   <!-- <p id="earth" style="font-family: Gotham-Bold-Regular; font-size: 12pt" >
+                        <span id="show-menu" class="text-button" title="menu" style="color:black; background-color: transparent;">DCH North Park</span>
+                        <span id="progress" class="invisible"></span>
+                    <div  style="display: inline-block;height: 1px; width: 69%; margin: 0 10px 0 100px; background: linear-gradient(rgba(0, 0, 0, 0.33), rgba(255, 255, 255, 1));"></div>
+                    </p>-->
+
+                   <div id="menu" class="flexcroll">
+                       <p id="earth" style="font-family: Gotham-Medium-Regular; font-size: 12pt" >
+                           <span id="show-menu" class="text-button" title="menu" style="color:black; background-color: transparent; padding: 0; margin: 0;">DCH North Park</span>
+                           <span id="progress" class="invisible"></span>
+                       <div   style="display: inline-block; height: 1px; width: 95%; background: linear-gradient(rgba(0, 0, 0, 0.33), rgba(255, 255, 255, 1));"></div>
+                       </p>
+                       <p style="font-family: Gotham-Medium-Regular;  font-size: 8pt;">
+                           Date
+                       <p style="font-family: Gotham-Light;  font-size: 10pt;"> <span id="data-date" class="local"></span> <span id="toggle-zone" class="text-button"></span></p>
+                       </p>
+                       <div   style="display: inline-block; height: 1px; width: 95%; background: linear-gradient(rgba(0, 0, 0, 0.33), rgba(255, 255, 255, 1));"></div>
+
+                       <p style="font-family: Gotham-Medium-Regular;   font-size: 8pt;">Data
+                       <p style="font-family: Gotham-Light;  font-size: 10pt;"><span id="data-layer"></span></p>
+                       <div   style="display: inline-block; height: 1px; width: 95%; background: linear-gradient(rgba(0, 0, 0, 0.33), rgba(255, 255, 255, 1));"></div>
+
+                       <p style="font-family: Gotham-Medium-Regular;   font-size: 8pt;"><span id="scale-label" >Scale  <p> </span><canvas id="scale" style=" width: 90%"></canvas></p>
+                       </p>
+                       <div   style="display: inline-block; height: 1px; width: 95%; background: linear-gradient(rgba(0, 0, 0, 0.33), rgba(255, 255, 255, 1));"></div>
+
+                       <p style="font-family: Gotham-Medium-Regular;   font-size: 8pt;">
+                           Control
+                       <p style="font-family: Gotham-Medium-Regular;  font-size: 10pt;"><span class="text-button" id="nav-now" title="Current Conditions">Now</span><span class="text-button" id="nav-backward-more">«</span>  <span class="text-button" id="nav-backward">‹</span>  <span class="text-button" id="nav-forward">›</span>  <span class="text-button" id="nav-forward-more">»</span>
+                       </p>
+                       </p>
+                       <div   style="display: inline-block; height: 1px; width: 95%; background: linear-gradient(rgba(0, 0, 0, 0.33), rgba(255, 255, 255, 1));"></div>
+
+                       <p  class="wind-mode" style="font-family: Gotham-Medium-Regular;   font-size: 8pt;">
+                           Height <p style="font-family: 'Gotham Light';  font-size: 10pt;"> <span class="surface text-button" id="level-0" title="Surface">Sfc</span>  <span class="surface text-button" id="level-10">10m</span>  <span class="surface text-button" id="level-20">20m</span>  <span class="surface text-button" id="level-50">50m</span>  <span class="surface text-button" id="level-100">100m</span>  <span class="surface text-button" id="level-200">200m</span>  <span class="surface text-button" id="level-500">500m</span>
+                   </p></p>
+                       <div   style="display: inline-block; height: 1px; width: 95%; background: linear-gradient(rgba(0, 0, 0, 0.33), rgba(255, 255, 255, 1));"></div>
+
+                       <p class="wind-mode"  style="font-family: Gotham-Medium-Regular;   font-size: 8pt;">
+                           MicroClimate Control <p style="font-family: 'Gotham Light';  font-size: 10pt;"> <span class="surface text-button" id="MicroClimate-On">ON</span>  <span class="surface text-button" id="MicroClimate-Off">OFF</span>
+                   </p></p>
+                       <div   style="display: inline-block; height: 1px; width: 95%; background: linear-gradient(rgba(0, 0, 0, 0.33), rgba(255, 255, 255, 1));"></div>
+
+                       <p class="wind-mode"  style="font-family: Gotham-Medium-Regular;   font-size: 8pt;">
+                           Overlay <p style="font-family: 'Gotham Light';  font-size: 10pt;"> <span class="text-button" id="overlay-off">None</span> <span class="text-button" id="overlay-wind" title="Wind Speed">Wind</span>  <span class="text-button" id="overlay-temp" title="Temperature">Temperature</span>  <span class="text-button" id="overlay-Pressure" title="Pressure">Pressure</span>
+                   </p> </p>
+                       <div   style="display: inline-block; height: 1px; width: 95%; background: linear-gradient(rgba(0, 0, 0, 0.33), rgba(255, 255, 255, 1));"></div>
+
+                       <p class="wind-mode"  style="font-family: Gotham-Medium-Regular;   font-size: 8pt;">
+                           Hills Height <p style="font-family: 'Gotham Light';  font-size: 10pt;"> <span
+
+                       <span class="surface text-button" id="Hills-0">0m</span>  <span
+                               class="surface text-button" id="Hills-50">50m</span>  <span
+                               class="surface text-button" id="Hills-100">100m</span>  <span
+                               class="surface text-button" id="Hills-150">150m</span>  <span
+                               class="surface text-button" id="Hills-200">200m</span>  <span
+                               class="surface text-button" id="Hills-250">250m</span>
+                   </p> </p>
+                       <div   style="display: inline-block; height: 1px; width: 95%; background: linear-gradient(rgba(0, 0, 0, 0.33), rgba(255, 255, 255, 1));"></div>
+
+                       <p>
+                       <div id="scale-label" style="clear:left;float:left; font-family: Gotham-Medium-Regular;   font-size: 8pt; ">Source water temperature </div>
+                       <div style="height:25px;">&nbsp;</div>
+                       <div id="water-temperature" class="slider slider-blue"></div>
+                       </p>
+                       <div   style="display: inline-block; height: 1px; width: 95%; background: linear-gradient(rgba(0, 0, 0, 0.33), rgba(255, 255, 255, 1));"></div>
+
+                       <p>
+                       <div id="scale-label" style="clear:left;float:left; font-family: Gotham-Medium-Regular;   font-size: 8pt;">GPM </div>
+                       <div style="height:25px;">&nbsp;</div>
+                       <div id="gpm" class="slider slider-purple"></div>
+                       </p>
+                       <div   style="display: inline-block; height: 1px; width: 95%; background: linear-gradient(rgba(0, 0, 0, 0.33), rgba(255, 255, 255, 1));"></div>
+
+                       <p>
+                       <div id="scale-label" style="clear:left;float:left; font-family: Gotham-Medium-Regular;   font-size: 8pt;">Primary Chilled Water Storage Volume </div>
+                       <div style="height:25px;">&nbsp;</div>
+                       <div id="primary-water-volume" class="slider slider-cyan"></div>
+                       </p>
+                       <div   style="display: inline-block; height: 1px; width: 95%; background: linear-gradient(rgba(0, 0, 0, 0.33), rgba(255, 255, 255, 1));"></div>
+
+                       <p>
+                       <div id="scale-label" style="clear:left;float:left; font-family:Gotham-Medium-Regular;   font-size: 8pt;">Secondary Chilled Water Storage Volume </div>
+                       <div style="height:25px;">&nbsp;</div>
+                       <div id="secondary-water-volume" class="slider slider-dark-blue"></div>
+                       </p>
+                       <div   style="display: inline-block; height: 1px; width: 95%; background: linear-gradient(rgba(0, 0, 0, 0.33), rgba(255, 255, 255, 1));"></div>
+
+                       <p>
+                       <div id="scale-label" style="clear:left;float:left; font-family: Gotham-Medium-Regular;   font-size: 8pt;">Size of Heat Network </div>
+                       <div style="height:25px;">&nbsp;</div>
+                       <div id="heat-network-area" class="slider slider-red"></div>
+                       </p>
+                       <div   style="display: inline-block; height: 1px; width: 95%; background: linear-gradient(rgba(0, 0, 0, 0.33), rgba(255, 255, 255, 1));"></div>
+
+                   </div>
+               </div>
+           </div>
+       </div>
+</div>
+       <div class="col-md-6">
+
+           <div class="pull-right" >
+               <div id="display" class="fill-screen" style="background-color:white;">
+                   <img id="simulationBGImage" class="fill-screen fill-screen-semi-transparent" src="" />
+                   <canvas id="animation" class="fill-screen"></canvas>
+                   <canvas id="overlay" class="fill-screen"></canvas>
+                   <svg id="foreground" class="fill-screen" xmlns="http://www.w3.org/2000/svg" version="1.1"></svg>
+
+               </div>
+           </div>
+       </div>
+   </div>
+</div>
+    <script type="text/javascript" src="js/functions.js"></script>
+    </div><!-- #wrapper end -->
+
+<script src="/libs/underscore.js/1.6.0/underscore.js" charset="utf-8"></script>
+<script src="/libs/backbone.js/1.1.0/backbone.js" charset="utf-8"></script>
+<script src="/libs/topojson/1.1.0/topojson.js" charset="utf-8"></script>
+<script src="/libs/d3/3.3.10/d3.js" charset="utf-8"></script>
+
+<!--
+    <script src="/libs/underscore.js/1.6.0/underscore.js" charset="utf-8"></script>
+    <script src="/libs/backbone.js/1.1.0/backbone.js" charset="utf-8"></script>
+    <script src="/libs/topojson/1.1.0/topojson.js" charset="utf-8"></script>
+    <script src="/libs/d3/3.3.10/d3.js" charset="utf-8"></script>
+-->
+<script src="/libs/d3.geo/0.0.0/d3.geo.projection.v0.min.js" charset="utf-8"></script>
+<script src="/libs/d3.geo/0.0.0/d3.geo.polyhedron.v0.min.js" charset="utf-8"></script>
+<script src="/libs/when/2.6.0/when.js" charset="utf-8"></script>
+<script src="assets/jquery-ui-1.11.4.custom/external/jquery/jquery.js"></script>
+<script src="assets/jquery-ui-1.11.4.custom/jquery-ui.js"></script>
+<script> $(function() {
+    $( ".slider" ).slider();
+});</script>
+<script src="/libs/earth/1.0.0/HeatSinkFromImageData.js" charset="utf-8"></script>
+<script src="/libs/earth/1.0.0/sleiman.js" charset="utf-8"></script>
+<script src="/libs/earth/1.0.0/micro.js" charset="utf-8"></script>
+<script src="/libs/earth/1.0.0/globes.js" charset="utf-8"></script>
+<script src="/libs/earth/1.0.0/products.js" charset="utf-8"></script>
+<script src="/libs/earth/1.0.0/earth.js" charset="utf-8"></script>
+
+<script>
+
+    function changeLinkToSouth() {
+        document.location = "simulation.html?SimulationType=SouthPark";
+    }
+
+    function changeLinkToNorth() {
+        document.location = "simulation.html?SimulationType=NorthPark";
+    }
+    function changeLinkToCentral() {
+
+        document.location = "simulation.html?SimulationType=CentralPark";
+    }
+    function changeLinkToFull() {
+        window.location = "simulation.html?SimulationType=Full";
+    }
+    function changeToHome() {
+        document.location = "projects.html";
+    }
+    function logout() {
+
+        document.cookie = 'user' + '=; path=/; expires=Thu, 01 Jan 1970 00:00:01 GMT;';
+        window.location = '/index.html';
+    }
+
+
+
+    /*window.onload = function () {
+
+     var simulationBGImage = document.getElementById("simulationBGImage");
+     var animation = document.getElementById("animation");
+     var overlay = document.getElementById("overlay");
+     var foreground = document.getElementById("foreground");
+     var centerDiv = document.getElementById("center-map");
+
+     if (simulationBGImage && simulationBGImage.style) {
+     simulationBGImage.style.height = '770';
+     simulationBGImage.style.width = '700';
+     }
+     var simulationBGImageStyle = simulationBGImage.currentStyle || window.getComputedStyle(simulationBGImage);
+
+     if (animation && animation.style) {
+     animation.style = simulationBGImageStyle;
+
+
+     }
+
+     if (overlay && overlay.style) {
+     overlay.style = simulationBGImageStyle;
+     }
+     if (foreground && foreground.style) {
+     foreground.style = simulationBGImageStyle;
+
+
+
+
+     }
+     }
+     */
+</script>
+</body>
+</html>

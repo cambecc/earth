@@ -274,7 +274,7 @@ nav.dark {
 }
 /*== LIGHT NAVIGATION ==*/
 nav.light {
-	background: rgba(173,216,230,0.9);
+	/*background: rgba(173,216,230,0.9);*/
 
 	opacity: 0.9;
 	/*background: #ffffff;
@@ -327,6 +327,7 @@ nav .container .twelve.columns {
 	height: 50px;
 	display: table-cell;
 	vertical-align: middle;
+	font-family: Dosis;
 }
 .main-menu.large, .logo.large {
 	height: 80px;
@@ -341,7 +342,7 @@ nav .container .twelve.columns {
 
 }
 .main-menu a {
-	font-family: 'BebasNeueRegular', sans-serif;
+	font-family:Dosis; /*'BebasNeueRegular', sans-serif;*/
 	font-size: 22px;
 	color: white;
 	text-decoration: none;
@@ -351,7 +352,7 @@ nav.light .main-menu a {
 	color: white;
 }
 nav.light .main-menu a:hover, nav.dark .main-menu a:hover {
-	color: #FFD600;
+	color:  #FFD600;
 	transition: color 0.5s;
 	-moz-transition: color 0.5s;
 	-webkit-transition: color 0.5s;
