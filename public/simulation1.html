@@ -315,6 +315,19 @@
     $( ".slider" ).slider();
 });</script>
 <script src="/libs/earth/1.0.0/HeatSinkFromImageData.js" charset="utf-8"></script>
+<script>
+
+    function sleep(milliseconds) {
+        var start = new Date().getTime();
+        for (var i = 0; i < 1e7; i++) {
+            if ((new Date().getTime() - start) > milliseconds){
+                break;
+            }
+        }
+    }
+
+    sleep(1500);
+</script>
 <script src="/libs/earth/1.0.0/sleiman.js" charset="utf-8"></script>
 <script src="/libs/earth/1.0.0/micro.js" charset="utf-8"></script>
 <script src="/libs/earth/1.0.0/globes.js" charset="utf-8"></script>

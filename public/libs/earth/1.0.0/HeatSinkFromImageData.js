@@ -42,4 +42,5 @@ $.getJSON('data/HeatSinkY_' + simulationName + '.json', function (json) {
 document.getElementById('simulationBGImage').src = 'simulationImage_' + simulationName + ".png";
 
 document.getElementById('show-menu').innerHTML = 'DCH ' + simulationName;
+console.log("changing image");
 //debugger
