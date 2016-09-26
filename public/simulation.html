@@ -46,8 +46,8 @@
             border: 16px solid #f3f3f3;
             border-radius: 50%;
             border-top: 16px solid #3498db;
-            width: 120px;
-            height: 120px;
+            width: 50px;
+            height: 50px;
             -webkit-animation: spin 2s linear infinite;
             animation: spin 2s linear infinite;
         }
@@ -107,7 +107,7 @@
 
 <!-- Document Wrapper
 ============================================= -->
-<div id="wrapper" class="clearfix" >
+<div id="wrapper" class="clearfix" style="background: linear-gradient(to bottom, #C9E9E9,white) no-repeat;">
 
 
     <!-- Top Bar
@@ -140,13 +140,9 @@
     <!-- Content
     ============================================= -->
 
-    <div id="loading" style="display: flex; align-items: center; height: 100%;width: 100vw;z-index: 1000; background:white; position: absolute; opacity: 0.5;">
-        <div style="width: 100%; text-align: center; z-index: 10001">
-        <div class="loader" style="display: inline-block;  z-index: 10005;"></div>
-        </div>
-    </div>
+   <!--loader was here-->
     <div id="main"  style=" width: 100%;text-align: center; align-content: center;">
-   <div class="row" style="display: inline-block;  height: 700px;">
+   <div class="row" style="display: inline-block;  height: 700px;background: linear-gradient(to bottom, #C9E9E9,white) no-repeat;" >
 
    <div class="col-md-6" style="background: linear-gradient(to bottom, #C9E9E9,white) no-repeat;">
        <div  class="pull-left">
@@ -277,8 +273,16 @@
        <div class="col-md-6">
 
            <div class="pull-right" >
+               <div id="loading" style="display: flex; align-items: center;
+                height: 700px;width: 770px;z-index: 1000; background:rgba(255,255,255,0.5); position: absolute;">
+                   <div style="width: 100%; text-align: center; z-index: 10001">
+                       <p class="title-block">Running Simulation</p>
+                       <p class="title-block">&nbsp;</p>
+                       <div class="loader" style="display: inline-block;  z-index: 10005;"></div>
+                   </div>
+               </div>
                <div id="display" class="fill-screen" style="background-color:white;">
-                   <img id="simulationBGImage" class="fill-screen fill-screen-semi-transparent" src="" />
+                   <img id="simulationBGImage" class="fill-screen fill-screen-semi-transparent" onload="getBGImageSource();" src="" />
                    <canvas id="animation" class="fill-screen"></canvas>
                    <canvas id="overlay" class="fill-screen"></canvas>
                    <svg id="foreground" class="fill-screen" xmlns="http://www.w3.org/2000/svg" version="1.1"></svg>
@@ -311,6 +315,7 @@
     $( ".slider" ).slider();
 });</script>
 <script src="/libs/earth/1.0.0/HeatSinkFromImageData.js" charset="utf-8"></script>
+
 <script src="/libs/earth/1.0.0/sleiman.js" charset="utf-8"></script>
 <script src="/libs/earth/1.0.0/micro.js" charset="utf-8"></script>
 <script src="/libs/earth/1.0.0/globes.js" charset="utf-8"></script>
@@ -318,6 +323,20 @@
 <script src="/libs/earth/1.0.0/earth.js" charset="utf-8"></script>
 
 <script>
+    function getParameterByName(name) {
+        name = name.replace(/[\[]/, "\\[").replace(/[\]]/, "\\]");
+        var regex = new RegExp("[\\?&]" + name + "=([^&#]*)"),
+                results = regex.exec(location.search);
+        return results === null ? "" : decodeURIComponent(results[1].replace(/\+/g, " "));
+
+    }
+    function getBGImageSource(){
+        var simulationName = getParameterByName('SimulationType');
+        document.getElementById('simulationBGImage').src = 'simulationImage_' + simulationName + ".png";
+
+        return  'simulationImage_' + simulationName + ".png";
+    }
+
 
     function changeLinkToSouth() {
         document.location = "simulation.html?SimulationType=SouthPark";
@@ -344,38 +363,11 @@
 
 
 
-    /*window.onload = function () {
+    window.onload = function () {
 
-     var simulationBGImage = document.getElementById("simulationBGImage");
-     var animation = document.getElementById("animation");
-     var overlay = document.getElementById("overlay");
-     var foreground = document.getElementById("foreground");
-     var centerDiv = document.getElementById("center-map");
-
-     if (simulationBGImage && simulationBGImage.style) {
-     simulationBGImage.style.height = '770';
-     simulationBGImage.style.width = '700';
-     }
-     var simulationBGImageStyle = simulationBGImage.currentStyle || window.getComputedStyle(simulationBGImage);
-
-     if (animation && animation.style) {
-     animation.style = simulationBGImageStyle;
-
-
+        getBGImageSource();
      }
 
-     if (overlay && overlay.style) {
-     overlay.style = simulationBGImageStyle;
-     }
-     if (foreground && foreground.style) {
-     foreground.style = simulationBGImageStyle;
-
-
-
-
-     }
-     }
-     */
 </script>
 </body>
 </html>

@@ -359,7 +359,13 @@ for (var k=0; k<HeatSinkNetNumX* HeatSinkNetNumY;k++)
   {
     Temperaturet1[HeatSinkX[k]][HeatSinkY[k]][Gridbuffer/2] = SourceWaterTemperature;
   }
-
+if(Temperaturet1 == null)
+{
+    console.log("temp: is null");
+}
+    else {
+    console.log("temp: is not null");
+}
 }
 /*
 for (var i=0; i<HeatSinkNetNumX; i++){
