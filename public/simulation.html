@@ -42,6 +42,14 @@
         p {
            margin: 0 0 1px;
         }
+        p.solid {
+
+            border: 2px solid #3498db;
+            border-radius: 5px;
+            color: #f3f3f3;
+            background-color: #3498db;
+
+        }
         .loader {
             border: 16px solid #f3f3f3;
             border-radius: 50%;
@@ -178,7 +186,7 @@
 
                    <div id="menu" class="flexcroll">
                        <p id="earth" style="font-family: Gotham-Medium-Regular; font-size: 12pt" >
-                           <span id="show-menu" class="text-button" title="menu" style="color:black; background-color: transparent; padding: 0; margin: 0;">DCH North Park</span>
+                           <span id="show-menu" class="text-button" title="menu" style="color:black; background-color: transparent; padding: 0; margin: 0;"></span>
                            <span id="progress" class="invisible"></span>
                        <div   style="display: inline-block; height: 1px; width: 95%; background: linear-gradient(rgba(0, 0, 0, 0.33), rgba(255, 255, 255, 1));"></div>
                        </p>
@@ -276,13 +284,15 @@
                <div id="loading" style="display: flex; align-items: center;
                 height: 700px;width: 770px;z-index: 1000; background:rgba(255,255,255,0.5); position: absolute;">
                    <div style="width: 100%; text-align: center; z-index: 10001">
-                       <p class="title-block">Running Simulation</p>
-                       <p class="title-block">&nbsp;</p>
+                       <div style="text-align: center;">
+                           <p class="solid" style=" display: inline-block; font-family: Gotham-Bold-Regular; font-size: 12pt; width: 250px;height: auto;">Running Simulation...</p>
+                           <p class="title-block">&nbsp;</p>
+                       </div>
                        <div class="loader" style="display: inline-block;  z-index: 10005;"></div>
                    </div>
                </div>
                <div id="display" class="fill-screen" style="background-color:white;">
-                   <img id="simulationBGImage" class="fill-screen fill-screen-semi-transparent" onload="getBGImageSource();" src="" />
+                   <img id="simulationBGImage" class="fill-screen fill-screen-semi-transparent" onload="getBGImageSource();" src="images/empty.png" />
                    <canvas id="animation" class="fill-screen"></canvas>
                    <canvas id="overlay" class="fill-screen"></canvas>
                    <svg id="foreground" class="fill-screen" xmlns="http://www.w3.org/2000/svg" version="1.1"></svg>
