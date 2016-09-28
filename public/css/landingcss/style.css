@@ -327,7 +327,7 @@ nav .container .twelve.columns {
 	height: 50px;
 	display: table-cell;
 	vertical-align: middle;
-	font-family: Dosis;
+	font-family: Dosis-Medium;
 }
 .main-menu.large, .logo.large {
 	height: 80px;
@@ -342,7 +342,7 @@ nav .container .twelve.columns {
 
 }
 .main-menu a {
-	font-family:Dosis; /*'BebasNeueRegular', sans-serif;*/
+	font-family:Dosis-Medium; /*'BebasNeueRegular', sans-serif;*/
 	font-size: 22px;
 	color: white;
 	text-decoration: none;
@@ -411,7 +411,7 @@ nav.light .main-menu li.active a, nav.dark .main-menu li.active a {
 /*-----------------------------------------------------------------------------------*/
 
 .home-slide .home-slide-content {
-	font-family: 'BebasNeueRegular', sans-serif;
+	font-family:Gotham-Light;// 'BebasNeueRegular', sans-serif;
 	font-size: 90px;
 	text-transform: uppercase;
 	position: relative;
@@ -1940,7 +1940,10 @@ a#button-newsletter {
 
 	font: 16px Arial, sans-serif;
 }
-
+@font-face{
+	font-family: Dosis-Medium;
+	src: url('../../fonts/Dosis-Medium.ttf') format('truetype');
+}
 @font-face {
 	font-family: Gotham-Medium-Regular;
 	src: url('../../fonts/Gotham%20Medium.ttf') format('truetype');
