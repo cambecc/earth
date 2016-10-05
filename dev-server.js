@@ -56,11 +56,11 @@ app.use(express.static("public"));
 app.post('/authenticate', urlencodedParser, function (req, res) {
    
    if (req.body.username == "admin" && req.body.password == "theadmin" ) {
-		res.writeHead(301,{Location: 'http://localhost:8181/home.html' , 'Set-Cookie': 'user=admin', 'Content-Type': 'text/plain'  });
+		res.writeHead(301,{Location: 'http://localhost/home.html' , 'Set-Cookie': 'user=admin', 'Content-Type': 'text/plain'  });
 		res.end();
 	 
    } else {
-		res.writeHead(301,{Location: 'http://localhost:8181/' , 'Set-Cookie': 'user=null', 'Content-Type': 'text/plain' });
+		res.writeHead(301,{Location: 'http://localhost/' , 'Set-Cookie': 'user=null', 'Content-Type': 'text/plain' });
 		res.write("hello");
 		res.end();
 	   
