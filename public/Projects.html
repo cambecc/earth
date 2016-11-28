@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <meta name="author" content="SemiColonWeb" />
+
+    <!-- Stylesheets
+    ============================================= -->
+    <link href="http://fonts.googleapis.com/css?family=Lato:300,400,400italic,600,700|Raleway:300,400,500,600,700|Crete+Round:400italic" rel="stylesheet" type="text/css" />
+    <link rel="stylesheet" href="css/bootstrap.css" type="text/css" />
+    <link rel="stylesheet" href="style.css" type="text/css" />
+    <link rel="stylesheet" href="css/dark.css" type="text/css" />
+    <link rel="stylesheet" href="css/font-icons.css" type="text/css" />
+    <link rel="stylesheet" href="css/animate.css" type="text/css" />
+    <link rel="stylesheet" href="css/magnific-popup.css" type="text/css" />
+
+    <link rel="stylesheet" href="css/responsive.css" type="text/css" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <!--[if lt IE 9]>
+    <script src="http://css3-mediaqueries-js.googlecode.com/svn/trunk/css3-mediaqueries.js"></script>
+    <![endif]-->
+
+    <!-- External JavaScripts
+    ============================================= -->
+    <script type="text/javascript" src="js/jquery.js"></script>
+    <script type="text/javascript" src="js/plugins.js"></script>
+
+    <!-- Document Title
+    ============================================= -->
+    <title>Rayyan</title>
+<style>
+    .button{
+        font-family: Gotham-Black;
+        font-size: 9.6pt;
+    }
+</style>
+</head>
+<body class="stretched">
+
+<script>
+    function readCookie(name) {
+
+        var nameEQ = name + "=";
+        var ca = document.cookie.split(';');
+        for(var i=0;i < ca.length;i++) {
+            var c = ca[i];
+            while (c.charAt(0)==' ') c = c.substring(1,c.length);
+            if (c.indexOf(nameEQ) == 0) return c.substring(nameEQ.length,c.length);
+        }
+        return null;
+    }
+
+    var value = readCookie('user');
+
+    if(value == null) {
+        window.location = "/index.html";
+
+    }
+    function changeLinkToSouth() {
+        $("#form-south").submit(function (e) {
+        document.location  = "simulation.html?SimulationType=SouthPark";
+            return false;
+        });
+    }
+
+    function changeLinkToNorth() {
+        $("#form-north").submit(function (e) {
+        document.location   = "simulation.html?SimulationType=NorthPark";
+            return false;
+        });
+    }
+    function changeLinkToCentral() {
+        $("#form-central").submit(function (e) {
+        document.location  = "simulation.html?SimulationType=CentralPark";
+            return false;
+            });
+    }
+    function changeLinkToFull() {
+        $("#form-full").submit(function (e) {
+            document.location = "simulation.html?SimulationType=Full";
+return false;
+            });
+    }
+    function logout() {
+
+        document.cookie = 'user' + '=; path=/; expires=Thu, 01 Jan 1970 00:00:01 GMT;';
+        window.location = '/index.html';
+    }
+
+
+   function btnOnMouseOver( idElement){
+
+       document.getElementById(idElement).style.backgroundImage = "linear-gradient( rgba(255, 255, 255, 0.5), rgba(255, 255, 255, 1) ),url('images/menu-btn-bg.png')";
+    };
+    function btnOnMouseOut(idElement){
+        document.getElementById(idElement).style.backgroundImage = "none";
+
+    };
+
+    function fullImgLayer_OnMouseOver(element){
+
+        document.getElementById(element).style.visibility="hidden";
+    };
+
+    function fullImgLayer_OnMouseOut(element){
+        document.getElementById(element).style.visibility="visible";
+    };
+
+</script>
+<!-- Page Header -->
+<div id="header" style=" height: 92px;">
+    <div id="logo" style="position: absolute !IMPORTANT;z-index: 9999;margin: 20px 10px;">
+
+        <a href="index.html"> <img src="images/rayyan_logo.png" style="width: 75%; height: 25%;"></a>
+    </div>
+    <div class="pull-right" style="margin-right: 0px;">
+        <div class="btn-group"  style="height: 92px;">
+
+            <div class="pull-left" style="display: inline-block; height: 92px; width: 1px; background: linear-gradient(rgba(0, 0, 0, 0.33), rgba(255, 255, 255, 1));"></div>
+            <input type="button"  id="btn-allviews" class="btn" value="ALL VIEWS" onmouseover="btnOnMouseOver('btn-allviews')" onmouseout="btnOnMouseOut('btn-allviews')"
+                   style="border-left:1px gray solid; font-family: Dosis-Medium; font-weight: normal; color:black;  height: 100%;width: 116px; border-radius:0px; border:0px solid;  background-color: transparent;"/><!--background-image: linear-gradient( rgba(255, 255, 255, 0.5), rgba(255, 255, 255, 1) ),url('images/menu-btn-bg.png');-->
+            <div class="pull-left" style="display: inline-block; height: 92px; width: 1px; background: linear-gradient(rgba(0, 0, 0, 0.33), rgba(255, 255, 255, 1));"></div>
+
+            <input type="button" id="btn-logout"  class="btn" value="LOGOUT" onmouseover="btnOnMouseOver('btn-logout')" onmouseout="btnOnMouseOut('btn-logout')"
+                   style="font-family: Dosis-Medium; font-weight: normal; color:black;  height: 100%;width: 116px; border-radius:0px; border:0px solid; background-color: transparent;" onclick="logout()" />
+
+
+        </div>
+    </div>
+
+</div>
+
+    <div style="width: 100%; height: calc(100vh - 64px);">
+        <div class="row" style="width:100%";>
+            <div class="col-md-6  padder-s "   >
+                <div class="img-overlay">
+                    <div id="full-img-layer" style=" position: absolute; width: 100%; height: 100%;" >
+                        <img  class="img-responsive" src="images/magazine/carousel/Full-layer.png" style="height: 100%;width: 100%;"/>
+                    </div>
+                    <div id="full-img" >
+                        <img  class="img-responsive" src="images/magazine/carousel/Full.png" style="height: 100%;width: 100%;" />
+                    </div>
+
+                    <div class="project-overlay" style=" display: flex; align-items: center;width:100%; height: 100%" onmouseout="fullImgLayer_OnMouseOut('full-img-layer')" onmouseover="fullImgLayer_OnMouseOver('full-img-layer')" >
+                    <div style="width: 100%;text-align: center;">
+                        <form  id="form-full" class="nobottommargin"   method="POST"><!--//action="http://localhost:8080/authenticate"-->
+
+
+
+                            <div align="center">
+
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <p align="center" style="margin-bottom: 0; font-family: Gotham-Black; font-size: 27.01pt;">FULL VIEW</p>
+                                    </div>
+
+                                    <div class="col-md-12">
+                                        <button class="button"  name="full"
+                                                style="border-color:white !important; background-color: transparent;  border:1px solid;border-radius: 3px;" onclick="changeLinkToFull()" >RUN SIMULATION</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+</div>
+
+            </div>
+            <div class="col-md-6  padder-s"  style="background-size: 100% 100%; background-repeat: no-repeat;" >
+                <div class="img-overlay">
+                    <div id="central-img-layer" style=" position: absolute;  width: 100%; height: 100%;" >
+                        <img  class="img-responsive" src="images/magazine/carousel/Central-layer.png" style="height: 100%;width: 100%;" />
+                    </div>
+                    <div>
+                 <img class="img-responsive" src="images/magazine/carousel/Central.png" style="height: 100%;width: 100%;" />
+                    </div>
+                 <div class="project-overlay" style="display: flex; align-items: center; width: 100%; height: 100%" onmouseout="fullImgLayer_OnMouseOut('central-img-layer')" onmouseover="fullImgLayer_OnMouseOver('central-img-layer')" >
+                    <div style="width: 100%;text-align: center;">
+                        <form id="form-central"  class="nobottommargin"   method="POST"><!--//action="http://localhost:8080/authenticate"-->
+
+
+
+                            <div align="center">
+
+                                <div class="row"  >
+                                    <div class="col-md-12">
+                                        <p align="center" style="margin-bottom: 0;font-family: Gotham-Black; font-size: 27.01pt;">CENTRAL VIEW</p>
+                                    </div>
+
+                                    <div class="col-md-12">
+                                        <button class="button"  name="central"
+                                                style="border-color:white !important; background-color: transparent;  border:1px solid;border-radius: 3px;" onclick="changeLinkToCentral()" >RUN SIMULATION</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+                </div>
+            </div>
+
+        </div>
+        <div class="row" style="width: 100%">
+            <div class="col-md-6  padder-s" style="background-size: 100% 100%; background-repeat: no-repeat;" >
+                <div class="img-overlay">
+                    <div id="north-img-layer" style=" position: absolute;  width: 100%; height: 100%;" >
+                        <img  class="img-responsive" src="images/magazine/carousel/North-layer.png" style="height: 100%;width: 100%;"/>
+                    </div>
+                    <div>
+                        <img class="img-responsive" src="images/magazine/carousel/North.png" style="height: 100%;width: 100%;" />
+                    </div>
+                <div class="project-overlay" style="display: flex; align-items: center; width:100%; height: 100%"  onmouseout="fullImgLayer_OnMouseOut('north-img-layer')" onmouseover="fullImgLayer_OnMouseOver('north-img-layer')">
+                    <div style="width: 100%;text-align: center;">
+                        <form id="form-north"  class="nobottommargin"  method="POST"><!--//action="http://localhost:8080/authenticate"-->
+                            <div align="center">
+                                <div class="row" >
+                                    <div class="col-md-12">
+                                        <p align="center" style="margin-bottom: 0;font-family: Gotham-Black; font-size: 27.01pt;">NORTH VIEW</p>
+                                    </div>
+
+                                    <div class="col-md-12">
+                                        <button class="button"  name="north"
+                                                style="border-color:white !important; background-color: transparent;  border:1px solid;border-radius: 3px;" onclick="changeLinkToNorth()" >RUN SIMULATION</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+                    </div>
+            </div>
+            <div class="col-md-6   padder-s"  style="background-size: 100% 100%; background-repeat: no-repeat;" >
+                <div class="img-overlay">
+                    <div id="south-img-layer" style=" position: absolute; width: 100%; height: 100%;" >
+                        <img  class="img-responsive" src="images/magazine/carousel/South-layer.png" style="height: 100%;width: 100%;"/>
+                    </div>
+                    <div>
+                        <img class="img-responsive" src="images/magazine/carousel/South.png" style="height: 100%;width: 100%;" />
+                    </div>
+                <div class="project-overlay" style="display: flex; align-items: center; width:100% height: 100%"  onmouseout="fullImgLayer_OnMouseOut('south-img-layer')" onmouseover="fullImgLayer_OnMouseOver('south-img-layer')" >
+                    <div style="width: 100%;text-align: center;">
+                        <form  id="form-south" class="nobottommargin"   method="POST"><!--//action="http://localhost:8080/authenticate"-->
+
+
+
+                            <div align="center">
+
+                                <div class="row"  >
+                                    <div class="col-md-12">
+                                        <p align="center" style="margin-bottom: 0;font-family: Gotham-Black; font-size: 27.01pt;">SOUTH VIEW</p>
+                                    </div>
+
+                                    <div class="col-md-12">
+                                        <button class="button"   name="south"
+                                                style="border-color:white !important; background-color: transparent;  border:1px solid;border-radius: 3px;" onclick="changeLinkToSouth()" >RUN SIMULATION</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+                    </div>
+            </div>
+        </div>
+
+    </div>
+
+</body>
+</html>

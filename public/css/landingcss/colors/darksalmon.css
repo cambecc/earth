@@ -1,0 +1,109 @@
+/*========== B A C K G R O U N D    S K I N S =============*/
+
+::-moz-selection {
+ background:darkSalmon;
+}
+::selection {
+	background:darkSalmon;
+}
+
+nav.colored, nav.light.colored,
+.twitter-feed-icon i,
+.testimonial-icon i,
+.home-gradient,
+.home-parallax,
+#project-navigation ul li#prevProject a:hover, 
+#project-navigation ul li#nextProject a:hover,
+#project-navigation ul li a:hover,
+#closeProject a:hover,
+.portfolio .portfolio-overlay,
+.pagination a.previous:hover, 
+.pagination a.next:hover,
+.rnr-icon-middle:hover,
+.service-box:hover,
+.button,
+.skillbar .skill-percentage,
+.flex-control-nav li a:hover,
+.flex-control-nav li a.flex-active,
+.testimonial-slider .flex-direction-nav li a, 
+.twitter-slider .flex-direction-nav li a,
+.color-block,
+.home1 .slabtextdone .slabtext.second-child,
+.home4 .slabtextdone .slabtext.second-child,
+.caption,
+.copyright,
+.title h1,
+.service-features .img-container,
+.service-features .img-container,
+.view-profile,
+.team-member:hover .team-desc,
+.service-box .service-icon,
+.modal .close {
+	background-color:darkSalmon;
+}
+
+/*========== B O X   S H A D O W    S K I N S =============*/
+
+.title h1,
+.service-box .service-icon {
+	box-shadow:0px 0px 0px 3px darkSalmon;
+}
+
+.tab a.selected {
+    box-shadow: 0px -3px 0px 0px darkSalmon;
+}
+
+
+
+
+
+/*========== C O L O R    S K I N S =============*/
+
+a,
+.highlight,
+nav.light .main-menu a:hover, 
+nav.dark .main-menu a:hover,
+nav.light .main-menu li.active a,
+nav.transparent .main-menu li.active a, 
+nav.dark .main-menu li.active a,
+.parallax .quote i,
+#filters ul li a:hover h3, 
+#filters ul li a.active h3,
+.post-title a:hover,
+.post-tags li a:hover,
+.tags-list li a:hover,
+.pages li a:hover,
+.home3 .slabtextdone .slabtext.second-child,
+.service-box:hover .service-icon {
+	color:darkSalmon;
+}
+
+
+
+
+/*========== B O R D E R    S K I N S =============*/
+
+.pages li a.current,
+.pages li a.current,
+.service-features .img-container:after,
+.service-box:hover .service-icon,
+.callout,
+blockquote p,
+.pullquote.align-right,
+.pullquote.align-left {
+	border-color:darkSalmon;
+}
+
+
+/*========== H O M E,  C O L O R   B L O C K    S K I N S =============*/
+.home-gradient, .color-block {
+	background-color:darkSalmon;
+	background: -moz-radial-gradient(center center, circle cover,darkSalmon 0%, #CC552D 100%);
+	background: -webkit-radial-gradient(center center, circle cover, darkSalmon 0%, #CC552D 100%);
+	background: -o-radial-gradient(center center, circle cover,darkSalmon 0%, #CC552D 100%);
+	background: -ms-radial-gradient(center center, circle cover,darkSalmon 0%, #CC552D 100%);
+	background: radial-gradient(center center, circle cover,darkSalmon 0%, #CC552D 100%);	
+}
+
+
+

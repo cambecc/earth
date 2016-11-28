@@ -19,6 +19,11 @@ After installing node.js and npm, clone "earth" and install dependencies:
     git clone https://github.com/cambecc/earth
     cd earth
     npm install
+    npm install -g grunt-cli
+
+Next, define new env variable API_RAYYAN_URL to define the api url (default value 'http://localhost:5000' if env variable is not define ) and then run
+
+    grunt build:config
 
 Next, launch the development web server:
 

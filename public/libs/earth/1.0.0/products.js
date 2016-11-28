@@ -104,10 +104,10 @@ var products = function() {
         //debugger
         var dir = attr.date, stamp = dir === "current" ? "current" : attr.hour;
         var file = [stamp, type, surface, level, "gfs", "1.0"].filter(µ.isValue).join("-") + ".json";
-        SimulateClimate(glWindxOutput, glWindyOutput, glTemperatureOutput, glPressureOutput,
-          glMonthToSimulate, glHourToSimulate, glSourceWaterTemperature, glAltitude, glGallonsPerMinute,
-          glPrmiaryWaterVolume, glSecondaryWaterVolume, glHillsHeight, glNetworkArea, glRayyanOnOFF);
 
+        console.log(glGallonsPerMinute);
+        SimulateClimate(glMonthToSimulate, glHourToSimulate, glSourceWaterTemperature, glAltitude, glGallonsPerMinute,
+          glPrmiaryWaterVolume, glSecondaryWaterVolume, glHillsHeight, glNetworkArea, glRayyanOnOFF);
         //console.log(WindxOutput);
         //console.log(TemperatureOutput);
         return [WEATHER_PATH, dir, file].join("/");

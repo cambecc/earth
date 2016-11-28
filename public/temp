@@ -1,0 +1,8 @@
+<h2 style="font-family: 'Gotham Black';">SIMULATION VIEW</h2>
+  <div id="sponsor" class="invisible">
+    <p><span id="sponsor-hide" class="text-button invisible"> ✕ </span>community</p>
+    <a id="sponsor-link" href="https://www.facebook.com/EarthWindMap">EarthWindMap</a>
+  </div>
+
+
+  </div>
