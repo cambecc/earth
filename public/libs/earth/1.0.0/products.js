@@ -106,8 +106,7 @@ var products = function() {
         var file = [stamp, type, surface, level, "gfs", "1.0"].filter(µ.isValue).join("-") + ".json";
 
         console.log(glGallonsPerMinute);
-        SimulateClimate(glWindxOutput, glWindyOutput, glTemperatureOutput, glPressureOutput,
-          glMonthToSimulate, glHourToSimulate, glSourceWaterTemperature, glAltitude, glGallonsPerMinute,
+        SimulateClimate(glMonthToSimulate, glHourToSimulate, glSourceWaterTemperature, glAltitude, glGallonsPerMinute,
           glPrmiaryWaterVolume, glSecondaryWaterVolume, glHillsHeight, glNetworkArea, glRayyanOnOFF);
         //console.log(WindxOutput);
         //console.log(TemperatureOutput);

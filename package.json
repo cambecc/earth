@@ -23,6 +23,7 @@
   },
   "devDependencies": {
     "grunt": "~0.4.1",
+    "grunt-preprocess": "^5.0.1",
     "grunt-contrib-jshint": "~0.7.1"
   }
 }
