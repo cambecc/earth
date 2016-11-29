@@ -67,9 +67,15 @@
     }();
 
     function newAgent() {
-        return µ.newAgent().on({"reject": report.error, "fail": report.error});
+        return µ.newAgent().on({"run":showLoader(),"accept": removeLoader(),"reject": report.error, "fail": report.error});
     }
-
+    function showLoader()
+    {
+        document.getElementById('loading').style.display = "flex";
+    }
+    function removeLoader(){
+        document.getElementById('loading').style.display = "none";
+    }
     // Construct the page's main internal components:
 
     var configuration =
@@ -112,49 +118,49 @@
          * @returns {Object} an object to represent the state for one move operation.
          */
         function newOp(startMouse, startScale) {
-            return {
-                type: "click",  // initially assumed to be a click operation
-                startMouse: startMouse,
-                startScale: startScale,
-                manipulator: globe.manipulator(startMouse, startScale)
-            };
+            // return {
+            //     type: "click",  // initially assumed to be a click operation
+            //     startMouse: startMouse,
+            //     startScale: startScale,
+            //     manipulator: globe.manipulator(startMouse, startScale)
+            // };
         }
 
-        var zoom = d3.behavior.zoom()
-            .on("zoomstart", function() {
-                op = op || newOp(d3.mouse(this), zoom.scale());  // a new operation begins
-            })
-            .on("zoom", function() {
-                var currentMouse = d3.mouse(this), currentScale = d3.event.scale;
-                op = op || newOp(currentMouse, 1);  // Fix bug on some browsers where zoomstart fires out of order.
-                if (op.type === "click" || op.type === "spurious") {
-                    var distanceMoved = µ.distance(currentMouse, op.startMouse);
-                    if (currentScale === op.startScale && distanceMoved < MIN_MOVE) {
-                        // to reduce annoyance, ignore op if mouse has barely moved and no zoom is occurring
-                        op.type = distanceMoved > 0 ? "click" : "spurious";
-                        return;
-                    }
-                    dispatch.trigger("moveStart");
-                    op.type = "drag";
-                }
-                if (currentScale != op.startScale) {
-                    op.type = "zoom";  // whenever a scale change is detected, (stickily) switch to a zoom operation
-                }
-
-                // when zooming, ignore whatever the mouse is doing--really cleans up behavior on touch devices
-                op.manipulator.move(op.type === "zoom" ? null : currentMouse, currentScale);
-                dispatch.trigger("move");
-            })
-            .on("zoomend", function() {
-                op.manipulator.end();
-                if (op.type === "click") {
-                    dispatch.trigger("click", op.startMouse, globe.projection.invert(op.startMouse) || []);
-                }
-                else if (op.type !== "spurious") {
-                    signalEnd();
-                }
-                op = null;  // the drag/zoom/click operation is over
-            });
+        // var zoom = d3.behavior.zoom()
+        //     .on("zoomstart", function() {
+        //         op = op || newOp(d3.mouse(this), zoom.scale());  // a new operation begins
+        //     })
+        //     .on("zoom", function() {
+        //         var currentMouse = d3.mouse(this), currentScale = d3.event.scale;
+        //         op = op || newOp(currentMouse, 1);  // Fix bug on some browsers where zoomstart fires out of order.
+        //         if (op.type === "click" || op.type === "spurious") {
+        //             var distanceMoved = µ.distance(currentMouse, op.startMouse);
+        //             if (currentScale === op.startScale && distanceMoved < MIN_MOVE) {
+        //                 // to reduce annoyance, ignore op if mouse has barely moved and no zoom is occurring
+        //                 op.type = distanceMoved > 0 ? "click" : "spurious";
+        //                 return;
+        //             }
+        //             dispatch.trigger("moveStart");
+        //             op.type = "drag";
+        //         }
+        //         if (currentScale != op.startScale) {
+        //             op.type = "zoom";  // whenever a scale change is detected, (stickily) switch to a zoom operation
+        //         }
+        //
+        //         // when zooming, ignore whatever the mouse is doing--really cleans up behavior on touch devices
+        //         op.manipulator.move(op.type === "zoom" ? null : currentMouse, currentScale);
+        //         dispatch.trigger("move");
+        //     })
+        //     .on("zoomend", function() {
+        //         op.manipulator.end();
+        //         if (op.type === "click") {
+        //             dispatch.trigger("click", op.startMouse, globe.projection.invert(op.startMouse) || []);
+        //         }
+        //         else if (op.type !== "spurious") {
+        //             signalEnd();
+        //         }
+        //         op = null;  // the drag/zoom/click operation is over
+        //     });
 
         var signalEnd = _.debounce(function() {
             if (!op || op.type !== "drag" && op.type !== "zoom") {
@@ -163,7 +169,7 @@
             }
         }, MOVE_END_WAIT);  // wait for a bit to decide if user has stopped moving the globe
 
-        d3.select("#display").call(zoom);
+        // d3.select("#display").call(zoom);
         d3.select("#show-location").on("click", function() {
             if (navigator.geolocation) {
                 report.status("Finding current position...");
@@ -188,7 +194,7 @@
             }
             dispatch.trigger("moveStart");
             globe.orientation(configuration.get("orientation"), view);
-            zoom.scale(globe.projection.scale());
+            // zoom.scale(globe.projection.scale());
             dispatch.trigger("moveEnd");
         }
 
@@ -196,7 +202,7 @@
             globe: function(_) {
                 if (_) {
                     globe = _;
-                    zoom.scaleExtent(globe.scaleExtent());
+                    // zoom.scaleExtent(globe.scaleExtent());
                     reorient();
                 }
                 return _ ? this : globe;
@@ -252,6 +258,7 @@
         //         this allows us to use the product for navigation and other state.
         var cancel = this.cancel;
         downloadsInProgress++;
+        //debugger
         var loaded = when.map(products.productsFor(configuration.attributes), function(product) {
             return product.load(cancel);
         });
@@ -291,10 +298,10 @@
         rendererAgent._previous = dispatch;
 
         // First clear map and foreground svg contents.
-        µ.removeChildren(d3.select("#map").node());
+        // µ.removeChildren(d3.select("#map").node());
         µ.removeChildren(d3.select("#foreground").node());
         // Create new map svg elements.
-        globe.defineMap(d3.select("#map"), d3.select("#foreground"));
+        // globe.defineMap(d3.select("#map"), d3.select("#foreground"));
 
         var path = d3.geo.path().projection(globe.projection).pointRadius(7);
         var coastline = d3.select(".coastline");
@@ -368,24 +375,23 @@
         log.time("render mask");
 
         // Create a detached canvas, ask the model to define the mask polygon, then fill with an opaque color.
-        var width = view.width, height = view.height;
-        var canvas = d3.select(document.createElement("canvas")).attr("width", width).attr("height", height).node();
+        var canvas = d3.select(document.createElement("canvas")).attr("width", SolomonWidth).attr("height", SolomonHeight).node();
         var context = globe.defineMask(canvas.getContext("2d"));
         context.fillStyle = "rgba(255, 0, 0, 1)";
         context.fill();
         // d3.select("#display").node().appendChild(canvas);  // make mask visible for debugging
 
-        var imageData = context.getImageData(0, 0, width, height);
+        var imageData = context.getImageData(0, 0, SolomonWidth, SolomonHeight);
         var data = imageData.data;  // layout: [r, g, b, a, r, g, b, a, ...]
         log.timeEnd("render mask");
         return {
             imageData: imageData,
             isVisible: function(x, y) {
-                var i = (y * width + x) * 4;
+                var i = (y * SolomonWidth + x) * 4;
                 return data[i + 3] > 0;  // non-zero alpha means pixel is visible
             },
             set: function(x, y, rgba) {
-                var i = (y * width + x) * 4;
+                var i = (y * SolomonWidth + x) * 4;
                 data[i    ] = rgba[0];
                 data[i + 1] = rgba[1];
                 data[i + 2] = rgba[2];
@@ -855,6 +861,7 @@
     function bindButtonToConfiguration(elementId, newAttr, keys) {
         keys = keys || _.keys(newAttr);
         d3.select(elementId).on("click", function() {
+            showLoader();
             if (d3.select(elementId).classed("disabled")) return;
             configuration.save(newAttr);
         });
@@ -885,22 +892,22 @@
             d3.select("#sponsor").classed("invisible", true);
         });
 
-        d3.selectAll(".fill-screen").attr("width", view.width).attr("height", view.height);
+        d3.selectAll(".fill-screen").attr("width", SolomonWidth).attr("height", SolomonHeight);
         // Adjust size of the scale canvas to fill the width of the menu to the right of the label.
         var label = d3.select("#scale-label").node();
         d3.select("#scale")
             .attr("width", (d3.select("#menu").node().offsetWidth - label.offsetWidth) * 0.97)
             .attr("height", label.offsetHeight / 2);
-
+/*Removed for the new design
         d3.select("#show-menu").on("click", function() {
-            if (µ.isEmbeddedInIFrame()) {
-                window.open("http://earth.nullschool.net/" + window.location.hash, "_blank");
-            }
-            else {
+            // if (µ.isEmbeddedInIFrame()) {
+            //     window.open("http://earth.nullschool.net/" + window.location.hash, "_blank");
+            // }
+            // else {
                 d3.select("#menu").classed("invisible", !d3.select("#menu").classed("invisible"));
-            }
+            // }
         });
-
+*/
         if (µ.isFF()) {
             // Workaround FF performance issue of slow click behavior on map having thick coastlines.
             d3.select("#display").classed("firefox", true);
@@ -991,16 +998,27 @@
         animatorAgent.listenTo(fieldAgent, "submit", stopCurrentAnimation.bind(null, false));
 
         overlayAgent.listenTo(fieldAgent, "update", function() {
-            overlayAgent.submit(drawOverlay, fieldAgent.value(), configuration.get("overlayType"));
+            showLoader();
+            setTimeout(function(){
+                overlayAgent.submit(drawOverlay, fieldAgent.value(), configuration.get("overlayType"));
+
+            },500);
         });
         overlayAgent.listenTo(rendererAgent, "start", function() {
-            overlayAgent.submit(drawOverlay, fieldAgent.value(), null);
+            showLoader();
+            setTimeout(function(){
+                overlayAgent.submit(drawOverlay, fieldAgent.value(), null);
+
+            },500);
         });
         overlayAgent.listenTo(configuration, "change", function() {
             var changed = _.keys(configuration.changedAttributes())
             // if only overlay relevant flags have changed...
             if (_.intersection(changed, ["overlayType", "showGridPoints"]).length > 0) {
-                overlayAgent.submit(drawOverlay, fieldAgent.value(), configuration.get("overlayType"));
+                showLoader();
+                setTimeout(function(){
+                    overlayAgent.submit(drawOverlay, fieldAgent.value(), configuration.get("overlayType"));
+                },500);
             }
         });
 
@@ -1098,6 +1116,9 @@
         products.overlayTypes.forEach(function(type) {
             bindButtonToConfiguration("#overlay-" + type, {overlayType: type});
         });
+        //bindButtonToConfiguration("#primary-water-volume", {param: "wind", overlayType: "default"});
+
+
         bindButtonToConfiguration("#overlay-wind", {param: "wind", overlayType: "default"});
         bindButtonToConfiguration("#overlay-ocean-off", {overlayType: "off"});
         bindButtonToConfiguration("#overlay-currents", {overlayType: "default"});
@@ -1112,6 +1133,203 @@
             view = µ.view();
             globeAgent.submit(buildGlobe, configuration.get("projection"));
         });
+
+        // $( ".slider" ).on( "slidechange", function( event, ui ) {
+        //   var param = event.target.id,
+        //       value = ui.value;
+        //       glGallonsPerMinute = 100;
+        //       gridAgent.submit(buildGrids);
+        // });
+
+        $( "#water-temperature" ).on( "slidechange", function( event, ui ) {
+           showLoader();
+            setTimeout(function() {
+                var param = event.target.id,
+                    glSourceWaterTemperature = ui.value;
+                gridAgent.submit(buildGrids);
+            },500);
+        });
+        $( "#gpm" ).on( "slidechange", function( event, ui ) {
+            showLoader();
+            setTimeout(function(){
+                var param = event.target.id,
+                    value = ui.value;
+                glGallonsPerMinute = ui.value;
+                console.log(glGallonsPerMinute);
+                gridAgent.submit(buildGrids);
+            },500);
+
+        });
+
+        $( "#primary-water-volume" ).on( "slidechange", function( event, ui ) {
+            showLoader();
+            setTimeout(function () {
+                var param = event.target.id,
+                    glPrmiaryWaterVolume = ui.value;
+
+                gridAgent.submit(buildGrids);
+            },500);
+
+
+        });
+
+        $( "#secondary-water-volume" ).on( "slidechange", function( event, ui ) {
+            //document.getElementById('loading').style.display = "flex";//to view chasnge to block
+            showLoader();
+            setTimeout(function(){
+                var param = event.target.id,
+                    glSecondaryWaterVolume = ui.value;
+                gridAgent.submit(buildGrids);
+            },500);
+
+        });
+        $( "#heat-network-area" ).on( "slidechange", function( event, ui ) {
+           // document.getElementById('loading').style.display = "flex";//to view chasnge to block
+            showLoader();
+            setTimeout(function(){
+                var param = event.target.id,
+                    glNetworkArea = ui.value;
+                gridAgent.submit(buildGrids);
+            },500);
+
+        });
+
+        $( "#MicroClimate-On" ).on( "click", function() {
+              glRayyanOnOFF = 1;
+            showLoader();
+            setTimeout(function(){
+                gridAgent.submit(buildGrids);
+
+            },500);
+        });
+
+        $( "#MicroClimate-Off" ).on( "click", function() {
+              glRayyanOnOFF = 0;
+            showLoader();
+            setTimeout(function(){
+                gridAgent.submit(buildGrids);
+
+            },500);
+        });
+
+        $( "#level-0" ).on( "click", function() {
+              glAltitude= 0;
+            showLoader();
+            setTimeout(function(){
+                gridAgent.submit(buildGrids);
+
+            },500);
+
+        });
+
+        $( "#level-10" ).on( "click", function() {
+              glAltitude = 10;
+            showLoader();
+            setTimeout(function(){
+                gridAgent.submit(buildGrids);
+
+            },500);
+        });
+
+        $( "#level-20" ).on( "click", function() {
+              glAltitude = 20;
+            showLoader();
+            setTimeout(function(){
+                gridAgent.submit(buildGrids);
+
+            },500);
+        });
+
+        $( "#level-50" ).on( "click", function() {
+              glAltitude = 50;
+            showLoader();
+            setTimeout(function(){
+                gridAgent.submit(buildGrids);
+
+            },500);
+        });
+
+        $( "#level-100" ).on( "click", function() {
+              glAltitude = 100;
+            showLoader();
+            setTimeout(function(){
+                gridAgent.submit(buildGrids);
+
+            },500);
+        });
+
+        $( "#level-200" ).on( "click", function() {
+              glAltitude = 200;
+            showLoader();
+            setTimeout(function(){
+                gridAgent.submit(buildGrids);
+
+            },500);;
+        });
+
+        $( "#level-500" ).on( "click", function() {
+              glAltitude = 500;
+            showLoader();
+            setTimeout(function(){
+                gridAgent.submit(buildGrids);
+
+            },500);
+        });
+
+        $( "#Hills-0" ).on( "click", function() {
+              glHillsHeight = 0;
+            showLoader();
+            setTimeout(function(){
+                gridAgent.submit(buildGrids);
+
+            },500);
+        });
+
+        $( "#Hills-50" ).on( "click", function() {
+              glHillsHeight = 50;
+            showLoader();
+            setTimeout(function(){
+                gridAgent.submit(buildGrids);
+
+            },500);
+        });
+
+        $( "#Hills-100" ).on( "click", function() {
+              glHillsHeight = 100;
+            showLoader();
+            setTimeout(function(){
+                gridAgent.submit(buildGrids);
+
+            },500);
+        });
+
+        $( "#Hills-150" ).on( "click", function() {
+              glHillsHeight = 150;
+            showLoader();
+            setTimeout(function(){
+                gridAgent.submit(buildGrids);
+
+            },500);
+        });
+
+        $( "#Hills-200" ).on( "click", function() {
+              glHillsHeight = 200;
+            showLoader();
+            setTimeout(function(){
+                gridAgent.submit(buildGrids);
+
+            },500);
+        });
+
+        $( "#Hills-250" ).on( "click", function() {
+              glHillsHeight = 250;
+            showLoader();
+            setTimeout(function(){
+                gridAgent.submit(buildGrids);
+
+            },500);
+        });
+
     }
 
     function start() {

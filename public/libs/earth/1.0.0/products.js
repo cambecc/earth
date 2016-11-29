@@ -11,6 +11,65 @@ var products = function() {
 
     var WEATHER_PATH = "/data/weather";
     var OSCAR_PATH = "/data/oscar";
+    var ourHeader = {
+        discipline: 0,
+        disciplineName: "Meteorological products",
+        gribEdition: 2,
+        gribLength: 131858,
+        center: 7,
+        centerName: "US National Weather Service - NCEP(WMC)",
+        subcenter: 0,
+        refTime: "2014-01-31T00:00:00.000Z",
+        significanceOfRT: 1,
+        significanceOfRTName: "Start of forecast",
+        productStatus: 0,
+        productStatusName: "Operational products",
+        productType: 1,
+        productTypeName: "Forecast products",
+        productDefinitionTemplate: 0,
+        productDefinitionTemplateName: "Analysis/forecast at horizontal level/layer at a point in time",
+        parameterCategory: 2,
+        parameterCategoryName: "Momentum",
+        parameterNumber: 2,
+        parameterNumberName: "U-component_of_wind",
+        parameterUnit: "m.s-1",
+        genProcessType: 2,
+        genProcessTypeName: "Forecast",
+        forecastTime: 3,
+        surface1Type: 103,
+        surface1TypeName: "Specified height level above ground",
+        surface1Value: 10,
+        surface2Type: 255,
+        surface2TypeName: "Missing",
+        surface2Value: 0,
+        gridDefinitionTemplate: 0,
+        gridDefinitionTemplateName: "Latitude_Longitude",
+        numberPoints: 65160,
+        shape: 6,
+        shapeName: "Earth spherical with radius of 6,371,229.0 m",
+        gridUnits: "degrees",
+        resolution: 48,
+        winds: "true",
+        scanMode: 0,
+        nx: 360,
+        ny: 181,
+        basicAngle: 0,
+        subDivisions: 0,
+        lo1: 0,
+        la1: 90,
+        lo2: 359,
+        la2: -90,
+        dx: 1,
+        dy: 1
+        };
+
+
+
+    //var WindxOutput = new Array((GridResolutionx+Gridbuffer)*(GridResolutiony+Gridbuffer));
+    //var WindyOutput = new Array((GridResolutionx+Gridbuffer)*(GridResolutiony+Gridbuffer));
+    //var TemperatureOutput = new Array((GridResolutionx+Gridbuffer)*(GridResolutiony+Gridbuffer));
+    //var PressureOutput = new Array((GridResolutionx+Gridbuffer)*(GridResolutiony+Gridbuffer));
+
     var catalogs = {
         // The OSCAR catalog is an array of file names, sorted and prefixed with yyyyMMdd. Last item is the
         // most recent. For example: [ 20140101-abc.json, 20140106-abc.json, 20140112-abc.json, ... ]
@@ -42,8 +101,15 @@ var products = function() {
      * @returns {String}
      */
     function gfs1p0degPath(attr, type, surface, level) {
+        //debugger
         var dir = attr.date, stamp = dir === "current" ? "current" : attr.hour;
         var file = [stamp, type, surface, level, "gfs", "1.0"].filter(µ.isValue).join("-") + ".json";
+
+        console.log(glGallonsPerMinute);
+        SimulateClimate(glMonthToSimulate, glHourToSimulate, glSourceWaterTemperature, glAltitude, glGallonsPerMinute,
+          glPrmiaryWaterVolume, glSecondaryWaterVolume, glHillsHeight, glNetworkArea, glRayyanOnOFF);
+        //console.log(WindxOutput);
+        //console.log(TemperatureOutput);
         return [WEATHER_PATH, dir, file].join("/");
     }
 
@@ -122,12 +188,12 @@ var products = function() {
                     paths: [gfs1p0degPath(attr, "wind", attr.surface, attr.level)],
                     date: gfsDate(attr),
                     builder: function(file) {
-                        var uData = file[0].data, vData = file[1].data;
+                        //var uData = file[0].data, vData = file[1].data;
                         return {
-                            header: file[0].header,
+                            header: ourHeader,
                             interpolate: bilinearInterpolateVector,
                             data: function(i) {
-                                return [uData[i], vData[i]];
+                                return [glWindxOutput[i], glWindyOutput[i]];
                             }
                         }
                     },
@@ -161,9 +227,12 @@ var products = function() {
                     paths: [gfs1p0degPath(attr, "temp", attr.surface, attr.level)],
                     date: gfsDate(attr),
                     builder: function(file) {
-                        var record = file[0], data = record.data;
+                        var data = glTemperatureOutput;
+                        //var record = file[0], data = TemperatureOutput;
+                        //console.log(data);
                         return {
-                            header: record.header,
+                            //header: record.header,
+                            header: ourHeader,
                             interpolate: bilinearInterpolateScalar,
                             data: function(i) {
                                 return data[i];
@@ -176,7 +245,23 @@ var products = function() {
                         {label: "K",  conversion: function(x) { return x; },                precision: 1}
                     ],
                     scale: {
-                        bounds: [193, 328],
+                        //bounds: [193, 328],
+                        bounds: [270, 320],
+
+                        gradient: µ.segmentedColorScale([
+                            [270,     [37, 4, 42]],
+                            [271,     [41, 10, 130]],
+                            [272,     [81, 40, 40]],
+                            [273,  [192, 37, 149]],  // -40 C/F
+                            [278, [70, 215, 215]],  // 0 F
+                            [288,  [21, 84, 187]],   // 0 C
+                            [293,  [24, 132, 14]],   // just above 0 C
+                            [298,     [247, 251, 59]],
+                            [303,     [235, 167, 21]],
+                            [308,     [230, 71, 39]],
+                            [320,     [88, 27, 67]]
+                        ])
+                        /*
                         gradient: µ.segmentedColorScale([
                             [193,     [37, 4, 42]],
                             [206,     [41, 10, 130]],
@@ -190,10 +275,62 @@ var products = function() {
                             [311,     [230, 71, 39]],
                             [328,     [88, 27, 67]]
                         ])
+                        */
                     }
                 });
             }
         },
+
+        "Pressure": {
+            matches: _.matches({param: "wind", overlayType: "Pressure"}),
+            create: function(attr) {
+                return buildProduct({
+                    field: "scalar",
+                    type: "Pressure",
+                    description: localize({
+                        name: {en: "Pressure", ja: "気温"},
+                        qualifier: {en: " @ " + describeSurface(attr), ja: " @ " + describeSurfaceJa(attr)}
+                    }),
+                    paths: [gfs1p0degPath(attr, "Pressure", attr.surface, attr.level)],
+                    date: gfsDate(attr),
+                    builder: function(file) {
+                        var data = glPressureOutput;
+                        //var record = file[0], data = TemperatureOutput;
+                        //console.log(data);
+                        return {
+                            //header: record.header,
+                            header: ourHeader,
+                            interpolate: bilinearInterpolateScalar,
+                            data: function(i) {
+                                return data[i];
+                            }
+                        }
+                    },
+
+                    scale: {
+                        //bounds: [193, 328],
+                        bounds: [270, 310],
+
+                        gradient: µ.segmentedColorScale([
+                            [270,     [37, 4, 42]],
+                            [271,     [41, 10, 130]],
+                            [272,     [81, 40, 40]],
+                            [273,  [192, 37, 149]],  // -40 C/F
+                            [277, [70, 215, 215]],  // 0 F
+                            [290,  [21, 84, 187]],   // 0 C
+                            [298,  [24, 132, 14]],   // just above 0 C
+                            [302,     [247, 251, 59]],
+                            [303,     [235, 167, 21]],
+                            [306,     [230, 71, 39]],
+                            [310,     [88, 27, 67]]
+                        ])
+                    }
+                });
+            }
+        },
+
+
+
 
         "relative_humidity": {
             matches: _.matches({param: "wind", overlayType: "relative_humidity"}),
@@ -643,8 +780,11 @@ var products = function() {
             //      ---G------G--- cj 9   Note that for wrapped grids, the first column is duplicated as the last
             //         |      |           column, so the index ci can be used without taking a modulo.
 
-            var fi = Math.floor(i), ci = fi + 1;
-            var fj = Math.floor(j), cj = fj + 1;
+             var fi = Math.floor(i), ci = fi + 1;
+             var fj = Math.floor(j), cj = fj + 1;
+
+            //var fi = i, ci = fi + 1;
+            //var fj = j, cj = fj + 1;
 
             var row;
             if ((row = grid[fj])) {

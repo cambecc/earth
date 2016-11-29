@@ -1,0 +1,305 @@
+﻿<!DOCTYPE html>
+
+<html dir="ltr" lang="en-US">
+<head>
+
+	<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+	<meta name="author" content="SemiColonWeb" />
+
+	<!-- Stylesheets
+	============================================= -->
+	<link href="http://fonts.googleapis.com/css?family=Lato:300,400,400italic,600,700|Raleway:300,400,500,600,700|Crete+Round:400italic" rel="stylesheet" type="text/css" />
+	<link rel="stylesheet" href="css/bootstrap.css" type="text/css" />
+	<link rel="stylesheet" href="style.css" type="text/css" />
+	<link rel="stylesheet" href="css/dark.css" type="text/css" />
+	<link rel="stylesheet" href="css/font-icons.css" type="text/css" />
+	<link rel="stylesheet" href="css/animate.css" type="text/css" />
+	<link rel="stylesheet" href="css/magnific-popup.css" type="text/css" />
+
+	<link rel="stylesheet" href="css/responsive.css" type="text/css" />
+	<meta name="viewport" content="width=device-width, initial-scale=1" />
+	<!--[if lt IE 9]>
+		<script src="http://css3-mediaqueries-js.googlecode.com/svn/trunk/css3-mediaqueries.js"></script>
+	<![endif]-->
+
+	<!-- External JavaScripts
+	============================================= -->
+	<script type="text/javascript" src="js/jquery.js"></script>
+	<script type="text/javascript" src="js/plugins.js"></script>
+
+	<!-- Document Title
+	============================================= -->
+	<title>Rayyan</title>
+
+</head>
+
+<body class="stretched">
+    <script>
+    function readCookie(name) {
+
+    var nameEQ = name + "=";
+    var ca = document.cookie.split(';');
+    for(var i=0;i < ca.length;i++) {
+        var c = ca[i];
+        while (c.charAt(0)==' ') c = c.substring(1,c.length);
+        if (c.indexOf(nameEQ) == 0) return c.substring(nameEQ.length,c.length);
+    }
+    return null;
+}
+
+var value = readCookie('user');
+//toastr.warning("cookie.user: "  +value);
+if(value == null) {
+    window.location = "/index.html";
+    
+}
+    </script>
+	<!-- Document Wrapper
+	============================================= -->
+	<div id="wrapper" class="clearfix">
+
+		<!-- Top Bar
+		============================================= -->
+
+		<!-- Header
+		============================================= -->
+		<header id="header" class="sticky-style-2">
+
+			<div class="container clearfix">
+
+				<div id="logo">
+					<img src="images/rayyan_logo.png"/>
+				</div>
+
+			</div>
+
+			<div id="header-wrap">
+
+				<!-- Primary Navigation
+				============================================= -->
+				<nav id="primary-menu" class="style-2">
+
+					<div class="container clearfix">
+
+						<div id="primary-menu-trigger"><i class="icon-reorder"></i></div>
+
+						<ul>
+							<li class="current"><a href="#" onclick ="hideIframeAndShowCarousel()"><div>Home</div></a>
+							</li>
+							<li class="current"><a href="#" onclick ="changeLinkToFull()"><div>Full View</div></a>
+							</li>
+						    <li class="current"><a href="#" onclick ="changeLinkToCentral()"><div>Central View</div></a>
+							</li>
+							 <li class="current"><a href="#" onclick ="changeLinkToNorth()"><div>North View</div></a>
+							</li>
+							 <li class="current"><a href="#" onclick ="changeLinkToSouth()"><div>South View</div></a>
+                            <li class="current"><a href="#" onclick="logout()">LogOut</a>
+							</li>
+						</ul>
+
+						<!-- Top Search
+						============================================= -->
+						<!--<div id="top-search">
+							<a href="#" id="top-search-trigger"><i class="icon-search3"></i><i class="icon-line-cross"></i></a>
+							<form action="search.html" method="get">
+								<input type="text" name="q" class="form-control" value="" placeholder="Type &amp; Hit Enter..">
+							</form>
+						</div>-->
+                        <!-- #top-search end -->
+
+					</div>
+
+				</nav><!-- #primary-menu end -->
+                
+			</div>
+
+		</header><!-- #header end -->
+
+		<!-- Content
+		============================================= -->
+		<section id="content">
+
+			<div id="carousel" class="content-wrap">
+
+				<div id="oc-images" class="owl-carousel owl-carousel-full news-carousel header-stick bottommargin-lg">
+
+					<div class="oc-item">
+						<a href="#"><img src="images/magazine/carousel/Full.png" alt="Image 1"></a>
+						<div class="overlay">
+							<div class="text-overlay">
+								<div class="text-overlay-title">
+									<h2>Full View</h2>
+								</div>
+								<div class="text-overlay-meta">
+									<span>Summer</span>
+								</div>
+								<a onclick="changeLinkToFull()" class="button button-reveal button-border button-light button-small button-rounded uppercase tright noleftmargin topmargin-sm"><span>Run Simulation</span><i class="icon-angle-right"></i></a>
+							</div>
+							<div class="rounded-skill" data-color="#e74c3c" data-trackcolor="rgba(0,0,0,0.1)" data-size="80" data-percent="75" data-width="7" data-animate="3000">7.5</div>
+						</div>
+					</div>
+					<div class="oc-item">
+						<a href="#"><img src="images/magazine/carousel/Central.png" alt="Image 2"></a>
+						<div class="overlay">
+							<div class="text-overlay">
+								<div class="text-overlay-title">
+									<h2>Central View</h2>
+								</div>
+								<div class="text-overlay-meta">
+									<span>Summer</span>
+								</div>
+								<a onclick="changeLinkToCentral()" class="button button-reveal button-border button-light button-small button-rounded uppercase tright noleftmargin topmargin-sm"><span>Run Simulation</span><i class="icon-angle-right"></i></a>
+							</div>
+							<div class="rounded-skill" data-color="#e74c3c" data-trackcolor="rgba(0,0,0,0.1)" data-size="80" data-percent="60" data-width="7" data-animate="3000">6.0</div>
+						</div>
+					</div>
+					<div class="oc-item">
+						<a href="#"><img src="images/magazine/carousel/North.png" alt="Image 3"></a>
+						<div class="overlay">
+							<div class="text-overlay">
+								<div class="text-overlay-title">
+									<h2>North View</h2>
+								</div>
+								<div class="text-overlay-meta">
+									<span>Summer </span>
+								</div>
+								<a onclick="changeLinkToNorth()" class="button button-reveal button-border button-light button-small button-rounded uppercase tright noleftmargin topmargin-sm"><span>Run Simulation</span><i class="icon-angle-right"></i></a>
+							</div>
+							<div class="rounded-skill" data-color="#e74c3c" data-trackcolor="rgba(0,0,0,0.1)" data-size="80" data-percent="80" data-width="7" data-animate="3000">8.0</div>
+						</div>
+					</div>
+					<div class="oc-item">
+						<a href="#"><img src="images/magazine/carousel/South.png" alt="Image 4"></a>
+						<div class="overlay">
+							<div class="text-overlay">
+								<div class="text-overlay-title">
+									<h2>South View</h2>
+								</div>
+								<div class="text-overlay-meta">
+									<span>Summer</span>
+								</div>
+								<a onclick="changeLinkToSouth()" class="button button-reveal button-border button-light button-small button-rounded uppercase tright noleftmargin topmargin-sm"><span>Run Simulation</span><i class="icon-angle-right"></i></a>
+							</div>
+							<div class="rounded-skill" data-color="#e74c3c" data-trackcolor="rgba(0,0,0,0.1)" data-size="80" data-percent="80" data-width="7" data-animate="3000">8.0</div>
+						</div>
+					</div>
+				</div>
+
+				<script type="text/javascript">
+
+					jQuery(document).ready(function($) {
+
+						var ocImages = $("#oc-images");
+
+						ocImages.owlCarousel({
+							margin: 3,
+							stagePadding: 50,
+							loop: true,
+							nav: true,
+							navText: ['<i class="icon-angle-left"></i>','<i class="icon-angle-right"></i>'],
+							dots: false,
+							responsive:{
+								0:{ items:1 },
+								1050:{ items:2 }
+							}
+						});
+
+					});
+
+				</script>
+
+				<div class="clear"></div>
+			</div>
+			<div id="frameDiv" style="display: block;text-align: center; background-color:white;" >
+				<iframe id="iframe"  width="100%" height="1000px"></iframe>
+			</div>
+		</section><!-- #content end -->
+
+		<!-- Footer
+		============================================= -->
+		<footer id="footer" class="dark">
+
+
+
+			<!-- Copyrights
+			============================================= -->
+			<div id="copyrights">
+
+				<div class="container clearfix">
+
+					<div class="col_half">
+						Copyrights &copy; 2016 All Rights Reserved by RayyanSystems.<br>
+						<div class="copyright-links"><a href="#">Terms of Use</a> / <a href="#">Privacy Policy</a></div>
+					</div>
+
+					<div class="col_half col_last tright">
+						<div class="fright clearfix">
+
+						</div>
+
+						<div class="clear"></div>
+
+						<i class="icon-envelope2"></i> info@rayyansystems.com <span class="middot">&middot;</span> <i class="icon-headphones"></i> +1 650 305 1916 <span class="middot">&middot;</span> <i class="icon-skype2"></i> RayyanOnSkype
+					</div>
+				</div>
+
+
+			</div><!-- #copyrights end -->
+
+		</footer><!-- #footer end -->
+
+	</div><!-- #wrapper end -->
+
+	<!-- Go To Top
+	============================================= -->
+	<div id="gotoTop" class="icon-angle-up"></div>
+
+	<!-- Footer Scripts
+	============================================= -->
+	<script type="text/javascript" src="js/functions.js"></script>
+    <script>
+
+	document.getElementById("frameDiv").style.display = "none";
+	var height = 0;
+
+	document.addEventListener('DOMContentLoaded', function() {
+		height = document.getElementById("carousel").offsetHeight;
+		document.getElementById('iframe').setAttribute("style","height:715px; width:780px;");
+	}, false);
+
+    function hideCarouselAndShowIframe() {
+                    document.getElementById("carousel").style.display = "none";
+					document.getElementById("frameDiv").style.display = "block";
+                }
+	function hideIframeAndShowCarousel() {
+                    document.getElementById("carousel").style.display = "block";
+					document.getElementById("frameDiv").style.display = "none";
+                }
+	function changeLinkToSouth() {
+	hideCarouselAndShowIframe();
+	document.getElementById("iframe").src = "simulation.html?SimulationType=SouthPark";
+	}
+
+	function changeLinkToNorth() {
+	hideCarouselAndShowIframe();
+	document.getElementById("iframe").src = "simulation.html?SimulationType=NorthPark";
+	}
+	function changeLinkToCentral() {
+	hideCarouselAndShowIframe();
+	document.getElementById("iframe").src = "simulation.html?SimulationType=CentralPark";
+	}
+	function changeLinkToFull() {
+	hideCarouselAndShowIframe();
+	document.location = "simulation.html?SimulationType=Full";
+	}
+	function logout() {
+          
+        document.cookie = 'user' + '=; path=/; expires=Thu, 01 Jan 1970 00:00:01 GMT;';
+        window.location = '/index.html';
+	}
+    </script>
+
+
+   
+</body>
+</html>

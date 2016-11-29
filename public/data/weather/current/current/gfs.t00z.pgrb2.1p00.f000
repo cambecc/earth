@@ -1,0 +1,3 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 3.2 Final//EN"><html><head><title>Error</title></head><body bgcolor="#ffffff"><font color=red><h2 align="center">Error</h2></font>
+<p align="center"> Filename does not match legal pattern: gfs\.t\d{2}z\.pgrbf\d{2,3}.grib2$
+<p align=left><small>g2sub 1.1.0.beta-6 and comments: Wesley.Ebisuzaki@noaa.gov, Jun.Wang@noaa.gov<br></small></body></html>

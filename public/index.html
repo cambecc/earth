@@ -1,156 +1,258 @@
-<!DOCTYPE html>
-<html itemscope itemtype="http://schema.org/Map" prefix="og: http://ogp.me/ns# fb: http://ogp.me/ns/fb#">
+<!DOCTYPE HTML>
+<!--[if lt IE 7]> <html class="no-js ie6 oldie" lang="en"> <![endif]-->
+<!--[if IE 7]>    <html class="no-js ie7 oldie" lang="en"> <![endif]-->
+<!--[if IE 8]>    <html class="no-js ie8 oldie" lang="en"> <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="de">  <!--<![endif]-->
 <head>
-    <meta charset="utf-8"/>
-    <title>earth :: an animated map of global wind and weather</title>
-    <meta itemprop="name"                                      content="earth"/>
-    <meta itemprop="description"     name="description"        content="an animated map of global wind and weather"/>
-    <meta itemprop="author"          name="author"             content="Cameron Beccario"/>
 
-    <meta property="og:type"        content="website"/>
-    <meta property="og:title"       content="earth"/>
-    <meta property="og:description" content="An animated map of global wind and weather. Visit the community at https://www.facebook.com/EarthWindMap"/>
-    <meta property="og:url"         content="http://earth.nullschool.net"/>
-    <meta property="og:image"       content="http://earth.nullschool.net/preview.jpg"/>
+	<!-- META DATA -->
+  <meta http-equiv="content-type" content="text/html;charset=UTF-8" />
+	<meta charset="UTF-8">
+	<title>Rayyan</title>
+    <meta name="description" content="A Template by RocknRolla Designs"/>
+    <meta name="keywords" content="HTML, CSS, JavaScript, PHP"/>
+    <meta name="author" content="RocknRolla Designs"/>
+	<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+       <link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
 
-    <link rel="shortcut icon" href="/favicon.ico"/>
-    <link rel="apple-touch-icon" sizes="120x120" href="/iphone-icon.png"/>
-    <link rel="apple-touch-icon" sizes="152x152" href="/ipad-icon.png"/>
-    <link rel="stylesheet" type="text/css" href="/styles/styles.css"/>
+	<!-- GOOGLE WEB FONTS INCLUDE -->
+	<link href='http://fonts.googleapis.com/css?family=Oswald|Open+Sans:400,600' rel='stylesheet' type='text/css'>
+	
+	<!-- JARVIS THEME STYLESHEETS -->
+     
+	<link rel="stylesheet" href="css/landingcss/skeleton.css" type="text/css">
+	<link rel="stylesheet" href="css/landingcss/reset.css" type="text/css">
+	<link rel="stylesheet" href="css/landingcss/style.css" type="text/css">
+	<link rel="stylesheet" href="css/landingcss/social.css" type="text/css">
+	<link rel="stylesheet" href="css/landingcss/flexslider.css" type="text/css">
+	<link rel="stylesheet" href="css/landingcss/prettyPhoto.css" type="text/css" media="screen"/><!-- PrettyPhoto -->
+	<link rel="stylesheet" href="css/landingcss/font-awesome.css" type="text/css"/><!-- PrettyPhoto -->
+	<link rel="stylesheet" href="css/landingcss/shortcodes.css" type="text/css"/>
+	<link rel="stylesheet" href="css/landingcss/media.css"><!-- Media Queries -->
+         
+    
+ 	<link id="layout_color" href="css/landingcss/light.css" rel="stylesheet" type="text/css"/>
+    <link id="primary_color_scheme" href="css/landingcss/colors/blue.css" rel="stylesheet" type="text/css"/>
+       
+    <!--[if lt IE 9]>
+	<script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+		   
+    <style>
 
-    <link rel="alternate" hreflang="x-default" href="http://earth.nullschool.net/"/>
-    <link rel="alternate" hreflang="ja" href="http://earth.nullschool.net/jp/"/>
+        p {
+            line-height: 1.3rem;
+            padding-top: 20px;
+        }
+    </style>
 </head>
-<body data-lang="en">
 
-    <!--[if lte IE 8]><p id="warn">This site requires IE9 or newer.</p><![endif]-->
+<body class="onepage" data-spy="scroll" data-target=".navigation1">
+ <div id="load"></div>
+ 
 
-    <div id="display">
-        <svg id="map" class="fill-screen" xmlns="http://www.w3.org/2000/svg" version="1.1"></svg>
-        <canvas id="animation" class="fill-screen"></canvas>
-        <canvas id="overlay" class="fill-screen"></canvas>
-        <svg id="foreground" class="fill-screen" xmlns="http://www.w3.org/2000/svg" version="1.1"></svg>
-    </div>
+    	
+    
+    <!-- START PAGE WRAP -->    
+    <div class="page-wrap" style="position: relative">
 
-    <div id="sponsor" class="invisible">
-        <p><span id="sponsor-hide" class="text-button invisible"> ✕ </span>community</p>
-        <a id="sponsor-link" href="https://www.facebook.com/EarthWindMap">EarthWindMap</a>
-    </div>
+        <!-- START NAVIGATION -->
+        <nav class="light sticky-nav navigation1"  style="opacity: 0.9 !important;">
+            <!-- START CONTAINER -->
+            <div class="container clearfix" style="background-color: transparent;">
+                <div class="four columns">
+                    <!-- START LOGO -->
+                    <div class="logo large">
+                        <a href="#summary"><img src="images/landing-logo.png" title="logo" alt="Logo"/></a>
+                    </div>
+                    <!-- END LOGO -->
+                </div><!-- END FOUR COLUMNS -->
 
-    <div id="details">
-        <p id="status"></p>
-        <div id="location">
-            <p>
-                <span id="location-coord"></span>
-                <span id="location-close" class="invisible text-button"> ✕ </span>
-            </p>
-            <p>
-                <span id="location-wind"></span>
-                <span id="location-wind-units" class="text-button"></span>
-            </p>
-            <p>
-                <span id="location-value"></span>
-                <span id="location-value-units" class="text-button"></span>
-            </p>
+
+                <div class="twelve columns">
+                    <!-- START NAVIGATION MENU ITEMS -->
+                    <ul class="main-menu large nav" id="nav">
+                        <li><a href="#mission">Mission</a></li>
+                        <li><a href="#whyus">Why US</a></li>
+                        <li><a href="#wherewecomein">Where We Come In</a></li>
+                        <li><a href="#summary">Summary</a></li>
+                        <li><a href="login.html">Sign In</a></li>
+                    </ul>
+                    <!-- END NAVIGATION MENU ITEMS -->
+                </div><!-- END TWELVE COLUMNS -->
+            </div><!-- END CONTAINER -->
+        </nav>
+        <!-- END NAVIGATION -->
+<div id="main" style="position: absolute; top:0px; width:100%;">
+
+    <!-- START SUMMARY US SECTION -->
+    <div id="mission" class="page">
+        <!-- START PARALLAX SECTION -->
+        <div id="parallax4" class="parallax">
+            <div class="bg4 parallax-bg"></div><!-- END PARALLAX BACKGROUND -->
+            <div class="container clearfix">
+                <div class="parallax-content">
+                    <p class="title" style="font-family: Gotham-Black; font-size: 56pt;  line-height: inherit;">MISSION</p>
+
+                    <div style="width: 100%; text-align: center">
+                        <div align="center" class="title" style="display:inline-block; background: white; width:90px; height: 2px;">
+                        </div>
+                    </div>
+
+                    <p style="font-family: Gotham-Light; font-size: 46pt;  line-height: inherit;">
+                        Rayyan sustainably creates oases of eternal spring living.
+                    </p>
+
+                </div><!-- END PARALLAX CONTENT -->
+            </div><!-- END CONTAINER -->
         </div>
-
-        <p id="earth">
-            <span id="show-menu" class="text-button" title="menu">earth</span>
-            <span id="progress" class="invisible"></span>
-        </p>
-
-        <div id="menu" class="invisible">
-            <p>Date | <span
-                id="data-date" class="local"></span> <span
-                id="toggle-zone" class="text-button"></span>
-            </p>
-            <p>Data | <span id="data-layer"></span></p>
-            <p><span id="scale-label">Scale | </span><canvas id="scale"></canvas></p>
-            <p>Source | <span id="data-center"></span></p>
-            <p>Control | <span
-                class="text-button" id="nav-now" title="Current Conditions">Now</span><span
-                class="text-button" id="nav-backward-more"> « </span> – <span
-                class="text-button" id="nav-backward"> ‹ </span> – <span
-                class="text-button" id="nav-forward"> › </span> – <span
-                class="text-button" id="nav-forward-more"> » </span><span
-                class="text-button" id="show-location" title="Current Position">〖◯〗</span><span
-                class="text-button" id="option-show-grid" title="Toggle Grid">Grid</span>
-            </p>
-            <p>Mode | <span
-                class="text-button" id="wind-mode-enable">Air</span> – <span
-                class="text-button" id="ocean-mode-enable">Ocean</span>
-            </p>
-            <p class="wind-mode">Height | <span
-                class="surface text-button" id="surface-level" title="Surface">Sfc</span> – <span
-                class="surface text-button" id="isobaric-1000hPa">1000</span> – <span
-                class="surface text-button" id="isobaric-850hPa">850</span> – <span
-                class="surface text-button" id="isobaric-700hPa">700</span> – <span
-                class="surface text-button" id="isobaric-500hPa">500</span> – <span
-                class="surface text-button" id="isobaric-250hPa">250</span> – <span
-                class="surface text-button" id="isobaric-70hPa">70</span> – <span
-                class="surface text-button" id="isobaric-10hPa">10</span> hPa
-            </p>
-            <p class="wind-mode">Overlay | <span
-                class="text-button" id="overlay-off">None</span> – <span
-                class="text-button" id="overlay-wind" title="Wind Speed">Wind</span> – <span
-                class="text-button" id="overlay-temp" title="Temperature">Temp</span> – <span
-                class="text-button" id="overlay-relative_humidity" title="Relative Humidity">RH</span> – <span
-                class="text-button" id="overlay-air_density" title="Air Density">AD</span> – <span
-                class="text-button" id="overlay-wind_power_density" title="Wind Power Density">WPD</span>
-            </p>
-            <p class="wind-mode"><span style="visibility:hidden">Overlay</span> | <span
-                class="text-button" id="overlay-total_precipitable_water" title="Total Precipitable Water">TPW</span> – <span
-                class="text-button" id="overlay-total_cloud_water" title="Total Cloud Water">TCW</span> – <span
-                class="text-button" id="overlay-mean_sea_level_pressure" title="Mean Sea Level Pressure">MSLP</span>
-            </p>
-            <p class="ocean-mode invisible">Animate | <span
-                class="text-button" id="animate-currents" title="Currents">Currents</span>
-            </p>
-            <p class="ocean-mode invisible">Overlay | <span
-                class="text-button" id="overlay-ocean-off">None</span> – <span
-                class="text-button" id="overlay-currents" title="Currents">Currents</span>
-            </p>
-            <p class="ocean-mode invisible"><span style="visibility:hidden">Overlay</span> |</p>
-            <p>Projection | <span
-                class="proj text-button" id="atlantis" title="Atlantis">A</span> – <span
-                class="proj text-button" id="azimuthal_equidistant" title="Azimuthal Equidistant">AE</span> – <span
-                class="proj text-button" id="conic_equidistant" title="Conic Equidistant">CE</span> – <span
-                class="proj text-button" id="equirectangular" title="Equirectangular">E</span> – <span
-                class="proj text-button" id="orthographic" title="Orthographic">O</span> – <span
-                class="proj text-button" id="stereographic" title="Stereographic">S</span> – <span
-                class="proj text-button" id="waterman" title="Waterman Butterfly">WB</span> – <span
-                class="proj text-button" id="winkel3" title="Winkel Tripel">W3</span>
-            </p>
-            <!--<p>免責事項 | 正確な情報を提供するためのものではありません</p>-->
-            <p id="lang"><a href="/jp" class="internal-link">日本語</a></p>
-            <p>
-                <a href="about.html" class="internal-link">about</a>
-                <a href="https://www.facebook.com/EarthWindMap" class="social-icon" title="Facebook">&#xe027;</a>
-                <a href="https://twitter.com/cambecc" class="social-icon" title="Twitter">&#xe086;</a>
-            </p>
-        </div>
+        <!-- END PARALLAX SECTION -->
     </div>
+    <!-- END MISSION SECTION -->
 
-    <script src="//cdnjs.cloudflare.com/ajax/libs/underscore.js/1.6.0/underscore-min.js" charset="utf-8"></script>
-    <script src="//cdnjs.cloudflare.com/ajax/libs/backbone.js/1.1.0/backbone-min.js" charset="utf-8"></script>
-    <script src="//cdnjs.cloudflare.com/ajax/libs/topojson/1.1.0/topojson.min.js" charset="utf-8"></script>
-    <script src="//cdnjs.cloudflare.com/ajax/libs/d3/3.3.10/d3.min.js" charset="utf-8"></script>
 
-<!--
-    <script src="/libs/underscore.js/1.6.0/underscore.js" charset="utf-8"></script>
-    <script src="/libs/backbone.js/1.1.0/backbone.js" charset="utf-8"></script>
-    <script src="/libs/topojson/1.1.0/topojson.js" charset="utf-8"></script>
-    <script src="/libs/d3/3.3.10/d3.js" charset="utf-8"></script>
--->
+        <!-- START WHY US SECTION -->
+        <div id="whyus" class="page">
+	<!-- START PARALLAX SECTION -->
+        <div id="parallax2" class="parallax">
+            <div class="bg2 parallax-bg"></div><!-- END PARALLAX BACKGROUND -->
+            <div class="container clearfix">
+                <div class="parallax-content">
+                    <p class="title" style="font-family: Gotham-Black; font-size: 56pt;  line-height: inherit;">WHY US</p>
 
-    <script src="/libs/d3.geo/0.0.0/d3.geo.projection.v0.min.js" charset="utf-8"></script>
-    <script src="/libs/d3.geo/0.0.0/d3.geo.polyhedron.v0.min.js" charset="utf-8"></script>
-    <script src="/libs/when/2.6.0/when.js" charset="utf-8"></script>
+                    <div style="width: 100%; text-align: center">
+                        <div align="center" class="title" style="display:inline-block; background: white; width:90px; height: 2px;">
+                        </div>
+                    </div>
 
-    <script src="/libs/earth/1.0.0/micro.js" charset="utf-8"></script>
-    <script src="/libs/earth/1.0.0/globes.js" charset="utf-8"></script>
-    <script src="/libs/earth/1.0.0/products.js" charset="utf-8"></script>
-    <script src="/libs/earth/1.0.0/earth.js" charset="utf-8"></script>
+                    <p style="font-family: Gotham-Light; font-size: 13pt;">
+                        Rayyan has a patented technology and architecture that is the result of years of research in microclimate, green architecture, and distributed controls systems. We have partnered with leading technology, energy, and construction firms to ensure the best execution and results of the project.
 
+                        Our Smart Oasis Architecture allows the creation of an open-air controlled microclimate on an area of up to 10 squared Km. The weather and experience in the oasis includes everything from the cool breeze to the greenery and water that gives a higher quality of life. As the weather, temperature, and wind outside the oasis change, the dynamic control system reacts in real time to keep the optimal experience. All of this is done in the most sustainable and energy efficient manner possible, helping us have a greener world too.
+                    </p>
+
+                </div><!-- END PARALLAX CONTENT -->
+            </div><!-- END CONTAINER -->
+        </div>
+    <!-- END PARALLAX SECTION -->
+	</div>
+        <!-- END WHY US SECTION -->
+
+
+
+        <!-- START WHERE WE COME IN SECTION -->
+        <div id="wherewecomein" class="page">
+	<!-- START PARALLAX SECTION -->
+        <div id="parallax3" class="parallax">
+            <div class="bg1 parallax-bg"></div><!-- END PARALLAX BACKGROUND -->
+            <div class="container clearfix">
+                <div class="parallax-content">
+                    <p class="title" style="font-family: Gotham-Black; font-size: 56pt;  line-height: inherit;">WHERE WE COME IN</p>
+
+                    <div style="width: 100%; text-align: center">
+                    <div align="center" class="title" style="display:inline-block; background: white; width:90px; height: 2px;">
+                    </div>
+                    </div>
+
+                    <p style="font-family: Gotham-Light; font-size: 13pt;">
+                        There are three places where Rayyan adds value to a development project
+
+                    </p>
+
+                    <div style="width: 100%; text-align: center">
+                        <div style="display: inline-block;" class="numberCircle">1</div>
+                    </div>
+
+                    <p style="font-family: Gotham-Light; font-size: 13pt;">
+                        At the design/early implementation phase: Here Rayyan would create the architecture and the design of the Smart Oasis and integrate it into the plan. This is a collaborative effort with the developer.
+
+                    </p>
+                    <div style="width: 100%; text-align: center">
+                    <div class="numberCircle" style="display: inline-block;">2</div>
+                    </div>
+                    <p style="font-family: Gotham-Light; font-size: 13pt;">
+                        During the implementation phase, Rayyan offers the construction partners software tools and expert support to ensure the system is implemented within spec. We also bring in our partners who have experience in creating several parts of the system.
+
+                    </p>
+                    <div style="width: 100%; text-align: center">
+                    <div class="numberCircle" style="display: inline-block;">3</div>
+                        </div>
+                    <p style="font-family: Gotham-Light; font-size: 13pt;">
+                        During the life of the project, Rayyan provides the management, updates, maintenance, and support of the system. This includes running the real time distributed control system to react to the changing weather in the surroundings.
+                    </p>
+
+                </div><!-- END PARALLAX CONTENT -->
+            </div><!-- END CONTAINER -->
+        </div>
+  <!-- END PARALLAX SECTION -->
+	</div>
+        <!--END WHERE WE COME SECTION -->
+
+
+
+
+
+    <!-- START SUMMARY SECTION -->
+    <div id="summary" class="page">
+        <!-- START PARALLAX SECTION -->
+        <div id="parallax1" class="parallax">
+            <div class="bg3 parallax-bg"></div><!-- END PARALLAX BACKGROUND -->
+            <div class="container clearfix">
+                <div class="parallax-content">
+                    <p class="title" style="font-family: Gotham-Black; font-size: 56pt; line-height: inherit;">SUMMARY</p>
+
+                    <div style="width: 100%; text-align: center">
+                        <div align="center" class="title" style="display:inline-block; background: white; width:90px; height: 2px;">
+                        </div>
+                    </div>
+
+                    <p style="font-family: Gotham-Light; font-size: 13pt;">
+                        Nature has an almost magical way to create oases in the midst of extremely harsh environments, and to create microclimates where the temperature can fall more than 35 degrees Celsius by moving less than a kilometer. What if we study the way nature creates those oases and microclimates, optimize it, and use it to create a comfortable, controlled outdoors experience? The value is tremendous, affecting everything from lifestyle and culture to tourism and business. This is the technology that Rayyan has developed in stealth mode over the last five years.
+
+                        As the pioneering company in creating smart microclimates, Rayyan has created the technology that helps create a dynamic outdoors oasis in an area up to 10 squared kilometers. This oasis can be 25 degrees Celsius cooler than the area surrounding it, and will have moderate humidity and breeze.
+
+                        With global warming effects looming, a green, sustainable, and scalable solution for outdoor climate control is starting to be an important part of urban and city planning. Rayyan’s leading architecture and technology puts it at the pivot of leading this change in how we design our living environments.
+
+                        Rayyan’s technology is best integrated in the early stages of an urban project, but can be integrated later. It is 93% more efficient than “traditional” solutions in indoors areas, and is the only sustainable outdoors microclimate solution.
+                    </p>
+
+                </div><!-- END PARALLAX CONTENT -->
+            </div><!-- END CONTAINER -->
+        </div>
+        <!-- END PARALLAX SECTION -->
+    </div>
+    <!-- END SUMMARY SECTION -->
+
+</div>
+	
+   </div><!-- END PAGE WRAP --><div id="back-to-top"><a href="#">Back to Top</a></div>
+   
+
+           
+
+	<!-- JARVIS THEME SCRIPTS -->
+    <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.8.2/jquery.min.js"></script>         
+    <!--<script type="text/javascript" src="js/jquery.tweet.js"></script>-->         
+    <script type="text/javascript" src="js/landing/jquery.form.js"></script>
+	<script type="text/javascript" src="js/landing/jquery.queryloader2.js"></script>
+    <script type="text/javascript" src="js/landing/modernizr-2.6.2.min.js"></script>
+    <script type="text/javascript" src="js/landing/jquery.fitvids.js"></script>
+    <script type="text/javascript" src="js/landing/jquery.appear.js"></script>
+    <script type="text/javascript" src="js/landing/jquery.slabtext.min.js"></script>
+    <script type="text/javascript" src="js/landing/jquery.fittext.js"></script>
+	<script type="text/javascript" src="js/landing/jquery.easing.min.js"></script>
+	<script type="text/javascript" src="js/landing/jquery.parallax-1.1.3.js"></script>
+	<script type="text/javascript" src="js/landing/jquery.prettyPhoto.js"></script>
+	<script type="text/javascript" src="js/landing/jquery.sticky.js"></script>
+	<script type="text/javascript" src="js/landing/selectnav.min.js"></script>
+    <script type="text/javascript" src="js/landing/SmoothScroll.js"></script>
+    <script type="text/javascript" src="js/landing/jquery.flexslider-min.js"></script>
+    <script type="text/javascript" src="js/landing/isotope.js"></script>
+    <script type="text/javascript" src="js/landing/bootstrap-modal.js"></script>
+    <script type="text/javascript" src="js/landing/shortcodes.js"></script>
+	<script type="text/javascript" src="js/landing/scripts.js"></script>
+                   
+  	
 </body>
+
 </html>

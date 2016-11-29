@@ -1,0 +1,113 @@
+
+/*========== B A C K G R O U N D    S K I N S =============*/
+.page,
+.subtitle p,
+.rnr-icon-middle,
+.member .member-details,
+.service-box,
+.fancy-header span,
+.team-member .team-desc,
+.img-overlay,
+.modal-backdrop,
+.tab a {
+	background-color:#0f0f0f;	
+}
+
+input[type="text"], 
+input[type="password"], 
+input[type="email"], 
+textarea, 
+select,
+.social-icon {
+	background-color:#191919 !important;	
+}
+
+.fullwidth.grey,
+#ajax-section,
+.accordion .accordion-title a,
+.toggle .toggle-title .title-name,
+.callout,
+.parallax,
+.tab a.selected,
+.tab a:hover {
+    background: #181818;
+    background-color: rgba(255, 255, 255, 0.02);
+}
+
+
+input[type="text"], 
+input[type="password"], 
+input[type="email"], 
+textarea, 
+select {
+	-webkit-box-shadow:none;
+	-moz-box-shadow:none;
+	box-shadow:none;
+}
+
+
+
+
+/*========== C O L O R    S K I N S =============*/
+.page, 
+.post-title a, 
+.pages li a ,
+.pages li a.current ,
+.tags-list li a,
+.main-menu a {
+	color:#A2ABB6;
+}
+
+
+.title h1 {
+	color:#0F0F0F;
+}
+
+
+
+/*========== B O R D E R    S K I N S =============*/
+
+.subtitle:after,
+.fancy-header:after,
+.fancy-header span,
+.rnr-icon-middle,
+.member .member-details,
+.service-box,
+.project-details p,
+input[type="text"], 
+input[type="password"], 
+input[type="email"], 
+textarea, 
+select,
+blockquote p,
+.member p.role,
+#contact-input input,
+#contact-textarea textarea,
+.post-meta,
+.pagination ,
+.tags-list li, 
+#blog-author,
+.commentlist .the-comment,
+#comment-input input,
+#comment-textarea textarea,
+.title h1,
+.client-logos,
+.service-box,
+.team-member .team-desc,
+.member-role,
+.service-box .service-icon,
+.accordion .accordion-title,
+.accordion .accordion-inner,
+.toggle .toggle-title,
+.toggle .toggle-inner,
+.panel,
+.tab a,
+.tab a.selected {
+	border-color:#1a1a1a;
+}
+
+.service-box ul li {
+	border-color:rgba(255,255,255,0.04)
+}
+
+

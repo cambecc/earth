@@ -1,0 +1,220 @@
+/*-----------------------------------------------------------------------------------
+
+	topbar.css
+
+-----------------------------------------------------------------------------------*/
+
+
+/* ----------------------------------------------------------------
+	Top Bar
+-----------------------------------------------------------------*/
+
+
+#top-bar {
+	position: relative;
+	border-bottom: 1px solid #EEE;
+	height: 45px;
+	line-height: 44px;
+	font-size: 13px;
+}
+
+
+#top-bar .col_half { width: auto; }
+
+
+/* ----------------------------------------------------------------
+	Top Links
+-----------------------------------------------------------------*/
+
+
+.top-links {
+	position: relative;
+	float: left;
+}
+
+.top-links ul {
+	margin: 0;
+	list-style: none;
+}
+
+.top-links ul li {
+	float: left;
+	position: relative;
+	height: 44px;
+	border-left: 1px solid #EEE;
+}
+
+.top-links ul li:first-child,
+.top-links ul ul li { border-left: 0 !important; }
+
+.top-links li > a {
+	display: block;
+	padding: 0 12px;
+	font-size: 12px;
+	font-weight: 600;
+	text-transform: uppercase;
+	height: 44px;
+	color: #666;
+}
+
+.top-links li i {
+	position: relative;
+	top: 1px;
+}
+
+.top-links li i.icon-angle-down { margin: 0 0 0 5px !important; }
+
+.top-links li i:first-child { margin-right: 2px; }
+
+.top-links li.full-icon i {
+	top: 2px;
+	font-size: 14px;
+	margin: 0;
+}
+
+.top-links li:hover { background-color: #EEE; }
+
+.top-links ul ul,
+.top-links ul div.top-link-section {
+	display: none;
+	pointer-events: none;
+	position: absolute;
+	z-index: 210;
+	line-height: 1.5;
+	background: #FFF;
+	border: 0;
+	top: 44px;
+	left: 0;
+	width: 140px;
+	margin: 0;
+	border-top: 1px solid #1ABC9C;
+	border-bottom: 1px solid #EEE;
+	box-shadow: 0 0 5px -1px rgba(0,0,0,0.2);
+	-moz-box-shadow: 0 0 5px -1px rgba(0,0,0,0.2);
+	-webkit-box-shadow: 0 0 5px -1px rgba(0,0,0,0.2);
+}
+
+.top-links li:hover ul,
+.top-links li:hover div.top-link-section { pointer-events: auto; }
+
+.top-links ul ul li {
+	float: none;
+	height: 36px;
+	border-top: 1px solid #F5F5F5;
+	border-left: 1px solid #EEE;
+}
+
+.top-links ul ul li:hover { background-color: #F9F9F9; }
+
+.top-links ul ul li:first-child {
+	border-top: none !important;
+	border-left: 1px solid #EEE;
+}
+
+.top-links ul ul a {
+	height: 36px;
+	line-height: 36px;
+	font-size: 12px;
+}
+
+.top-links ul ul img {
+	display: inline-block;
+	position: relative;
+	top: -1px;
+	width: 16px;
+	height: 16px;
+	margin-right: 4px;
+}
+
+.top-links ul ul.top-demo-lang img {
+	top: 4px;
+	width: 16px;
+	height: 16px;
+}
+
+.top-links ul div.top-link-section {
+	padding: 25px;
+	left: 0;
+	width: 280px;
+}
+
+.fright .top-links ul div.top-link-section,
+.top-links.fright ul div.top-link-section {
+	left: auto;
+	right: 0;
+}
+
+
+/* ----------------------------------------------------------------
+	Top Social
+-----------------------------------------------------------------*/
+
+#top-social,
+#top-social ul { margin: 0; }
+
+#top-social li,
+#top-social li a,
+#top-social li .ts-icon,
+#top-social li .ts-text {
+	display: block;
+	position: relative;
+	float: left;
+	width: auto;
+	overflow: hidden;
+	height: 44px;
+	line-height: 44px;
+}
+
+#top-social li { border-left: 1px solid #EEE; }
+
+#top-social li:first-child { border-left: 0 !important; }
+
+#top-social li a {
+	float: none;
+	width: 40px;
+	font-weight: bold;
+	color: #666;
+	-webkit-transition: color .3s ease-in-out, background-color .3s ease-in-out, width .3s ease-in-out;
+	-o-transition: color .3s ease-in-out, background-color .3s ease-in-out, width .3s ease-in-out;
+	transition: color .3s ease-in-out, background-color .3s ease-in-out, width .3s ease-in-out;
+}
+
+#top-social li a:hover {
+	color: #FFF !important;
+	text-shadow: 1px 1px 1px rgba(0,0,0,0.2);
+}
+
+#top-social li .ts-icon {
+	width: 40px;
+	text-align: center;
+	font-size: 14px;
+}
+
+
+/* ----------------------------------------------------------------
+	Top Login
+-----------------------------------------------------------------*/
+
+#top-login { margin-bottom: 0; }
+
+#top-login .checkbox { margin-bottom: 10px; }
+
+#top-login .form-control { position: relative; }
+
+#top-login .form-control:focus { border-color: #CCC; }
+
+#top-login .input-group#top-login-username { margin-bottom: -1px; }
+
+#top-login #top-login-username input,
+#top-login #top-login-username .input-group-addon {
+	border-bottom-right-radius: 0;
+	border-bottom-left-radius: 0;
+}
+
+#top-login .input-group#top-login-password { margin-bottom: 10px; }
+
+#top-login #top-login-password input,
+#top-login #top-login-password .input-group-addon {
+	border-top-left-radius: 0;
+	border-top-right-radius: 0;
+}

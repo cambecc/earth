@@ -1,0 +1,264 @@
+
+/*-----------------------------------------------------------------------------------
+
+    Shortcodes: headings.css
+
+-----------------------------------------------------------------------------------*/
+
+
+/* ----------------------------------------------------------------
+	Heading Styles
+-----------------------------------------------------------------*/
+
+
+/* Block Titles
+-----------------------------------------------------------------*/
+
+.title-block {
+	padding: 2px 0 3px 20px;
+	border-left: 7px solid #1ABC9C;
+	margin-bottom: 30px;
+}
+
+.title-block-right {
+	padding: 2px 20px 3px 0;
+	border-left: 0;
+	border-right: 7px solid #1ABC9C;
+	text-align: right;
+}
+
+.title-block h1,
+.title-block h2,
+.title-block h3,
+.title-block h4 { margin-bottom: 0; }
+
+.title-block > span {
+	display: block;
+	margin-top: 4px;
+	color: #555;
+	font-weight: 300;
+}
+
+.title-block h1 + span { font-size: 22px; }
+
+.title-block h2 + span { font-size: 19px; }
+
+.title-block h3 + span { font-size: 17px; }
+
+.title-block h4 + span {
+	font-size: 15px;
+	margin-top: 3px;
+}
+
+
+/* Heading Block - with Subtitle
+-----------------------------------------------------------------*/
+
+.heading-block { margin-bottom: 50px; }
+
+.heading-block h1,
+.heading-block h2,
+.heading-block h3,
+.heading-block h4,
+.emphasis-title h1,
+.emphasis-title h2 {
+	margin-bottom: 0;
+	font-weight: 700;
+	text-transform: uppercase;
+	letter-spacing: 1px;
+	color: #333;
+}
+
+.emphasis-title h1,
+.emphasis-title h2 {
+	font-weight: 400;
+	letter-spacing: 0;
+	text-transform: none;
+}
+
+.heading-block h1 { font-size: 32px; }
+
+.heading-block h2 { font-size: 30px; }
+
+.heading-block h3 { font-size: 26px; }
+
+.heading-block h4 {
+	font-size: 20px;
+	font-weight: 700;
+}
+
+.heading-block > span:not(.before-heading) {
+	display: block;
+	margin-top: 10px;
+	font-weight: 300;
+	color: #777;
+}
+
+.heading-block .before-heading { margin-bottom: 7px; }
+
+.heading-block.center > span,
+.heading-block.title-center > span,
+.center .heading-block > span {
+	max-width: 700px;
+	margin-left: auto;
+	margin-right: auto;
+}
+
+.heading-block h1 + span { font-size: 24px; }
+
+.heading-block h2 + span { font-size: 22px; }
+
+.heading-block h3 + span,
+.heading-block h4 + span { font-size: 20px; }
+
+.heading-block ~ p:not(.lead) { font-size: 15px; }
+
+.heading-block:after {
+	content: '';
+	display: block;
+	margin-top: 30px;
+	width: 40px;
+	border-top: 2px solid #444;
+}
+
+.center .heading-block:after,
+.heading-block.center:after,
+.heading-block.title-center:after { margin: 30px auto 0; }
+
+.tright .heading-block,
+.heading-block.tright,
+.heading-block.title-right { direction: rtl; }
+
+.heading-block.noborder:after,
+.heading-block.nobottomborder:after { display: none; }
+
+.heading-block.border-color:after { border-color: #1ABC9C; }
+
+
+/* Emphasis Title
+-----------------------------------------------------------------*/
+
+.emphasis-title { margin: 0 0 50px; }
+
+.emphasis-title h1,
+.emphasis-title h2 {
+	font-size: 64px;
+	letter-spacing: -2px;
+}
+
+.emphasis-title h1 strong,
+.emphasis-title h2 strong { font-weight: 700; }
+
+
+/* Justify Border Title
+-----------------------------------------------------------------*/
+
+.fancy-title {
+	position: relative;
+	margin-bottom: 30px;
+}
+
+.fancy-title h1,
+.fancy-title h2,
+.fancy-title h3,
+.fancy-title h4,
+.fancy-title h5,
+.fancy-title h6 {
+	position: relative;
+	display: inline-block;
+	background-color: #FFF;
+	padding-right: 15px;
+	margin-bottom: 0;
+}
+
+.fancy-title h4,
+.fancy-title h5,
+.fancy-title h6 { padding-right: 10px; }
+
+.fancy-title.title-double-border:before,
+.fancy-title.title-border:before,
+.fancy-title.title-border-color:before {
+	content: '';
+	position: absolute;
+	width: 100%;
+	height: 0;
+	border-top: 3px double #E5E5E5;
+	left: auto;
+	top: 46%;
+	right: 0;
+}
+
+.fancy-title.title-border:before {
+	top: 49%;
+	border-top: 1px solid #EEE;
+}
+
+.fancy-title.title-border-color:before {
+	top: 49%;
+	border-top: 1px solid #1ABC9C;
+	opacity: 0.6;
+}
+
+
+/* Fancy Title - Center Align
+-----------------------------------------------------------------*/
+
+.title-center { text-align: center; }
+
+.title-center h1,
+.title-center h2,
+.title-center h3 { padding: 0 15px; }
+
+.title-center h4,
+.title-center h5,
+.title-center h6 { padding: 0 10px; }
+
+
+/* Fancy Title - Right Align
+-----------------------------------------------------------------*/
+
+.title-right { text-align: right; }
+
+.title-right h1,
+.title-right h2,
+.title-right h3 { padding: 0 0 0 15px; }
+
+.title-right h4,
+.title-right h5,
+.title-right h6 { padding: 0 0 0 10px; }
+
+
+/* Fancy Title - Bottom Short Border
+-----------------------------------------------------------------*/
+
+.fancy-title.title-bottom-border h1,
+.fancy-title.title-bottom-border h2,
+.fancy-title.title-bottom-border h3,
+.fancy-title.title-bottom-border h4,
+.fancy-title.title-bottom-border h5,
+.fancy-title.title-bottom-border h6 {
+	display: block;
+	background: transparent;
+	padding: 0 0 10px;
+	border-bottom: 2px solid #1ABC9C;
+}
+
+
+/* Fancy Title - Bottom Short Border
+-----------------------------------------------------------------*/
+
+.fancy-title.title-dotted-border { background: url('../../../images/icons/dotted.png') repeat-x center; }
+
+
+/* Sub Heading
+-----------------------------------------------------------------*/
+
+.before-heading {
+	display: block;
+	margin: 0 0 5px;
+	font-size: 16px;
+	font-family: 'Crete Round', serif;
+	font-style: italic;
+	font-weight: 400;
+	color: #999;
+}

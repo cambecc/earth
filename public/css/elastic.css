@@ -1,0 +1,133 @@
+.ei-slider{
+	position: relative;
+	width: 100%;
+	max-width: 1920px;
+	height: 500px;
+	margin: 0 auto;
+}
+.ei-slider-loading{
+	width: 100%;
+	height: 100%;
+	position: absolute;
+	top: 0px;
+	left: 0px;
+	z-index:20;
+	background: transparent url("../images/preloader.gif") no-repeat center center;
+	color: #fff;
+	text-align: center;
+	line-height: 500px;
+	text-indent: -9999px;
+}
+.ei-slider-large{
+	height: 100%;
+	width: 100%;
+	position:relative;
+	overflow: hidden;
+    margin: 0;
+}
+.ei-slider-large li{
+	position: absolute;
+	top: 0px;
+	left: 0px;
+	overflow: hidden;
+	height: 100%;
+	width: 100%;
+}
+.ei-slider-large li img{
+	width: 100%;
+	margin: 0 !important;
+}
+.ei-title{
+	position: absolute;
+	right: 50%;
+	margin-right: 7%;
+	top: 35%;
+    max-width: 500px;
+}
+.ei-title h2, .ei-title h3{
+	text-align: right;
+    display: block;
+    position: relative;
+}
+
+.ei-title h2,
+.ei-title h3 {
+    display: block;
+    position: relative;
+    padding: 0;
+    color: #222;
+}
+
+.ei-title h2 span,
+.ei-title h3 span {
+    display: inline-block;
+    font-size: 44px;
+    color: #222;
+    font-weight: 700;
+}
+.ei-title h2 span {
+	line-height: 1.1;
+	text-transform: uppercase;
+}
+.ei-title h3 span {
+    font-size: 22px;
+    font-weight: 300;
+}
+.ei-slider-thumbs{
+	height: 4px;
+	margin: 0 auto;
+	position: relative;
+	top: -34px;
+}
+.ei-slider-thumbs li{
+	position: relative;
+	float: left;
+	height: 100%;
+	z-index: 14;
+	padding: 0 2px;
+}
+.ei-slider-thumbs li.ei-slider-element{
+	top: 0px;
+	left: 0px;
+	position: absolute;
+	height: 100%;
+	z-index: 15;
+	text-indent: -9000px;
+	background: #1E73BE;
+}
+.ei-slider-thumbs li a {
+	display: block;
+	text-indent: -9000px;
+	background: rgba(255,255,255,0.9);
+	width: 100%;
+	height: 100%;
+	cursor: pointer;
+	-webkit-transition: background 0.2s ease;
+    -moz-transition: background 0.2s ease;
+    -o-transition: background 0.2s ease;
+    -ms-transition: background 0.2s ease;
+    transition: background 0.2s ease;
+}
+.ei-slider-thumbs li a:hover{
+	background-color: #f0f0f0;
+}
+.ei-slider-thumbs li img{
+	position: absolute;
+	bottom: 50px;
+	opacity: 0;
+	z-index: 16;
+	width: 100%;
+	padding-right: 4px;
+	-webkit-transition: all 0.4s ease;
+    -moz-transition: all 0.4s ease;
+    -o-transition: all 0.4s ease;
+    -ms-transition: all 0.4s ease;
+    transition: all 0.4s ease;
+}
+
+
+.ei-slider-thumbs li:hover img {
+	opacity: 1;
+	bottom: 4px;
+	-ms-filter: "progid:DXImageTransform.Microsoft.Alpha(Opacity=100)";
+}

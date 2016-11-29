@@ -1,0 +1,138 @@
+﻿<!DOCTYPE html>
+
+<html dir="ltr" lang="en-US">
+<head>
+
+	<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+	<meta name="author" content="SemiColonWeb" />
+
+	<!-- Stylesheets
+	============================================= -->
+	<link href="http://fonts.googleapis.com/css?family=Lato:300,400,400italic,600,700|Raleway:300,400,500,600,700|Crete+Round:400italic" rel="stylesheet" type="text/css" />
+	<link rel="stylesheet" href="css/bootstrap.css" type="text/css" />
+	<link rel="stylesheet" href="style.css" type="text/css" />
+	<link rel="stylesheet" href="css/dark.css" type="text/css" />
+	<link rel="stylesheet" href="css/font-icons.css" type="text/css" />
+	<link rel="stylesheet" href="css/animate.css" type="text/css" />
+	<link rel="stylesheet" href="css/magnific-popup.css" type="text/css" />
+
+	<link rel="stylesheet" href="css/responsive.css" type="text/css" />
+	<meta name="viewport" content="width=device-width, initial-scale=1" />
+	<!--[if lt IE 9]>
+		<script src="http://css3-mediaqueries-js.googlecode.com/svn/trunk/css3-mediaqueries.js"></script>
+	<![endif]-->
+
+	<!-- Document Title
+	============================================= -->
+	<title>Rayyan</title>
+    
+    <script type="text/javascript">
+        function validateUser( )
+        {
+           //var text = require('data\\users.json');
+           // var md5 = require('node_modules\\js-md5\\src\\md5.js');
+            //
+            $("#login-form").submit(function (e) {
+                // alert('submit intercepted');
+
+
+                $.getJSON("data/users.json", function (data) {
+
+                }).done(function (data) {
+                    var items = [];
+                    //toastr.warning("Items--" + items[1]);
+                    var docname = md5(document.getElementById("login-form-username").value);
+                    var docpass = md5(document.getElementById("login-form-password").value);
+                    var valid = false;
+                    $.each(data, function (key, val) {
+                        items.push(val);
+
+                    });
+                    $.each(items, function(key,val){
+                        console.log(val.user);
+                        //toastr.info("docpass: " + docpass);
+                        if (docname == val.user && docpass == val.pass) {
+                            // toastr.warning("valid");
+                            // window.open("home.html");
+                            setCookie('user', val.user);
+                            setCookie('pass', val.pass);
+valid = true;
+                            window.open(val.url, '_self', false);
+                        } else {
+                          valid=false;
+                        }
+                    });
+                   if(!valid)
+                   {
+                       e.preventDefault(e);
+                       toastr.clear();
+                       toastr.error("Wrong user/password");
+                       return false;
+                   }
+
+                });
+
+
+              
+                return false;
+            });
+           
+            
+
+        }
+        var today = new Date();
+        var expiry = new Date(today.getTime() + 30 * 24 * 3600 * 1000); // plus 30 days
+
+        function setCookie(name, value) {
+            document.cookie = name + "=" + escape(value) + "; path=/; expires=" + expiry.toGMTString();
+        }
+    </script>
+</head>
+
+<body class="stretched"  style=" background-image: url('images/about/parallax.jpg');
+		 background-size: cover;">
+    <!---->
+    <div id="logo" style="position: absolute !IMPORTANT;z-index: 9999;left:15px;top: 15px;">
+        <img src="images/rayyan_logo.png" style="width:75%; height:25%" >
+    </div>
+    <div style="display: flex; align-items: center; height: 100vh">
+        <div style="width: 100%;text-align: center;">
+    <form id="login-form" name="login-form" class="nobottommargin" method="post"><!--//action="http://localhost:8080/authenticate"-->
+
+
+        <div align="center">
+            <p align="center" style="margin-bottom: 0; font-family: Gotham-Black; font-size: 32pt; font-weight: normal; color:white;">VIEW YOUR PROJECTS</p>
+
+            <div class="row" style="width: 510px;">
+                <div class="col-md-5">
+                    <!--<label for="login-form-username">Username:</label>-->
+                    <input type="text"  value="USERNAME" id="login-form-username" name="username" value="" class="form-control"  style="font-family: Gotham-Black; font-size: 9pt; font-weight: normal; color:white;"  onblur="if(this.value==''){this.value='USERNAME';this.type='text'}" onfocus="this.value='';" required>
+
+                </div>
+                <div class="col-md-5">
+                    <!--<label for="login-form-password">Password:</label>-->
+                    <input type="text" value="PASSWORD" id="login-form-password" name="password" value="" class="form-control" style="font-family: Gotham-Black; font-size: 9pt; font-weight: normal; color:white;" onblur="if(this.value==''){this.value='PASSWORD';this.type='text'}" onfocus="this.value='';this.type='password';" required>
+
+                </div>
+                <div class="col-md-2">
+                    <button class="button" id="login-form-submit" name="login-form-submit" value="login" style="font-family: 'Gotham Black'; font-size: 9pt; font-weight: normal; color:white; background-color: transparent; border:1px solid;border-radius: 3px;" onclick="validateUser()">GO</button>
+                </div>
+            </div>
+        </div>
+    </form>
+        </div>
+    </div>
+
+	<!-- External JavaScripts
+	============================================= -->
+	<script type="text/javascript" src="js/jquery.js"></script>
+	<script type="text/javascript" src="js/plugins.js"></script>
+    <script type="text/javascript" src="js/md5.js"></script>
+  
+
+	<!-- Footer Scripts
+	============================================= -->
+	<script type="text/javascript" src="js/functions.js"></script>
+
+</body>
+</html>

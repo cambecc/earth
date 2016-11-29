@@ -1,0 +1,72 @@
+
+/*-----------------------------------------------------------------------------------
+
+    Shortcodes: process-steps.css
+
+-----------------------------------------------------------------------------------*/
+
+
+/* ----------------------------------------------------------------
+	Process Steps
+-----------------------------------------------------------------*/
+
+.process-steps {
+	margin: 0 0 40px;
+	list-style: none;
+}
+
+.process-steps li {
+	float: left;
+	position: relative;
+	width: 25%;
+	text-align: center;
+	overflow: hidden;
+}
+
+.process-steps.process-2 li { width: 50%; }
+.process-steps.process-3 li { width: 33.33%; }
+.process-steps.process-5 li { width: 20%; }
+
+.process-steps li .i-circled { margin-bottom: 0 !important; }
+
+.process-steps li .i-bordered { background-color: #FFF; }
+
+.process-steps li h5 {
+	margin: 15px 0 0 0;
+	font-size: 16px;
+	font-weight: 300;
+}
+
+.process-steps li.active h5,
+.process-steps li.ui-tabs-active h5 {
+	font-weight: 600;
+	color: #1ABC9C;
+}
+
+.process-steps li.active a,
+.process-steps li.ui-tabs-active a {
+	background-color: #1ABC9C !important;
+	color: #FFF;
+	text-shadow: 1px 1px 1px rgba(0,0,0,0.2);
+	border-color: #1ABC9C !important;
+}
+
+.process-steps li:before,
+.process-steps li:after {
+	content: '';
+	position: absolute;
+	top: 30px;
+	left: 0;
+	margin-left: -26px;
+	width: 50%;
+	border-top: 1px dashed #DDD;
+}
+
+.process-steps li:after {
+	left: auto;
+	right: 0;
+	margin: 0 -26px 0 0;
+}
+
+.process-steps li:first-child:before,
+.process-steps li:last-child:after { display: none; }

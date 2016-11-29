@@ -5,3 +5,4 @@ target
 scratch
 private
 *.iml
+public/libs/earth/1.0.0/config.js

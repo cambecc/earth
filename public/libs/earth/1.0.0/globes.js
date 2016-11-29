@@ -32,8 +32,8 @@ var globes = function() {
         var lowerRight = bounds[1];
         var x = Math.max(Math.floor(ensureNumber(upperLeft[0], 0)), 0);
         var y = Math.max(Math.floor(ensureNumber(upperLeft[1], 0)), 0);
-        var xMax = Math.min(Math.ceil(ensureNumber(lowerRight[0], view.width)), view.width - 1);
-        var yMax = Math.min(Math.ceil(ensureNumber(lowerRight[1], view.height)), view.height - 1);
+        var xMax = Math.min(Math.ceil(ensureNumber(lowerRight[0], SolomonWidth)), SolomonWidth - 1);
+        var yMax = Math.min(Math.ceil(ensureNumber(lowerRight[1], SolomonHeight)), SolomonHeight - 1);
         return {x: x, y: y, xMax: xMax, yMax: yMax, width: xMax - x + 1, height: yMax - y + 1};
     }
 
@@ -74,7 +74,7 @@ var globes = function() {
                 var bounds = d3.geo.path().projection(defaultProjection).bounds({type: "Sphere"});
                 var hScale = (bounds[1][0] - bounds[0][0]) / defaultProjection.scale();
                 var vScale = (bounds[1][1] - bounds[0][1]) / defaultProjection.scale();
-                return Math.min(view.width / hScale, view.height / vScale) * 0.9;
+                return Math.min(SolomonWidth / hScale, SolomonHeight / vScale) * 0.9;
             },
 
             /**
@@ -82,7 +82,7 @@ var globes = function() {
              * @returns {Array} the projection transform at which the globe is centered within the specified view.
              */
             center: function(view) {
-                return [view.width / 2, view.height / 2];
+                return [SolomonWidth/ 2, SolomonHeight/ 2];
             },
 
             /**
@@ -224,7 +224,7 @@ var globes = function() {
                 return d3.geo.conicEquidistant().rotate(currentPosition()).precision(0.1);
             },
             center: function(view) {
-                return [view.width / 2, view.height / 2 + view.height * 0.065];
+                return [SolomonWidth / 2, SolomonHeight / 2 + SolomonHeight * 0.065];
             }
         });
     }
@@ -288,7 +288,7 @@ var globes = function() {
                     .rotate([-43, -20])
                     .precision(1.0)
                     .clipAngle(180 - 0.0001)
-                    .clipExtent([[0, 0], [view.width, view.height]]);
+                    .clipExtent([[0, 0], [SolomonWidth, SolomonHeight]]);
             }
         }, view);
     }

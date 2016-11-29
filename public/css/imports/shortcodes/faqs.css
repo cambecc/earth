@@ -1,0 +1,42 @@
+
+/*-----------------------------------------------------------------------------------
+
+    Shortcodes: faqs.css
+
+-----------------------------------------------------------------------------------*/
+
+
+
+/* Toggle - FAQs
+-----------------------------------------------------------------*/
+
+.faqs .toggle {
+	border-bottom: 1px solid #EEE;
+	padding-bottom: 12px;
+	margin-bottom: 12px;
+}
+
+.faqs .toggle .togglet,
+.faqs .toggle .toggleta { font-size: 15px; }
+
+.faqs .toggle .togglet i {
+	top: 1px;
+	font-size: 14px;
+}
+
+.faqs .toggle .togglec { padding-bottom: 10px; }
+
+
+/* ----------------------------------------------------------------
+	FAQ List
+-----------------------------------------------------------------*/
+
+
+.faqlist li {
+	margin-bottom: 5px;
+	font-size: 15px;
+}
+
+.faqlist li a { color: #444; }
+
+.faqlist li a:hover { color: #1ABC9C !important; }

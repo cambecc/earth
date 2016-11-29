@@ -8,7 +8,6 @@ console.log("============================================================");
 console.log(new Date().toISOString() + " - Starting");
 
 var util = require("util");
-
 /**
  * Returns true if the response should be compressed.
  */
@@ -44,11 +43,30 @@ function logger() {
 var port = process.argv[2];
 var express = require("express");
 var app = express();
+var fs = require("fs");
+var bodyParser = require('body-parser');
+var cookies = require("cookies");
+var urlencodedParser = bodyParser.urlencoded({ extended: false })
 
 app.use(cacheControl());
 app.use(express.compress({filter: compressionFilter}));
 app.use(logger());
 app.use(express.static("public"));
+
+app.post('/authenticate', urlencodedParser, function (req, res) {
+   
+   if (req.body.username == "admin" && req.body.password == "theadmin" ) {
+		res.writeHead(301,{Location: 'http://localhost/home.html' , 'Set-Cookie': 'user=admin', 'Content-Type': 'text/plain'  });
+		res.end();
+	 
+   } else {
+		res.writeHead(301,{Location: 'http://localhost/' , 'Set-Cookie': 'user=null', 'Content-Type': 'text/plain' });
+		res.write("hello");
+		res.end();
+	   
+   }
+})
+
 
 app.listen(port);
 console.log("Listening on port " + port + "...");
