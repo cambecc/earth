@@ -46,7 +46,6 @@ function SimulateClimate(MonthToSimulate, HourToSimulate, SourceWaterTemperature
         "RayyanOnOFF": RayyanOnOFF === 1
     };
 
-    console.info('body', body);
     $.ajax({
         async: false,//wait till response to continue program
         type: "Post",
@@ -54,7 +53,6 @@ function SimulateClimate(MonthToSimulate, HourToSimulate, SourceWaterTemperature
         url: baseUrl + "/api/simulate/" + simulationName,
         data: JSON.stringify(body),
         success: function (result) {
-            console.log("result: ", result);
             glWindxOutput = result["windx"];
             glWindyOutput = result["windy"];
             glTemperatureOutput = result["temperature"];
