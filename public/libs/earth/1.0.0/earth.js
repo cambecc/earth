@@ -159,7 +159,6 @@
         var signalEnd = _.debounce(function() {
             if (!op || op.type !== "drag" && op.type !== "zoom") {
                 configuration.save({orientation: globe.orientation()}, {source: "moveEnd"});
-                dispatch.trigger("moveEnd");
             }
         }, MOVE_END_WAIT);  // wait for a bit to decide if user has stopped moving the globe
 
@@ -323,13 +322,15 @@
         }
 
         // Throttled draw method helps with slow devices that would get overwhelmed by too many redraw events.
+        // Trailing call is disabled because, when MOVE_END_WAIT is set to 0, the "redraw" event on rendererAgent
+        // triggered in doDraw() after 5ms can cause cancelInterpolation() to be called _after_ the "moveEnd" event,
+        // but before the interpolateField task is run.
         var REDRAW_WAIT = 5;  // milliseconds
-        var doDraw_throttled = _.throttle(doDraw, REDRAW_WAIT, {leading: false});
+        var doDraw_throttled = _.throttle(doDraw, REDRAW_WAIT, {leading: false, trailing: false});
 
         function doDraw() {
             d3.selectAll("path").attr("d", path);
             rendererAgent.trigger("redraw");
-            doDraw_throttled = _.throttle(doDraw, REDRAW_WAIT, {leading: false});
         }
 
         // Attach to map rendering events on input controller.
