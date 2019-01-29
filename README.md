@@ -44,10 +44,10 @@ simplified, larger scale for animation and a more detailed, smaller scale for st
 [GDAL](http://www.gdal.org/) and TopoJSON (see [here](http://bost.ocks.org/mike/map/#installing-tools)), the
 following commands build these files:
 
-    curl "http://www.nacis.org/naturalearth/50m/physical/ne_50m_coastline.zip" -o ne_50m_coastline.zip
-    curl "http://www.nacis.org/naturalearth/50m/physical/ne_50m_lakes.zip" -o ne_50m_lakes.zip
-    curl "http://www.nacis.org/naturalearth/110m/physical/ne_110m_coastline.zip" -o ne_110m_coastline.zip
-    curl "http://www.nacis.org/naturalearth/110m/physical/ne_110m_lakes.zip" -o ne_110m_lakes.zip
+    curl "http://www.naciscdn.org/naturalearth/50m/physical/ne_50m_coastline.zip" -o ne_50m_coastline.zip
+    curl "http://www.naciscdn.org/naturalearth/50m/physical/ne_50m_lakes.zip" -o ne_50m_lakes.zip
+    curl "http://www.naciscdn.org/naturalearth/110m/physical/ne_110m_coastline.zip" -o ne_110m_coastline.zip
+    curl "http://www.naciscdn.org/naturalearth/110m/physical/ne_110m_lakes.zip" -o ne_110m_lakes.zip
     unzip -o ne_\*.zip
     ogr2ogr -f GeoJSON coastline_50m.json ne_50m_coastline.shp
     ogr2ogr -f GeoJSON coastline_110m.json ne_110m_coastline.shp
