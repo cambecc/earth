@@ -72,8 +72,8 @@ utility:
 
     YYYYMMDD=<a date, for example: 20140101>
     HH=<the hour of the data, e.g., 00>
-    curl "https://nomads.ncep.noaa.gov/pub/data/nccf/com/gfs/prod/gfs.${YYYYMMDD}${HH}/gfs.t${HH}z.pgrb2.1p00.f000" -o gfs.t${HH}z.pgrb2.1p00.f000
-    grib2json -d -n -o current-wind-surface-level-gfs-1.0.json gfs.t${HH}z.pgrb2.1p00.f000
+    curl "http://nomads.ncep.noaa.gov/cgi-bin/filter_gfs_1p00.pl?file=gfs.t${HH}z.pgrb2.1p00.anl&lev_10_m_above_ground=on&var_UGRD=on&var_VGRD=on&leftlon=0&rightlon=360&toplat=90&bottomlat=-90&dir=%2Fgfs.${YYYYMMDD}${HH}" -o gfs.t${HH}.pgrb2.1p00.anl
+    grib2json -d -n -o current-wind-surface-level-gfs-1.0.json gfs.t${HH}z.pgrb2.1p00.anl
     cp current-wind-surface-level-gfs-1.0.json <earth-git-repository>/public/data/weather/current
 
 font subsetting
