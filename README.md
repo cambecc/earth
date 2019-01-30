@@ -44,10 +44,10 @@ simplified, larger scale for animation and a more detailed, smaller scale for st
 [GDAL](http://www.gdal.org/) and TopoJSON (see [here](http://bost.ocks.org/mike/map/#installing-tools)), the
 following commands build these files:
 
-    curl "http://www.nacis.org/naturalearth/50m/physical/ne_50m_coastline.zip" -o ne_50m_coastline.zip
-    curl "http://www.nacis.org/naturalearth/50m/physical/ne_50m_lakes.zip" -o ne_50m_lakes.zip
-    curl "http://www.nacis.org/naturalearth/110m/physical/ne_110m_coastline.zip" -o ne_110m_coastline.zip
-    curl "http://www.nacis.org/naturalearth/110m/physical/ne_110m_lakes.zip" -o ne_110m_lakes.zip
+    curl "http://www.naciscdn.org/naturalearth/50m/physical/ne_50m_coastline.zip" -o ne_50m_coastline.zip
+    curl "http://www.naciscdn.org/naturalearth/50m/physical/ne_50m_lakes.zip" -o ne_50m_lakes.zip
+    curl "http://www.naciscdn.org/naturalearth/110m/physical/ne_110m_coastline.zip" -o ne_110m_coastline.zip
+    curl "http://www.naciscdn.org/naturalearth/110m/physical/ne_110m_lakes.zip" -o ne_110m_lakes.zip
     unzip -o ne_\*.zip
     ogr2ogr -f GeoJSON coastline_50m.json ne_50m_coastline.shp
     ogr2ogr -f GeoJSON coastline_110m.json ne_110m_coastline.shp
@@ -71,8 +71,9 @@ the 1000 hPa wind vectors and convert them to JSON format using the [grib2json](
 utility:
 
     YYYYMMDD=<a date, for example: 20140101>
-    curl "http://nomads.ncep.noaa.gov/cgi-bin/filter_gfs.pl?file=gfs.t00z.pgrb2.1p00.f000&lev_10_m_above_ground=on&var_UGRD=on&var_VGRD=on&dir=%2Fgfs.${YYYYMMDD}00" -o gfs.t00z.pgrb2.1p00.f000
-    grib2json -d -n -o current-wind-surface-level-gfs-1.0.json gfs.t00z.pgrb2.1p00.f000
+    HH=<the hour of the data, e.g., 00>
+    curl "http://nomads.ncep.noaa.gov/cgi-bin/filter_gfs_1p00.pl?file=gfs.t${HH}z.pgrb2.1p00.f000&lev_10_m_above_ground=on&var_UGRD=on&var_VGRD=on&leftlon=0&rightlon=360&toplat=90&bottomlat=-90&dir=%2Fgfs.${YYYYMMDD}${HH}" -o gfs.t${HH}z.pgrb2.1p00.f000
+    grib2json -d -n -o current-wind-surface-level-gfs-1.0.json gfs.t${HH}z.pgrb2.1p00.f000
     cp current-wind-surface-level-gfs-1.0.json <earth-git-repository>/public/data/weather/current
 
 font subsetting
