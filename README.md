@@ -3,6 +3,7 @@ earth
 
 **NOTE: the location of `dev-server.js` has changed from `{repository}/server/` to `{repository}/`**
 
+wangxiaoqizuishaui
 "earth" is a project to visualize global weather conditions.
 
 A customized instance of "earth" is available at http://earth.nullschool.net.
