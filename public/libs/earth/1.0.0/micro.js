@@ -311,7 +311,7 @@ var µ = function() {
      */
     function formatVector(wind, units) {
         var d = Math.atan2(-wind[0], -wind[1]) / τ * 360;  // calculate into-the-wind cardinal degrees
-        var wd = Math.round((d + 360) % 360 / 5) * 5;  // shift [-180, 180] to [0, 360], and round to nearest 5.
+        var wd = Math.round((d + 180) % 360);  // shift [-180, 180] to [0, 360] relative to true north
         return wd.toFixed(0) + "° @ " + formatScalar(wind[2], units);
     }
 

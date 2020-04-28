@@ -107,6 +107,10 @@ var products = function() {
         }
     }
 
+    const THOUSAND = 1000
+    const NUM = 3
+    const SCALE_FACTOR = NUM * THOUSAND
+
     var FACTORIES = {
 
         "wind": {
@@ -122,20 +126,18 @@ var products = function() {
                     paths: [gfs1p0degPath(attr, "wind", attr.surface, attr.level)],
                     date: gfsDate(attr),
                     builder: function(file) {
+                        console.log('wind')
                         var uData = file[0].data, vData = file[1].data;
                         return {
                             header: file[0].header,
                             interpolate: bilinearInterpolateVector,
                             data: function(i) {
-                                return [uData[i], vData[i]];
+                                return [uData[i] / SCALE_FACTOR, vData[i] / SCALE_FACTOR];
                             }
                         }
                     },
                     units: [
-                        {label: "km/h", conversion: function(x) { return x * 3.6; },      precision: 0},
-                        {label: "m/s",  conversion: function(x) { return x; },            precision: 1},
-                        {label: "kn",   conversion: function(x) { return x * 1.943844; }, precision: 0},
-                        {label: "mph",  conversion: function(x) { return x * 2.236936; }, precision: 0}
+                        {label: "µT", conversion: function(x) { return x / NUM; },      precision: 0},
                     ],
                     scale: {
                         bounds: [0, 100],
@@ -461,6 +463,7 @@ var products = function() {
                             return oscarStep(catalog, this.date, step);
                         },
                         builder: function(file) {
+                            console.log('currents')
                             var uData = file[0].data, vData = file[1].data;
                             return {
                                 header: file[0].header,

@@ -16,16 +16,6 @@ function compressionFilter(req, res) {
     return (/json|text|javascript|font/).test(res.getHeader('Content-Type'));
 }
 
-/**
- * Adds headers to a response to enable caching.
- */
-function cacheControl() {
-    return function(req, res, next) {
-        res.setHeader("Cache-Control", "public, max-age=300");
-        return next();
-    };
-}
-
 function logger() {
     express.logger.token("date", function() {
         return new Date().toISOString();
@@ -45,7 +35,6 @@ var port = process.argv[2];
 var express = require("express");
 var app = express();
 
-app.use(cacheControl());
 app.use(express.compress({filter: compressionFilter}));
 app.use(logger());
 app.use(express.static("public"));
