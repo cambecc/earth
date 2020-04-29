@@ -210,9 +210,9 @@ var µ = function() {
      * @returns {Array} [r, g, b, a]
      */
     function sinebowColor(hue, a) {
-        // Map hue [0, 1] to radians [0, 5/6τ]. Don't allow a full rotation because that keeps hue == 0 and
+        // Map hue [0, 1] to radians [0, τ]. Allow a full rotation because that keeps hue == 0 and
         // hue == 1 from mapping to the same color.
-        var rad = hue * τ * 5/6;
+        var rad = hue * τ;
         rad *= 0.75;  // increase frequency to 2/3 cycle per rad
 
         var s = Math.sin(rad);

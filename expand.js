@@ -29,7 +29,6 @@ var templates = [
 
 var languages = [
     {code: "en", target: "public"},
-    {code: "ja", target: "public/jp"}  // *lang* code for Japanese is JA not JP. Too late now. Site already public.
 ];
 
 function newContext(languageCode) {

@@ -10,12 +10,6 @@ var products = function() {
     "use strict";
 
     var WEATHER_PATH = "/data/weather";
-    var OSCAR_PATH = "/data/oscar";
-    var catalogs = {
-        // The OSCAR catalog is an array of file names, sorted and prefixed with yyyyMMdd. Last item is the
-        // most recent. For example: [ 20140101-abc.json, 20140106-abc.json, 20140112-abc.json, ... ]
-        oscar: µ.loadJson([OSCAR_PATH, "catalog.json"].join("/"))
-    };
 
     function buildProduct(overrides) {
         return _.extend({
@@ -41,9 +35,9 @@ var products = function() {
      * @param {String?} level
      * @returns {String}
      */
-    function gfs1p0degPath(attr, type, surface, level) {
+    function gfs1p0degPath(attr, type) {
         var dir = attr.date, stamp = dir === "current" ? "current" : attr.hour;
-        var file = [stamp, type, surface, level, "gfs", "1.0"].filter(µ.isValue).join("-") + ".json";
+        var file = [stamp, type, "gfs", "1.0"].filter(µ.isValue).join("-") + ".json";
         return [WEATHER_PATH, dir, file].join("/");
     }
 
@@ -81,14 +75,6 @@ var products = function() {
         };
     }
 
-    function describeSurface(attr) {
-        return attr.surface === "surface" ? "Surface" : µ.capitalize(attr.level);
-    }
-
-    function describeSurfaceJa(attr) {
-        return attr.surface === "surface" ? "地上" : µ.capitalize(attr.level);
-    }
-
     /**
      * Returns a function f(langCode) that, given table:
      *     {foo: {en: "A", ja: "あ"}, bar: {en: "I", ja: "い"}}
@@ -111,6 +97,21 @@ var products = function() {
     const NUM = 3
     const SCALE_FACTOR = NUM * THOUSAND
 
+    function declinationGradient(v, a) {
+        // return color gradient of magnetic declination
+        var d = Math.atan2(-v[0], -v[1]) / Math.PI * 180;  // calculate into-the-wind cardinal degrees
+        var wd = Math.round((d + 180));  // shift [-180, 180] to [0, 360] relative to true north
+        return µ.sinebowColor(wd / 360, a);
+    }
+
+    function fieldStrengthGradient(v, a) {
+        return µ.extendedSinebowColor(Math.min(v, 100) / 100, a);
+    }
+
+    function describeGradient(attr) {
+        return attr.level === "fieldStrength";
+    }
+
     var FACTORIES = {
 
         "wind": {
@@ -120,10 +121,10 @@ var products = function() {
                     field: "vector",
                     type: "wind",
                     description: localize({
-                        name: {en: "Wind", ja: "風速"},
-                        qualifier: {en: " @ " + describeSurface(attr), ja: " @ " + describeSurfaceJa(attr)}
+                        name: {en: "Magnetic Field Vector"},
+                        qualifier: {en: " @ Surface"}
                     }),
-                    paths: [gfs1p0degPath(attr, "wind", attr.surface, attr.level)],
+                    paths: [gfs1p0degPath(attr, "wind")],
                     date: gfsDate(attr),
                     builder: function(file) {
                         console.log('wind')
@@ -141,8 +142,8 @@ var products = function() {
                     ],
                     scale: {
                         bounds: [0, 100],
-                        gradient: function(v, a) {
-                            return µ.extendedSinebowColor(Math.min(v, 100) / 100, a);
+                        gradient: function(scalar, wind, a) {
+                            return describeGradient(attr) ? fieldStrengthGradient(scalar,a) : declinationGradient(wind,a)
                         }
                     },
                     particles: {velocityScale: 1/60000, maxIntensity: 17}
@@ -152,39 +153,14 @@ var products = function() {
     };
 
     /**
-     * Returns the file name for the most recent OSCAR data layer to the specified date. If offset is non-zero,
-     * the file name that many entries from the most recent is returned.
      *
      * The result is undefined if there is no entry for the specified date and offset can be found.
      *
-     * UNDONE: the catalog object itself should encapsulate this logic. GFS can also be a "virtual" catalog, and
-     *         provide a mechanism for eliminating the need for /data/weather/current/* files.
      *
-     * @param {Array} catalog array of file names, sorted and prefixed with yyyyMMdd. Last item is most recent.
      * @param {String} date string with format yyyy/MM/dd or "current"
      * @param {Number?} offset
      * @returns {String} file name
      */
-    function lookupOscar(catalog, date, offset) {
-        offset = +offset || 0;
-        if (date === "current") {
-            return catalog[catalog.length - 1 + offset];
-        }
-        var prefix = µ.ymdRedelimit(date, "/", ""), i = _.sortedIndex(catalog, prefix);
-        i = (catalog[i] || "").indexOf(prefix) === 0 ? i : i - 1;
-        return catalog[i + offset];
-    }
-
-    function oscar0p33Path(catalog, attr) {
-        var file = lookupOscar(catalog, attr.date);
-        return file ? [OSCAR_PATH, file].join("/") : null;
-    }
-
-    function oscarDate(catalog, attr) {
-        var file = lookupOscar(catalog, attr.date);
-        var parts = file ? µ.ymdRedelimit(file, "", "/").split("/") : null;
-        return parts ? new Date(Date.UTC(+parts[0], parts[1] - 1, +parts[2], 0)) : null;
-    }
 
     /**
      * @returns {Date} the chronologically next or previous OSCAR data layer. How far forward or backward in
@@ -192,29 +168,15 @@ var products = function() {
      * next/previous entry in the catalog (about 5 days), and a step of ±10 moves to the entry six positions away
      * (about 30 days).
      */
-    function oscarStep(catalog, date, step) {
-        var file = lookupOscar(catalog, µ.dateToUTCymd(date, "/"), step > 1 ? 6 : step < -1 ? -6 : step);
-        var parts = file ? µ.ymdRedelimit(file, "", "/").split("/") : null;
-        return parts ? new Date(Date.UTC(+parts[0], parts[1] - 1, +parts[2], 0)) : null;
-    }
 
     function dataSource(header) {
         // noinspection FallthroughInSwitchStatementJS
         switch (header.center || header.centerName) {
             case -3:
-                return "OSCAR / Earth & Space Research";
-            case 7:
-            case "US National Weather Service, National Centres for Environmental Prediction (NCEP)":
-                return "GFS / NCEP / US National Weather Service";
+                return header.centerName;
             default:
                 return header.centerName;
         }
-    }
-
-    function bilinearInterpolateScalar(x, y, g00, g10, g01, g11) {
-        var rx = (1 - x);
-        var ry = (1 - y);
-        return g00 * rx * ry + g10 * x * ry + g01 * rx * y + g11 * x * y;
     }
 
     function bilinearInterpolateVector(x, y, g00, g10, g01, g11) {
