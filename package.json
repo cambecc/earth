@@ -1,16 +1,16 @@
 {
-    "name": "earth",
-    "description": "Earth",
+    "name": "geomag-earth",
+    "description": "Geomagnetic Earth",
     "version": "0.0.1",
     "private": true,
     "author": {
         "name": "Cameron Beccario",
         "email": "cambecc@nullschool.net"
     },
-    "homepage": "https://github.com/cambecc/earth",
+    "homepage": "https://github.com/chompar4/geomag-earth",
     "repository": {
         "type": "git",
-        "url": "git://github.com/cambecc/earth.git"
+        "url": "git://github.com/chompar4/geomag-earth.git"
     },
     "engine": "node >= 0.10.21",
     "dependencies": {
