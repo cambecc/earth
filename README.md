@@ -95,7 +95,7 @@ Building this project required solutions to some interesting problems. Here are 
      interpolation](http://en.wikipedia.org/wiki/Bilinear_interpolation). This operation is quite costly.
    * Each type of projection warps and distorts the earth in a particular way, and the degree of distortion must
      be calculated for each point (x, y) to ensure wind particle paths are rendered correctly. For example,
-     imagine looking at a globe where a wind particle is moving north from the equator. If the particle starts
+     imagine looking at a globe where a wind particles is moving north from the equator. If the particle starts
      from the center, it will trace a path straight up. However, if the particle starts from the globe's edge,
      it will trace a path that curves toward the pole. [Finite difference approximations](http://gis.stackexchange.com/a/5075/23451)
      are used to estimate this distortion during the interpolation process.
