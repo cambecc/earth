@@ -53,7 +53,6 @@ var app = express();
 app.use(cacheControl());
 
 app.use(compression({ filter: compressionFilter }));
-// app.use(express.compress({filter: compressionFilter}));
 app.use(appLogger());
 app.use(express.static("public"));
 
